@@ -1,4 +1,5 @@
 import crypto from 'crypto';
+import { getClientIp, isRateLimited, recordFailedAttempt, clearAttempts, remainingMs } from '../_ratelimit.js';
 
 function getSecret() {
   const secret = process.env.ADMIN_SECRET;
@@ -16,42 +17,6 @@ function getAdminPassword() {
   const password = process.env.ADMIN_PASSWORD;
   if (!password) throw new Error('Missing ADMIN_PASSWORD env var');
   return password;
-}
-
-// --- In-memory rate limiter (per-IP, resets on cold start) ---
-const loginAttempts = new Map();
-const MAX_ATTEMPTS = 5;
-const WINDOW_MS = 10 * 60 * 1000; // 10 minutes
-
-function getClientIp(req) {
-  const forwarded = req.headers['x-forwarded-for'];
-  if (forwarded) return forwarded.split(',')[0].trim();
-  return req.socket?.remoteAddress || 'unknown';
-}
-
-function isRateLimited(ip) {
-  const now = Date.now();
-  const entry = loginAttempts.get(ip);
-  if (!entry) return false;
-  if (now - entry.windowStart > WINDOW_MS) {
-    loginAttempts.delete(ip);
-    return false;
-  }
-  return entry.count >= MAX_ATTEMPTS;
-}
-
-function recordFailedAttempt(ip) {
-  const now = Date.now();
-  const entry = loginAttempts.get(ip);
-  if (!entry || now - entry.windowStart > WINDOW_MS) {
-    loginAttempts.set(ip, { count: 1, windowStart: now });
-  } else {
-    entry.count += 1;
-  }
-}
-
-function clearAttempts(ip) {
-  loginAttempts.delete(ip);
 }
 
 function timingSafeCompare(a, b) {
@@ -86,7 +51,6 @@ function setCorsHeaders(req, res) {
 export default async function handler(req, res) {
   setCorsHeaders(req, res);
   res.setHeader('Content-Type', 'application/json');
-  // Prevent browsers and CDNs from caching auth responses
   res.setHeader('Cache-Control', 'no-store');
 
   if (req.method === 'OPTIONS') {
@@ -102,7 +66,13 @@ export default async function handler(req, res) {
   const ip = getClientIp(req);
 
   if (isRateLimited(ip)) {
-    res.status(429).json({ ok: false, error: 'Terlalu banyak percobaan login. Coba lagi dalam 10 menit.' });
+    const retryAfterSec = Math.ceil(remainingMs(ip) / 1000);
+    res.setHeader('Retry-After', String(retryAfterSec));
+    res.status(429).json({
+      ok: false,
+      error: 'Terlalu banyak percobaan login. Coba lagi dalam 10 menit.',
+      retryAfterMs: remainingMs(ip),
+    });
     return;
   }
 
@@ -128,7 +98,6 @@ export default async function handler(req, res) {
 
   if (!usernameMatch || !passwordMatch) {
     recordFailedAttempt(ip);
-    // Intentionally vague — don't reveal which field was wrong
     res.status(401).json({ ok: false, error: 'Username atau password salah' });
     return;
   }

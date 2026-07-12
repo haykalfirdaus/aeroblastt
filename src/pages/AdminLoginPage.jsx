@@ -191,9 +191,8 @@ function ForgotView({ onBack, onSent }) {
 // ---------------------------------------------------------------------------
 const OTP_DURATION = 5 * 60 * 1000;
 
-function OtpView({ token, onBack, onResend }) {
+function OtpView({ token, onBack, onResend, onUnlocked }) {
   const showToast = useToast();
-  const navigate = useNavigate();
   const [otp, setOtp] = useState('');
   const [submitting, setSubmitting] = useState(false);
   const [shake, setShake] = useState(false);
@@ -217,8 +216,9 @@ function OtpView({ token, onBack, onResend }) {
       });
       const data = await res.json();
       if (!res.ok) throw new Error(data.error || 'Kode tidak valid');
-      showToast('Verifikasi berhasil. Kredensial dikirim ke email admin.', 'success');
-      navigate('/admin', { replace: true });
+      // Blokir login dicabut — kembali ke form login, bukan langsung masuk
+      showToast('Blokir dicabut. Silakan login dengan password kamu.', 'success');
+      onUnlocked();
     } catch (err) {
       showToast(err.message, 'error');
       setShake(true);
@@ -246,7 +246,7 @@ function OtpView({ token, onBack, onResend }) {
 
         <h2 className="mb-1 font-display text-lg font-semibold text-text-bright">Masukkan Kode OTP</h2>
         <p className="mb-6 text-sm text-text-dim">
-          Kode telah dikirim ke perangkat admin. Kode berlaku 5 menit.
+          Kode telah dikirim ke email admin. Masukkan kode untuk mencabut blokir login. Kode berlaku 5 menit.
         </p>
 
         <div className="mb-4">
@@ -303,7 +303,7 @@ function OtpView({ token, onBack, onResend }) {
         >
           {submitting ? (
             <><span className="h-4 w-4 animate-spin rounded-full border-2 border-white/30 border-t-white" />Memverifikasi…</>
-          ) : 'Verifikasi & Masuk'}
+          ) : 'Verifikasi & Cabut Blokir'}
         </Button>
       </form>
     </div>
@@ -386,6 +386,7 @@ export default function AdminLoginPage() {
             token={otpToken}
             onBack={() => setView('forgot')}
             onResend={() => { setOtpToken(null); setView('forgot'); }}
+            onUnlocked={() => { setOtpToken(null); setView('login'); }}
           />
         )}
 
