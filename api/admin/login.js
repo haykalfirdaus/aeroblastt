@@ -21,7 +21,7 @@ function getAdminPassword() {
 // --- In-memory rate limiter (per-IP, resets on cold start) ---
 const loginAttempts = new Map();
 const MAX_ATTEMPTS = 5;
-const WINDOW_MS = 15 * 60 * 1000; // 15 minutes
+const WINDOW_MS = 10 * 60 * 1000; // 10 minutes
 
 function getClientIp(req) {
   const forwarded = req.headers['x-forwarded-for'];
@@ -102,7 +102,7 @@ export default async function handler(req, res) {
   const ip = getClientIp(req);
 
   if (isRateLimited(ip)) {
-    res.status(429).json({ ok: false, error: 'Terlalu banyak percobaan login. Coba lagi dalam 15 menit.' });
+    res.status(429).json({ ok: false, error: 'Terlalu banyak percobaan login. Coba lagi dalam 10 menit.' });
     return;
   }
 

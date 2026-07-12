@@ -3,11 +3,8 @@ import { Megaphone } from 'lucide-react';
 
 /**
  * Horizontal marquee ticker showing all active announcements.
- * Uses the `marquee` keyframe already defined in index.css:
- *   @keyframes marquee { from { transform: translateX(0) } to { transform: translateX(-50%) } }
- *
- * The content is doubled so the second copy seamlessly continues where
- * the first leaves off, giving an infinite loop illusion.
+ * Uses the `marquee` keyframe already defined in index.css.
+ * Content is doubled for seamless infinite loop.
  */
 export function AnnouncementTicker() {
   const [active, setActive] = useState([]);
@@ -38,12 +35,10 @@ export function AnnouncementTicker() {
 
   if (!active.length) return null;
 
-  /* Double the list so the marquee loops seamlessly */
   const doubled = [...active, ...active];
 
-  /* Speed: roughly 60px per second; clamp between 18s and 40s */
   const approxWidth = active.reduce(
-    (sum, a) => sum + ((a.message ?? a.content ?? a.text ?? '').length * 8 + 80),
+    (sum, a) => sum + ((a.message ?? a.content ?? a.text ?? '').length * 9 + 100),
     0,
   );
   const duration = Math.min(40, Math.max(18, approxWidth / 60));
@@ -52,8 +47,7 @@ export function AnnouncementTicker() {
     <div
       role="marquee"
       aria-label="Ticker pengumuman server"
-      className="overflow-hidden border-y border-white/6 py-2.5"
-      style={{ background: 'var(--color-abyss)' }}
+      className="overflow-hidden border-y border-neon-500/20 bg-neon-500/[0.05] py-3"
     >
       <div
         className="marquee-track flex w-max items-center gap-0"
@@ -75,16 +69,14 @@ function TickerItem({ ann }) {
   const text = ann.message ?? ann.content ?? ann.text ?? '';
 
   return (
-    <span className="flex shrink-0 items-center gap-2 pr-8">
-      {/* Separator icon */}
+    <span className="flex shrink-0 items-center gap-2.5 pr-10">
       <span
         aria-hidden="true"
-        className="flex h-5 w-5 items-center justify-center rounded-full border border-neon-500/30 bg-neon-500/10"
+        className="flex h-6 w-6 items-center justify-center rounded-full border border-neon-500/35 bg-neon-500/15"
       >
-        <Megaphone size={10} className="text-neon-400" />
+        <Megaphone size={13} className="text-neon-400" />
       </span>
-
-      <span className="text-xs font-medium text-text-bright">{text}</span>
+      <span className="text-sm font-medium text-text-bright">{text}</span>
     </span>
   );
 }

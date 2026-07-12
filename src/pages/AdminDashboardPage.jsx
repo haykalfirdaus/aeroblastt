@@ -2,7 +2,9 @@ import { useCallback, useEffect, useRef, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import {
   BellRing,
+  CheckCircle,
   Clock,
+  FileText,
   LogOut,
   Megaphone,
   PercentCircle,
@@ -31,10 +33,9 @@ function FieldLabel({ children, required }) {
   );
 }
 
-function SectionCard({ icon: Icon, title, accent = 'neon-500', children }) {
+function SectionCard({ icon: Icon, title, accent = 'neon-500', badge, children }) {
   return (
     <div className="relative flex flex-col overflow-hidden rounded-2xl border border-white/8 bg-white/[0.025]">
-      {/* Top glow line */}
       <span
         aria-hidden="true"
         className="absolute inset-x-0 top-0 h-px opacity-50"
@@ -42,7 +43,6 @@ function SectionCard({ icon: Icon, title, accent = 'neon-500', children }) {
           background: `linear-gradient(90deg, transparent, var(--color-${accent}), transparent)`,
         }}
       />
-      {/* Header */}
       <div className="flex items-center gap-3 border-b border-white/6 px-6 py-4">
         <div
           className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl border border-white/10 bg-white/[0.04]"
@@ -51,13 +51,17 @@ function SectionCard({ icon: Icon, title, accent = 'neon-500', children }) {
           <Icon size={18} />
         </div>
         <h2 className="font-display text-base font-semibold text-text-bright">{title}</h2>
+        {badge !== undefined && (
+          <span className="ml-auto rounded-full border border-white/10 bg-white/5 px-2.5 py-0.5 text-xs font-bold text-text-muted">
+            {badge}
+          </span>
+        )}
       </div>
       <div className="flex flex-1 flex-col p-6">{children}</div>
     </div>
   );
 }
 
-/** Format milliseconds remaining as "Xj Ym" or "Expired". */
 function formatRemaining(expiresAt) {
   const diff = new Date(expiresAt) - Date.now();
   if (diff <= 0) return 'Expired';
@@ -66,6 +70,243 @@ function formatRemaining(expiresAt) {
   const m = totalMin % 60;
   if (h > 0) return `${h}j ${m}m`;
   return `${m}m`;
+}
+
+function formatRupiah(n) {
+  return new Intl.NumberFormat('id-ID', {
+    style: 'currency',
+    currency: 'IDR',
+    maximumFractionDigits: 0,
+  }).format(n);
+}
+
+const ORDER_ICONS = {
+  rank: '🎖️',
+  key: '🗝️',
+  skill: '⚡',
+  balance: '💰',
+  command: '⌨️',
+  cosmetic: '✨',
+};
+
+const ORDER_LABELS = {
+  rank: 'Rank',
+  key: 'Gacha Key',
+  skill: 'Skill Boost',
+  balance: 'Balance',
+  command: 'Command',
+  cosmetic: 'Custom Prefix',
+};
+
+// ---------------------------------------------------------------------------
+// Section: Invoices
+// ---------------------------------------------------------------------------
+
+function InvoicesSection() {
+  const showToast = useToast();
+  const [items, setItems] = useState([]);
+  const [fetching, setFetching] = useState(true);
+  const [paidIds, setPaidIds] = useState(new Set());
+  const [markingId, setMarkingId] = useState(null);
+
+  const fetchInvoices = useCallback(async () => {
+    try {
+      const res = await fetch('/api/admin/invoices', { credentials: 'include' });
+      if (!res.ok) throw new Error('Gagal memuat invoice');
+      const data = await res.json();
+      setItems(Array.isArray(data) ? data : []);
+    } catch (err) {
+      showToast(err.message, 'error');
+    } finally {
+      setFetching(false);
+    }
+  }, [showToast]);
+
+  useEffect(() => {
+    fetchInvoices();
+    const interval = setInterval(fetchInvoices, 30000);
+    return () => clearInterval(interval);
+  }, [fetchInvoices]);
+
+  async function handleMarkPaid(id) {
+    if (markingId) return;
+    setMarkingId(id);
+    try {
+      const res = await fetch(`/api/admin/invoices?id=${encodeURIComponent(id)}`, {
+        method: 'PATCH',
+        credentials: 'include',
+      });
+      if (!res.ok) {
+        const d = await res.json().catch(() => ({}));
+        throw new Error(d.error || 'Gagal menandai lunas');
+      }
+      showToast('Invoice ditandai lunas & notifikasi Discord terkirim', 'success');
+      setPaidIds((prev) => new Set([...prev, id]));
+      // Auto-remove dari list setelah 5 menit
+      setTimeout(() => {
+        setItems((prev) => prev.filter((i) => i.id !== id));
+        setPaidIds((prev) => {
+          const next = new Set(prev);
+          next.delete(id);
+          return next;
+        });
+      }, 5 * 60 * 1000);
+    } catch (err) {
+      showToast(err.message, 'error');
+    } finally {
+      setMarkingId(null);
+    }
+  }
+
+  const pending = items.filter((i) => !paidIds.has(i.id));
+  const recentlyPaid = items.filter((i) => paidIds.has(i.id));
+
+  return (
+    <SectionCard
+      icon={FileText}
+      title="Invoice Masuk"
+      accent="neon-500"
+      badge={pending.length > 0 ? pending.length : undefined}
+    >
+      {fetching ? (
+        <div className="flex justify-center py-10">
+          <span className="h-6 w-6 animate-spin rounded-full border-2 border-neon-500/20 border-t-neon-400" />
+        </div>
+      ) : pending.length === 0 && recentlyPaid.length === 0 ? (
+        <div className="flex flex-col items-center justify-center gap-2 py-10 text-center">
+          <CheckCircle size={32} className="text-success/40" />
+          <p className="text-sm text-text-dim">Tidak ada invoice pending.</p>
+        </div>
+      ) : (
+        <div className="space-y-2">
+          {recentlyPaid.length > 0 && (
+            <>
+              <p className="mb-2 text-xs font-semibold uppercase tracking-wide text-success/70">
+                Baru saja lunas (hilang dalam 5 menit)
+              </p>
+              {recentlyPaid.map((item) => (
+                <InvoiceItem key={item.id} item={item} paid onMark={handleMarkPaid} marking={false} />
+              ))}
+              {pending.length > 0 && <div className="my-3 border-t border-white/6" />}
+            </>
+          )}
+          {pending.length > 0 && (
+            <>
+              <p className="mb-2 text-xs font-semibold uppercase tracking-wide text-text-dim">
+                Menunggu pembayaran
+              </p>
+              {pending.map((item) => (
+                <InvoiceItem
+                  key={item.id}
+                  item={item}
+                  paid={false}
+                  onMark={handleMarkPaid}
+                  marking={markingId === item.id}
+                />
+              ))}
+            </>
+          )}
+        </div>
+      )}
+    </SectionCard>
+  );
+}
+
+function InvoiceItem({ item, paid, onMark, marking }) {
+  const [remaining, setRemaining] = useState(() => formatRemaining(item.expiresAt));
+
+  useEffect(() => {
+    const id = setInterval(() => setRemaining(formatRemaining(item.expiresAt)), 15000);
+    return () => clearInterval(id);
+  }, [item.expiresAt]);
+
+  const details = item.details || {};
+
+  return (
+    <div
+      className={cn(
+        'rounded-xl border px-4 py-3 transition-colors',
+        paid
+          ? 'border-success/20 bg-success/5 opacity-70'
+          : 'border-white/6 bg-white/[0.02] hover:border-white/10'
+      )}
+    >
+      <div className="flex items-start gap-3">
+        <span className="mt-0.5 text-lg leading-none">{ORDER_ICONS[item.type] || '📦'}</span>
+        <div className="min-w-0 flex-1">
+          <div className="flex flex-wrap items-center gap-2">
+            <span className="font-semibold text-sm text-text-bright">{item.nick}</span>
+            <span className="text-xs text-text-dim">·</span>
+            <span className="text-xs text-text-dim">{item.platform}</span>
+            <span className="rounded border border-white/8 bg-white/[0.03] px-1.5 py-0.5 text-[10px] text-text-dim">
+              {ORDER_LABELS[item.type] || item.type}
+            </span>
+          </div>
+
+          {/* Detail spesifik per type */}
+          {item.type === 'rank' && details.target && (
+            <p className="mt-0.5 text-xs text-text-muted">
+              Rank: {details.target}
+              {details.owned ? ` (dari ${details.owned.toUpperCase()})` : ''}
+              {details.duration ? ` · ${details.duration}` : ''}
+            </p>
+          )}
+          {item.type === 'key' && details.keyName && (
+            <p className="mt-0.5 text-xs text-text-muted">{details.keyName} × {details.qty}</p>
+          )}
+          {item.type === 'skill' && details.skillName && (
+            <p className="mt-0.5 text-xs text-text-muted">{details.skillName} × {details.levels} level</p>
+          )}
+          {item.type === 'balance' && details.balance && (
+            <p className="mt-0.5 text-xs text-text-muted">{Number(details.balance).toLocaleString('id-ID')} balance</p>
+          )}
+          {item.type === 'command' && details.cmdName && (
+            <p className="mt-0.5 text-xs text-text-muted">{details.cmdName} · {details.duration}</p>
+          )}
+          {item.type === 'cosmetic' && details.prefixText && (
+            <p className="mt-0.5 text-xs text-text-muted">[{details.prefixText}]</p>
+          )}
+
+          <div className="mt-1.5 flex flex-wrap items-center gap-3">
+            <span className="font-mono text-sm font-bold text-neon-300">
+              {formatRupiah(item.finalAmount)}
+            </span>
+            <span className="text-xs text-text-dim">{item.paymentMethod}</span>
+            {details.discountPct > 0 && (
+              <span className="rounded border border-warning/30 bg-warning/10 px-1.5 py-0.5 text-[10px] font-semibold text-warning">
+                -{details.discountPct}%
+              </span>
+            )}
+            <span className="inline-flex items-center gap-1 text-xs text-text-dim">
+              <Clock size={10} />
+              {paid ? 'Lunas' : remaining}
+            </span>
+          </div>
+        </div>
+
+        {!paid && (
+          <button
+            onClick={() => onMark(item.id)}
+            disabled={marking}
+            aria-label="Tandai lunas"
+            className="shrink-0 flex items-center gap-1.5 rounded-lg border border-success/30 bg-success/10 px-3 py-1.5 text-xs font-semibold text-success transition-colors hover:bg-success/20 disabled:cursor-not-allowed disabled:opacity-50"
+          >
+            {marking ? (
+              <span className="h-3 w-3 animate-spin rounded-full border border-success/40 border-t-success" />
+            ) : (
+              <CheckCircle size={13} />
+            )}
+            Lunas
+          </button>
+        )}
+        {paid && (
+          <span className="shrink-0 rounded-lg border border-success/30 bg-success/10 px-3 py-1.5 text-xs font-semibold text-success">
+            ✓ Lunas
+          </span>
+        )}
+      </div>
+    </div>
+  );
 }
 
 // ---------------------------------------------------------------------------
@@ -146,7 +387,6 @@ function AnnouncementsSection() {
 
   return (
     <SectionCard icon={Megaphone} title="Manajemen Announcement" accent="neon-500">
-      {/* Add form */}
       <form onSubmit={handleAdd} className="mb-6 space-y-4">
         <div>
           <FieldLabel required>Teks Pengumuman</FieldLabel>
@@ -190,7 +430,6 @@ function AnnouncementsSection() {
         </Button>
       </form>
 
-      {/* List */}
       <div className="space-y-2">
         <p className="mb-3 text-xs font-semibold uppercase tracking-wide text-text-dim">
           Aktif sekarang
@@ -346,7 +585,6 @@ function DiscountsSection() {
 
   return (
     <SectionCard icon={PercentCircle} title="Manajemen Diskon" accent="cyan-400">
-      {/* Add form */}
       <form onSubmit={handleAdd} className="mb-6 space-y-4">
         <div className="grid grid-cols-2 gap-4">
           <div>
@@ -378,7 +616,6 @@ function DiscountsSection() {
           </div>
         </div>
 
-        {/* Categories */}
         <div>
           <FieldLabel required>Kategori</FieldLabel>
           <div className="flex flex-wrap gap-2 pt-0.5">
@@ -441,7 +678,6 @@ function DiscountsSection() {
         </Button>
       </form>
 
-      {/* List */}
       <div className="space-y-2">
         <p className="mb-3 text-xs font-semibold uppercase tracking-wide text-text-dim">
           Diskon aktif
@@ -594,10 +830,16 @@ export default function AdminDashboardPage() {
             Selamat datang, Admin
           </h1>
           <p className="mt-0.5 text-sm text-text-dim">
-            Kelola pengumuman dan kode diskon dari sini.
+            Kelola invoice, pengumuman, dan kode diskon dari sini.
           </p>
         </div>
 
+        {/* Invoices — full width */}
+        <div className="mb-6">
+          <InvoicesSection />
+        </div>
+
+        {/* Announcements + Discounts — side by side */}
         <div className="grid grid-cols-1 gap-6 lg:grid-cols-2">
           <AnnouncementsSection />
           <DiscountsSection />

@@ -2,7 +2,6 @@ import { useEffect, useState } from 'react';
 import { Megaphone } from 'lucide-react';
 import { cn } from '@/lib/cn';
 
-/** Format remaining time until expiry as "X jam Y menit" */
 function formatTimeRemaining(expiresAt) {
   const now = Date.now();
   const msLeft = new Date(expiresAt).getTime() - now;
@@ -51,8 +50,7 @@ export function AnnouncementBanner() {
     <div
       role="region"
       aria-label="Pengumuman server"
-      className="border-y border-white/6"
-      style={{ background: 'var(--color-abyss)' }}
+      className="border-y border-neon-500/25 bg-neon-500/[0.06]"
     >
       {active.map((ann, i) => (
         <AnnouncementRow key={ann.id ?? i} ann={ann} first={i === 0} />
@@ -67,27 +65,24 @@ function AnnouncementRow({ ann, first }) {
   return (
     <div
       className={cn(
-        'flex items-start gap-3 px-4 py-3 sm:px-6 lg:px-8',
-        'border-l-2 border-neon-500',
-        !first && 'border-t border-white/6',
+        'flex items-center gap-4 px-4 py-4 sm:px-6 lg:px-8',
+        'border-l-4 border-neon-500',
+        !first && 'border-t border-neon-500/15',
       )}
     >
-      {/* Icon */}
       <span
-        className="mt-0.5 flex h-7 w-7 shrink-0 items-center justify-center rounded-lg border border-neon-500/22 bg-neon-500/10"
+        className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl border border-neon-500/30 bg-neon-500/15"
         aria-hidden="true"
       >
-        <Megaphone size={14} className="text-neon-400" />
+        <Megaphone size={18} className="text-neon-400" />
       </span>
 
-      {/* Message */}
-      <p className="flex-1 text-xs leading-relaxed text-text-bright sm:text-sm">
+      <p className="flex-1 text-sm font-medium leading-relaxed text-text-bright sm:text-base">
         {ann.message ?? ann.content ?? ann.text ?? ''}
       </p>
 
-      {/* Expiry pill */}
       {timeLabel && (
-        <span className="mt-0.5 shrink-0 rounded-full border border-white/10 bg-white/[0.04] px-2.5 py-1 font-mono text-[0.62rem] text-text-muted">
+        <span className="shrink-0 rounded-full border border-neon-500/30 bg-neon-500/15 px-3 py-1 font-mono text-xs font-medium text-neon-300">
           {timeLabel}
         </span>
       )}

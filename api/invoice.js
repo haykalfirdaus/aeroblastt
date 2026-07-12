@@ -1,4 +1,5 @@
 import { setCorsHeaders } from './_auth.js';
+import { supabase } from './_supabase.js';
 
 const DISCORD_WEBHOOK_URL = process.env.DISCORD_WEBHOOK_URL;
 
@@ -54,10 +55,38 @@ function s(val, limit = 100) {
   return String(val ?? '').slice(0, limit);
 }
 
-function buildEmbed(body) {
+function buildDetails(type, body) {
+  const d = {};
+  if (type === 'rank') {
+    d.target = body.target;
+    if (body.owned && body.owned !== 'none') d.owned = body.owned;
+    d.duration = body.duration;
+    if (body.basePrice) d.basePrice = body.basePrice;
+  } else if (type === 'key') {
+    d.keyName = body.keyName;
+    d.qty = body.qty;
+  } else if (type === 'skill') {
+    d.skillName = body.skillName;
+    d.levels = body.levels;
+  } else if (type === 'balance') {
+    d.balance = body.balance;
+  } else if (type === 'command') {
+    d.cmdName = body.cmdName;
+    d.duration = body.duration;
+  } else if (type === 'cosmetic') {
+    d.prefixText = body.prefixText;
+    d.prefixColor = body.prefixColor;
+    if (body.nickColor) d.nickColor = body.nickColor;
+  }
+  if (body.discountPct > 0) d.discountPct = body.discountPct;
+  return d;
+}
+
+function buildEmbed(body, invoiceId) {
   const { type, nick, platform, finalAmount, paymentMethod, discountPct } = body;
 
   const fields = [
+    { name: 'Invoice ID', value: `\`${invoiceId.slice(0, 8).toUpperCase()}\``, inline: true },
     { name: 'Nickname', value: s(nick), inline: true },
     { name: 'Platform', value: s(platform), inline: true },
     { name: 'Pembayaran', value: s(paymentMethod), inline: true },
@@ -92,13 +121,15 @@ function buildEmbed(body) {
     fields.push({ name: 'Diskon', value: `${discountPct}%`, inline: true });
   }
 
-  fields.push({ name: 'Total Bayar', value: formatRupiah(finalAmount), inline: false });
+  fields.push({ name: 'Total Bayar', value: formatRupiah(finalAmount), inline: true });
+  fields.push({ name: 'Status', value: '⏳ Menunggu Pembayaran', inline: true });
+  fields.push({ name: 'Berlaku Hingga', value: '24 jam dari sekarang', inline: true });
 
   return {
     title: ORDER_TITLES[type] || '📦 Order Baru',
     color: ORDER_COLORS[type] || 0x3b82f6,
     fields,
-    footer: { text: 'AeroBlast Network' },
+    footer: { text: 'AeroBlast Network • Invoice akan expired dalam 24 jam jika tidak dibayar' },
     timestamp: new Date().toISOString(),
   };
 }
@@ -164,8 +195,31 @@ export default async function handler(req, res) {
     return;
   }
 
+  const expiresAt = new Date(Date.now() + 24 * 60 * 60 * 1000).toISOString();
+
+  // Simpan ke Supabase
+  const { data: invoice, error: dbError } = await supabase
+    .from('invoices')
+    .insert({
+      type,
+      nick: nick.trim(),
+      platform,
+      final_amount: finalAmount,
+      payment_method: paymentMethod,
+      details: buildDetails(type, body),
+      expires_at: expiresAt,
+    })
+    .select('id')
+    .single();
+
+  if (dbError || !invoice) {
+    res.status(502).json({ ok: false, error: 'Gagal simpan invoice', detail: dbError?.message });
+    return;
+  }
+
+  // Kirim ke Discord
   try {
-    const embed = buildEmbed(body);
+    const embed = buildEmbed(body, invoice.id);
     const webhookRes = await fetch(DISCORD_WEBHOOK_URL, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
@@ -175,9 +229,9 @@ export default async function handler(req, res) {
     if (!webhookRes.ok) {
       throw new Error(`Discord webhook HTTP ${webhookRes.status}`);
     }
-
-    res.status(200).json({ ok: true });
-  } catch (err) {
-    res.status(502).json({ ok: false, error: 'Gagal kirim notifikasi', detail: err.message });
+  } catch {
+    // Invoice tetap tersimpan meski Discord gagal
   }
+
+  res.status(200).json({ ok: true, invoiceId: invoice.id });
 }

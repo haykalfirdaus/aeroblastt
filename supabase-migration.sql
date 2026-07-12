@@ -40,3 +40,28 @@ create policy "public read active discounts"
   using (expires_at > now());
 
 -- service_role (server API) bypass RLS otomatis — tidak perlu policy tambahan
+
+-- ============================================================
+-- Tabel invoices — order masuk dari store, expire 24 jam
+-- ============================================================
+
+create table if not exists public.invoices (
+  id             uuid        primary key default gen_random_uuid(),
+  type           text        not null,
+  nick           text        not null,
+  platform       text        not null,
+  final_amount   integer     not null check (final_amount > 0),
+  payment_method text        not null,
+  details        jsonb       not null default '{}',
+  paid           boolean     not null default false,
+  paid_at        timestamptz,
+  expires_at     timestamptz not null,
+  created_at     timestamptz not null default now()
+);
+
+create index if not exists idx_invoices_expires_at on public.invoices (expires_at);
+create index if not exists idx_invoices_paid_paid_at on public.invoices (paid, paid_at);
+
+alter table public.invoices enable row level security;
+
+-- Tidak ada policy publik — hanya service_role (admin API) yang bisa akses
