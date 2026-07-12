@@ -33,7 +33,7 @@ export function Modal({ open, onClose, title, subtitle, icon, badge, size = 'md'
   return (
     <div
       className={cn(
-        'fixed inset-0 z-[150] flex items-center justify-center overflow-y-auto p-4 py-10 transition-opacity duration-150',
+        'fixed inset-0 z-[150] overflow-y-auto transition-opacity duration-150',
         entered ? 'opacity-100' : 'opacity-0'
       )}
       role="dialog"
@@ -42,6 +42,7 @@ export function Modal({ open, onClose, title, subtitle, icon, badge, size = 'md'
     >
       <div className="fixed inset-0 bg-abyss/75" onClick={onClose} aria-hidden="true" />
 
+      <div className="flex min-h-full items-center justify-center p-4 py-10">
       <div
         className={cn(
           'relative w-full rounded-2xl border border-white/10 bg-panel/90 shadow-[0_20px_60px_-12px_rgba(0,0,0,0.5)] transition-all duration-150',
@@ -81,6 +82,7 @@ export function Modal({ open, onClose, title, subtitle, icon, badge, size = 'md'
         )}
 
         <div className="max-h-[75vh] overflow-y-auto px-6 pb-6 sm:px-8 sm:pb-8">{children}</div>
+      </div>
       </div>
     </div>
   );
