@@ -60,7 +60,7 @@ async function sendLunasEmbed(invoice) {
 }
 
 export default async function handler(req, res) {
-  setCorsHeaders(req, res, 'GET, PATCH, OPTIONS');
+  setCorsHeaders(req, res, 'GET, PATCH, DELETE, OPTIONS');
   res.setHeader('Content-Type', 'application/json');
   res.setHeader('Cache-Control', 'no-store');
 
@@ -97,7 +97,7 @@ export default async function handler(req, res) {
     return;
   }
 
-  // PATCH — tandai invoice sebagai lunas
+  // PATCH — tandai invoice sebagai lunas (tidak langsung dihapus, frontend hapus 1 menit kemudian)
   if (req.method === 'PATCH') {
     const id = req.query?.id || new URL(req.url, 'http://localhost').searchParams.get('id');
     if (!id) {
@@ -118,13 +118,24 @@ export default async function handler(req, res) {
       return;
     }
 
-    // Hapus dari DB segera — response tidak menunggu Discord
-    await supabase.from('invoices').delete().eq('id', data.id).catch(() => {});
-
-    // Discord fire-and-forget — tidak di-await agar tidak memperlambat response
+    // Discord fire-and-forget
     sendLunasEmbed(data).catch(() => {});
 
     res.status(200).json({ ok: true, invoice: toClient(data) });
+    return;
+  }
+
+  // DELETE — hapus invoice (dipanggil frontend 1 menit setelah lunas)
+  if (req.method === 'DELETE') {
+    const id = req.query?.id || new URL(req.url, 'http://localhost').searchParams.get('id');
+    if (!id) {
+      res.status(400).json({ ok: false, error: 'id diperlukan' });
+      return;
+    }
+
+    await supabase.from('invoices').delete().eq('id', id).catch(() => {});
+
+    res.status(200).json({ ok: true });
     return;
   }
 

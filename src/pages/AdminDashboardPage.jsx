@@ -108,6 +108,8 @@ function InvoicesSection() {
   const [fetching, setFetching] = useState(true);
   const [paidIds, setPaidIds] = useState(new Set());
   const [markingId, setMarkingId] = useState(null);
+  // confirmId: id invoice yang sedang menunggu konfirmasi "Yakin?"
+  const [confirmId, setConfirmId] = useState(null);
 
   const fetchInvoices = useCallback(async () => {
     try {
@@ -128,8 +130,17 @@ function InvoicesSection() {
     return () => clearInterval(interval);
   }, [fetchInvoices]);
 
+  function requestConfirm(id) {
+    setConfirmId(id);
+  }
+
+  function cancelConfirm() {
+    setConfirmId(null);
+  }
+
   async function handleMarkPaid(id) {
     if (markingId) return;
+    setConfirmId(null);
     setMarkingId(id);
     try {
       const res = await fetch(`/api/admin/invoices?id=${encodeURIComponent(id)}`, {
@@ -142,15 +153,19 @@ function InvoicesSection() {
       }
       showToast('Invoice ditandai lunas & notifikasi Discord terkirim', 'success');
       setPaidIds((prev) => new Set([...prev, id]));
-      // Auto-remove dari list setelah 5 menit
-      setTimeout(() => {
+      // Hapus dari DB 1 menit setelah dikonfirmasi, lalu hilangkan dari list
+      setTimeout(async () => {
+        await fetch(`/api/admin/invoices?id=${encodeURIComponent(id)}`, {
+          method: 'DELETE',
+          credentials: 'include',
+        }).catch(() => {});
         setItems((prev) => prev.filter((i) => i.id !== id));
         setPaidIds((prev) => {
           const next = new Set(prev);
           next.delete(id);
           return next;
         });
-      }, 5 * 60 * 1000);
+      }, 60 * 1000);
     } catch (err) {
       showToast(err.message, 'error');
     } finally {
@@ -182,10 +197,10 @@ function InvoicesSection() {
           {recentlyPaid.length > 0 && (
             <>
               <p className="mb-2 text-xs font-semibold uppercase tracking-wide text-success/70">
-                Baru saja lunas (hilang dalam 5 menit)
+                Baru saja lunas (dihapus otomatis dalam 1 menit)
               </p>
               {recentlyPaid.map((item) => (
-                <InvoiceItem key={item.id} item={item} paid onMark={handleMarkPaid} marking={false} />
+                <InvoiceItem key={item.id} item={item} paid onMark={handleMarkPaid} marking={false} confirming={false} onRequestConfirm={requestConfirm} onCancelConfirm={cancelConfirm} />
               ))}
               {pending.length > 0 && <div className="my-3 border-t border-white/6" />}
             </>
@@ -202,6 +217,9 @@ function InvoicesSection() {
                   paid={false}
                   onMark={handleMarkPaid}
                   marking={markingId === item.id}
+                  confirming={confirmId === item.id}
+                  onRequestConfirm={requestConfirm}
+                  onCancelConfirm={cancelConfirm}
                 />
               ))}
             </>
@@ -212,7 +230,7 @@ function InvoicesSection() {
   );
 }
 
-function InvoiceItem({ item, paid, onMark, marking }) {
+function InvoiceItem({ item, paid, onMark, marking, confirming, onRequestConfirm, onCancelConfirm }) {
   const [remaining, setRemaining] = useState(() => formatRemaining(item.expiresAt));
 
   useEffect(() => {
@@ -294,9 +312,9 @@ function InvoiceItem({ item, paid, onMark, marking }) {
           </div>
         </div>
 
-        {!paid && (
+        {!paid && !confirming && (
           <button
-            onClick={() => onMark(item.id)}
+            onClick={() => onRequestConfirm(item.id)}
             disabled={marking}
             aria-label="Tandai lunas"
             className="shrink-0 flex items-center gap-1.5 rounded-lg border border-neon-500/40 bg-neon-500/15 px-3 py-1.5 text-xs font-semibold text-neon-300 transition-colors hover:bg-neon-500/25 hover:border-neon-400/60 disabled:cursor-not-allowed disabled:opacity-50"
@@ -308,6 +326,31 @@ function InvoiceItem({ item, paid, onMark, marking }) {
             )}
             Tandai Lunas
           </button>
+        )}
+        {!paid && confirming && (
+          <div className="shrink-0 flex flex-col items-end gap-1.5">
+            <span className="text-[10px] font-semibold text-warning">Yakin lunas?</span>
+            <div className="flex items-center gap-1.5">
+              <button
+                onClick={onCancelConfirm}
+                className="rounded-lg border border-white/15 bg-white/[0.04] px-2.5 py-1 text-xs font-semibold text-text-dim transition-colors hover:border-white/25 hover:text-text-bright"
+              >
+                Batal
+              </button>
+              <button
+                onClick={() => onMark(item.id)}
+                disabled={marking}
+                className="flex items-center gap-1 rounded-lg border border-success/50 bg-success/15 px-2.5 py-1 text-xs font-semibold text-success transition-colors hover:bg-success/25 disabled:cursor-not-allowed disabled:opacity-50"
+              >
+                {marking ? (
+                  <span className="h-3 w-3 animate-spin rounded-full border border-success/40 border-t-success" />
+                ) : (
+                  <CheckCircle size={12} />
+                )}
+                Ya, Lunas
+              </button>
+            </div>
+          </div>
         )}
         {paid && (
           <span className="shrink-0 rounded-lg border border-success/30 bg-success/15 px-3 py-1.5 text-xs font-semibold text-success">
