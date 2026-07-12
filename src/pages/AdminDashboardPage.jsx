@@ -216,7 +216,7 @@ function InvoiceItem({ item, paid, onMark, marking }) {
   const [remaining, setRemaining] = useState(() => formatRemaining(item.expiresAt));
 
   useEffect(() => {
-    const id = setInterval(() => setRemaining(formatRemaining(item.expiresAt)), 15000);
+    const id = setInterval(() => setRemaining(formatRemaining(item.expiresAt)), 1000);
     return () => clearInterval(id);
   }, [item.expiresAt]);
 
@@ -227,10 +227,19 @@ function InvoiceItem({ item, paid, onMark, marking }) {
       className={cn(
         'rounded-xl border px-4 py-3 transition-colors',
         paid
-          ? 'border-success/20 bg-success/5 opacity-70'
-          : 'border-white/6 bg-white/[0.02] hover:border-white/10'
+          ? 'border-success/25 bg-success/[0.06]'
+          : 'border-warning/30 bg-warning/[0.04] hover:border-warning/50'
       )}
     >
+      {/* Status bar di atas */}
+      <div className={cn(
+        'mb-2.5 flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider',
+        paid ? 'text-success' : 'text-warning'
+      )}>
+        <span className={cn('h-1.5 w-1.5 rounded-full', paid ? 'bg-success' : 'bg-warning animate-pulse')} />
+        {paid ? 'Sudah Lunas' : 'Menunggu Pembayaran'}
+      </div>
+
       <div className="flex items-start gap-3">
         <span className="mt-0.5 text-lg leading-none">{ORDER_ICONS[item.type] || '📦'}</span>
         <div className="min-w-0 flex-1">
@@ -243,7 +252,6 @@ function InvoiceItem({ item, paid, onMark, marking }) {
             </span>
           </div>
 
-          {/* Detail spesifik per type */}
           {item.type === 'rank' && details.target && (
             <p className="mt-0.5 text-xs text-text-muted">
               Rank: {details.target}
@@ -277,10 +285,12 @@ function InvoiceItem({ item, paid, onMark, marking }) {
                 -{details.discountPct}%
               </span>
             )}
-            <span className="inline-flex items-center gap-1 text-xs text-text-dim">
-              <Clock size={10} />
-              {paid ? 'Lunas' : remaining}
-            </span>
+            {!paid && (
+              <span className="inline-flex items-center gap-1 text-xs text-text-dim">
+                <Clock size={10} />
+                {remaining}
+              </span>
+            )}
           </div>
         </div>
 
@@ -289,18 +299,18 @@ function InvoiceItem({ item, paid, onMark, marking }) {
             onClick={() => onMark(item.id)}
             disabled={marking}
             aria-label="Tandai lunas"
-            className="shrink-0 flex items-center gap-1.5 rounded-lg border border-success/30 bg-success/10 px-3 py-1.5 text-xs font-semibold text-success transition-colors hover:bg-success/20 disabled:cursor-not-allowed disabled:opacity-50"
+            className="shrink-0 flex items-center gap-1.5 rounded-lg border border-neon-500/40 bg-neon-500/15 px-3 py-1.5 text-xs font-semibold text-neon-300 transition-colors hover:bg-neon-500/25 hover:border-neon-400/60 disabled:cursor-not-allowed disabled:opacity-50"
           >
             {marking ? (
-              <span className="h-3 w-3 animate-spin rounded-full border border-success/40 border-t-success" />
+              <span className="h-3 w-3 animate-spin rounded-full border border-neon-400/40 border-t-neon-400" />
             ) : (
               <CheckCircle size={13} />
             )}
-            Lunas
+            Tandai Lunas
           </button>
         )}
         {paid && (
-          <span className="shrink-0 rounded-lg border border-success/30 bg-success/10 px-3 py-1.5 text-xs font-semibold text-success">
+          <span className="shrink-0 rounded-lg border border-success/30 bg-success/15 px-3 py-1.5 text-xs font-semibold text-success">
             ✓ Lunas
           </span>
         )}
