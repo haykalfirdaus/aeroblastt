@@ -38,29 +38,25 @@ function toClient(row) {
 
 async function sendLunasEmbed(invoice) {
   if (!DISCORD_WEBHOOK_URL) return;
-  try {
-    const embed = {
-      title: '✅ PEMBAYARAN LUNAS',
-      color: 0x22c55e,
-      fields: [
-        { name: 'Invoice ID', value: `\`${invoice.id.slice(0, 8).toUpperCase()}\``, inline: true },
-        { name: 'Tipe Order', value: ORDER_LABELS[invoice.type] || invoice.type, inline: true },
-        { name: 'Nickname', value: invoice.nick, inline: true },
-        { name: 'Platform', value: invoice.platform, inline: true },
-        { name: 'Metode Bayar', value: invoice.payment_method, inline: true },
-        { name: 'Total', value: formatRupiah(invoice.final_amount), inline: true },
-      ],
-      footer: { text: 'AeroBlast Network • Pembayaran dikonfirmasi admin' },
-      timestamp: new Date().toISOString(),
-    };
-    await fetch(DISCORD_WEBHOOK_URL, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ embeds: [embed] }),
-    });
-  } catch {
-    // non-blocking
-  }
+  const embed = {
+    title: '✅ PEMBAYARAN LUNAS',
+    color: 0x22c55e,
+    fields: [
+      { name: 'Invoice ID', value: `\`${invoice.id.slice(0, 8).toUpperCase()}\``, inline: true },
+      { name: 'Tipe Order', value: ORDER_LABELS[invoice.type] || invoice.type, inline: true },
+      { name: 'Nickname', value: invoice.nick, inline: true },
+      { name: 'Platform', value: invoice.platform, inline: true },
+      { name: 'Metode Bayar', value: invoice.payment_method, inline: true },
+      { name: 'Total', value: formatRupiah(invoice.final_amount), inline: true },
+    ],
+    footer: { text: 'AeroBlast Network • Pembayaran dikonfirmasi admin' },
+    timestamp: new Date().toISOString(),
+  };
+  await fetch(DISCORD_WEBHOOK_URL, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ embeds: [embed] }),
+  });
 }
 
 export default async function handler(req, res) {
@@ -80,15 +76,6 @@ export default async function handler(req, res) {
 
   // GET — daftar invoice belum dibayar yang masih aktif
   if (req.method === 'GET') {
-    // Cleanup: hapus invoice yang sudah lunas lebih dari 5 menit (non-blocking)
-    supabase
-      .from('invoices')
-      .delete()
-      .eq('paid', true)
-      .lt('paid_at', new Date(Date.now() - 5 * 60 * 1000).toISOString())
-      .then(() => {})
-      .catch(() => {});
-
     const { data, error } = await supabase
       .from('invoices')
       .select('*')
@@ -131,8 +118,15 @@ export default async function handler(req, res) {
       return;
     }
 
-    // Kirim notif Discord lunas (non-blocking)
-    sendLunasEmbed(data);
+    // Kirim Discord dulu — tunggu sampai selesai
+    try {
+      await sendLunasEmbed(data);
+    } catch {
+      // Discord gagal — tetap hapus DB dan return sukses
+    }
+
+    // Hapus dari DB langsung setelah Discord berhasil
+    await supabase.from('invoices').delete().eq('id', data.id).catch(() => {});
 
     res.status(200).json({ ok: true, invoice: toClient(data) });
     return;
