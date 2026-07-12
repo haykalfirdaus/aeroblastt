@@ -15,11 +15,28 @@ import { SITE } from '@/data/config';
 import { buildKeyOrderMessage, openWhatsApp } from '@/utils/whatsapp';
 import { sendInvoice } from '@/utils/invoice';
 import { formatRupiah } from '@/utils/currency';
-// discount check is done inside DiscountCodeInput via async API
 import { useToast } from '@/context/ToastContext';
 import { cn } from '@/lib/cn';
 
-const KEY_ACCENT = { BASIC: 'success', VOTE: 'rank-voyager', VIP: 'rank-vortex', LEGEND: 'warning', AEROSPACE: 'cyan-400' };
+// Highest price first (anchoring)
+const KEYS_DESC = [...GACHA_KEYS].sort((a, b) => b.price - a.price);
+
+const KEY_ACCENT = {
+  BASIC: 'success',
+  VOTE: 'rank-voyager',
+  VIP: 'rank-vortex',
+  LEGEND: 'warning',
+  AEROSPACE: 'cyan-400',
+};
+
+// position 0 = Aerospace (20k), position 4 = Basic (1k)
+const KEY_TIER = {
+  0: { featured: true,  priceSize: 'text-xl', opacity: '', badgeTone: 'cyan',  badge: 'PREMIUM',  glow: true  },
+  1: { featured: true,  priceSize: 'text-lg', opacity: '', badgeTone: 'gold',  badge: null,       glow: true  },
+  2: { featured: true,  priceSize: 'text-base',opacity: '',badgeTone: 'neon',  badge: null,       glow: true  },
+  3: { featured: false, priceSize: 'text-sm', opacity: 'opacity-80', badge: null, glow: false },
+  4: { featured: false, priceSize: 'text-sm', opacity: 'opacity-65', badge: 'STARTER', badgeTone: 'dim', glow: false },
+};
 
 function KeyOrderModal({ keyData, open, onClose }) {
   const showToast = useToast();
@@ -78,26 +95,72 @@ function KeyOrderModal({ keyData, open, onClose }) {
 
 export function GachaKeysTab() {
   const [selected, setSelected] = useState(null);
+
   return (
     <>
-      <div className="grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-3">
-        {GACHA_KEYS.map((k) => {
+      <p className="mb-4 text-center text-xs text-text-faint">
+        Tampil dari harga tertinggi — semakin ke bawah semakin terjangkau
+      </p>
+      <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
+        {KEYS_DESC.map((k, idx) => {
+          const tier = KEY_TIER[idx] ?? KEY_TIER[4];
           const tone = KEY_ACCENT[k.key] || 'neon-400';
+
           return (
-            <GlassCard key={k.key} interactive>
-              <div className="flex flex-col items-center gap-3 p-4 text-center">
-                {k.badge && <Badge tone="neon">{k.badge}</Badge>}
-                <div className="grid h-12 w-12 place-items-center rounded-xl border border-white/8 bg-white/4" style={{ boxShadow: `0 0 16px -4px var(--color-${tone})` }}>
-                  <Icon name={k.icon} size={22} className={`text-[var(--color-${tone})]`} />
+            <div
+              key={k.key}
+              className={cn(
+                'group relative flex flex-col overflow-hidden rounded-xl border transition-all duration-200',
+                tier.featured
+                  ? 'border-white/15 bg-white/[0.03] hover:scale-[1.015] hover:brightness-110'
+                  : 'border-white/8 bg-white/[0.015] hover:scale-[1.01]',
+                tier.opacity,
+              )}
+              style={{ '--accent': `var(--color-${tone})` }}
+            >
+              {/* top shimmer */}
+              <span
+                aria-hidden="true"
+                className="absolute inset-x-0 top-0 h-px"
+                style={{ background: `linear-gradient(90deg, transparent, var(--accent), transparent)`, opacity: tier.featured ? 0.7 : 0.2 }}
+              />
+
+              <div className="flex flex-col items-center gap-3 p-5 text-center">
+                {(tier.badge || k.badge) && (
+                  <Badge tone={tier.badgeTone ?? 'neon'}>{tier.badge ?? k.badge}</Badge>
+                )}
+
+                <div
+                  className="grid h-12 w-12 place-items-center rounded-xl border border-white/8 bg-white/4"
+                  style={{ boxShadow: tier.glow ? `0 0 20px -4px var(--accent)` : undefined }}
+                >
+                  <Icon name={k.icon} size={22} className={cn('text-[var(--accent)]', !tier.featured && 'opacity-70')} />
                 </div>
+
                 <div>
-                  <h3 className="font-display text-sm font-bold text-text-bright">{k.name}</h3>
-                  <p className="font-mono text-base font-bold text-neon-300">{formatRupiah(k.price)}<span className="text-xs text-text-dim"> / key</span></p>
+                  <h3 className={cn('font-display text-sm font-bold', tier.featured ? 'text-text-bright' : 'text-text-muted')}>
+                    {k.name}
+                  </h3>
+                  <p className={cn('font-mono font-bold text-neon-300', tier.priceSize, !tier.featured && 'opacity-70')}>
+                    {formatRupiah(k.price)}<span className="text-xs text-text-dim font-normal"> / key</span>
+                  </p>
                 </div>
-                <p className="text-xs text-text-muted">{k.description}</p>
-                <Button fullWidth variant="secondary" size="sm" onClick={() => setSelected(k)}>Order Sekarang</Button>
+
+                <p className={cn('text-xs', tier.featured ? 'text-text-muted' : 'text-text-faint')}>
+                  {k.description}
+                </p>
+
+                <Button
+                  fullWidth
+                  variant={tier.featured ? 'primary' : 'secondary'}
+                  size="sm"
+                  onClick={() => setSelected(k)}
+                  className={!tier.featured ? 'opacity-75' : ''}
+                >
+                  Order Sekarang
+                </Button>
               </div>
-            </GlassCard>
+            </div>
           );
         })}
       </div>

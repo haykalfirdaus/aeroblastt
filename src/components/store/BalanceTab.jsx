@@ -13,9 +13,11 @@ import { SITE } from '@/data/config';
 import { buildBalanceOrderMessage, openWhatsApp } from '@/utils/whatsapp';
 import { sendInvoice } from '@/utils/invoice';
 import { formatRupiah, formatNumber } from '@/utils/currency';
-// discount check is done inside DiscountCodeInput via async API
 import { useToast } from '@/context/ToastContext';
 import { cn } from '@/lib/cn';
+
+// Sort highest rupiah first (anchoring)
+const PICKS_DESC = [...BALANCE_QUICK_PICKS].sort((a, b) => b.rupiah - a.rupiah);
 
 function BalanceOrderModal({ open, onClose, initialRupiah = 0 }) {
   const showToast = useToast();
@@ -82,6 +84,18 @@ function BalanceOrderModal({ open, onClose, initialRupiah = 0 }) {
   );
 }
 
+// Tier config by sorted index (0 = most expensive)
+function getPickTier(idx, total) {
+  const isTop = idx === 0;
+  const featured = idx < Math.ceil(total * 0.5);
+  return {
+    featured,
+    isTop,
+    priceSize: isTop ? 'text-base' : featured ? 'text-sm' : 'text-xs',
+    opacity: featured ? '' : 'opacity-75',
+  };
+}
+
 export function BalanceTab() {
   const [modalOpen, setModalOpen] = useState(false);
   const [selectedRupiah, setSelectedRupiah] = useState(0);
@@ -90,6 +104,8 @@ export function BalanceTab() {
     setSelectedRupiah(rupiah);
     setModalOpen(true);
   }
+
+  const total = PICKS_DESC.length;
 
   return (
     <>
@@ -105,23 +121,47 @@ export function BalanceTab() {
             </div>
           </div>
 
-          <p className="mb-3 text-[0.65rem] font-semibold uppercase tracking-wider text-text-dim">Quick Pick</p>
+          <div className="mb-1 flex items-center justify-between">
+            <p className="text-[0.65rem] font-semibold uppercase tracking-wider text-text-dim">Quick Pick</p>
+            <p className="text-[0.65rem] text-text-faint">Tampil dari terbesar</p>
+          </div>
+          <p className="mb-3 text-[0.6rem] text-text-faint">Semakin ke bawah semakin terjangkau</p>
+
           <div className="mb-5 grid grid-cols-2 gap-2.5 sm:grid-cols-3">
-            {BALANCE_QUICK_PICKS.map(({ rupiah, popular }) => (
-              <button
-                key={rupiah}
-                type="button"
-                onClick={() => openWith(rupiah)}
-                className={cn(
-                  'relative overflow-hidden rounded-xl border px-4 py-4 text-center transition-all hover:-translate-y-0.5',
-                  popular ? 'border-neon-400/40 bg-neon-500/10' : 'border-white/10 bg-white/4 hover:border-white/18'
-                )}
-              >
-                {popular && <span className="absolute right-0 top-0 rounded-bl-lg bg-neon-500 px-2 py-0.5 text-[0.6rem] font-bold text-white">POPULAR</span>}
-                <p className="font-mono text-sm font-bold text-text-bright">{formatRupiah(rupiah)}</p>
-                <p className="text-[0.65rem] text-text-dim">{formatNumber(rupiah * BALANCE_RATE)} Balance</p>
-              </button>
-            ))}
+            {PICKS_DESC.map(({ rupiah, popular }, idx) => {
+              const tier = getPickTier(idx, total);
+              return (
+                <button
+                  key={rupiah}
+                  type="button"
+                  onClick={() => openWith(rupiah)}
+                  className={cn(
+                    'relative overflow-hidden rounded-xl border px-4 py-4 text-center transition-all',
+                    tier.featured
+                      ? 'border-neon-400/30 bg-neon-500/8 hover:-translate-y-0.5 hover:brightness-110'
+                      : 'border-white/8 bg-white/[0.02] hover:border-white/15',
+                    tier.opacity,
+                  )}
+                >
+                  {popular && (
+                    <span className="absolute right-0 top-0 rounded-bl-lg bg-neon-500 px-2 py-0.5 text-[0.6rem] font-bold text-white">
+                      POPULAR
+                    </span>
+                  )}
+                  {tier.isTop && (
+                    <span className="absolute left-0 top-0 rounded-br-lg bg-warning/80 px-2 py-0.5 text-[0.6rem] font-bold text-void">
+                      MAX VALUE
+                    </span>
+                  )}
+                  <p className={cn('font-mono font-bold text-text-bright', tier.priceSize, !tier.featured && 'text-text-muted')}>
+                    {formatRupiah(rupiah)}
+                  </p>
+                  <p className={cn('text-[0.65rem]', tier.featured ? 'text-text-dim' : 'text-text-faint')}>
+                    {formatNumber(rupiah * BALANCE_RATE)} Balance
+                  </p>
+                </button>
+              );
+            })}
           </div>
 
           <Button fullWidth size="sm" onClick={() => openWith(0)}>Top-Up Custom Amount</Button>

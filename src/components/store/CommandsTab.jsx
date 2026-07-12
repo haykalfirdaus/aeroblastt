@@ -14,9 +14,25 @@ import { SITE } from '@/data/config';
 import { buildCommandOrderMessage, openWhatsApp } from '@/utils/whatsapp';
 import { sendInvoice } from '@/utils/invoice';
 import { formatRupiah } from '@/utils/currency';
-// discount check is done inside DiscountCodeInput via async API
 import { useToast } from '@/context/ToastContext';
 import { cn } from '@/lib/cn';
+
+// Sort highest basePrice first (anchoring)
+const COMMANDS_DESC = [...COMMANDS].sort((a, b) => b.basePrice - a.basePrice);
+
+// Map sorted index → tier style
+function getTier(idx, total) {
+  const topCount = Math.ceil(total * 0.4); // top 40% = featured
+  const featured = idx < topCount;
+  const isTop = idx === 0;
+  return {
+    featured,
+    isTop,
+    priceSize: isTop ? 'text-base' : featured ? 'text-sm' : 'text-xs',
+    opacity: featured ? '' : idx >= topCount + 2 ? 'opacity-70' : 'opacity-85',
+    glow: featured,
+  };
+}
 
 function CommandOrderModal({ cmd, open, onClose }) {
   const showToast = useToast();
@@ -89,38 +105,89 @@ function CommandOrderModal({ cmd, open, onClose }) {
 
 export function CommandsTab() {
   const [selected, setSelected] = useState(null);
+  const total = COMMANDS_DESC.length;
+
   return (
     <>
+      <p className="mb-4 text-center text-xs text-text-faint">
+        Tampil dari harga tertinggi — semakin ke bawah semakin terjangkau
+      </p>
       <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-4">
-        {COMMANDS.map((cmd) => (
-          <GlassCard key={cmd.key} interactive>
-            <div className="flex flex-col gap-2.5 p-4">
-              {cmd.bundleTag && <Badge tone="cyan">{cmd.bundleTag}</Badge>}
-              {cmd.badge && <Badge tone="gold">{cmd.badge}</Badge>}
-              <div className="flex items-center gap-2.5">
-                <div className="grid h-9 w-9 shrink-0 place-items-center rounded-xl border border-neon-500/18 bg-neon-500/6">
-                  <Icon name={cmd.icon} size={17} className="text-neon-300" />
-                </div>
-                <div className="min-w-0">
-                  <p className="font-mono text-xs font-bold text-text-bright truncate">{cmd.command}</p>
-                  <p className="text-[0.65rem] text-text-dim">{cmd.name}</p>
-                </div>
-              </div>
-              <p className="line-clamp-2 text-[0.7rem] leading-relaxed text-text-muted">{cmd.description}</p>
-              {cmd.bundleItems && (
-                <div className="flex flex-wrap gap-1">
-                  {cmd.bundleItems.map((b) => (
-                    <span key={b} className="rounded-full border border-cyan-500/18 bg-cyan-500/6 px-1.5 py-0.5 text-[0.6rem] text-cyan-300">{b}</span>
-                  ))}
-                </div>
+        {COMMANDS_DESC.map((cmd, idx) => {
+          const tier = getTier(idx, total);
+
+          return (
+            <div
+              key={cmd.key}
+              className={cn(
+                'group relative flex flex-col overflow-hidden rounded-xl border transition-all duration-200',
+                tier.featured
+                  ? 'border-neon-500/20 bg-white/[0.03] hover:scale-[1.015] hover:brightness-110'
+                  : 'border-white/8 bg-white/[0.015] hover:scale-[1.01]',
+                tier.opacity,
               )}
-              <div className="mt-auto pt-1">
-                <p className="mb-1.5 font-mono text-sm font-bold text-neon-300">{formatRupiah(cmd.basePrice)}</p>
-                <Button fullWidth variant="secondary" size="sm" onClick={() => setSelected(cmd)}>Order</Button>
+            >
+              {/* top shimmer */}
+              <span
+                aria-hidden="true"
+                className="absolute inset-x-0 top-0 h-px"
+                style={{ background: 'linear-gradient(90deg, transparent, var(--color-neon-500), transparent)', opacity: tier.featured ? 0.5 : 0.15 }}
+              />
+
+              <div className="flex flex-col gap-2.5 p-4">
+                {cmd.bundleTag && <Badge tone="cyan">{cmd.bundleTag}</Badge>}
+                {cmd.badge && <Badge tone={tier.isTop ? 'gold' : 'neon'}>{cmd.badge}</Badge>}
+
+                <div className="flex items-center gap-2.5">
+                  <div className={cn(
+                    'grid h-9 w-9 shrink-0 place-items-center rounded-xl border',
+                    tier.featured ? 'border-neon-500/25 bg-neon-500/10' : 'border-white/8 bg-white/4',
+                  )}>
+                    <Icon
+                      name={cmd.icon}
+                      size={17}
+                      className={cn(tier.featured ? 'text-neon-300' : 'text-text-dim')}
+                      style={tier.glow ? { filter: 'drop-shadow(0 0 6px var(--color-neon-400))' } : undefined}
+                    />
+                  </div>
+                  <div className="min-w-0">
+                    <p className={cn('font-mono text-xs font-bold truncate', tier.featured ? 'text-text-bright' : 'text-text-muted')}>
+                      {cmd.command}
+                    </p>
+                    <p className="text-[0.65rem] text-text-dim">{cmd.name}</p>
+                  </div>
+                </div>
+
+                <p className={cn('line-clamp-2 text-[0.7rem] leading-relaxed', tier.featured ? 'text-text-muted' : 'text-text-faint')}>
+                  {cmd.description}
+                </p>
+
+                {cmd.bundleItems && (
+                  <div className="flex flex-wrap gap-1">
+                    {cmd.bundleItems.map((b) => (
+                      <span key={b} className="rounded-full border border-cyan-500/18 bg-cyan-500/6 px-1.5 py-0.5 text-[0.6rem] text-cyan-300">{b}</span>
+                    ))}
+                  </div>
+                )}
+
+                <div className="mt-auto pt-1">
+                  <p className={cn('mb-1.5 font-mono font-bold text-neon-300', tier.priceSize, !tier.featured && 'opacity-75')}>
+                    {formatRupiah(cmd.basePrice)}
+                  </p>
+                  <Button
+                    fullWidth
+                    variant={tier.featured ? 'primary' : 'secondary'}
+                    size="sm"
+                    onClick={() => setSelected(cmd)}
+                    className={!tier.featured ? 'opacity-75' : ''}
+                  >
+                    Order
+                  </Button>
+                </div>
               </div>
             </div>
-          </GlassCard>
-        ))}
+          );
+        })}
       </div>
       <CommandOrderModal cmd={selected} open={!!selected} onClose={() => setSelected(null)} />
     </>

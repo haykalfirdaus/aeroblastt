@@ -1,6 +1,5 @@
 import { useState } from 'react';
 import { ChevronRight, Minus, Plus } from 'lucide-react';
-import { GlassCard } from '@/components/ui/GlassCard';
 import { Button } from '@/components/ui/Button';
 import { Modal } from '@/components/ui/Modal';
 import { CheckboxField, FieldLabel, SelectField, TextField } from '@/components/ui/FormFields';
@@ -12,9 +11,19 @@ import { SKILL_CATEGORIES, SKILL_DEFAULT_LEVELS, SKILL_MAX_LEVEL } from '@/data/
 import { SITE } from '@/data/config';
 import { buildSkillOrderMessage, openWhatsApp } from '@/utils/whatsapp';
 import { sendInvoice } from '@/utils/invoice';
-// discount check is done inside DiscountCodeInput via async API
 import { formatRupiah } from '@/utils/currency';
 import { useToast } from '@/context/ToastContext';
+import { cn } from '@/lib/cn';
+
+// Sort categories highest pricePerLevel first (anchoring)
+const CATS_DESC = [...SKILL_CATEGORIES].sort((a, b) => b.pricePerLevel - a.pricePerLevel);
+
+// Category accent colors by index in sorted order
+const CAT_STYLES = [
+  { border: 'border-rank-ravest/25', label: 'text-rank-ravest', badge: 'PREMIUM', badgeTone: 'gold', featured: true },
+  { border: 'border-rank-vortex/20', label: 'text-rank-vortex', badge: null, featured: true },
+  { border: 'border-white/10',       label: 'text-text-muted',  badge: 'STARTER', badgeTone: 'dim', featured: false },
+];
 
 function SkillOrderModal({ skill, cat, open, onClose }) {
   const showToast = useToast();
@@ -83,35 +92,97 @@ export function SkillBoostTab() {
 
   return (
     <>
-      <div className="flex flex-col gap-8">
-        {SKILL_CATEGORIES.map((cat) => (
-          <div key={cat.id}>
-            <div className="mb-3 flex items-center gap-2">
-              <h3 className="font-display text-sm font-bold text-text-bright">{cat.label}</h3>
-              <span className="ml-auto font-mono text-xs text-neon-300">{formatRupiah(cat.pricePerLevel)}/level</span>
-            </div>
-            <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
-              {cat.skills.map((skill) => (
-                <GlassCard key={skill.name} interactive>
-                  <div className="p-4">
-                    <div className="mb-3 flex items-center gap-2">
-                      <h4 className="font-bold text-sm text-text-bright">{skill.name}</h4>
+      <p className="mb-5 text-center text-xs text-text-faint">
+        Tampil dari harga tertinggi per level — semakin ke bawah semakin terjangkau
+      </p>
+
+      <div className="flex flex-col gap-6">
+        {CATS_DESC.map((cat, catIdx) => {
+          const style = CAT_STYLES[catIdx] ?? CAT_STYLES[2];
+
+          return (
+            <div
+              key={cat.id}
+              className={cn(
+                'overflow-hidden rounded-xl border',
+                style.border,
+                style.featured ? 'bg-white/[0.025]' : 'bg-white/[0.01] opacity-85',
+              )}
+            >
+              {/* Category header */}
+              <div className={cn(
+                'flex items-center justify-between px-4 py-3 border-b',
+                style.featured ? 'border-white/8 bg-white/[0.03]' : 'border-white/5',
+              )}>
+                <div className="flex items-center gap-2">
+                  {style.badge && (
+                    <span className={cn(
+                      'rounded-full border px-2 py-0.5 font-mono text-[0.6rem] font-bold uppercase tracking-wider',
+                      style.badgeTone === 'gold'
+                        ? 'border-warning/30 bg-warning/10 text-warning'
+                        : 'border-white/10 bg-white/[0.04] text-text-dim',
+                    )}>
+                      {style.badge}
+                    </span>
+                  )}
+                  <h3 className={cn('font-display text-sm font-bold', style.label)}>
+                    {cat.label}
+                  </h3>
+                </div>
+                <span className={cn('font-mono text-xs font-semibold', style.featured ? 'text-neon-300' : 'text-text-dim opacity-70')}>
+                  {formatRupiah(cat.pricePerLevel)}/level
+                </span>
+              </div>
+
+              {/* Skills grid */}
+              <div className="grid grid-cols-1 gap-3 p-4 sm:grid-cols-2 lg:grid-cols-3">
+                {cat.skills.map((skill) => (
+                  <div
+                    key={skill.name}
+                    className={cn(
+                      'rounded-xl border p-4 transition-all duration-200',
+                      style.featured
+                        ? 'border-white/10 bg-white/[0.03] hover:scale-[1.015] hover:brightness-105'
+                        : 'border-white/6 bg-white/[0.015] hover:scale-[1.01]',
+                    )}
+                  >
+                    <div className="mb-3">
+                      <h4 className={cn('font-bold text-sm', style.featured ? 'text-text-bright' : 'text-text-muted')}>
+                        {skill.name}
+                      </h4>
                     </div>
                     <div className="mb-4 flex flex-wrap gap-1.5">
                       {skill.abilities.map((a) => (
-                        <span key={a} className="rounded-full border border-white/8 bg-white/4 px-2 py-0.5 text-[0.65rem] text-text-dim">{a}</span>
+                        <span
+                          key={a}
+                          className={cn(
+                            'rounded-full border px-2 py-0.5 text-[0.65rem]',
+                            style.featured
+                              ? 'border-white/10 bg-white/[0.04] text-text-dim'
+                              : 'border-white/6 bg-white/[0.02] text-text-faint',
+                          )}
+                        >
+                          {a}
+                        </span>
                       ))}
                     </div>
-                    <Button fullWidth variant="secondary" size="sm" onClick={() => setSelected({ skill, cat })}>
+                    <Button
+                      fullWidth
+                      variant={style.featured ? 'primary' : 'secondary'}
+                      size="sm"
+                      onClick={() => setSelected({ skill, cat })}
+                      className={!style.featured ? 'opacity-75' : ''}
+                    >
                       <ChevronRight size={14} /> Boost Skill
                     </Button>
                   </div>
-                </GlassCard>
-              ))}
+                ))}
+              </div>
             </div>
-          </div>
-        ))}
+          );
+        })}
       </div>
+
       <SkillOrderModal skill={selected?.skill} cat={selected?.cat} open={!!selected} onClose={() => setSelected(null)} />
     </>
   );
