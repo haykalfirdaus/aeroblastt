@@ -193,7 +193,6 @@ const OTP_DURATION = 5 * 60 * 1000;
 
 function OtpView({ token, onBack, onResend }) {
   const showToast = useToast();
-  const navigate = useNavigate();
   const [otp, setOtp] = useState('');
   const [submitting, setSubmitting] = useState(false);
   const [shake, setShake] = useState(false);
@@ -217,8 +216,8 @@ function OtpView({ token, onBack, onResend }) {
       });
       const data = await res.json();
       if (!res.ok) throw new Error(data.error || 'Kode tidak valid');
-      showToast('Akses diberikan. Selamat datang!', 'success');
-      navigate('/admin', { replace: true });
+      showToast('Kredensial telah dikirim ke perangkat admin. Cek email kamu.', 'success');
+      onBack(); // kembali ke login
     } catch (err) {
       showToast(err.message, 'error');
       setShake(true);
