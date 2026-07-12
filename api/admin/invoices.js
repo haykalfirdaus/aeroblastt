@@ -118,15 +118,11 @@ export default async function handler(req, res) {
       return;
     }
 
-    // Kirim Discord dulu — tunggu sampai selesai
-    try {
-      await sendLunasEmbed(data);
-    } catch {
-      // Discord gagal — tetap hapus DB dan return sukses
-    }
-
-    // Hapus dari DB langsung setelah Discord berhasil
+    // Hapus dari DB segera — response tidak menunggu Discord
     await supabase.from('invoices').delete().eq('id', data.id).catch(() => {});
+
+    // Discord fire-and-forget — tidak di-await agar tidak memperlambat response
+    sendLunasEmbed(data).catch(() => {});
 
     res.status(200).json({ ok: true, invoice: toClient(data) });
     return;
