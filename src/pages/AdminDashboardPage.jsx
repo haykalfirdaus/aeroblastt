@@ -1,0 +1,608 @@
+import { useCallback, useEffect, useRef, useState } from 'react';
+import { useNavigate } from 'react-router-dom';
+import {
+  BellRing,
+  Clock,
+  LogOut,
+  Megaphone,
+  PercentCircle,
+  Plus,
+  Shield,
+  Trash2,
+} from 'lucide-react';
+import { useAuth } from '@/context/AuthContext';
+import { useToast } from '@/context/ToastContext';
+import { Button } from '@/components/ui/Button';
+import { cn } from '@/lib/cn';
+
+// ---------------------------------------------------------------------------
+// Shared primitives
+// ---------------------------------------------------------------------------
+
+const fieldBase =
+  'w-full rounded-xl border border-white/12 bg-white/[0.04] px-4 py-3 text-sm text-text-bright placeholder:text-text-faint outline-none transition-colors focus:border-neon-400/60 focus:bg-white/[0.06] disabled:cursor-not-allowed disabled:opacity-50';
+
+function FieldLabel({ children, required }) {
+  return (
+    <label className="mb-1.5 block text-xs font-semibold uppercase tracking-wide text-text-muted">
+      {children}
+      {required && <span className="text-neon-400"> *</span>}
+    </label>
+  );
+}
+
+function SectionCard({ icon: Icon, title, accent = 'neon-500', children }) {
+  return (
+    <div className="relative flex flex-col overflow-hidden rounded-2xl border border-white/8 bg-white/[0.025]">
+      {/* Top glow line */}
+      <span
+        aria-hidden="true"
+        className="absolute inset-x-0 top-0 h-px opacity-50"
+        style={{
+          background: `linear-gradient(90deg, transparent, var(--color-${accent}), transparent)`,
+        }}
+      />
+      {/* Header */}
+      <div className="flex items-center gap-3 border-b border-white/6 px-6 py-4">
+        <div
+          className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl border border-white/10 bg-white/[0.04]"
+          style={{ color: `var(--color-${accent})` }}
+        >
+          <Icon size={18} />
+        </div>
+        <h2 className="font-display text-base font-semibold text-text-bright">{title}</h2>
+      </div>
+      <div className="flex flex-1 flex-col p-6">{children}</div>
+    </div>
+  );
+}
+
+/** Format milliseconds remaining as "Xj Ym" or "Expired". */
+function formatRemaining(expiresAt) {
+  const diff = new Date(expiresAt) - Date.now();
+  if (diff <= 0) return 'Expired';
+  const totalMin = Math.floor(diff / 60000);
+  const h = Math.floor(totalMin / 60);
+  const m = totalMin % 60;
+  if (h > 0) return `${h}j ${m}m`;
+  return `${m}m`;
+}
+
+// ---------------------------------------------------------------------------
+// Section A — Announcements
+// ---------------------------------------------------------------------------
+
+function AnnouncementsSection() {
+  const showToast = useToast();
+  const [items, setItems] = useState([]);
+  const [fetching, setFetching] = useState(true);
+  const [text, setText] = useState('');
+  const [duration, setDuration] = useState('');
+  const [submitting, setSubmitting] = useState(false);
+  const [deletingId, setDeletingId] = useState(null);
+
+  const fetchAnnouncements = useCallback(async () => {
+    try {
+      const res = await fetch('/api/admin/announcements', { credentials: 'include' });
+      if (!res.ok) throw new Error('Gagal memuat pengumuman');
+      const data = await res.json();
+      setItems(Array.isArray(data) ? data : (data.announcements ?? []));
+    } catch (err) {
+      showToast(err.message, 'error');
+    } finally {
+      setFetching(false);
+    }
+  }, [showToast]);
+
+  useEffect(() => {
+    fetchAnnouncements();
+  }, [fetchAnnouncements]);
+
+  async function handleAdd(e) {
+    e.preventDefault();
+    if (!text.trim() || !duration) return;
+    setSubmitting(true);
+    try {
+      const res = await fetch('/api/admin/announcements', {
+        method: 'POST',
+        credentials: 'include',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ text: text.trim(), durationMinutes: Number(duration) }),
+      });
+      if (!res.ok) {
+        const d = await res.json().catch(() => ({}));
+        throw new Error(d.error || d.message || 'Gagal menambah pengumuman');
+      }
+      showToast('Pengumuman berhasil ditambahkan', 'success');
+      setText('');
+      setDuration('');
+      await fetchAnnouncements();
+    } catch (err) {
+      showToast(err.message, 'error');
+    } finally {
+      setSubmitting(false);
+    }
+  }
+
+  async function handleDelete(id) {
+    setDeletingId(id);
+    try {
+      const res = await fetch(`/api/admin/announcements?id=${encodeURIComponent(id)}`, {
+        method: 'DELETE',
+        credentials: 'include',
+      });
+      if (!res.ok) {
+        const d = await res.json().catch(() => ({}));
+        throw new Error(d.error || d.message || 'Gagal menghapus pengumuman');
+      }
+      showToast('Pengumuman dihapus', 'success');
+      await fetchAnnouncements();
+    } catch (err) {
+      showToast(err.message, 'error');
+    } finally {
+      setDeletingId(null);
+    }
+  }
+
+  return (
+    <SectionCard icon={Megaphone} title="Manajemen Announcement" accent="neon-500">
+      {/* Add form */}
+      <form onSubmit={handleAdd} className="mb-6 space-y-4">
+        <div>
+          <FieldLabel required>Teks Pengumuman</FieldLabel>
+          <textarea
+            value={text}
+            onChange={(e) => setText(e.target.value)}
+            placeholder="Tuliskan isi pengumuman di sini…"
+            required
+            rows={3}
+            disabled={submitting}
+            className={cn(fieldBase, 'resize-none')}
+          />
+        </div>
+        <div>
+          <FieldLabel required>Durasi (menit)</FieldLabel>
+          <input
+            type="number"
+            min={1}
+            max={10080}
+            value={duration}
+            onChange={(e) => setDuration(e.target.value)}
+            placeholder="misal: 60"
+            required
+            disabled={submitting}
+            className={fieldBase}
+          />
+        </div>
+        <Button
+          type="submit"
+          variant="primary"
+          size="sm"
+          disabled={submitting || !text.trim() || !duration}
+          className="gap-1.5"
+        >
+          {submitting ? (
+            <span className="h-3.5 w-3.5 animate-spin rounded-full border-2 border-white/30 border-t-white" />
+          ) : (
+            <Plus size={14} />
+          )}
+          Tambah Pengumuman
+        </Button>
+      </form>
+
+      {/* List */}
+      <div className="space-y-2">
+        <p className="mb-3 text-xs font-semibold uppercase tracking-wide text-text-dim">
+          Aktif sekarang
+        </p>
+        {fetching ? (
+          <div className="flex justify-center py-6">
+            <span className="h-6 w-6 animate-spin rounded-full border-2 border-neon-500/20 border-t-neon-400" />
+          </div>
+        ) : items.length === 0 ? (
+          <p className="py-4 text-center text-sm text-text-dim">Belum ada pengumuman aktif.</p>
+        ) : (
+          items.map((item) => (
+            <AnnouncementItem
+              key={item.id}
+              item={item}
+              deleting={deletingId === item.id}
+              onDelete={handleDelete}
+            />
+          ))
+        )}
+      </div>
+    </SectionCard>
+  );
+}
+
+function AnnouncementItem({ item, deleting, onDelete }) {
+  const [remaining, setRemaining] = useState(() => formatRemaining(item.expiresAt));
+
+  useEffect(() => {
+    const id = setInterval(() => setRemaining(formatRemaining(item.expiresAt)), 15000);
+    return () => clearInterval(id);
+  }, [item.expiresAt]);
+
+  return (
+    <div className="flex items-start gap-3 rounded-xl border border-white/6 bg-white/[0.02] px-4 py-3 transition-colors hover:border-white/10">
+      <BellRing size={15} className="mt-0.5 shrink-0 text-neon-400" />
+      <div className="min-w-0 flex-1">
+        <p className="line-clamp-2 text-sm text-text-bright">{item.text}</p>
+        <span className="mt-1 inline-flex items-center gap-1 text-xs text-text-dim">
+          <Clock size={11} />
+          {remaining}
+        </span>
+      </div>
+      <button
+        onClick={() => onDelete(item.id)}
+        disabled={deleting}
+        aria-label="Hapus pengumuman"
+        className="shrink-0 rounded-lg p-1.5 text-text-dim transition-colors hover:bg-danger/10 hover:text-danger-bright disabled:cursor-not-allowed disabled:opacity-40"
+      >
+        {deleting ? (
+          <span className="h-3.5 w-3.5 animate-spin rounded-full border border-danger/40 border-t-danger" />
+        ) : (
+          <Trash2 size={14} />
+        )}
+      </button>
+    </div>
+  );
+}
+
+// ---------------------------------------------------------------------------
+// Section B — Discounts
+// ---------------------------------------------------------------------------
+
+const DISCOUNT_CATEGORIES = ['Rank', 'Gacha Key', 'Balance', 'Skill Boost'];
+
+function DiscountsSection() {
+  const showToast = useToast();
+  const [items, setItems] = useState([]);
+  const [fetching, setFetching] = useState(true);
+
+  const [code, setCode] = useState('');
+  const [percent, setPercent] = useState('');
+  const [categories, setCategories] = useState([]);
+  const [duration, setDuration] = useState('');
+  const [submitting, setSubmitting] = useState(false);
+  const [deletingId, setDeletingId] = useState(null);
+
+  const fetchDiscounts = useCallback(async () => {
+    try {
+      const res = await fetch('/api/admin/discounts', { credentials: 'include' });
+      if (!res.ok) throw new Error('Gagal memuat diskon');
+      const data = await res.json();
+      setItems(Array.isArray(data) ? data : (data.discounts ?? []));
+    } catch (err) {
+      showToast(err.message, 'error');
+    } finally {
+      setFetching(false);
+    }
+  }, [showToast]);
+
+  useEffect(() => {
+    fetchDiscounts();
+  }, [fetchDiscounts]);
+
+  function toggleCategory(cat) {
+    setCategories((prev) =>
+      prev.includes(cat) ? prev.filter((c) => c !== cat) : [...prev, cat]
+    );
+  }
+
+  async function handleAdd(e) {
+    e.preventDefault();
+    if (!code.trim() || !percent || categories.length === 0 || !duration) return;
+    setSubmitting(true);
+    try {
+      const res = await fetch('/api/admin/discounts', {
+        method: 'POST',
+        credentials: 'include',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          code: code.trim().toUpperCase(),
+          percent: Number(percent),
+          categories,
+          durationMinutes: Number(duration),
+        }),
+      });
+      if (!res.ok) {
+        const d = await res.json().catch(() => ({}));
+        throw new Error(d.error || d.message || 'Gagal menambah diskon');
+      }
+      showToast('Kode diskon berhasil ditambahkan', 'success');
+      setCode('');
+      setPercent('');
+      setCategories([]);
+      setDuration('');
+      await fetchDiscounts();
+    } catch (err) {
+      showToast(err.message, 'error');
+    } finally {
+      setSubmitting(false);
+    }
+  }
+
+  async function handleDelete(id) {
+    setDeletingId(id);
+    try {
+      const res = await fetch(`/api/admin/discounts?id=${encodeURIComponent(id)}`, {
+        method: 'DELETE',
+        credentials: 'include',
+      });
+      if (!res.ok) {
+        const d = await res.json().catch(() => ({}));
+        throw new Error(d.error || d.message || 'Gagal menghapus diskon');
+      }
+      showToast('Diskon dihapus', 'success');
+      await fetchDiscounts();
+    } catch (err) {
+      showToast(err.message, 'error');
+    } finally {
+      setDeletingId(null);
+    }
+  }
+
+  return (
+    <SectionCard icon={PercentCircle} title="Manajemen Diskon" accent="cyan-400">
+      {/* Add form */}
+      <form onSubmit={handleAdd} className="mb-6 space-y-4">
+        <div className="grid grid-cols-2 gap-4">
+          <div>
+            <FieldLabel required>Kode Diskon</FieldLabel>
+            <input
+              type="text"
+              value={code}
+              onChange={(e) => setCode(e.target.value.toUpperCase())}
+              placeholder="SUMMER25"
+              required
+              maxLength={32}
+              disabled={submitting}
+              className={cn(fieldBase, 'font-mono tracking-widest')}
+            />
+          </div>
+          <div>
+            <FieldLabel required>Persen (%)</FieldLabel>
+            <input
+              type="number"
+              min={1}
+              max={100}
+              value={percent}
+              onChange={(e) => setPercent(e.target.value)}
+              placeholder="25"
+              required
+              disabled={submitting}
+              className={fieldBase}
+            />
+          </div>
+        </div>
+
+        {/* Categories */}
+        <div>
+          <FieldLabel required>Kategori</FieldLabel>
+          <div className="flex flex-wrap gap-2 pt-0.5">
+            {DISCOUNT_CATEGORIES.map((cat) => {
+              const active = categories.includes(cat);
+              return (
+                <button
+                  key={cat}
+                  type="button"
+                  onClick={() => toggleCategory(cat)}
+                  disabled={submitting}
+                  className={cn(
+                    'rounded-lg border px-3 py-1.5 text-xs font-semibold transition-colors',
+                    active
+                      ? 'border-cyan-400/50 bg-cyan-400/10 text-cyan-300'
+                      : 'border-white/10 bg-white/[0.03] text-text-dim hover:border-white/20 hover:text-text-muted'
+                  )}
+                >
+                  {cat}
+                </button>
+              );
+            })}
+          </div>
+          {categories.length === 0 && (
+            <p className="mt-1.5 text-xs text-danger/70">Pilih minimal satu kategori</p>
+          )}
+        </div>
+
+        <div>
+          <FieldLabel required>Durasi (menit)</FieldLabel>
+          <input
+            type="number"
+            min={1}
+            max={10080}
+            value={duration}
+            onChange={(e) => setDuration(e.target.value)}
+            placeholder="misal: 120"
+            required
+            disabled={submitting}
+            className={fieldBase}
+          />
+        </div>
+
+        <Button
+          type="submit"
+          variant="primary"
+          size="sm"
+          disabled={submitting || !code.trim() || !percent || categories.length === 0 || !duration}
+          className="gap-1.5"
+          style={{
+            background: 'linear-gradient(to right, var(--color-cyan-500), var(--color-neon-500))',
+          }}
+        >
+          {submitting ? (
+            <span className="h-3.5 w-3.5 animate-spin rounded-full border-2 border-white/30 border-t-white" />
+          ) : (
+            <Plus size={14} />
+          )}
+          Tambah Diskon
+        </Button>
+      </form>
+
+      {/* List */}
+      <div className="space-y-2">
+        <p className="mb-3 text-xs font-semibold uppercase tracking-wide text-text-dim">
+          Diskon aktif
+        </p>
+        {fetching ? (
+          <div className="flex justify-center py-6">
+            <span className="h-6 w-6 animate-spin rounded-full border-2 border-cyan-400/20 border-t-cyan-400" />
+          </div>
+        ) : items.length === 0 ? (
+          <p className="py-4 text-center text-sm text-text-dim">Belum ada diskon aktif.</p>
+        ) : (
+          items.map((item) => (
+            <DiscountItem
+              key={item.id}
+              item={item}
+              deleting={deletingId === item.id}
+              onDelete={handleDelete}
+            />
+          ))
+        )}
+      </div>
+    </SectionCard>
+  );
+}
+
+function DiscountItem({ item, deleting, onDelete }) {
+  const [remaining, setRemaining] = useState(() => formatRemaining(item.expiresAt));
+
+  useEffect(() => {
+    const id = setInterval(() => setRemaining(formatRemaining(item.expiresAt)), 15000);
+    return () => clearInterval(id);
+  }, [item.expiresAt]);
+
+  return (
+    <div className="flex items-start gap-3 rounded-xl border border-white/6 bg-white/[0.02] px-4 py-3 transition-colors hover:border-white/10">
+      <PercentCircle size={15} className="mt-0.5 shrink-0 text-cyan-400" />
+      <div className="min-w-0 flex-1">
+        <div className="flex items-center gap-2">
+          <span className="font-mono text-sm font-bold tracking-wider text-text-bright">
+            {item.code}
+          </span>
+          <span className="rounded-md border border-cyan-400/30 bg-cyan-400/10 px-1.5 py-0.5 text-xs font-semibold text-cyan-300">
+            -{item.percent}%
+          </span>
+        </div>
+        {item.categories && item.categories.length > 0 && (
+          <div className="mt-1 flex flex-wrap gap-1">
+            {item.categories.map((cat) => (
+              <span
+                key={cat}
+                className="rounded border border-white/8 bg-white/[0.03] px-1.5 py-0.5 text-[10px] text-text-dim"
+              >
+                {cat}
+              </span>
+            ))}
+          </div>
+        )}
+        <span className="mt-1 inline-flex items-center gap-1 text-xs text-text-dim">
+          <Clock size={11} />
+          {remaining}
+        </span>
+      </div>
+      <button
+        onClick={() => onDelete(item.id)}
+        disabled={deleting}
+        aria-label="Hapus diskon"
+        className="shrink-0 rounded-lg p-1.5 text-text-dim transition-colors hover:bg-danger/10 hover:text-danger-bright disabled:cursor-not-allowed disabled:opacity-40"
+      >
+        {deleting ? (
+          <span className="h-3.5 w-3.5 animate-spin rounded-full border border-danger/40 border-t-danger" />
+        ) : (
+          <Trash2 size={14} />
+        )}
+      </button>
+    </div>
+  );
+}
+
+// ---------------------------------------------------------------------------
+// Dashboard page
+// ---------------------------------------------------------------------------
+
+export default function AdminDashboardPage() {
+  const { isAdmin, loading, logout } = useAuth();
+  const showToast = useToast();
+  const navigate = useNavigate();
+  const loggingOut = useRef(false);
+
+  useEffect(() => {
+    if (!loading && !isAdmin) {
+      navigate('/admin/login', { replace: true });
+    }
+  }, [isAdmin, loading, navigate]);
+
+  async function handleLogout() {
+    if (loggingOut.current) return;
+    loggingOut.current = true;
+    try {
+      await logout();
+      navigate('/admin/login', { replace: true });
+    } catch {
+      showToast('Gagal logout, coba lagi.', 'error');
+    } finally {
+      loggingOut.current = false;
+    }
+  }
+
+  if (loading) {
+    return (
+      <div className="fixed inset-0 flex items-center justify-center bg-void">
+        <div className="h-10 w-10 animate-spin rounded-full border-2 border-neon-500/20 border-t-neon-400" />
+      </div>
+    );
+  }
+
+  if (!isAdmin) return null;
+
+  return (
+    <div className="relative min-h-screen bg-void">
+      <div className="bg-app" aria-hidden="true" />
+
+      {/* Header */}
+      <header className="relative z-10 border-b border-white/6 bg-void/80 backdrop-blur-md">
+        <div className="mx-auto flex max-w-7xl items-center justify-between gap-4 px-4 py-3 sm:px-6">
+          <div className="flex items-center gap-3">
+            <div className="flex h-9 w-9 items-center justify-center rounded-xl border border-neon-500/30 bg-neon-500/10">
+              <Shield size={18} className="text-neon-400" />
+            </div>
+            <div className="leading-tight">
+              <p className="font-display text-sm font-bold text-text-bright">AeroBlast Admin</p>
+              <p className="text-[10px] text-text-dim">Panel Administrasi</p>
+            </div>
+          </div>
+          <Button
+            variant="ghost"
+            size="sm"
+            onClick={handleLogout}
+            className="gap-1.5 text-text-dim hover:text-danger-bright"
+          >
+            <LogOut size={14} />
+            Logout
+          </Button>
+        </div>
+      </header>
+
+      {/* Main content */}
+      <main className="relative z-10 mx-auto max-w-7xl px-4 py-8 sm:px-6">
+        <div className="mb-7">
+          <h1 className="font-display text-2xl font-bold text-text-bright">
+            Selamat datang, Admin
+          </h1>
+          <p className="mt-0.5 text-sm text-text-dim">
+            Kelola pengumuman dan kode diskon dari sini.
+          </p>
+        </div>
+
+        <div className="grid grid-cols-1 gap-6 lg:grid-cols-2">
+          <AnnouncementsSection />
+          <DiscountsSection />
+        </div>
+      </main>
+    </div>
+  );
+}

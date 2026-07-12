@@ -1,0 +1,35 @@
+{
+  "permissions": {
+    "allow": [
+      "PowerShell($m = \"D:\\\\aeroblast-sore\\\\aeroblastt-main\\\\node_modules\"; if \\(Test-Path $m\\) { \"node_modules EXISTS\"; foreach \\($p in @\\('gsap','aos','lucide-react'\\)\\) { if \\(Test-Path \"$m\\\\$p\"\\) { \"  HAS $p\" } else { \"  MISSING $p\" } } } else { \"node_modules MISSING \\(not installed\\)\" })",
+      "PowerShell(Get-ChildItem -Path \"D:\\\\aeroblast-sore\\\\aeroblastt-main\" -Recurse | Where-Object { $_.FullName -notmatch 'node_modules' } | Select-Object FullName, Length | Sort-Object FullName)",
+      "PowerShell(cd \"D:\\\\aeroblast-sore\\\\aeroblastt-main\"; $env:PATH = \"$\\(npm root -g\\)\\\\.bin;$env:PATH\"; npx vite build 2>&1)",
+      "PowerShell(Compress-Archive *)",
+      "PowerShell(if \\(Test-Path \"D:\\\\aeroblast-sore\\\\aeroblastt-deploy-v3.zip\"\\) { Get-Item \"D:\\\\aeroblast-sore\\\\aeroblastt-deploy-v3.zip\" | Select-Object Name, @{N='SizeKB';E={[math]::Round\\($_.Length/1KB,1\\)}}, LastWriteTime } else { Write-Output \"Tidak ada\" })",
+      "PowerShell(Rename-Item *)",
+      "PowerShell(Remove-Item *)",
+      "PowerShell(Get-ChildItem -Recurse \"D:\\\\aeroblast-sore\\\\paymentotomatisv1\" | Where-Object { -not $_.PSIsContainer } | Select-Object FullName)",
+      "PowerShell(Get-ChildItem -Recurse \"D:\\\\aeroblast-sore\\\\paymentotomatisv1\" | Where-Object { -not $_.PSIsContainer } | Select-Object @{N='File';E={$_.FullName.Replace\\('D:\\\\aeroblast-sore\\\\paymentotomatisv1\\\\',''\\)}} | Format-Table -AutoSize)",
+      "PowerShell(Stop-Process *)",
+      "PowerShell(Add-Type -AssemblyName System.IO.Compression.FileSystem; $zip = [System.IO.Compression.ZipFile]::OpenRead\\(\"D:\\\\aeroblast-sore\\\\aeroblastt-deploy-final.zip\"\\); $zip.Entries | Where-Object { $_.FullName -match \"config\\\\.js|index\\\\.css|StorePage|FaqPage|TermsPage|TopVoters\" } | Select-Object FullName; $zip.Dispose\\(\\))",
+      "Skill(update-config)",
+      "WebFetch(domain:designmd.me)",
+      "WebSearch",
+      "WebFetch(domain:shadowyn.id)",
+      "WebFetch(domain:www.shadowyn.id)",
+      "WebFetch(domain:store.shadowyn.id)",
+      "Bash(npm run *)",
+      "Bash(git check-ignore *)",
+      "Bash(git -C /Users/dev/workspace-353a8a4b remote -v)",
+      "Bash(git -C /Users/dev/workspace-353a8a4b status --short)",
+      "Bash(gh --version)",
+      "Bash(gh auth *)",
+      "Bash(git config *)",
+      "Bash(GIT_TERMINAL_PROMPT=0 timeout 25 git ls-remote https://github.com/haykalfirdaus/aeroblastt.git)",
+      "Bash(echo \"=== exit: $? ===\")",
+      "Bash(git init *)",
+      "Bash(git branch *)",
+      "Bash(git add *)"
+    ]
+  }
+}
