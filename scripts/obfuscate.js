@@ -24,28 +24,27 @@ for (const file of files) {
   const src = readFileSync(file, 'utf8');
   const result = JavaScriptObfuscator.obfuscate(src, {
     compact: true,
-    controlFlowFlattening: false,   // slows runtime too much
+    controlFlowFlattening: false,
     deadCodeInjection: false,
-    debugProtection: true,
-    debugProtectionInterval: 4000,
-    disableConsoleOutput: true,
+    debugProtection: false,
+    disableConsoleOutput: false,
     identifierNamesGenerator: 'hexadecimal',
-    renameGlobals: false,           // must stay false — breaks module scope
-    selfDefending: true,
+    renameGlobals: false,
+    selfDefending: false,
     stringArray: true,
     stringArrayCallsTransform: true,
-    stringArrayCallsTransformThreshold: 1,
-    stringArrayEncoding: ['rc4'],
+    stringArrayCallsTransformThreshold: 0.75,
+    stringArrayEncoding: ['base64'],
     stringArrayIndexShift: true,
     stringArrayRotate: true,
     stringArrayShuffle: true,
-    stringArrayWrappersCount: 3,
+    stringArrayWrappersCount: 2,
     stringArrayWrappersChainedCalls: true,
-    stringArrayWrappersParametersMaxCount: 3,
+    stringArrayWrappersParametersMaxCount: 2,
     stringArrayWrappersType: 'function',
-    stringArrayThreshold: 1,
-    transformObjectKeys: true,
-    unicodeEscapeSequence: false,   // huge file size if enabled
+    stringArrayThreshold: 0.75,
+    transformObjectKeys: false,
+    unicodeEscapeSequence: false,
   });
   writeFileSync(file, result.getObfuscatedCode(), 'utf8');
   total++;
