@@ -6,6 +6,7 @@ const TONES = {
   gold: 'border-warning/30 bg-warning/10 text-warning',
   danger: 'border-danger/30 bg-danger/10 text-danger-bright',
   success: 'border-success/30 bg-success/10 text-success-bright',
+  dim: 'border-white/10 bg-white/[0.04] text-text-dim',
 };
 
 export function Badge({ tone = 'neon', className, children }) {

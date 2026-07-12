@@ -2,6 +2,7 @@ import { PageLayout } from '@/components/layout/PageLayout';
 import { HeroSection } from '@/components/home/HeroSection';
 import { FotbarSlider } from '@/components/home/FotbarSlider';
 import { AnnouncementBanner } from '@/components/home/AnnouncementBanner';
+import { AnnouncementPopup } from '@/components/home/AnnouncementPopup';
 import { FeaturesSection } from '@/components/home/FeaturesSection';
 import { GallerySlider } from '@/components/home/GallerySlider';
 import { AnnouncementTicker } from '@/components/home/AnnouncementTicker';
@@ -13,9 +14,9 @@ import { CommunitySection } from '@/components/home/CommunitySection';
 export default function HomePage() {
   return (
     <PageLayout>
+      <AnnouncementPopup />
       <HeroSection />
       <FotbarSlider />
-      {/* Announcement banner: sits between hero area and features */}
       <AnnouncementBanner />
       <FeaturesSection />
       {/* Gallery with a ticker divider below it */}
