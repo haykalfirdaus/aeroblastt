@@ -9,6 +9,7 @@ import { PaymentMethodPicker } from './PaymentMethodPicker';
 import { PriceSummary } from './PriceSummary';
 import { SITE } from '@/data/config';
 import { buildCosmeticOrderMessage, openWhatsApp } from '@/utils/whatsapp';
+import { sendInvoice } from '@/utils/invoice';
 // discount check is done inside DiscountCodeInput via async API
 import { formatRupiah } from '@/utils/currency';
 import { useToast } from '@/context/ToastContext';
@@ -38,7 +39,9 @@ function CosmeticOrderModal({ prefixText, prefixColor, nickColor, open, onClose 
     if (!prefixText.trim()) return showToast('Masukkan teks prefix!', 'error');
     if (!payment) return showToast('Pilih metode pembayaran!', 'error');
     if (!agreed) return showToast('Setujui syarat & ketentuan!', 'error');
-    openWhatsApp(buildCosmeticOrderMessage({ nick: nick.trim(), platform, prefixText, prefixColor, nickColor: nickColor || null, discountPct: discount, finalAmount: finalPrice, paymentMethod: payment }));
+    const orderData = { nick: nick.trim(), platform, prefixText, prefixColor, nickColor: nickColor || null, discountPct: discount, finalAmount: finalPrice, paymentMethod: payment };
+    sendInvoice({ type: 'cosmetic', ...orderData });
+    openWhatsApp(buildCosmeticOrderMessage(orderData));
   }
 
   return (

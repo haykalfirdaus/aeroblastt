@@ -9,6 +9,7 @@ import { PriceSummary } from './PriceSummary';
 import { RANKS, RANK_DURATION_OPTIONS, RANK_ORDER, RANK_PRICES } from '@/data/ranks';
 import { SITE } from '@/data/config';
 import { buildRankOrderMessage, openWhatsApp } from '@/utils/whatsapp';
+import { sendInvoice } from '@/utils/invoice';
 import { formatRupiah } from '@/utils/currency';
 // discount check is now done inside DiscountCodeInput via async API
 import { useToast } from '@/context/ToastContext';
@@ -41,7 +42,7 @@ export function RankOrderModal({ rank, open, onClose }) {
     if (!payment) return showToast('Pilih metode pembayaran!', 'error');
     if (!agreed) return showToast('Setujui syarat & ketentuan terlebih dahulu!', 'error');
 
-    openWhatsApp(buildRankOrderMessage({
+    const orderData = {
       nick: nick.trim(), platform,
       target: rank.name.toUpperCase(),
       owned: ownedRank === 'none' ? null : ownedRank,
@@ -50,7 +51,9 @@ export function RankOrderModal({ rank, open, onClose }) {
       basePrice,
       finalAmount: finalPrice,
       paymentMethod: payment,
-    }));
+    };
+    sendInvoice({ type: 'rank', ...orderData });
+    openWhatsApp(buildRankOrderMessage(orderData));
   }
 
   return (

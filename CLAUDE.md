@@ -122,6 +122,7 @@ Key utility classes defined in `@layer utilities`: `.bg-app`, `.hero-bg`, `.text
 | `ALLOWED_ORIGIN` | `api/_auth.js`, `api/admin/login.js` | Strict CORS origin; defaults to `https://store.aeroblast.my.id` |
 | `SUPABASE_URL` | `api/_supabase.js` | Supabase project URL; required (no fallback) |
 | `SUPABASE_SERVICE_ROLE_KEY` | `api/_supabase.js` | Service role key — server-side only, required (no fallback), never expose to client |
+| `DISCORD_WEBHOOK_URL` | `api/invoice.js` | Discord webhook URL untuk notif order; required (no fallback) |
 
 Create `.env.local` for local development (never commit — it is gitignored). Use your own rotated secrets:
 ```
@@ -131,6 +132,7 @@ ADMIN_PASSWORD=<your-admin-password>
 SUPABASE_URL=<your-supabase-url>
 SUPABASE_SERVICE_ROLE_KEY=<service_role_key>
 VOTERS_API_KEY=<voters-api-key>
+DISCORD_WEBHOOK_URL=<discord-webhook-url>
 ```
 
 All API secrets are **required with no hardcoded fallback** — a missing env var makes the handler fail closed (throws / 500) rather than fall back to an insecure default. Set them all in the Vercel dashboard (Settings → Environment Variables) for production.

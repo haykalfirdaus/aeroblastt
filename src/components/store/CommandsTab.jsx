@@ -12,6 +12,7 @@ import { PriceSummary } from './PriceSummary';
 import { COMMANDS, COMMAND_DURATION_OPTIONS } from '@/data/commands';
 import { SITE } from '@/data/config';
 import { buildCommandOrderMessage, openWhatsApp } from '@/utils/whatsapp';
+import { sendInvoice } from '@/utils/invoice';
 import { formatRupiah } from '@/utils/currency';
 // discount check is done inside DiscountCodeInput via async API
 import { useToast } from '@/context/ToastContext';
@@ -36,7 +37,9 @@ function CommandOrderModal({ cmd, open, onClose }) {
     if (!platform) return showToast('Pilih platform!', 'error');
     if (!payment) return showToast('Pilih metode pembayaran!', 'error');
     if (!agreed) return showToast('Setujui syarat & ketentuan!', 'error');
-    openWhatsApp(buildCommandOrderMessage({ nick: nick.trim(), platform, cmdName: cmd.orderLabel, duration: durOpt.label, discountPct: discount, finalAmount: finalPrice, paymentMethod: payment }));
+    const orderData = { nick: nick.trim(), platform, cmdName: cmd.orderLabel, duration: durOpt.label, discountPct: discount, finalAmount: finalPrice, paymentMethod: payment };
+    sendInvoice({ type: 'command', ...orderData });
+    openWhatsApp(buildCommandOrderMessage(orderData));
   }
 
   return (

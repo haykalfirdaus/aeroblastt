@@ -11,6 +11,7 @@ import { PriceSummary } from './PriceSummary';
 import { SKILL_CATEGORIES, SKILL_DEFAULT_LEVELS, SKILL_MAX_LEVEL } from '@/data/skills';
 import { SITE } from '@/data/config';
 import { buildSkillOrderMessage, openWhatsApp } from '@/utils/whatsapp';
+import { sendInvoice } from '@/utils/invoice';
 // discount check is done inside DiscountCodeInput via async API
 import { formatRupiah } from '@/utils/currency';
 import { useToast } from '@/context/ToastContext';
@@ -33,7 +34,9 @@ function SkillOrderModal({ skill, cat, open, onClose }) {
     if (!platform) return showToast('Pilih platform!', 'error');
     if (!payment) return showToast('Pilih metode pembayaran!', 'error');
     if (!agreed) return showToast('Setujui syarat & ketentuan!', 'error');
-    openWhatsApp(buildSkillOrderMessage({ nick: nick.trim(), platform, skillName: skill.name, levels, discountPct: discount, finalAmount: finalPrice, paymentMethod: payment }));
+    const orderData = { nick: nick.trim(), platform, skillName: skill.name, levels, discountPct: discount, finalAmount: finalPrice, paymentMethod: payment };
+    sendInvoice({ type: 'skill', ...orderData });
+    openWhatsApp(buildSkillOrderMessage(orderData));
   }
 
   return (

@@ -13,6 +13,7 @@ import { PriceSummary } from './PriceSummary';
 import { GACHA_KEYS } from '@/data/keys';
 import { SITE } from '@/data/config';
 import { buildKeyOrderMessage, openWhatsApp } from '@/utils/whatsapp';
+import { sendInvoice } from '@/utils/invoice';
 import { formatRupiah } from '@/utils/currency';
 // discount check is done inside DiscountCodeInput via async API
 import { useToast } from '@/context/ToastContext';
@@ -39,7 +40,9 @@ function KeyOrderModal({ keyData, open, onClose }) {
     if (!platform) return showToast('Pilih platform!', 'error');
     if (!payment) return showToast('Pilih metode pembayaran!', 'error');
     if (!agreed) return showToast('Setujui syarat & ketentuan!', 'error');
-    openWhatsApp(buildKeyOrderMessage({ nick: nick.trim(), platform, keyName: keyData.name, qty, discountPct: discount, finalAmount: finalPrice, paymentMethod: payment }));
+    const orderData = { nick: nick.trim(), platform, keyName: keyData.name, qty, discountPct: discount, finalAmount: finalPrice, paymentMethod: payment };
+    sendInvoice({ type: 'key', ...orderData });
+    openWhatsApp(buildKeyOrderMessage(orderData));
   }
 
   return (

@@ -11,6 +11,7 @@ import { PriceSummary } from './PriceSummary';
 import { BALANCE_QUICK_PICKS, BALANCE_RATE } from '@/data/balance';
 import { SITE } from '@/data/config';
 import { buildBalanceOrderMessage, openWhatsApp } from '@/utils/whatsapp';
+import { sendInvoice } from '@/utils/invoice';
 import { formatRupiah, formatNumber } from '@/utils/currency';
 // discount check is done inside DiscountCodeInput via async API
 import { useToast } from '@/context/ToastContext';
@@ -35,7 +36,9 @@ function BalanceOrderModal({ open, onClose, initialRupiah = 0 }) {
     if (rupiah < 5000) return showToast('Minimum pembelian Rp 5.000!', 'error');
     if (!payment) return showToast('Pilih metode pembayaran!', 'error');
     if (!agreed) return showToast('Setujui syarat & ketentuan!', 'error');
-    openWhatsApp(buildBalanceOrderMessage({ nick: nick.trim(), platform, balance, discountPct: discount, finalAmount: finalPrice, paymentMethod: payment }));
+    const orderData = { nick: nick.trim(), platform, balance, discountPct: discount, finalAmount: finalPrice, paymentMethod: payment };
+    sendInvoice({ type: 'balance', ...orderData });
+    openWhatsApp(buildBalanceOrderMessage(orderData));
   }
 
   return (
