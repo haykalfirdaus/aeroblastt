@@ -373,7 +373,8 @@ function AnnouncementsSection() {
   const [text, setText] = useState('');
   const [duration, setDuration] = useState('');
   const [submitting, setSubmitting] = useState(false);
-  const [deletingId, setDeletingId] = useState(null);
+  const [confirmId, setConfirmId] = useState(null);
+  const [pendingDeleteIds, setPendingDeleteIds] = useState(new Set());
 
   const fetchAnnouncements = useCallback(async () => {
     try {
@@ -418,24 +419,30 @@ function AnnouncementsSection() {
     }
   }
 
-  async function handleDelete(id) {
-    setDeletingId(id);
-    try {
-      const res = await fetch(`/api/admin/announcements?id=${encodeURIComponent(id)}`, {
-        method: 'DELETE',
-        credentials: 'include',
-      });
-      if (!res.ok) {
-        const d = await res.json().catch(() => ({}));
-        throw new Error(d.error || d.message || 'Gagal menghapus pengumuman');
+  function handleConfirmDelete(id) {
+    setConfirmId(null);
+    setPendingDeleteIds((prev) => new Set([...prev, id]));
+    showToast('Pengumuman akan dihapus dalam 1 menit', 'success');
+    setTimeout(async () => {
+      try {
+        const res = await fetch(`/api/admin/announcements?id=${encodeURIComponent(id)}`, {
+          method: 'DELETE',
+          credentials: 'include',
+        });
+        if (!res.ok) {
+          const d = await res.json().catch(() => ({}));
+          throw new Error(d.error || d.message || 'Gagal menghapus pengumuman');
+        }
+      } catch (err) {
+        showToast(err.message, 'error');
       }
-      showToast('Pengumuman dihapus', 'success');
-      await fetchAnnouncements();
-    } catch (err) {
-      showToast(err.message, 'error');
-    } finally {
-      setDeletingId(null);
-    }
+      setItems((prev) => prev.filter((i) => i.id !== id));
+      setPendingDeleteIds((prev) => {
+        const next = new Set(prev);
+        next.delete(id);
+        return next;
+      });
+    }, 60 * 1000);
   }
 
   return (
@@ -498,8 +505,11 @@ function AnnouncementsSection() {
             <AnnouncementItem
               key={item.id}
               item={item}
-              deleting={deletingId === item.id}
-              onDelete={handleDelete}
+              pending={pendingDeleteIds.has(item.id)}
+              confirming={confirmId === item.id}
+              onRequestDelete={() => setConfirmId(item.id)}
+              onCancelDelete={() => setConfirmId(null)}
+              onConfirmDelete={handleConfirmDelete}
             />
           ))
         )}
@@ -508,7 +518,7 @@ function AnnouncementsSection() {
   );
 }
 
-function AnnouncementItem({ item, deleting, onDelete }) {
+function AnnouncementItem({ item, pending, confirming, onRequestDelete, onCancelDelete, onConfirmDelete }) {
   const [remaining, setRemaining] = useState(() => formatRemaining(item.expiresAt));
 
   useEffect(() => {
@@ -517,27 +527,50 @@ function AnnouncementItem({ item, deleting, onDelete }) {
   }, [item.expiresAt]);
 
   return (
-    <div className="flex items-start gap-3 rounded-xl border border-white/6 bg-white/[0.02] px-4 py-3 transition-colors hover:border-white/10">
-      <BellRing size={15} className="mt-0.5 shrink-0 text-neon-400" />
+    <div className={cn(
+      'flex items-start gap-3 rounded-xl border px-4 py-3 transition-colors',
+      pending ? 'border-danger/20 bg-danger/[0.04]' : 'border-white/6 bg-white/[0.02] hover:border-white/10'
+    )}>
+      <BellRing size={15} className={cn('mt-0.5 shrink-0', pending ? 'text-danger/60' : 'text-neon-400')} />
       <div className="min-w-0 flex-1">
-        <p className="line-clamp-2 text-sm text-text-bright">{item.text}</p>
+        <p className={cn('line-clamp-2 text-sm', pending ? 'text-text-dim line-through' : 'text-text-bright')}>{item.text}</p>
         <span className="mt-1 inline-flex items-center gap-1 text-xs text-text-dim">
-          <Clock size={11} />
-          {remaining}
+          {pending ? (
+            <span className="text-danger/70">Dihapus dalam 1 menit…</span>
+          ) : (
+            <><Clock size={11} />{remaining}</>
+          )}
         </span>
       </div>
-      <button
-        onClick={() => onDelete(item.id)}
-        disabled={deleting}
-        aria-label="Hapus pengumuman"
-        className="shrink-0 rounded-lg p-1.5 text-text-dim transition-colors hover:bg-danger/10 hover:text-danger-bright disabled:cursor-not-allowed disabled:opacity-40"
-      >
-        {deleting ? (
-          <span className="h-3.5 w-3.5 animate-spin rounded-full border border-danger/40 border-t-danger" />
-        ) : (
+      {!pending && !confirming && (
+        <button
+          onClick={onRequestDelete}
+          aria-label="Hapus pengumuman"
+          className="shrink-0 rounded-lg p-1.5 text-text-dim transition-colors hover:bg-danger/10 hover:text-danger-bright"
+        >
           <Trash2 size={14} />
-        )}
-      </button>
+        </button>
+      )}
+      {!pending && confirming && (
+        <div className="shrink-0 flex flex-col items-end gap-1.5">
+          <span className="text-[10px] font-semibold text-danger/80">Yakin hapus?</span>
+          <div className="flex items-center gap-1.5">
+            <button
+              onClick={onCancelDelete}
+              className="rounded-lg border border-white/15 bg-white/[0.04] px-2.5 py-1 text-xs font-semibold text-text-dim transition-colors hover:border-white/25 hover:text-text-bright"
+            >
+              Batal
+            </button>
+            <button
+              onClick={() => onConfirmDelete(item.id)}
+              className="flex items-center gap-1 rounded-lg border border-danger/40 bg-danger/10 px-2.5 py-1 text-xs font-semibold text-danger-bright transition-colors hover:bg-danger/20"
+            >
+              <Trash2 size={12} />
+              Ya, Hapus
+            </button>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
@@ -558,7 +591,8 @@ function DiscountsSection() {
   const [categories, setCategories] = useState([]);
   const [duration, setDuration] = useState('');
   const [submitting, setSubmitting] = useState(false);
-  const [deletingId, setDeletingId] = useState(null);
+  const [confirmId, setConfirmId] = useState(null);
+  const [pendingDeleteIds, setPendingDeleteIds] = useState(new Set());
 
   const fetchDiscounts = useCallback(async () => {
     try {
@@ -616,24 +650,30 @@ function DiscountsSection() {
     }
   }
 
-  async function handleDelete(id) {
-    setDeletingId(id);
-    try {
-      const res = await fetch(`/api/admin/discounts?id=${encodeURIComponent(id)}`, {
-        method: 'DELETE',
-        credentials: 'include',
-      });
-      if (!res.ok) {
-        const d = await res.json().catch(() => ({}));
-        throw new Error(d.error || d.message || 'Gagal menghapus diskon');
+  function handleConfirmDelete(id) {
+    setConfirmId(null);
+    setPendingDeleteIds((prev) => new Set([...prev, id]));
+    showToast('Diskon akan dihapus dalam 1 menit', 'success');
+    setTimeout(async () => {
+      try {
+        const res = await fetch(`/api/admin/discounts?id=${encodeURIComponent(id)}`, {
+          method: 'DELETE',
+          credentials: 'include',
+        });
+        if (!res.ok) {
+          const d = await res.json().catch(() => ({}));
+          throw new Error(d.error || d.message || 'Gagal menghapus diskon');
+        }
+      } catch (err) {
+        showToast(err.message, 'error');
       }
-      showToast('Diskon dihapus', 'success');
-      await fetchDiscounts();
-    } catch (err) {
-      showToast(err.message, 'error');
-    } finally {
-      setDeletingId(null);
-    }
+      setItems((prev) => prev.filter((i) => i.id !== id));
+      setPendingDeleteIds((prev) => {
+        const next = new Set(prev);
+        next.delete(id);
+        return next;
+      });
+    }, 60 * 1000);
   }
 
   return (
@@ -746,8 +786,11 @@ function DiscountsSection() {
             <DiscountItem
               key={item.id}
               item={item}
-              deleting={deletingId === item.id}
-              onDelete={handleDelete}
+              pending={pendingDeleteIds.has(item.id)}
+              confirming={confirmId === item.id}
+              onRequestDelete={() => setConfirmId(item.id)}
+              onCancelDelete={() => setConfirmId(null)}
+              onConfirmDelete={handleConfirmDelete}
             />
           ))
         )}
@@ -756,7 +799,7 @@ function DiscountsSection() {
   );
 }
 
-function DiscountItem({ item, deleting, onDelete }) {
+function DiscountItem({ item, pending, confirming, onRequestDelete, onCancelDelete, onConfirmDelete }) {
   const [remaining, setRemaining] = useState(() => formatRemaining(item.expiresAt));
 
   useEffect(() => {
@@ -765,11 +808,14 @@ function DiscountItem({ item, deleting, onDelete }) {
   }, [item.expiresAt]);
 
   return (
-    <div className="flex items-start gap-3 rounded-xl border border-white/6 bg-white/[0.02] px-4 py-3 transition-colors hover:border-white/10">
-      <PercentCircle size={15} className="mt-0.5 shrink-0 text-cyan-400" />
+    <div className={cn(
+      'flex items-start gap-3 rounded-xl border px-4 py-3 transition-colors',
+      pending ? 'border-danger/20 bg-danger/[0.04]' : 'border-white/6 bg-white/[0.02] hover:border-white/10'
+    )}>
+      <PercentCircle size={15} className={cn('mt-0.5 shrink-0', pending ? 'text-danger/60' : 'text-cyan-400')} />
       <div className="min-w-0 flex-1">
         <div className="flex items-center gap-2">
-          <span className="font-mono text-sm font-bold tracking-wider text-text-bright">
+          <span className={cn('font-mono text-sm font-bold tracking-wider', pending ? 'text-text-dim line-through' : 'text-text-bright')}>
             {item.code}
           </span>
           <span className="rounded-md border border-cyan-400/30 bg-cyan-400/10 px-1.5 py-0.5 text-xs font-semibold text-cyan-300">
@@ -779,32 +825,49 @@ function DiscountItem({ item, deleting, onDelete }) {
         {item.categories && item.categories.length > 0 && (
           <div className="mt-1 flex flex-wrap gap-1">
             {item.categories.map((cat) => (
-              <span
-                key={cat}
-                className="rounded border border-white/8 bg-white/[0.03] px-1.5 py-0.5 text-[10px] text-text-dim"
-              >
+              <span key={cat} className="rounded border border-white/8 bg-white/[0.03] px-1.5 py-0.5 text-[10px] text-text-dim">
                 {cat}
               </span>
             ))}
           </div>
         )}
         <span className="mt-1 inline-flex items-center gap-1 text-xs text-text-dim">
-          <Clock size={11} />
-          {remaining}
+          {pending ? (
+            <span className="text-danger/70">Dihapus dalam 1 menit…</span>
+          ) : (
+            <><Clock size={11} />{remaining}</>
+          )}
         </span>
       </div>
-      <button
-        onClick={() => onDelete(item.id)}
-        disabled={deleting}
-        aria-label="Hapus diskon"
-        className="shrink-0 rounded-lg p-1.5 text-text-dim transition-colors hover:bg-danger/10 hover:text-danger-bright disabled:cursor-not-allowed disabled:opacity-40"
-      >
-        {deleting ? (
-          <span className="h-3.5 w-3.5 animate-spin rounded-full border border-danger/40 border-t-danger" />
-        ) : (
+      {!pending && !confirming && (
+        <button
+          onClick={onRequestDelete}
+          aria-label="Hapus diskon"
+          className="shrink-0 rounded-lg p-1.5 text-text-dim transition-colors hover:bg-danger/10 hover:text-danger-bright"
+        >
           <Trash2 size={14} />
-        )}
-      </button>
+        </button>
+      )}
+      {!pending && confirming && (
+        <div className="shrink-0 flex flex-col items-end gap-1.5">
+          <span className="text-[10px] font-semibold text-danger/80">Yakin hapus?</span>
+          <div className="flex items-center gap-1.5">
+            <button
+              onClick={onCancelDelete}
+              className="rounded-lg border border-white/15 bg-white/[0.04] px-2.5 py-1 text-xs font-semibold text-text-dim transition-colors hover:border-white/25 hover:text-text-bright"
+            >
+              Batal
+            </button>
+            <button
+              onClick={() => onConfirmDelete(item.id)}
+              className="flex items-center gap-1 rounded-lg border border-danger/40 bg-danger/10 px-2.5 py-1 text-xs font-semibold text-danger-bright transition-colors hover:bg-danger/20"
+            >
+              <Trash2 size={12} />
+              Ya, Hapus
+            </button>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
