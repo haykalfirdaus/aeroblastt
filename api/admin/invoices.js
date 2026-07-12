@@ -97,11 +97,16 @@ export default async function handler(req, res) {
       .order('created_at', { ascending: false });
 
     if (error) {
+      // Tabel belum dibuat → kembalikan array kosong agar panel tidak crash
+      if (error.code === '42P01' || error.message?.includes('does not exist')) {
+        res.status(200).json([]);
+        return;
+      }
       res.status(500).json({ ok: false, error: error.message });
       return;
     }
 
-    res.status(200).json(data.map(toClient));
+    res.status(200).json((data ?? []).map(toClient));
     return;
   }
 
