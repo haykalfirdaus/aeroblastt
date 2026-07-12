@@ -360,7 +360,7 @@ export default function AdminLoginPage() {
         style={{ background: 'radial-gradient(50% 40% at 50% 20%, rgba(37,99,235,0.14) 0%, transparent 65%)' }}
       />
 
-      <div className="relative z-10 flex min-h-screen flex-col items-center justify-center px-4 py-12">
+      <main className="relative z-10 flex min-h-screen flex-col items-center justify-center px-4 py-12">
         {/* Branding */}
         <div className="mb-8 flex flex-col items-center gap-3">
           <div className="flex h-16 w-16 items-center justify-center rounded-2xl border border-neon-500/30 bg-neon-500/10 shadow-[0_0_32px_rgba(59,130,246,0.18)]" aria-hidden="true">
@@ -392,7 +392,7 @@ export default function AdminLoginPage() {
         <p className="mt-6 text-xs text-text-faint">
           AeroBlast &copy; {new Date().getFullYear()} &mdash; Hanya untuk staf resmi
         </p>
-      </div>
+      </main>
     </div>
   );
 }

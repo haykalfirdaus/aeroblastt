@@ -341,7 +341,7 @@
     background-image: url('/wallpaper1.png');
     background-size: cover;
     background-position: center center;
-    background-attachment: fixed;
+    background-attachment: scroll;
     opacity: 0.04;
     pointer-events: none;
     z-index: 0;
@@ -363,7 +363,7 @@
     inset: 0;
     background-size: cover;
     background-position: center center;
-    background-attachment: fixed;
+    background-attachment: scroll;
     opacity: 0.04;
     pointer-events: none;
     z-index: 0;

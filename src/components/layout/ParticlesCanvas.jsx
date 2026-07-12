@@ -1,22 +1,18 @@
 import { useEffect, useRef } from 'react';
 
-/**
- * Renders the ambient "network" particle field used behind every page.
- * One implementation replaces the near-duplicate canvas scripts that were
- * copy-pasted into script.js, topvoters.html, faq.html, and snk.html.
- * 
- * Sekarang dengan z-index yang diatur untuk berada di atas wallpaper
- * tapi di bawah konten utama.
- */
 export function ParticlesCanvas({ className = 'fixed inset-0 z-0' }) {
   const canvasRef = useRef(null);
 
   useEffect(() => {
     const canvas = canvasRef.current;
     if (!canvas) return undefined;
-    const ctx = canvas.getContext('2d');
 
+    // Skip entirely on mobile (<768px) — single biggest mobile perf win
+    if (window.innerWidth < 768) return undefined;
     if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return undefined;
+
+    const ctx = canvas.getContext('2d');
+    const isTablet = window.innerWidth < 1024;
 
     let particles = [];
     let mouseX = 0;
@@ -24,9 +20,7 @@ export function ParticlesCanvas({ className = 'fixed inset-0 z-0' }) {
     let frameId;
 
     class Particle {
-      constructor() {
-        this.reset();
-      }
+      constructor() { this.reset(); }
       reset() {
         this.x = Math.random() * canvas.width;
         this.y = Math.random() * canvas.height;
@@ -39,13 +33,15 @@ export function ParticlesCanvas({ className = 'fixed inset-0 z-0' }) {
       update() {
         this.x += this.vx;
         this.y += this.vy;
-        const dx = this.x - mouseX;
-        const dy = this.y - mouseY;
-        const dist = Math.sqrt(dx * dx + dy * dy);
-        if (dist < 140) {
-          const force = (140 - dist) / 140;
-          this.x += (dx / dist) * force * 0.5;
-          this.y += (dy / dist) * force * 0.5;
+        if (!isTablet) {
+          const dx = this.x - mouseX;
+          const dy = this.y - mouseY;
+          const dist = Math.sqrt(dx * dx + dy * dy);
+          if (dist < 140) {
+            const force = (140 - dist) / 140;
+            this.x += (dx / dist) * force * 0.5;
+            this.y += (dy / dist) * force * 0.5;
+          }
         }
         if (this.x < 0) this.x = canvas.width;
         if (this.x > canvas.width) this.x = 0;
@@ -57,10 +53,12 @@ export function ParticlesCanvas({ className = 'fixed inset-0 z-0' }) {
         ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2);
         ctx.fillStyle = this.color + this.opacity + ')';
         ctx.fill();
-        ctx.beginPath();
-        ctx.arc(this.x, this.y, this.size * 3, 0, Math.PI * 2);
-        ctx.fillStyle = this.color + this.opacity * 0.14 + ')';
-        ctx.fill();
+        if (!isTablet) {
+          ctx.beginPath();
+          ctx.arc(this.x, this.y, this.size * 3, 0, Math.PI * 2);
+          ctx.fillStyle = this.color + this.opacity * 0.14 + ')';
+          ctx.fill();
+        }
       }
     }
 
@@ -72,11 +70,15 @@ export function ParticlesCanvas({ className = 'fixed inset-0 z-0' }) {
     function init() {
       resize();
       particles = [];
-      const count = Math.min(75, Math.floor(window.innerWidth / 14));
+      // Desktop: up to 75 | Tablet: up to 35
+      const maxCount = isTablet ? 35 : 75;
+      const count = Math.min(maxCount, Math.floor(window.innerWidth / 14));
       for (let i = 0; i < count; i++) particles.push(new Particle());
     }
 
     function drawConnections() {
+      // Skip connection lines on tablet — too expensive
+      if (isTablet) return;
       for (let i = 0; i < particles.length; i++) {
         for (let j = i + 1; j < particles.length; j++) {
           const dx = particles[i].x - particles[j].x;
@@ -96,31 +98,19 @@ export function ParticlesCanvas({ className = 'fixed inset-0 z-0' }) {
 
     function tick() {
       ctx.clearRect(0, 0, canvas.width, canvas.height);
-      particles.forEach((p) => {
-        p.update();
-        p.draw();
-      });
+      particles.forEach((p) => { p.update(); p.draw(); });
       drawConnections();
       frameId = requestAnimationFrame(tick);
     }
 
-    function handleResize() {
-      resize();
-    }
-    function handleMouseMove(e) {
-      mouseX = e.clientX;
-      mouseY = e.clientY;
-    }
-
-    window.addEventListener('resize', handleResize);
-    window.addEventListener('mousemove', handleMouseMove);
+    window.addEventListener('resize', resize);
+    window.addEventListener('mousemove', (e) => { mouseX = e.clientX; mouseY = e.clientY; });
     init();
     tick();
 
     return () => {
       cancelAnimationFrame(frameId);
-      window.removeEventListener('resize', handleResize);
-      window.removeEventListener('mousemove', handleMouseMove);
+      window.removeEventListener('resize', resize);
     };
   }, []);
 

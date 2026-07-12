@@ -24,6 +24,8 @@ let aosStarted = false;
 export function initAOS() {
   if (typeof window === 'undefined') return;
   if (prefersReducedMotion()) return;
+  // Skip AOS entirely on mobile — saves JS parse + layout work on first load
+  if (window.innerWidth < 768) return;
 
   if (!aosStarted) {
     AOS.init({
@@ -31,7 +33,7 @@ export function initAOS() {
       easing: 'ease-out-cubic',
       once: true,
       offset: 40,
-      disable: () => prefersReducedMotion(),
+      disable: 'mobile',
     });
     aosStarted = true;
   } else {

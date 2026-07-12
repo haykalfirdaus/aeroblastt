@@ -1,0 +1,22 @@
+# AeroBlast Network
+
+> AeroBlast Network adalah Minecraft Server Indonesia dengan fitur Survival Economy, Claim Land, Key Gacha, Skill RPG, PvP Arena, dan komunitas aktif.
+
+## Halaman Utama
+
+- [Beranda](https://store.aeroblast.my.id/): Halaman utama dengan informasi server, fitur, dan komunitas.
+- [Store](https://store.aeroblast.my.id/store): Toko untuk membeli Rank, Gacha Key, Skill Boost, Balance, Command Access, dan Custom Prefix.
+- [Top Voters](https://store.aeroblast.my.id/top-voters): Daftar pemain dengan voting terbanyak bulan ini.
+- [FAQ](https://store.aeroblast.my.id/faq): Pertanyaan yang sering diajukan seputar server dan pembelian.
+- [Syarat & Ketentuan](https://store.aeroblast.my.id/terms): Aturan penggunaan layanan AeroBlast Network.
+
+## Informasi Server
+
+- IP: aeroblast.my.id
+- Port Bedrock: 19132
+- Versi: Java & Bedrock (1.20+)
+- Discord: https://discord.gg/rgRRnPS9cp
+
+## Optional
+
+- [Sitemap](https://store.aeroblast.my.id/sitemap.xml)
