@@ -197,29 +197,31 @@ export default async function handler(req, res) {
 
   const expiresAt = new Date(Date.now() + 24 * 60 * 60 * 1000).toISOString();
 
-  // Simpan ke Supabase
-  const { data: invoice, error: dbError } = await supabase
-    .from('invoices')
-    .insert({
-      type,
-      nick: nick.trim(),
-      platform,
-      final_amount: finalAmount,
-      payment_method: paymentMethod,
-      details: buildDetails(type, body),
-      expires_at: expiresAt,
-    })
-    .select('id')
-    .single();
+  // Simpan ke Supabase (optional — Discord tetap jalan meski tabel belum ada)
+  let invoiceId = 'PENDING';
+  try {
+    const { data: invoice, error: dbError } = await supabase
+      .from('invoices')
+      .insert({
+        type,
+        nick: nick.trim(),
+        platform,
+        final_amount: finalAmount,
+        payment_method: paymentMethod,
+        details: buildDetails(type, body),
+        expires_at: expiresAt,
+      })
+      .select('id')
+      .single();
 
-  if (dbError || !invoice) {
-    res.status(502).json({ ok: false, error: 'Gagal simpan invoice', detail: dbError?.message });
-    return;
+    if (!dbError && invoice?.id) invoiceId = invoice.id;
+  } catch {
+    // tabel belum ada atau DB error — lanjut kirim Discord
   }
 
-  // Kirim ke Discord
+  // Kirim ke Discord — selalu dijalankan
   try {
-    const embed = buildEmbed(body, invoice.id);
+    const embed = buildEmbed(body, invoiceId);
     const webhookRes = await fetch(DISCORD_WEBHOOK_URL, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
@@ -227,11 +229,13 @@ export default async function handler(req, res) {
     });
 
     if (!webhookRes.ok) {
-      throw new Error(`Discord webhook HTTP ${webhookRes.status}`);
+      const errText = await webhookRes.text().catch(() => '');
+      throw new Error(`Discord webhook HTTP ${webhookRes.status}: ${errText}`);
     }
-  } catch {
-    // Invoice tetap tersimpan meski Discord gagal
+  } catch (err) {
+    res.status(502).json({ ok: false, error: 'Gagal kirim notifikasi Discord', detail: err.message });
+    return;
   }
 
-  res.status(200).json({ ok: true, invoiceId: invoice.id });
+  res.status(200).json({ ok: true, invoiceId });
 }
