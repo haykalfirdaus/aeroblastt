@@ -2,10 +2,18 @@ import { defineConfig } from 'vite'
 import react from '@vitejs/plugin-react'
 import tailwindcss from '@tailwindcss/vite'
 import path from 'node:path'
+import { compression } from 'vite-plugin-compression2'
 
 // https://vite.dev/config/
 export default defineConfig(({ mode }) => ({
-  plugins: [react(), tailwindcss()],
+  plugins: [
+    react(),
+    tailwindcss(),
+    // Gzip for broad compatibility
+    compression({ algorithm: 'gzip', exclude: /\.(png|webp|jpg|woff2)$/ }),
+    // Brotli for modern browsers (smaller than gzip)
+    compression({ algorithm: 'brotliCompress', exclude: /\.(png|webp|jpg|woff2)$/ }),
+  ],
 
   resolve: {
     alias: {

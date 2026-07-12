@@ -284,7 +284,7 @@
     position: absolute;
     inset: 0;
     z-index: 1;
-    background-image: url('/wallpaper.png');
+    background-image: url('/wallpaper.webp');
     background-size: cover;
     background-position: center 20%;
     background-repeat: no-repeat;
@@ -311,7 +311,7 @@
     content: '';
     position: absolute;
     inset: 0;
-    background-image: url('/wallpaper.png');
+    background-image: url('/wallpaper.webp');
     background-size: cover;
     background-position: center 30%;
     background-repeat: no-repeat;
@@ -324,10 +324,10 @@
 
   /* ---- Per-page header wallpaper overrides ------------------------- */
   .page-header-bg-w2::before {
-    background-image: url('/wallpaper2.png');
+    background-image: url('/wallpaper2.webp');
   }
   .page-header-bg-w3::before {
-    background-image: url('/wallpaper3.png');
+    background-image: url('/wallpaper3.webp');
   }
 
   /* ---- Section wallpaper backgrounds (opacity rendah) -------------- */
@@ -338,7 +338,7 @@
     content: '';
     position: absolute;
     inset: 0;
-    background-image: url('/wallpaper1.png');
+    background-image: url('/wallpaper1.webp');
     background-size: cover;
     background-position: center center;
     background-attachment: scroll;
@@ -347,10 +347,10 @@
     z-index: 0;
   }
   .section-bg-w2::before {
-    background-image: url('/wallpaper2.png');
+    background-image: url('/wallpaper2.webp');
   }
   .section-bg-w3::before {
-    background-image: url('/wallpaper3.png');
+    background-image: url('/wallpaper3.webp');
   }
   .section-bg-w2,
   .section-bg-w3 {
