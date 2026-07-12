@@ -1,11 +1,5 @@
 import crypto from 'crypto';
-import { setCorsHeaders } from '../_auth.js';
-
-function getSecret() {
-  const s = process.env.ADMIN_SECRET;
-  if (!s) throw new Error('Missing ADMIN_SECRET env var');
-  return s;
-}
+import { setCorsHeaders, getSecret } from '../_auth.js';
 
 function getResendKey() {
   const k = process.env.RESEND_API_KEY;
@@ -37,7 +31,7 @@ function isRateLimited(ip) {
   return false;
 }
 
-function verifyOtpToken(token, submittedOtp) {
+function verifyOtpToken(token, submittedOtp, secret) {
   if (!token || !submittedOtp) return false;
   const dotIndex = token.lastIndexOf('.');
   if (dotIndex === -1) return false;
@@ -45,7 +39,6 @@ function verifyOtpToken(token, submittedOtp) {
   const payload = token.slice(0, dotIndex);
   const sig = token.slice(dotIndex + 1);
 
-  const secret = getSecret();
   const expectedSig = crypto.createHmac('sha256', secret).update(payload).digest('hex');
 
   const sigBuf = Buffer.from(sig);
@@ -67,6 +60,12 @@ function verifyOtpToken(token, submittedOtp) {
   const submitBuf = Buffer.from(String(submittedOtp).trim());
   if (otpBuf.length !== submitBuf.length) return false;
   return crypto.timingSafeEqual(otpBuf, submitBuf);
+}
+
+function createSessionToken(secret) {
+  const payload = Buffer.from(JSON.stringify({ adminId: 'admin', iat: Date.now() })).toString('base64');
+  const sig = crypto.createHmac('sha256', secret).update(payload).digest('hex');
+  return `${payload}.${sig}`;
 }
 
 function credentialsEmailHtml(username, password) {
@@ -91,7 +90,6 @@ function credentialsEmailHtml(username, password) {
             <p style="margin:0 0 20px;color:#9aa3b8;font-size:14px;line-height:1.6">
               Verifikasi identitasmu berhasil. Berikut kredensial login panel admin:
             </p>
-
             <table width="100%" cellpadding="0" cellspacing="0" style="background:rgba(59,130,246,0.06);border:1px solid rgba(59,130,246,0.2);border-radius:12px;overflow:hidden;margin-bottom:24px">
               <tr>
                 <td style="padding:14px 20px;border-bottom:1px solid rgba(255,255,255,0.05)">
@@ -106,10 +104,9 @@ function credentialsEmailHtml(username, password) {
                 </td>
               </tr>
             </table>
-
             <p style="margin:0;color:#4b5570;font-size:12px;line-height:1.6">
-              Jangan bagikan informasi ini kepada siapapun.<br>
-              Segera ubah password jika kamu tidak merasa meminta ini.
+              Kamu sudah otomatis masuk ke panel admin.<br>
+              Jangan bagikan informasi ini kepada siapapun.
             </p>
           </td>
         </tr>
@@ -145,18 +142,18 @@ export default async function handler(req, res) {
   }
 
   const { token, otp } = body || {};
-
   if (!token || !otp) {
     res.status(400).json({ ok: false, error: 'token dan otp diperlukan' });
     return;
   }
 
-  try { getSecret(); } catch {
+  let secret;
+  try { secret = getSecret(); } catch {
     res.status(500).json({ ok: false, error: 'Server misconfigured' });
     return;
   }
 
-  if (!verifyOtpToken(token, otp)) {
+  if (!verifyOtpToken(token, otp, secret)) {
     res.status(401).json({ ok: false, error: 'Kode tidak valid atau sudah kedaluwarsa' });
     return;
   }
@@ -171,10 +168,10 @@ export default async function handler(req, res) {
     return;
   }
 
-  // Kirim email berisi username + password
+  // Kirim email kredensial (non-blocking jika gagal — admin tetap masuk)
   try {
     const resendKey = getResendKey();
-    const emailRes = await fetch('https://api.resend.com/emails', {
+    await fetch('https://api.resend.com/emails', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
@@ -187,16 +184,19 @@ export default async function handler(req, res) {
         html: credentialsEmailHtml(username, password),
       }),
     });
-
-    if (!emailRes.ok) {
-      const err = await emailRes.json().catch(() => ({}));
-      throw new Error(err.message || `Resend HTTP ${emailRes.status}`);
-    }
-  } catch (err) {
-    res.status(502).json({ ok: false, error: 'Gagal mengirim email kredensial. Coba lagi.' });
-    return;
+  } catch {
+    // Email gagal → tetap lanjut issue session
   }
 
-  // Kembalikan ke login — tidak issue session cookie
+  // Issue session cookie — bypass rate limit login yang mungkin aktif
+  const sessionToken = createSessionToken(secret);
+  const cookieMaxAge = 60 * 60 * 24 * 7;
+  const isProduction = process.env.NODE_ENV !== 'development';
+
+  res.setHeader(
+    'Set-Cookie',
+    `aeroblast_admin_session=${sessionToken}; HttpOnly; Path=/; Max-Age=${cookieMaxAge}; SameSite=Strict${isProduction ? '; Secure' : ''}`
+  );
+
   res.status(200).json({ ok: true });
 }
