@@ -4,6 +4,7 @@ import { ToastProvider } from '@/context/ToastContext';
 import { AuthProvider } from '@/context/AuthContext';
 import { scrollToId } from '@/lib/motion';
 import { onDevtoolsChange } from '@/utils/devtools-protection';
+import AiChat from '@/components/ui/AiChat';
 
 const HomePage         = lazy(() => import('@/pages/HomePage'));
 const StorePage        = lazy(() => import('@/pages/StorePage'));
@@ -144,6 +145,7 @@ export default function App() {
         <AuthProvider>
           <DevtoolsWarningOverlay />
           <ScrollManager />
+          <AiChat />
           <Suspense fallback={<PageLoader />}>
             <Routes>
               <Route path="/"              element={<HomePage />} />

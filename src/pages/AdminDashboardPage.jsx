@@ -2,20 +2,15 @@ import { useCallback, useEffect, useRef, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import {
   BellRing,
-  Bot,
   CheckCircle,
-  ChevronDown,
-  ChevronUp,
   Clock,
   FileText,
-  GitCommit,
   LogOut,
   Megaphone,
   PercentCircle,
   Plus,
   Shield,
   Trash2,
-  X,
 } from 'lucide-react';
 import { useAuth } from '@/context/AuthContext';
 import { useToast } from '@/context/ToastContext';
@@ -878,269 +873,6 @@ function DiscountItem({ item, pending, confirming, onRequestDelete, onCancelDele
 }
 
 // ---------------------------------------------------------------------------
-// Section: AI Code Editor
-// ---------------------------------------------------------------------------
-
-const LOG_COLORS = {
-  ok: 'text-emerald-400',
-  warn: 'text-amber-400',
-  claude: 'text-cyan-400',
-  github: 'text-violet-400',
-  vercel: 'text-blue-400',
-};
-
-function logColor(line) {
-  const tag = line.match(/^\[([a-z]+)\]/)?.[1];
-  return LOG_COLORS[tag] || 'text-text-muted';
-}
-
-const FILE_PATH_PLACEHOLDER = 'src/pages/StorePage.jsx\nsrc/data/ranks.js';
-
-function AiEditSection() {
-  const showToast = useToast();
-  const [prompt, setPrompt] = useState('');
-  const [rawPaths, setRawPaths] = useState('');
-  const [submitting, setSubmitting] = useState(false);
-  const [result, setResult] = useState(null); // { ok, logs, commitSha, changedFiles, error, claudeResponse }
-  const [showRaw, setShowRaw] = useState(false);
-  const logsEndRef = useRef(null);
-
-  function parsePaths(raw) {
-    return raw
-      .split(/[\n,]+/)
-      .map((s) => s.trim())
-      .filter(Boolean);
-  }
-
-  async function handleSubmit(e) {
-    e.preventDefault();
-    const filePaths = parsePaths(rawPaths);
-    if (!prompt.trim()) {
-      showToast('Isi prompt terlebih dahulu.', 'error');
-      return;
-    }
-    if (filePaths.length === 0) {
-      showToast('Masukkan minimal satu path file.', 'error');
-      return;
-    }
-    if (filePaths.length > 10) {
-      showToast('Maksimal 10 file sekaligus.', 'error');
-      return;
-    }
-
-    setSubmitting(true);
-    setResult(null);
-    setShowRaw(false);
-
-    try {
-      const res = await fetch('/api/admin/ai-edit', {
-        method: 'POST',
-        credentials: 'include',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ prompt: prompt.trim(), filePaths }),
-      });
-
-      const data = await res.json();
-
-      if (!res.ok) {
-        showToast(data.error || 'Terjadi kesalahan.', 'error');
-        setResult({ ok: false, error: data.error, logs: [] });
-        return;
-      }
-
-      setResult(data);
-      if (data.committed) {
-        showToast(`Berhasil commit ${data.changedFiles?.length ?? 0} file ke GitHub!`, 'success');
-      } else {
-        showToast('Claude tidak menghasilkan perubahan file.', 'warning');
-      }
-    } catch (err) {
-      showToast(err.message, 'error');
-      setResult({ ok: false, error: err.message, logs: [] });
-    } finally {
-      setSubmitting(false);
-    }
-  }
-
-  // Scroll log to bottom when logs update
-  useEffect(() => {
-    if (result?.logs?.length) {
-      logsEndRef.current?.scrollIntoView({ behavior: 'smooth' });
-    }
-  }, [result]);
-
-  const filePaths = parsePaths(rawPaths);
-  const canSubmit = prompt.trim() && filePaths.length > 0 && filePaths.length <= 10;
-
-  return (
-    <SectionCard icon={Bot} title="AI Code Editor" accent="violet-500">
-      <p className="mb-5 text-xs leading-relaxed text-text-dim">
-        Ketik instruksi perubahan kode, pilih file yang akan dimodifikasi, lalu kirim ke Claude.
-        Hasil perubahan akan langsung di-commit ke GitHub dan Vercel akan otomatis rebuild.
-      </p>
-
-      <form onSubmit={handleSubmit} className="space-y-4">
-        {/* Prompt */}
-        <div>
-          <FieldLabel required>Instruksi / Prompt</FieldLabel>
-          <textarea
-            rows={4}
-            value={prompt}
-            onChange={(e) => setPrompt(e.target.value)}
-            placeholder="Contoh: Tambahkan animasi fade-in pada komponen HeroSection saat halaman pertama kali dimuat."
-            disabled={submitting}
-            className={cn(fieldBase, 'resize-none leading-relaxed')}
-          />
-        </div>
-
-        {/* File paths */}
-        <div>
-          <FieldLabel required>Path File (satu per baris, maks. 10)</FieldLabel>
-          <textarea
-            rows={3}
-            value={rawPaths}
-            onChange={(e) => setRawPaths(e.target.value)}
-            placeholder={FILE_PATH_PLACEHOLDER}
-            disabled={submitting}
-            className={cn(fieldBase, 'resize-none font-mono text-xs leading-relaxed')}
-          />
-          {filePaths.length > 0 && (
-            <div className="mt-1.5 flex flex-wrap gap-1.5">
-              {filePaths.map((p) => (
-                <span
-                  key={p}
-                  className="inline-flex items-center gap-1 rounded-md border border-violet-400/25 bg-violet-400/8 px-2 py-0.5 font-mono text-[10px] text-violet-300"
-                >
-                  {p}
-                </span>
-              ))}
-            </div>
-          )}
-        </div>
-
-        {/* Warning */}
-        <div className="rounded-xl border border-amber-400/20 bg-amber-400/[0.04] px-4 py-3 text-xs text-amber-300/80 leading-relaxed">
-          Perubahan akan langsung di-commit ke branch <span className="font-mono font-semibold">main</span>.
-          Pastikan prompt dan path file sudah benar sebelum mengirim.
-        </div>
-
-        <Button
-          type="submit"
-          variant="primary"
-          size="sm"
-          disabled={!canSubmit || submitting}
-          className="gap-1.5"
-          style={{
-            background: submitting
-              ? undefined
-              : 'linear-gradient(to right, var(--color-violet-600, #7c3aed), var(--color-neon-500))',
-          }}
-        >
-          {submitting ? (
-            <>
-              <span className="h-3.5 w-3.5 animate-spin rounded-full border-2 border-white/30 border-t-white" />
-              Memproses…
-            </>
-          ) : (
-            <>
-              <Bot size={14} />
-              Kirim ke Claude
-            </>
-          )}
-        </Button>
-      </form>
-
-      {/* Output terminal */}
-      {result && (
-        <div className="mt-6 space-y-3">
-          <div className="rounded-xl border border-white/8 bg-black/40 p-4">
-            {/* Status bar */}
-            <div className="mb-3 flex items-center gap-2">
-              <span
-                className={cn(
-                  'h-2 w-2 rounded-full',
-                  result.ok && result.committed
-                    ? 'bg-emerald-400'
-                    : result.ok
-                    ? 'bg-amber-400'
-                    : 'bg-red-400'
-                )}
-              />
-              <span className="text-xs font-semibold text-text-bright">
-                {result.ok && result.committed
-                  ? `Commit berhasil · ${result.commitSha?.slice(0, 7)}`
-                  : result.ok
-                  ? 'Selesai tanpa perubahan'
-                  : 'Error'}
-              </span>
-              {result.ok && result.committed && (
-                <span className="ml-auto flex items-center gap-1 text-[10px] text-emerald-400/70">
-                  <GitCommit size={11} />
-                  {result.changedFiles?.length ?? 0} file diubah
-                </span>
-              )}
-            </div>
-
-            {/* Changed files chips */}
-            {result.changedFiles?.length > 0 && (
-              <div className="mb-3 flex flex-wrap gap-1.5">
-                {result.changedFiles.map((f) => (
-                  <span
-                    key={f}
-                    className="rounded-md border border-emerald-400/25 bg-emerald-400/8 px-2 py-0.5 font-mono text-[10px] text-emerald-300"
-                  >
-                    {f}
-                  </span>
-                ))}
-              </div>
-            )}
-
-            {/* Logs */}
-            {result.logs?.length > 0 && (
-              <div className="max-h-48 overflow-y-auto rounded-lg bg-black/50 p-3 font-mono text-[11px] leading-relaxed">
-                {result.logs.map((line, i) => (
-                  <div key={i} className={logColor(line)}>
-                    {line}
-                  </div>
-                ))}
-                <div ref={logsEndRef} />
-              </div>
-            )}
-
-            {/* Error */}
-            {result.error && (
-              <div className="mt-2 flex items-start gap-2 rounded-lg border border-red-400/25 bg-red-400/8 px-3 py-2 text-xs text-red-300">
-                <X size={13} className="mt-0.5 shrink-0" />
-                {result.error}
-              </div>
-            )}
-          </div>
-
-          {/* Raw Claude response toggle */}
-          {result.claudeResponse && (
-            <div>
-              <button
-                type="button"
-                onClick={() => setShowRaw((v) => !v)}
-                className="flex items-center gap-1.5 text-xs text-text-dim transition-colors hover:text-text-muted"
-              >
-                {showRaw ? <ChevronUp size={13} /> : <ChevronDown size={13} />}
-                {showRaw ? 'Sembunyikan' : 'Tampilkan'} raw response Claude
-              </button>
-              {showRaw && (
-                <pre className="mt-2 max-h-80 overflow-auto rounded-xl border border-white/8 bg-black/40 p-4 font-mono text-[11px] leading-relaxed text-text-muted whitespace-pre-wrap break-words">
-                  {result.claudeResponse}
-                </pre>
-              )}
-            </div>
-          )}
-        </div>
-      )}
-    </SectionCard>
-  );
-}
-
-// ---------------------------------------------------------------------------
 // Dashboard page
 // ---------------------------------------------------------------------------
 
@@ -1214,7 +946,7 @@ export default function AdminDashboardPage() {
             Selamat datang, Admin
           </h1>
           <p className="mt-0.5 text-sm text-text-dim">
-            Kelola invoice, pengumuman, kode diskon, dan edit kode via AI dari sini.
+            Kelola invoice, pengumuman, dan kode diskon dari sini.
           </p>
         </div>
 
@@ -1224,13 +956,10 @@ export default function AdminDashboardPage() {
         </div>
 
         {/* Announcements + Discounts — side by side */}
-        <div className="mb-6 grid grid-cols-1 gap-6 lg:grid-cols-2">
+        <div className="grid grid-cols-1 gap-6 lg:grid-cols-2">
           <AnnouncementsSection />
           <DiscountsSection />
         </div>
-
-        {/* AI Code Editor — full width */}
-        <AiEditSection />
       </main>
     </div>
   );
