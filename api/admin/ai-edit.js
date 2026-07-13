@@ -9,6 +9,11 @@ function getAnthropicKey() {
   if (!v) throw new Error('Missing ANTHROPIC_API_KEY env var');
   return v;
 }
+function getAnthropicModel() {
+  const v = process.env.ANTHROPIC_MODEL;
+  if (!v) throw new Error('Missing ANTHROPIC_MODEL env var');
+  return v;
+}
 function getGithubToken() {
   const v = process.env.GITHUB_TOKEN;
   if (!v) throw new Error('Missing GITHUB_TOKEN env var');
@@ -241,12 +246,14 @@ CRITICAL OUTPUT FORMAT:
     logs.push('[claude] Sending request to Claude API…');
 
     // 3. Call Claude API (streaming, collect final message)
-    // Client is instantiated here (not at module level) so the env getter runs
-    // inside the request context and throws a clean 500 if the key is missing.
+    // Client is instantiated here (not at module level) so env getters run
+    // inside the request context and throw a clean 500 if any key is missing.
+    // ANTHROPIC_BASE_URL is read automatically by the SDK from process.env.
     const anthropic = new Anthropic({ apiKey: getAnthropicKey() });
+    const model = getAnthropicModel();
     let claudeText = '';
     const stream = await anthropic.messages.stream({
-      model: 'claude-opus-4-8',
+      model,
       max_tokens: 16000,
       thinking: { type: 'adaptive' },
       system: systemPrompt,
@@ -314,7 +321,7 @@ CRITICAL OUTPUT FORMAT:
     // Produce a safe, human-readable message stripped of any secret-bearing content.
     const raw = err?.message ?? '';
     let safeMessage = 'Internal server error';
-    if (raw.startsWith('Missing ') && raw.endsWith(' env var')) {
+    if (raw.startsWith('Missing ') && raw.includes(' env var')) {
       safeMessage = 'Server misconfiguration: required environment variable is not set';
     } else if (raw.startsWith('GitHub API ')) {
       // "GitHub API 404: ..." — safe to surface the status code but not the full URL
