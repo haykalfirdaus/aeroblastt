@@ -889,40 +889,62 @@ function DiscountItem({ item, pending, confirming, onRequestDelete, onCancelDele
 // Section C — RCON Manual
 // ---------------------------------------------------------------------------
 
-const RANK_OPTIONS = [
-  'SCOUT','VOYAGER','ORBITER','RAVEST','VORTEX','QUANTUM','GALATICS','UNIVERSE',
-];
+const RANK_OPTIONS = ['SCOUT','VOYAGER','ORBITER','RAVEST','VORTEX','QUANTUM','GALATICS','UNIVERSE'];
+const KEY_OPTIONS  = ['basic','vote','vip','legend','aerospace'];
 
-const SKILL_OPTIONS = [
-  'Fighting','Defense','Archery','Agility','Alchemy',
-  'Farming','Foraging','Mining','Fishing','Excavation','Enchanting',
+const ACTION_TABS = [
+  { id: 'rank',   label: '🎖️ Rank' },
+  { id: 'money',  label: '💰 Money' },
+  { id: 'key',    label: '🗝️ Key' },
+  { id: 'bansos', label: '🎁 Bansos' },
+  { id: 'event',  label: '🎪 Event' },
 ];
 
 function RconSection() {
   const showToast = useToast();
   const [action, setAction] = useState('rank');
+  const [loading, setLoading] = useState(false);
+
+  // per-action state
   const [nick, setNick] = useState('');
   const [rankKey, setRankKey] = useState('SCOUT');
   const [rankDuration, setRankDuration] = useState('permanent');
   const [money, setMoney] = useState('');
-  const [skillName, setSkillName] = useState('Fighting');
-  const [skillLevels, setSkillLevels] = useState('');
-  const [loading, setLoading] = useState(false);
+  const [keyName, setKeyName] = useState('basic');
+  const [keyQty, setKeyQty] = useState('');
+  const [bansosType, setBansosType] = useState('balance');
+  const [bansosKeyName, setBansosKeyName] = useState('basic');
+  const [bansosAmount, setBansosAmount] = useState('');
+  const [bansosDuration, setBansosDuration] = useState('');
+  const [eventSub, setEventSub] = useState('add');
+  const [eventName, setEventName] = useState('');
+  const [eventStart, setEventStart] = useState('');
+  const [eventDuration, setEventDuration] = useState('');
+  const [eventTarget, setEventTarget] = useState('');
+  const [eventTimeAction, setEventTimeAction] = useState('add');
+  const [eventTime, setEventTime] = useState('');
+
+  function resetFields() {
+    setNick(''); setMoney(''); setKeyQty('');
+    setBansosAmount(''); setBansosDuration('');
+    setEventName(''); setEventStart(''); setEventDuration('');
+    setEventTarget(''); setEventTime('');
+  }
 
   async function handleSubmit(e) {
     e.preventDefault();
-    if (!nick.trim()) return;
     setLoading(true);
 
-    const payload = { action, nick: nick.trim() };
-    if (action === 'rank') {
-      payload.rankKey = rankKey;
-      payload.duration = rankDuration;
-    } else if (action === 'money') {
-      payload.amount = Number(money);
-    } else if (action === 'skill') {
-      payload.skillName = skillName;
-      payload.levels = Number(skillLevels);
+    let payload = { action };
+    if (action === 'rank')   payload = { ...payload, nick: nick.trim(), rankKey, duration: rankDuration };
+    if (action === 'money')  payload = { ...payload, nick: nick.trim(), amount: Number(money) };
+    if (action === 'key')    payload = { ...payload, nick: nick.trim(), keyName, qty: Number(keyQty) };
+    if (action === 'bansos') payload = { ...payload, type: bansosType, keyName: bansosKeyName, amount: Number(bansosAmount), duration: bansosDuration.trim() };
+    if (action === 'event') {
+      payload.subAction = eventSub;
+      if (eventSub === 'add')    payload = { ...payload, name: eventName.trim(), startTime: eventStart.trim(), duration: eventDuration.trim() };
+      if (eventSub === 'clear')  payload = { ...payload, target: eventTarget.trim() };
+      if (eventSub === 'time')   payload = { ...payload, timeAction: eventTimeAction, target: eventTarget.trim(), time: eventTime.trim() };
     }
 
     try {
@@ -935,9 +957,7 @@ function RconSection() {
       const data = await res.json().catch(() => ({}));
       if (data.ok) {
         showToast(`RCON berhasil: ${data.response || 'OK'}`, 'success');
-        setNick('');
-        setMoney('');
-        setSkillLevels('');
+        resetFields();
       } else {
         showToast(`RCON gagal: ${data.error || 'Unknown error'}`, 'error');
       }
@@ -948,24 +968,23 @@ function RconSection() {
     }
   }
 
+  const needsNick = ['rank', 'money', 'key'].includes(action);
+
   return (
     <SectionCard icon={Terminal} title="RCON Manual" accent="cyan-400">
       <form onSubmit={handleSubmit} className="space-y-4">
+
         {/* Action tabs */}
         <div>
           <FieldLabel required>Tipe Aksi</FieldLabel>
-          <div className="flex gap-2">
-            {[
-              { id: 'rank', label: '🎖️ Rank' },
-              { id: 'money', label: '💰 Money' },
-              { id: 'skill', label: '⚡ Skill' },
-            ].map(({ id, label }) => (
+          <div className="flex flex-wrap gap-2">
+            {ACTION_TABS.map(({ id, label }) => (
               <button
                 key={id}
                 type="button"
                 onClick={() => setAction(id)}
                 className={cn(
-                  'flex-1 rounded-xl border py-2 text-xs font-semibold transition-colors',
+                  'rounded-xl border px-3 py-2 text-xs font-semibold transition-colors',
                   action === id
                     ? 'border-cyan-400/50 bg-cyan-400/10 text-cyan-300'
                     : 'border-white/10 bg-white/[0.03] text-text-dim hover:border-white/20 hover:text-text-muted',
@@ -977,61 +996,15 @@ function RconSection() {
           </div>
         </div>
 
-        {/* Nick */}
-        <div>
-          <FieldLabel required>Nickname Player</FieldLabel>
-          <input
-            type="text"
-            value={nick}
-            onChange={(e) => setNick(e.target.value)}
-            placeholder="Nama IGN player…"
-            required
-            disabled={loading}
-            className={fieldBase}
-          />
-        </div>
-
-        {/* Rank fields */}
-        {action === 'rank' && (
-          <div className="grid grid-cols-2 gap-4">
-            <div>
-              <FieldLabel required>Rank</FieldLabel>
-              <select
-                value={rankKey}
-                onChange={(e) => setRankKey(e.target.value)}
-                disabled={loading}
-                className={fieldBase}
-              >
-                {RANK_OPTIONS.map((r) => (
-                  <option key={r} value={r}>{r}</option>
-                ))}
-              </select>
-            </div>
-            <div>
-              <FieldLabel required>Durasi</FieldLabel>
-              <select
-                value={rankDuration}
-                onChange={(e) => setRankDuration(e.target.value)}
-                disabled={loading}
-                className={fieldBase}
-              >
-                <option value="permanent">Permanent</option>
-                <option value="monthly">Monthly (30 hari)</option>
-              </select>
-            </div>
-          </div>
-        )}
-
-        {/* Money fields */}
-        {action === 'money' && (
+        {/* Nick — hanya untuk rank/money/key */}
+        {needsNick && (
           <div>
-            <FieldLabel required>Jumlah Balance (in-game)</FieldLabel>
+            <FieldLabel required>Nickname Player</FieldLabel>
             <input
-              type="number"
-              min={1}
-              value={money}
-              onChange={(e) => setMoney(e.target.value)}
-              placeholder="misal: 10000"
+              type="text"
+              value={nick}
+              onChange={(e) => setNick(e.target.value)}
+              placeholder="Nama IGN player…"
               required
               disabled={loading}
               className={fieldBase}
@@ -1039,54 +1012,183 @@ function RconSection() {
           </div>
         )}
 
-        {/* Skill fields */}
-        {action === 'skill' && (
+        {/* Rank */}
+        {action === 'rank' && (
           <div className="grid grid-cols-2 gap-4">
             <div>
-              <FieldLabel required>Skill</FieldLabel>
-              <select
-                value={skillName}
-                onChange={(e) => setSkillName(e.target.value)}
-                disabled={loading}
-                className={fieldBase}
-              >
-                {SKILL_OPTIONS.map((s) => (
-                  <option key={s} value={s}>{s}</option>
-                ))}
+              <FieldLabel required>Rank</FieldLabel>
+              <select value={rankKey} onChange={(e) => setRankKey(e.target.value)} disabled={loading} className={fieldBase}>
+                {RANK_OPTIONS.map((r) => <option key={r} value={r}>{r}</option>)}
               </select>
             </div>
             <div>
-              <FieldLabel required>Jumlah Level</FieldLabel>
-              <input
-                type="number"
-                min={1}
-                max={100}
-                value={skillLevels}
-                onChange={(e) => setSkillLevels(e.target.value)}
-                placeholder="misal: 10"
-                required
-                disabled={loading}
-                className={fieldBase}
-              />
+              <FieldLabel required>Durasi</FieldLabel>
+              <select value={rankDuration} onChange={(e) => setRankDuration(e.target.value)} disabled={loading} className={fieldBase}>
+                <option value="permanent">Permanent</option>
+                <option value="monthly">Monthly (30 hari)</option>
+              </select>
             </div>
           </div>
+        )}
+
+        {/* Money */}
+        {action === 'money' && (
+          <div>
+            <FieldLabel required>Jumlah Money (eco)</FieldLabel>
+            <input type="number" min={1} value={money} onChange={(e) => setMoney(e.target.value)}
+              placeholder="misal: 10000" required disabled={loading} className={fieldBase} />
+          </div>
+        )}
+
+        {/* Key */}
+        {action === 'key' && (
+          <div className="grid grid-cols-2 gap-4">
+            <div>
+              <FieldLabel required>Tipe Key</FieldLabel>
+              <select value={keyName} onChange={(e) => setKeyName(e.target.value)} disabled={loading} className={fieldBase}>
+                {KEY_OPTIONS.map((k) => <option key={k} value={k}>{k}</option>)}
+              </select>
+            </div>
+            <div>
+              <FieldLabel required>Jumlah</FieldLabel>
+              <input type="number" min={1} value={keyQty} onChange={(e) => setKeyQty(e.target.value)}
+                placeholder="misal: 5" required disabled={loading} className={fieldBase} />
+            </div>
+          </div>
+        )}
+
+        {/* Bansos */}
+        {action === 'bansos' && (
+          <>
+            <div>
+              <FieldLabel required>Tipe Bansos</FieldLabel>
+              <div className="flex gap-2">
+                {[{ id:'balance', label:'💰 Balance' }, { id:'key', label:'🗝️ Key' }].map(({ id, label }) => (
+                  <button key={id} type="button" onClick={() => setBansosType(id)} disabled={loading}
+                    className={cn('flex-1 rounded-xl border py-2 text-xs font-semibold transition-colors',
+                      bansosType === id ? 'border-cyan-400/50 bg-cyan-400/10 text-cyan-300'
+                        : 'border-white/10 bg-white/[0.03] text-text-dim hover:border-white/20 hover:text-text-muted'
+                    )}>
+                    {label}
+                  </button>
+                ))}
+              </div>
+            </div>
+            {bansosType === 'key' && (
+              <div>
+                <FieldLabel required>Tipe Key</FieldLabel>
+                <select value={bansosKeyName} onChange={(e) => setBansosKeyName(e.target.value)} disabled={loading} className={fieldBase}>
+                  {KEY_OPTIONS.map((k) => <option key={k} value={k}>{k}</option>)}
+                </select>
+              </div>
+            )}
+            <div className="grid grid-cols-2 gap-4">
+              <div>
+                <FieldLabel required>Jumlah</FieldLabel>
+                <input type="number" min={1} value={bansosAmount} onChange={(e) => setBansosAmount(e.target.value)}
+                  placeholder="misal: 5000" required disabled={loading} className={fieldBase} />
+              </div>
+              <div>
+                <FieldLabel required>Durasi</FieldLabel>
+                <input type="text" value={bansosDuration} onChange={(e) => setBansosDuration(e.target.value)}
+                  placeholder="10, 1h, 2d, 1w…" required disabled={loading} className={fieldBase} />
+              </div>
+            </div>
+          </>
+        )}
+
+        {/* Event */}
+        {action === 'event' && (
+          <>
+            <div>
+              <FieldLabel required>Sub-Aksi</FieldLabel>
+              <div className="flex gap-2">
+                {[{ id:'add', label:'➕ Add' }, { id:'clear', label:'🗑️ Clear' }, { id:'time', label:'⏱️ Time' }].map(({ id, label }) => (
+                  <button key={id} type="button" onClick={() => setEventSub(id)} disabled={loading}
+                    className={cn('flex-1 rounded-xl border py-2 text-xs font-semibold transition-colors',
+                      eventSub === id ? 'border-cyan-400/50 bg-cyan-400/10 text-cyan-300'
+                        : 'border-white/10 bg-white/[0.03] text-text-dim hover:border-white/20 hover:text-text-muted'
+                    )}>
+                    {label}
+                  </button>
+                ))}
+              </div>
+            </div>
+
+            {eventSub === 'add' && (
+              <>
+                <div>
+                  <FieldLabel required>Nama Event</FieldLabel>
+                  <input type="text" value={eventName} onChange={(e) => setEventName(e.target.value)}
+                    placeholder="misal: pvp_tournament" required disabled={loading} className={fieldBase} />
+                </div>
+                <div className="grid grid-cols-2 gap-4">
+                  <div>
+                    <FieldLabel required>Waktu Mulai</FieldLabel>
+                    <input type="text" value={eventStart} onChange={(e) => setEventStart(e.target.value)}
+                      placeholder="misal: 10, 1h" required disabled={loading} className={fieldBase} />
+                  </div>
+                  <div>
+                    <FieldLabel required>Durasi</FieldLabel>
+                    <input type="text" value={eventDuration} onChange={(e) => setEventDuration(e.target.value)}
+                      placeholder="misal: 30, 2h" required disabled={loading} className={fieldBase} />
+                  </div>
+                </div>
+              </>
+            )}
+
+            {eventSub === 'clear' && (
+              <div>
+                <FieldLabel required>ID / Nama Event</FieldLabel>
+                <input type="text" value={eventTarget} onChange={(e) => setEventTarget(e.target.value)}
+                  placeholder="misal: pvp_tournament atau 1" required disabled={loading} className={fieldBase} />
+              </div>
+            )}
+
+            {eventSub === 'time' && (
+              <>
+                <div>
+                  <FieldLabel required>Aksi Waktu</FieldLabel>
+                  <div className="flex gap-2">
+                    {[{ id:'add', label:'➕ Tambah' }, { id:'reduce', label:'➖ Kurangi' }].map(({ id, label }) => (
+                      <button key={id} type="button" onClick={() => setEventTimeAction(id)} disabled={loading}
+                        className={cn('flex-1 rounded-xl border py-2 text-xs font-semibold transition-colors',
+                          eventTimeAction === id ? 'border-cyan-400/50 bg-cyan-400/10 text-cyan-300'
+                            : 'border-white/10 bg-white/[0.03] text-text-dim hover:border-white/20 hover:text-text-muted'
+                        )}>
+                        {label}
+                      </button>
+                    ))}
+                  </div>
+                </div>
+                <div className="grid grid-cols-2 gap-4">
+                  <div>
+                    <FieldLabel required>ID / Nama Event</FieldLabel>
+                    <input type="text" value={eventTarget} onChange={(e) => setEventTarget(e.target.value)}
+                      placeholder="misal: pvp_tournament" required disabled={loading} className={fieldBase} />
+                  </div>
+                  <div>
+                    <FieldLabel required>Waktu</FieldLabel>
+                    <input type="text" value={eventTime} onChange={(e) => setEventTime(e.target.value)}
+                      placeholder="misal: 10, 1h" required disabled={loading} className={fieldBase} />
+                  </div>
+                </div>
+              </>
+            )}
+          </>
         )}
 
         <Button
           type="submit"
           variant="primary"
           size="sm"
-          disabled={loading || !nick.trim()}
+          disabled={loading}
           className="w-full gap-1.5"
-          style={{
-            background: 'linear-gradient(to right, var(--color-cyan-500), var(--color-neon-500))',
-          }}
+          style={{ background: 'linear-gradient(to right, var(--color-cyan-500), var(--color-neon-500))' }}
         >
-          {loading ? (
-            <span className="h-3.5 w-3.5 animate-spin rounded-full border-2 border-white/30 border-t-white" />
-          ) : (
-            <Zap size={14} />
-          )}
+          {loading
+            ? <span className="h-3.5 w-3.5 animate-spin rounded-full border-2 border-white/30 border-t-white" />
+            : <Zap size={14} />}
           Eksekusi RCON
         </Button>
       </form>

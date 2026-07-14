@@ -1,6 +1,6 @@
 import { isAuthenticated, setCorsHeaders } from '../_auth.js';
 import { supabase } from '../_supabase.js';
-import { grantRank, giveMoney, giveSkill } from '../_rcon.js';
+import { grantRank, giveMoney, giveKey } from '../_rcon.js';
 
 const DISCORD_WEBHOOK_URL = process.env.DISCORD_WEBHOOK_URL;
 
@@ -132,8 +132,8 @@ export default async function handler(req, res) {
       );
     } else if (data.type === 'balance' && data.details?.balance) {
       rconResult = await giveMoney(data.nick, data.details.balance);
-    } else if (data.type === 'skill' && data.details?.skillName && data.details?.levels) {
-      rconResult = await giveSkill(data.nick, data.details.skillName, data.details.levels);
+    } else if (data.type === 'key' && data.details?.keyName && data.details?.qty) {
+      rconResult = await giveKey(data.nick, data.details.keyName, data.details.qty);
     }
 
     res.status(200).json({ ok: true, invoice: toClient(data), rcon: rconResult });

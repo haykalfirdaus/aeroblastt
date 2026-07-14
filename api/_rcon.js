@@ -15,6 +15,8 @@ const RANK_GROUP = {
   UNIVERSE: 'universe',
 };
 
+export const KEY_NAMES = ['basic', 'vote', 'vip', 'legend', 'aerospace'];
+
 async function rconSend(command) {
   if (!RCON_HOST || !RCON_PASSWORD) {
     return { ok: false, error: 'RCON env vars tidak dikonfigurasi' };
@@ -49,12 +51,41 @@ export async function grantRank(nick, rankKey, duration) {
   return rconSend(`lp user ${nick} parent set ${group}`);
 }
 
-// benber give <nick> <amount>
+// eco give <nick> <amount>
 export async function giveMoney(nick, amount) {
-  return rconSend(`benber give ${nick} ${amount}`);
+  return rconSend(`eco give ${nick} ${amount}`);
 }
 
-// AuraSkills: sk skill addlevel <nick> <skill> <levels>
-export async function giveSkill(nick, skillName, levels) {
-  return rconSend(`sk skill addlevel ${nick} ${skillName} ${levels}`);
+// case key give <nick> <keyName> <qty>
+export async function giveKey(nick, keyName, qty) {
+  if (!KEY_NAMES.includes(keyName)) {
+    return { ok: false, error: `Key tidak dikenal: ${keyName}` };
+  }
+  return rconSend(`case key give ${nick} ${keyName} ${qty}`);
+}
+
+// bansos key <keyName> <qty> <duration> | bansos balance <amount> <duration>
+export async function giveBansos(type, amount, duration, keyName) {
+  if (type === 'key') {
+    if (!KEY_NAMES.includes(keyName)) {
+      return { ok: false, error: `Key tidak dikenal: ${keyName}` };
+    }
+    return rconSend(`bansos key ${keyName} ${amount} ${duration}`);
+  }
+  return rconSend(`bansos balance ${amount} ${duration}`);
+}
+
+// eventadmin add <nama> <waktu_mulai> <durasi>
+export async function eventAdd(name, startTime, duration) {
+  return rconSend(`eventadmin add ${name} ${startTime} ${duration}`);
+}
+
+// eventadmin clear <id/nama>
+export async function eventClear(target) {
+  return rconSend(`eventadmin clear ${target}`);
+}
+
+// eventadmin time <add|reduce> <id/nama> <waktu>
+export async function eventTime(subAction, target, time) {
+  return rconSend(`eventadmin time ${subAction} ${target} ${time}`);
 }
