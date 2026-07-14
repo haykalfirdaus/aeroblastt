@@ -234,7 +234,7 @@ export const FAQ_CATEGORIES = [
             type: 'reasons',
             items: [
               { color: 'yellow', text: '**Builder** — harus sudah punya bangunan besar & keren di server, siap di-review Staff.' },
-              { color: 'purple', text: '**Media** — harus sudah upload/live tentang server & punya 100+ follower/subscriber.' },
+              { color: 'purple', text: '**Media** — harus sudah upload/live tentang server & punya minimal 1.000 follower/subscriber.' },
               { color: 'green', text: 'Kedua rank ini **100% gratis** dan diproses Admin via WhatsApp.' },
               { color: 'blue', text: 'Proses review biasanya 1 hari kerja.' },
             ],
@@ -255,7 +255,7 @@ export const FAQ_CATEGORIES = [
             type: 'reasons',
             items: [
               { color: 'red', text: '**Builder** — melanggar rules, menghancurkan bangunan sendiri secara sengaja, atau tidak aktif lama.' },
-              { color: 'red', text: '**Media** — membuat konten negatif tentang server, tidak aktif berkonten, atau follower turun di bawah syarat.' },
+              { color: 'red', text: '**Media** — membuat konten negatif tentang server, tidak aktif berkonten, atau follower turun di bawah 1.000.' },
             ],
           },
           { type: 'p', text: 'Keputusan Staff bersifat **final**. Jika ada keberatan, bisa disampaikan via WhatsApp atau Discord secara sopan.' },

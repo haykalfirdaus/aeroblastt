@@ -38,7 +38,7 @@ export function buildPaymentInfo(methodKey) {
 const TNC_LINE = '_Saya menyetujui Syarat & Ketentuan._';
 
 /* Special Rank application (Builder / Media) */
-export function buildRankApplicationMessage({ nick, platform, rank, socialLink }) {
+export function buildRankApplicationMessage({ nick, platform, rank, socialLink, followerCount }) {
   const lines = [
     'Halo Admin, saya ingin mendaftar Special Rank!',
     '',
@@ -47,6 +47,7 @@ export function buildRankApplicationMessage({ nick, platform, rank, socialLink }
     `*Platform:* ${platform}`,
     `*Rank:* ${rank}`,
     rank === 'MEDIA' ? `*Akun:* ${socialLink}` : '',
+    rank === 'MEDIA' && followerCount ? `*Jumlah Follower:* ${followerCount}` : '',
   ];
   return compose(
     'AEROBLAST SPECIAL RANK',
