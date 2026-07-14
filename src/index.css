@@ -1,0 +1,561 @@
+@import 'tailwindcss';
+
+/* ==========================================================================
+   AEROBLAST — Premium Dark Design System
+   - Always-on dark grid background (the "shell")
+   - Wallpaper lives ONLY in the Hero, fading seamlessly into the grid
+   - Compact, sleek scale · GPU-only motion (transform/opacity)
+   ========================================================================== */
+@theme {
+  /* ---- Typography -------------------------------------------------- */
+  --font-display: 'Space Grotesk', ui-sans-serif, sans-serif;
+  --font-sans: 'Plus Jakarta Sans', 'Inter', ui-sans-serif, system-ui, sans-serif;
+  --font-impact: 'Arial Black', 'Arial', sans-serif;
+  --font-mono: 'JetBrains Mono', ui-monospace, 'SF Mono', monospace;
+
+  /* ---- Backgrounds: deep space navy --------------------------------- */
+  --color-void: #030711;
+  --color-abyss: #01040a;
+  --color-deep: #060d1a;
+  --color-panel: #0a1424;
+  --color-surface: #0e1a30;
+  --color-surface-2: #12213d;
+  --color-surface-3: #182b4c;
+  --color-surface-hover: #21386642;
+
+  /* ---- Electric blue (primary) --------------------------------------- */
+  --color-neon-300: #93c5fd;
+  --color-neon-400: #60a5fa;
+  --color-neon-500: #3b82f6;
+  --color-neon-600: #2563eb;
+  --color-neon-700: #1d4ed8;
+  --color-neon-800: #1e40af;
+
+  /* ---- Cyan (secondary accent) --------------------------------------- */
+  --color-cyan-300: #67e8f9;
+  --color-cyan-400: #22d3ee;
+  --color-cyan-500: #06b6d4;
+
+  /* ---- Text ----------------------------------------------------------- */
+  --color-text-bright: #f1f5f9;
+  --color-text: #dbe4f0;
+  --color-text-muted: #8ea0b8;
+  --color-text-dim: #5f7089;
+  --color-text-faint: #435268;
+
+  /* ---- Status ----------------------------------------------------------- */
+  --color-success: #22c55e;
+  --color-success-bright: #34d399;
+  --color-warning: #f59e0b;
+  --color-danger: #ef4444;
+  --color-danger-bright: #f87171;
+  --color-purple: #8b5cf6;
+
+  /* ---- Rank accent spectrum ------- */
+  --color-rank-scout: #10b981;
+  --color-rank-voyager: #3b82f6;
+  --color-rank-orbiter: #f97316;
+  --color-rank-ravest: #8b5cf6;
+  --color-rank-vortex: #06b6d4;
+  --color-rank-quantum: #f59e0b;
+  --color-rank-galatics: #ef4444;
+  --color-rank-universe: #a855f7;
+
+  /* ---- Command accent spectrum ------- */
+  --color-cmd-blue: #60a5fa;
+  --color-cmd-gold: #f59e0b;
+  --color-cmd-green: #34d399;
+  --color-cmd-red: #f87171;
+  --color-cmd-purple: #a78bfa;
+  --color-cmd-orange: #fb923c;
+  --color-cmd-cyan: #22d3ee;
+  --color-cmd-teal: #2dd4bf;
+
+  /* ---- Additional animation tokens --------- */
+  --animate-slide-in-up: slide-in-up 0.5s cubic-bezier(0.4, 0, 0.2, 1) forwards;
+  --animate-glow-pulse: glow-pulse 2.5s ease-in-out infinite;
+  --animate-shimmer: shimmer 4s linear infinite;
+
+  /* ---- Motion (ULTRA MINIMAL) --------- */
+  --animate-fade-up: fade-up 0.4s cubic-bezier(0.4, 0, 0.2, 1) forwards;
+  --animate-pulse-dot: pulse-dot 1.8s ease-in-out infinite;
+  --animate-float: float 6s ease-in-out infinite;
+}
+
+@keyframes marquee {
+  from {
+    transform: translate3d(0, 0, 0);
+  }
+  to {
+    transform: translate3d(-50%, 0, 0);
+  }
+}
+
+@keyframes float {
+  0%,
+  100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-6px);
+  }
+}
+
+@keyframes fade-up {
+  from {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes pulse-dot {
+  0%,
+  100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.45;
+  }
+}
+
+@keyframes shake {
+  0%,
+  100% {
+    transform: translateX(0);
+  }
+  20%,
+  60% {
+    transform: translateX(-2px);
+  }
+  40%,
+  80% {
+    transform: translateX(2px);
+  }
+}
+
+/* ==========================================================================
+   Base layer — compact, responsive, ultra-light
+   ========================================================================== */
+@layer base {
+  * {
+    box-sizing: border-box;
+  }
+
+  html {
+    /* Global compacting: everything (spacing + type) scales down a notch. */
+    font-size: 15px;
+    scroll-behavior: smooth;
+  }
+
+  html,
+  body {
+    margin: 0;
+    padding: 0;
+    background: var(--color-void);
+  }
+
+  body {
+    font-family: var(--font-sans);
+    color: var(--color-text);
+    -webkit-font-smoothing: antialiased;
+    text-rendering: optimizeLegibility;
+    overflow-x: hidden;
+    min-height: 100vh;
+    line-height: 1.5;
+  }
+
+  h1,
+  h2,
+  h3,
+  h4 {
+    font-family: var(--font-display);
+    letter-spacing: -0.02em;
+    line-height: 1.12;
+  }
+
+  ::selection {
+    background: rgba(59, 130, 246, 0.28);
+    color: #fff;
+  }
+
+  ::-webkit-scrollbar {
+    width: 6px;
+    height: 6px;
+  }
+  ::-webkit-scrollbar-track {
+    background: transparent;
+  }
+  ::-webkit-scrollbar-thumb {
+    background: rgba(96, 165, 250, 0.16);
+    border-radius: 999px;
+  }
+  ::-webkit-scrollbar-thumb:hover {
+    background: rgba(96, 165, 250, 0.3);
+  }
+
+  :focus-visible {
+    outline: 2px solid var(--color-neon-400);
+    outline-offset: 2px;
+    border-radius: 2px;
+  }
+
+  /*
+   * Native <select> / <option> dark theme fix.
+   * Browser-native dropdowns ignore most CSS on <option> — the only reliable
+   * cross-browser solution is color-scheme + explicit background/color on
+   * both the <select> and <option> elements using real hex values
+   * (CSS variables are ignored by some browsers on <option>).
+   */
+  select {
+    color-scheme: dark;
+    background-color: #0a1424;  /* --color-panel */
+    color: #dbe4f0;             /* --color-text */
+  }
+
+  select option {
+    background-color: #0a1424;  /* --color-panel */
+    color: #dbe4f0;             /* --color-text */
+  }
+
+  select option:checked,
+  select option:hover {
+    background-color: #182b4c;  /* --color-surface-3 */
+    color: #f1f5f9;             /* --color-text-bright */
+  }
+
+  select option:disabled {
+    color: #435268;             /* --color-text-faint */
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    html {
+      scroll-behavior: auto;
+    }
+    *,
+    *::before,
+    *::after {
+      animation-duration: 0.001ms !important;
+      animation-iteration-count: 1 !important;
+      transition-duration: 0.001ms !important;
+    }
+    /* Keep marquee running — it's content, not decoration */
+    .marquee-track {
+      animation-duration: 60s !important;
+      animation-iteration-count: infinite !important;
+    }
+  }
+}
+
+@layer utilities {
+  /* ---- The always-on app shell: dark base + ultra-subtle grid --------- */
+  .bg-app {
+    position: fixed;
+    inset: 0;
+    z-index: -10;
+    background-color: var(--color-void);
+    background-image:
+      linear-gradient(rgba(96, 165, 250, 0.028) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(96, 165, 250, 0.028) 1px, transparent 1px),
+      radial-gradient(120% 80% at 50% -10%, rgba(37, 99, 235, 0.12) 0%, transparent 55%),
+      radial-gradient(90% 60% at 50% 110%, rgba(6, 182, 212, 0.06) 0%, transparent 60%);
+    background-size:
+      58px 58px,
+      58px 58px,
+      100% 100%,
+      100% 100%;
+    background-position: center top;
+    pointer-events: none;
+  }
+
+  /* ---- Hero-only wallpaper, darkened + faded seamlessly into the grid -- */
+  .hero-bg {
+    position: absolute;
+    inset: 0;
+    z-index: 0;
+    overflow: hidden;
+    pointer-events: none;
+  }
+  .hero-bg::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    z-index: 1;
+    background-image: url('/wallpaper.webp');
+    background-size: cover;
+    background-position: center 20%;
+    background-repeat: no-repeat;
+    filter: brightness(0.42) saturate(1.05) contrast(1.02);
+    -webkit-mask-image: linear-gradient(to bottom, #000 0%, #000 45%, rgba(0,0,0,0.55) 72%, transparent 100%);
+    mask-image: linear-gradient(to bottom, #000 0%, #000 45%, rgba(0,0,0,0.55) 72%, transparent 100%);
+  }
+  .hero-bg::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    z-index: 2;
+    background:
+      linear-gradient(180deg, rgba(3,7,17,0.35) 0%, rgba(3,7,17,0.15) 40%, var(--color-void) 100%),
+      radial-gradient(70% 60% at 50% 30%, rgba(37,99,235,0.16) 0%, transparent 70%);
+  }
+
+  /* ---- Page header wallpaper (Store, FAQ, Terms, Top Voters) ------- */
+  .page-header-bg {
+    position: relative;
+    overflow: hidden;
+  }
+  .page-header-bg::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background-image: url('/wallpaper.webp');
+    background-size: cover;
+    background-position: center 30%;
+    background-repeat: no-repeat;
+    filter: brightness(0.30) saturate(0.9) contrast(1.05);
+    -webkit-mask-image: linear-gradient(to bottom, #000 0%, #000 50%, rgba(0,0,0,0.4) 80%, transparent 100%);
+    mask-image: linear-gradient(to bottom, #000 0%, #000 50%, rgba(0,0,0,0.4) 80%, transparent 100%);
+    pointer-events: none;
+    z-index: 0;
+  }
+
+  /* ---- Per-page header wallpaper overrides ------------------------- */
+  .page-header-bg-w2::before {
+    background-image: url('/wallpaper2.webp');
+  }
+  .page-header-bg-w3::before {
+    background-image: url('/wallpaper3.webp');
+  }
+
+  /* ---- Section wallpaper backgrounds (opacity rendah) -------------- */
+  .section-bg-w1 {
+    position: relative;
+  }
+  .section-bg-w1::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background-image: url('/wallpaper1.webp');
+    background-size: cover;
+    background-position: center center;
+    background-attachment: scroll;
+    opacity: 0.04;
+    pointer-events: none;
+    z-index: 0;
+  }
+  .section-bg-w2::before {
+    background-image: url('/wallpaper2.webp');
+  }
+  .section-bg-w3::before {
+    background-image: url('/wallpaper3.webp');
+  }
+  .section-bg-w2,
+  .section-bg-w3 {
+    position: relative;
+  }
+  .section-bg-w2::before,
+  .section-bg-w3::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background-size: cover;
+    background-position: center center;
+    background-attachment: scroll;
+    opacity: 0.04;
+    pointer-events: none;
+    z-index: 0;
+  }
+
+  /* ---- Elegant gradient text --------------------------------------- */
+  .text-gradient {
+    background: linear-gradient(120deg, #ffffff 0%, var(--color-neon-300) 45%, var(--color-cyan-400) 100%);
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+  }
+  .text-gradient-gold {
+    background: linear-gradient(120deg, #fde68a 0%, var(--color-warning) 55%, #fb923c 100%);
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+  }
+
+  /* ---- Hide scrollbar (mobile category chips) ---------------------- */
+  .no-scrollbar {
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+  }
+  .no-scrollbar::-webkit-scrollbar {
+    display: none;
+  }
+
+  .animate-shake {
+    animation: shake 0.2s ease;
+  }
+
+  /* Light GPU hint without will-change churn */
+  .hw-transition {
+    backface-visibility: hidden;
+    transform: translateZ(0);
+  }
+
+  /* Minimal glass without heavy blur */
+  .glass-minimal {
+    background: rgba(14, 26, 48, 0.55);
+    border: 1px solid rgba(255, 255, 255, 0.06);
+  }
+
+  /* ---- Shadowyn-inspired: pill nav link ---------------------------- */
+  .nav-pill {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 5px 14px;
+    border-radius: 9999px;
+    border: 1px solid rgba(255, 255, 255, 0.18);
+    font-size: 0.75rem;
+    font-weight: 600;
+    font-family: var(--font-sans);
+    color: rgba(255,255,255,0.85);
+    transition: all 0.15s ease;
+    background: rgba(255,255,255,0.04);
+    letter-spacing: 0;
+  }
+  .nav-pill:hover {
+    border-color: rgba(255,255,255,0.4);
+    background: rgba(255,255,255,0.08);
+    color: #fff;
+  }
+  .nav-pill-active {
+    border-color: rgba(96,165,250,0.45);
+    background: rgba(59,130,246,0.12);
+    color: var(--color-neon-300);
+  }
+
+  /* ---- Online glow dot --------------------------------------------- */
+  .glow-dot-green {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background: var(--color-success);
+    box-shadow: 0 0 8px rgba(34,197,94,0.7), 0 0 16px rgba(34,197,94,0.35);
+    animation: pulse-dot 1.8s ease-in-out infinite;
+  }
+
+  /* ---- Impact font utility ----------------------------------------- */
+  .font-impact {
+    font-family: var(--font-impact);
+  }
+
+  /* ---- Shimmer heading effect -------------------------------------- */
+  .text-shimmer {
+    background: linear-gradient(105deg,
+      #ffffff 0%,
+      var(--color-neon-300) 30%,
+      var(--color-cyan-400) 50%,
+      var(--color-neon-300) 70%,
+      #ffffff 100%
+    );
+    background-size: 200% auto;
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+    animation: shimmer 4s linear infinite;
+  }
+
+  /* ---- Frosted glass (heavier, with backdrop-blur) ----------------- */
+  .glass-frosted {
+    background: rgba(255, 255, 255, 0.06);
+    border: 1px solid rgba(255, 255, 255, 0.12);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+  }
+
+  /* ---- Card hover: scale + shadow ---------------------------------- */
+  .card-hover {
+    transition: transform 0.2s ease, box-shadow 0.2s ease, border-color 0.2s ease;
+  }
+  .card-hover:hover {
+    transform: scale(1.02) translateY(-2px);
+    box-shadow: 0 20px 40px -12px rgba(0,0,0,0.5), 0 0 0 1px rgba(96,165,250,0.12);
+  }
+
+  /* ---- Neon glow box-shadow on online badge ----------------------- */
+  .badge-online {
+    border-color: rgba(34,197,94,0.3);
+    background: rgba(34,197,94,0.08);
+    box-shadow: 0 0 12px rgba(34,197,94,0.2), inset 0 0 8px rgba(34,197,94,0.05);
+  }
+
+  /* ---- Pill badge -------------------------------------------------- */
+  .badge-pill {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    padding: 4px 12px;
+    border-radius: 9999px;
+    font-size: 0.6rem;
+    font-weight: 900;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+  }
+
+  /* ---- Logo orbit stars -------------------------------------------- */
+  .logo-orbit-wrapper {
+    position: relative;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    /* give stars enough room to orbit outside the 28px image */
+    width: 28px;
+    height: 28px;
+  }
+
+  .orbit-star {
+    position: absolute;
+    width: 4px;
+    height: 4px;
+    border-radius: 50%;
+    background: #60a5fa;
+    box-shadow: 0 0 4px #60a5fa, 0 0 8px rgba(96, 165, 250, 0.5);
+    animation: orbit 3s linear infinite;
+    top: 50%;
+    left: 50%;
+    margin-top: -2px;
+    margin-left: -2px;
+    pointer-events: none;
+  }
+
+  .orbit-star:nth-child(1) { animation-delay: 0s; }
+  .orbit-star:nth-child(2) { animation-delay: -0.75s; }
+  .orbit-star:nth-child(3) { animation-delay: -1.5s; }
+  .orbit-star:nth-child(4) { animation-delay: -2.25s; }
+}
+
+@keyframes orbit {
+  from { transform: rotate(0deg) translateX(18px) rotate(0deg); }
+  to   { transform: rotate(360deg) translateX(18px) rotate(-360deg); }
+}
+
+@keyframes slide-in-up {
+  from { opacity: 0; transform: translateY(24px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes glow-pulse {
+  0%, 100% { box-shadow: 0 0 8px rgba(59,130,246,0.4), 0 0 20px rgba(59,130,246,0.2); }
+  50%       { box-shadow: 0 0 14px rgba(59,130,246,0.7), 0 0 32px rgba(59,130,246,0.35); }
+}
+
+@keyframes border-glow {
+  0%, 100% { border-color: rgba(59,130,246,0.25); }
+  50%       { border-color: rgba(96,165,250,0.55); }
+}
+
+@keyframes shimmer {
+  from { background-position: -200% center; }
+  to   { background-position: 200% center; }
+}
