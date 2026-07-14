@@ -49,7 +49,7 @@ export function AuthProvider({ children }) {
   }, []);
 
   return (
-    <AuthContext value={{ isAdmin, loading, login, logout }}>
+    <AuthContext value={{ isAdmin, loading, login, logout, verify }}>
       {children}
     </AuthContext>
   );

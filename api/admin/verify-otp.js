@@ -2,6 +2,12 @@ import crypto from 'crypto';
 import { setCorsHeaders, getSecret } from '../_auth.js';
 import { getClientIp, clearAttempts } from '../_ratelimit.js';
 
+function createAdminToken(secret) {
+  const payload = Buffer.from(JSON.stringify({ adminId: 'admin', iat: Date.now() })).toString('base64');
+  const sig = crypto.createHmac('sha256', secret).update(payload).digest('hex');
+  return `${payload}.${sig}`;
+}
+
 // Rate limiter: max 5 OTP attempts per 15 minutes per IP
 const otpAttempts = new Map();
 const MAX = 5;
@@ -87,8 +93,15 @@ export default async function handler(req, res) {
     return;
   }
 
-  // OTP valid — reset login rate limit for this IP so admin can try password again
+  // OTP valid — set admin session cookie langsung, tidak perlu login ulang
   clearAttempts(ip);
 
-  res.status(200).json({ ok: true });
+  const token = createAdminToken(secret);
+  const isProduction = process.env.NODE_ENV !== 'development';
+  res.setHeader(
+    'Set-Cookie',
+    `aeroblast_admin_session=${token}; HttpOnly; Path=/; Max-Age=${60 * 60 * 24 * 7}; SameSite=Strict${isProduction ? '; Secure' : ''}`
+  );
+
+  res.status(200).json({ ok: true, sessionGranted: true });
 }

@@ -193,6 +193,8 @@ const OTP_DURATION = 5 * 60 * 1000;
 
 function OtpView({ token, onBack, onResend, onUnlocked }) {
   const showToast = useToast();
+  const navigate = useNavigate();
+  const { verify } = useAuth();
   const [otp, setOtp] = useState('');
   const [submitting, setSubmitting] = useState(false);
   const [shake, setShake] = useState(false);
@@ -216,9 +218,9 @@ function OtpView({ token, onBack, onResend, onUnlocked }) {
       });
       const data = await res.json();
       if (!res.ok) throw new Error(data.error || 'Kode tidak valid');
-      // Blokir login dicabut — kembali ke form login, bukan langsung masuk
-      showToast('Blokir dicabut. Silakan login dengan password kamu.', 'success');
-      onUnlocked();
+      showToast('Kode benar! Masuk ke panel admin…', 'success');
+      await verify();
+      navigate('/admin', { replace: true });
     } catch (err) {
       showToast(err.message, 'error');
       setShake(true);
@@ -246,7 +248,7 @@ function OtpView({ token, onBack, onResend, onUnlocked }) {
 
         <h2 className="mb-1 font-display text-lg font-semibold text-text-bright">Masukkan Kode OTP</h2>
         <p className="mb-6 text-sm text-text-dim">
-          Kode telah dikirim ke email admin. Masukkan kode untuk mencabut blokir login. Kode berlaku 5 menit.
+          Kode telah dikirim ke email admin. Masukkan kode untuk langsung masuk ke panel admin. Kode berlaku 5 menit.
         </p>
 
         <div className="mb-4">
@@ -303,7 +305,7 @@ function OtpView({ token, onBack, onResend, onUnlocked }) {
         >
           {submitting ? (
             <><span className="h-4 w-4 animate-spin rounded-full border-2 border-white/30 border-t-white" />Memverifikasi…</>
-          ) : 'Verifikasi & Cabut Blokir'}
+          ) : 'Verifikasi & Masuk'}
         </Button>
       </form>
     </div>
