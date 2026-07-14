@@ -13,6 +13,7 @@ import { sendInvoice } from '@/utils/invoice';
 // discount check is done inside DiscountCodeInput via async API
 import { formatRupiah } from '@/utils/currency';
 import { useToast } from '@/context/ToastContext';
+import { usePlayerAuth } from '@/context/PlayerAuthContext';
 import customPrefixImg from '@/assets/images/customprefix.png';
 
 const BASE_PRICE = 25000;
@@ -24,6 +25,7 @@ function isValidHex(hex) {
 
 function CosmeticOrderModal({ prefixText, prefixColor, nickColor, open, onClose }) {
   const showToast = useToast();
+  const { nick: playerNick } = usePlayerAuth();
   const [nick, setNick] = useState('');
   const [platform, setPlatform] = useState('');
   const [discount, setDiscount] = useState(0);
@@ -39,7 +41,7 @@ function CosmeticOrderModal({ prefixText, prefixColor, nickColor, open, onClose 
     if (!prefixText.trim()) return showToast('Masukkan teks prefix!', 'error');
     if (!payment) return showToast('Pilih metode pembayaran!', 'error');
     if (!agreed) return showToast('Setujui syarat & ketentuan!', 'error');
-    const orderData = { nick: nick.trim(), platform, prefixText, prefixColor, nickColor: nickColor || null, discountPct: discount, finalAmount: finalPrice, paymentMethod: payment };
+    const orderData = { nick: (playerNick || nick).trim(), platform, prefixText, prefixColor, nickColor: nickColor || null, discountPct: discount, finalAmount: finalPrice, paymentMethod: payment };
     sendInvoice({ type: 'cosmetic', ...orderData });
     openWhatsApp(buildCosmeticOrderMessage(orderData));
   }
@@ -55,7 +57,7 @@ function CosmeticOrderModal({ prefixText, prefixColor, nickColor, open, onClose 
             <span className="text-sm" style={{ color: nickColor || '#aaaaaa' }}>Steve</span>
           </div>
         </div>
-        <div><FieldLabel required>Nickname</FieldLabel><TextField value={nick} onChange={(e) => setNick(e.target.value)} placeholder="Username in-game" /></div>
+        <div><FieldLabel required>Nickname</FieldLabel><TextField value={playerNick || nick} onChange={(e) => !playerNick && setNick(e.target.value)} placeholder={playerNick ? '' : 'Username in-game'} readOnly={!!playerNick} /></div>
         <div>
           <FieldLabel required>Platform</FieldLabel>
           <SelectField value={platform} onChange={(e) => setPlatform(e.target.value)}>
@@ -72,7 +74,7 @@ function CosmeticOrderModal({ prefixText, prefixColor, nickColor, open, onClose 
         <PriceSummary basePrice={basePrice} discountPercent={discount} />
         <PaymentMethodPicker value={payment} onChange={setPayment} />
         <CheckboxField checked={agreed} onChange={setAgreed}>Saya menyetujui <a href="/terms" target="_blank" className="text-neon-300 hover:underline">Syarat &amp; Ketentuan</a> yang berlaku.</CheckboxField>
-        <Button fullWidth size="sm" onClick={handleSend}>Order via WhatsApp</Button>
+        <Button fullWidth size="sm" onClick={handleSend} disabled={!playerNick} title={!playerNick ? 'Login dulu untuk melakukan order' : undefined}>{playerNick ? 'Order via WhatsApp' : '🔒 Login dulu untuk order'}</Button>
       </div>
     </Modal>
   );

@@ -54,6 +54,44 @@ export function isAuthenticated(req) {
   return verifyToken(cookies['aeroblast_admin_session']);
 }
 
+// ── Player session (24-jam, cookie: aeroblast_player_session) ──────────────
+
+export function signPlayerToken(nick) {
+  const secret = getSecret();
+  const payload = Buffer.from(JSON.stringify({ nick, iat: Date.now() })).toString('base64');
+  const sig = crypto.createHmac('sha256', secret).update(payload).digest('hex');
+  return `${payload}.${sig}`;
+}
+
+export function verifyPlayerToken(req) {
+  const cookies = parseCookies(req.headers['cookie']);
+  const token = cookies['aeroblast_player_session'];
+  if (!token || typeof token !== 'string') return null;
+
+  const dotIndex = token.lastIndexOf('.');
+  if (dotIndex === -1) return null;
+
+  const payload = token.slice(0, dotIndex);
+  const sig = token.slice(dotIndex + 1);
+
+  const secret = getSecret();
+  const expectedSig = crypto.createHmac('sha256', secret).update(payload).digest('hex');
+
+  const sigBuf = Buffer.from(sig);
+  const expectedBuf = Buffer.from(expectedSig);
+  if (sigBuf.length !== expectedBuf.length) return null;
+  if (!crypto.timingSafeEqual(sigBuf, expectedBuf)) return null;
+
+  try {
+    const parsed = JSON.parse(Buffer.from(payload, 'base64').toString('utf8'));
+    if (!parsed.nick || !parsed.iat) return null;
+    if (Date.now() - parsed.iat > 24 * 60 * 60 * 1000) return null;
+    return parsed.nick;
+  } catch {
+    return null;
+  }
+}
+
 export function setCorsHeaders(req, res, methods = 'GET, OPTIONS') {
   const origin = req.headers['origin'];
   const allowed = process.env.ALLOWED_ORIGIN || 'https://store.aeroblast.my.id';

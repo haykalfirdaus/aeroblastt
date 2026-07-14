@@ -51,6 +51,16 @@ export async function grantRank(nick, rankKey, duration) {
   return rconSend(`lp user ${nick} parent set ${group}`);
 }
 
+// nlogin verify <nick> — returns { ok, registered, response }
+export async function verifyPlayer(nick) {
+  const result = await rconSend(`nlogin verify ${nick}`);
+  if (!result.ok) return { ok: false, registered: false, error: result.error };
+  const resp = (result.response || '').toLowerCase();
+  // NLogin response saat user tidak ditemukan biasanya mengandung "not found" / "no account" / "not registered"
+  const notFound = resp.includes('not found') || resp.includes('no account') || resp.includes('not registered') || resp.includes('couldn') || resp.trim() === '';
+  return { ok: true, registered: !notFound, response: result.response };
+}
+
 // eco give <nick> <amount>
 export async function giveMoney(nick, amount) {
   return rconSend(`eco give ${nick} ${amount}`);

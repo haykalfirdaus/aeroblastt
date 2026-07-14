@@ -3,6 +3,7 @@ import {
   Medal, KeyRound, Zap, Coins, Terminal, Palette,
 } from 'lucide-react';
 import { PageLayout } from '@/components/layout/PageLayout';
+import { PlayerLoginPrompt } from '@/components/store/PlayerLoginPrompt';
 import { RankTab } from '@/components/store/RankTab';
 import { GachaKeysTab } from '@/components/store/GachaKeysTab';
 import { SkillBoostTab } from '@/components/store/SkillBoostTab';
@@ -108,6 +109,7 @@ export default function StorePage() {
 
       {/* Active tab content */}
       <div className="mx-auto max-w-7xl px-4 py-8 sm:px-6 lg:px-8">
+        <PlayerLoginPrompt />
         {current && (
           <div className="mb-6 flex items-center gap-2">
             <current.icon size={16} className="text-neon-400" />

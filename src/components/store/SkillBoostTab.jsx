@@ -13,6 +13,7 @@ import { buildSkillOrderMessage, openWhatsApp } from '@/utils/whatsapp';
 import { sendInvoice } from '@/utils/invoice';
 import { formatRupiah } from '@/utils/currency';
 import { useToast } from '@/context/ToastContext';
+import { usePlayerAuth } from '@/context/PlayerAuthContext';
 import { cn } from '@/lib/cn';
 
 // Sort categories highest pricePerLevel first (anchoring)
@@ -27,6 +28,7 @@ const CAT_STYLES = [
 
 function SkillOrderModal({ skill, cat, open, onClose }) {
   const showToast = useToast();
+  const { nick: playerNick } = usePlayerAuth();
   const [nick, setNick] = useState('');
   const [platform, setPlatform] = useState('');
   const [levels, setLevels] = useState(SKILL_DEFAULT_LEVELS);
@@ -43,7 +45,7 @@ function SkillOrderModal({ skill, cat, open, onClose }) {
     if (!platform) return showToast('Pilih platform!', 'error');
     if (!payment) return showToast('Pilih metode pembayaran!', 'error');
     if (!agreed) return showToast('Setujui syarat & ketentuan!', 'error');
-    const orderData = { nick: nick.trim(), platform, skillName: skill.name, levels, discountPct: discount, finalAmount: finalPrice, paymentMethod: payment };
+    const orderData = { nick: (playerNick || nick).trim(), platform, skillName: skill.name, levels, discountPct: discount, finalAmount: finalPrice, paymentMethod: payment };
     sendInvoice({ type: 'skill', ...orderData });
     openWhatsApp(buildSkillOrderMessage(orderData));
   }
@@ -52,7 +54,7 @@ function SkillOrderModal({ skill, cat, open, onClose }) {
     <Modal open={open} onClose={onClose} title={`Boost Skill ${skill.name}`} badge="SKILL BOOST">
       <div className="mt-6 flex flex-col gap-4">
         <CountdownBanner open={open} />
-        <div><FieldLabel required>Nickname</FieldLabel><TextField value={nick} onChange={(e) => setNick(e.target.value)} placeholder="Username in-game" /></div>
+        <div><FieldLabel required>Nickname</FieldLabel><TextField value={playerNick || nick} onChange={(e) => !playerNick && setNick(e.target.value)} placeholder={playerNick ? '' : 'Username in-game'} readOnly={!!playerNick} /></div>
         <div>
           <FieldLabel required>Platform</FieldLabel>
           <SelectField value={platform} onChange={(e) => setPlatform(e.target.value)}>
@@ -81,7 +83,7 @@ function SkillOrderModal({ skill, cat, open, onClose }) {
         <PriceSummary basePrice={basePrice} discountPercent={discount} />
         <PaymentMethodPicker value={payment} onChange={setPayment} />
         <CheckboxField checked={agreed} onChange={setAgreed}>Saya menyetujui <a href="/terms" target="_blank" className="text-neon-300 hover:underline">Syarat &amp; Ketentuan</a> yang berlaku.</CheckboxField>
-        <Button fullWidth size="sm" onClick={handleSend}>Order via WhatsApp</Button>
+        <Button fullWidth size="sm" onClick={handleSend} disabled={!playerNick} title={!playerNick ? 'Login dulu untuk melakukan order' : undefined}>{playerNick ? 'Order via WhatsApp' : '🔒 Login dulu untuk order'}</Button>
       </div>
     </Modal>
   );

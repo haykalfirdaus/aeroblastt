@@ -16,6 +16,7 @@ import { buildKeyOrderMessage, openWhatsApp } from '@/utils/whatsapp';
 import { sendInvoice } from '@/utils/invoice';
 import { formatRupiah } from '@/utils/currency';
 import { useToast } from '@/context/ToastContext';
+import { usePlayerAuth } from '@/context/PlayerAuthContext';
 import { cn } from '@/lib/cn';
 
 // Highest price first (anchoring)
@@ -40,6 +41,7 @@ const KEY_TIER = {
 
 function KeyOrderModal({ keyData, open, onClose }) {
   const showToast = useToast();
+  const { nick: playerNick } = usePlayerAuth();
   const [nick, setNick] = useState('');
   const [platform, setPlatform] = useState('');
   const [qty, setQty] = useState(1);
@@ -57,7 +59,7 @@ function KeyOrderModal({ keyData, open, onClose }) {
     if (!platform) return showToast('Pilih platform!', 'error');
     if (!payment) return showToast('Pilih metode pembayaran!', 'error');
     if (!agreed) return showToast('Setujui syarat & ketentuan!', 'error');
-    const orderData = { nick: nick.trim(), platform, keyName: keyData.name, qty, discountPct: discount, finalAmount: finalPrice, paymentMethod: payment };
+    const orderData = { nick: (playerNick || nick).trim(), platform, keyName: keyData.name, qty, discountPct: discount, finalAmount: finalPrice, paymentMethod: payment };
     sendInvoice({ type: 'key', ...orderData });
     openWhatsApp(buildKeyOrderMessage(orderData));
   }
@@ -66,7 +68,7 @@ function KeyOrderModal({ keyData, open, onClose }) {
     <Modal open={open} onClose={onClose} title={`Order ${keyData.name}`} badge="GACHA KEYS">
       <div className="mt-6 flex flex-col gap-4">
         <CountdownBanner open={open} />
-        <div><FieldLabel required>Nickname</FieldLabel><TextField value={nick} onChange={(e) => setNick(e.target.value)} placeholder="Username in-game" /></div>
+        <div><FieldLabel required>Nickname</FieldLabel><TextField value={playerNick || nick} onChange={(e) => !playerNick && setNick(e.target.value)} placeholder={playerNick ? '' : 'Username in-game'} readOnly={!!playerNick} /></div>
         <div>
           <FieldLabel required>Platform</FieldLabel>
           <SelectField value={platform} onChange={(e) => setPlatform(e.target.value)}>
@@ -87,7 +89,7 @@ function KeyOrderModal({ keyData, open, onClose }) {
         <PriceSummary basePrice={basePrice} discountPercent={discount} />
         <PaymentMethodPicker value={payment} onChange={setPayment} />
         <CheckboxField checked={agreed} onChange={setAgreed}>Saya menyetujui <a href="/terms" target="_blank" className="text-neon-300 hover:underline">Syarat &amp; Ketentuan</a> yang berlaku.</CheckboxField>
-        <Button fullWidth size="sm" onClick={handleSend}>Order via WhatsApp</Button>
+        <Button fullWidth size="sm" onClick={handleSend} disabled={!playerNick} title={!playerNick ? 'Login dulu untuk melakukan order' : undefined}>{playerNick ? 'Order via WhatsApp' : '🔒 Login dulu untuk order'}</Button>
       </div>
     </Modal>
   );

@@ -14,6 +14,7 @@ import { buildBalanceOrderMessage, openWhatsApp } from '@/utils/whatsapp';
 import { sendInvoice } from '@/utils/invoice';
 import { formatRupiah, formatNumber } from '@/utils/currency';
 import { useToast } from '@/context/ToastContext';
+import { usePlayerAuth } from '@/context/PlayerAuthContext';
 import { cn } from '@/lib/cn';
 
 // Sort highest rupiah first (anchoring)
@@ -21,6 +22,7 @@ const PICKS_DESC = [...BALANCE_QUICK_PICKS].sort((a, b) => b.rupiah - a.rupiah);
 
 function BalanceOrderModal({ open, onClose, initialRupiah = 0 }) {
   const showToast = useToast();
+  const { nick: playerNick } = usePlayerAuth();
   const [nick, setNick] = useState('');
   const [platform, setPlatform] = useState('');
   const [rupiahInput, setRupiahInput] = useState(String(initialRupiah || ''));
@@ -38,7 +40,7 @@ function BalanceOrderModal({ open, onClose, initialRupiah = 0 }) {
     if (rupiah < 5000) return showToast('Minimum pembelian Rp 5.000!', 'error');
     if (!payment) return showToast('Pilih metode pembayaran!', 'error');
     if (!agreed) return showToast('Setujui syarat & ketentuan!', 'error');
-    const orderData = { nick: nick.trim(), platform, balance, discountPct: discount, finalAmount: finalPrice, paymentMethod: payment };
+    const orderData = { nick: (playerNick || nick).trim(), platform, balance, discountPct: discount, finalAmount: finalPrice, paymentMethod: payment };
     sendInvoice({ type: 'balance', ...orderData });
     openWhatsApp(buildBalanceOrderMessage(orderData));
   }
@@ -51,7 +53,7 @@ function BalanceOrderModal({ open, onClose, initialRupiah = 0 }) {
           <p className="text-xs text-text-dim mb-1">Kurs: Rp 1 = {BALANCE_RATE} Balance</p>
           <p className="font-mono text-2xl font-bold text-neon-300">{formatNumber(balance)} <span className="text-sm font-normal text-text-dim">Balance</span></p>
         </div>
-        <div><FieldLabel required>Nickname</FieldLabel><TextField value={nick} onChange={(e) => setNick(e.target.value)} placeholder="Username in-game" /></div>
+        <div><FieldLabel required>Nickname</FieldLabel><TextField value={playerNick || nick} onChange={(e) => !playerNick && setNick(e.target.value)} placeholder={playerNick ? '' : 'Username in-game'} readOnly={!!playerNick} /></div>
         <div>
           <FieldLabel required>Platform</FieldLabel>
           <SelectField value={platform} onChange={(e) => setPlatform(e.target.value)}>
@@ -78,7 +80,7 @@ function BalanceOrderModal({ open, onClose, initialRupiah = 0 }) {
         <PriceSummary basePrice={rupiah} discountPercent={discount} />
         <PaymentMethodPicker value={payment} onChange={setPayment} />
         <CheckboxField checked={agreed} onChange={setAgreed}>Saya menyetujui <a href="/terms" target="_blank" className="text-neon-300 hover:underline">Syarat &amp; Ketentuan</a> yang berlaku.</CheckboxField>
-        <Button fullWidth size="sm" onClick={handleSend}>Order via WhatsApp</Button>
+        <Button fullWidth size="sm" onClick={handleSend} disabled={!playerNick} title={!playerNick ? 'Login dulu untuk melakukan order' : undefined}>{playerNick ? 'Order via WhatsApp' : '🔒 Login dulu untuk order'}</Button>
       </div>
     </Modal>
   );

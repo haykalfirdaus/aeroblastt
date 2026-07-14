@@ -13,10 +13,12 @@ import { sendInvoice } from '@/utils/invoice';
 import { formatRupiah } from '@/utils/currency';
 // discount check is now done inside DiscountCodeInput via async API
 import { useToast } from '@/context/ToastContext';
+import { usePlayerAuth } from '@/context/PlayerAuthContext';
 import { cn } from '@/lib/cn';
 
 export function RankOrderModal({ rank, open, onClose }) {
   const showToast = useToast();
+  const { nick: playerNick } = usePlayerAuth();
   const [nick, setNick] = useState('');
   const [platform, setPlatform] = useState('');
   const [ownedRank, setOwnedRank] = useState('none');
@@ -43,7 +45,7 @@ export function RankOrderModal({ rank, open, onClose }) {
     if (!agreed) return showToast('Setujui syarat & ketentuan terlebih dahulu!', 'error');
 
     const orderData = {
-      nick: nick.trim(), platform,
+      nick: (playerNick || nick).trim(), platform,
       target: rank.name.toUpperCase(),
       owned: ownedRank === 'none' ? null : ownedRank,
       duration: durOpt.label,
@@ -63,7 +65,7 @@ export function RankOrderModal({ rank, open, onClose }) {
 
         <div>
           <FieldLabel required>Nickname Minecraft</FieldLabel>
-          <TextField value={nick} onChange={(e) => setNick(e.target.value)} placeholder="Masukkan username in-game kamu" />
+          <TextField value={playerNick || nick} onChange={(e) => !playerNick && setNick(e.target.value)} placeholder={playerNick ? '' : 'Masukkan username in-game kamu'} readOnly={!!playerNick} />
         </div>
 
         <div>
@@ -124,8 +126,8 @@ export function RankOrderModal({ rank, open, onClose }) {
           Saya menyetujui <a href="/terms" target="_blank" className="text-neon-300 hover:underline">Syarat &amp; Ketentuan</a> yang berlaku di AeroBlast Network.
         </CheckboxField>
 
-        <Button fullWidth size="sm" onClick={handleSend} disabled={basePrice <= 0}>
-          Order via WhatsApp
+        <Button fullWidth size="sm" onClick={handleSend} disabled={basePrice <= 0 || !playerNick} title={!playerNick ? 'Login dulu untuk melakukan order' : undefined}>
+          {playerNick ? 'Order via WhatsApp' : '🔒 Login dulu untuk order'}
         </Button>
       </div>
     </Modal>

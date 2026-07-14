@@ -2,6 +2,7 @@ import { Suspense, lazy, useEffect, useState } from 'react';
 import { BrowserRouter, Route, Routes, useLocation } from 'react-router-dom';
 import { ToastProvider } from '@/context/ToastContext';
 import { AuthProvider } from '@/context/AuthContext';
+import { PlayerAuthProvider } from '@/context/PlayerAuthContext';
 import { scrollToId } from '@/lib/motion';
 import { onDevtoolsChange } from '@/utils/devtools-protection';
 
@@ -142,6 +143,7 @@ export default function App() {
     <BrowserRouter>
       <ToastProvider>
         <AuthProvider>
+          <PlayerAuthProvider>
           <DevtoolsWarningOverlay />
           <ScrollManager />
           <Suspense fallback={<PageLoader />}>
@@ -156,6 +158,7 @@ export default function App() {
               <Route path="*"              element={<NotFoundPage />} />
             </Routes>
           </Suspense>
+          </PlayerAuthProvider>
         </AuthProvider>
       </ToastProvider>
     </BrowserRouter>
