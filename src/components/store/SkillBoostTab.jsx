@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { ChevronRight, Minus, Plus } from 'lucide-react';
+import { ChevronRight, Lock, Minus, Plus } from 'lucide-react';
 import { Button } from '@/components/ui/Button';
 import { Modal } from '@/components/ui/Modal';
 import { CheckboxField, FieldLabel, SelectField, TextField } from '@/components/ui/FormFields';
@@ -41,7 +41,7 @@ function SkillOrderModal({ skill, cat, open, onClose }) {
   const finalPrice = Math.round(basePrice * (1 - discount / 100));
 
   function handleSend() {
-    if (!nick.trim()) return showToast('Masukkan nickname!', 'error');
+    if (!(playerNick || nick).trim()) return showToast('Masukkan nickname!', 'error');
     if (!platform) return showToast('Pilih platform!', 'error');
     if (!payment) return showToast('Pilih metode pembayaran!', 'error');
     if (!agreed) return showToast('Setujui syarat & ketentuan!', 'error');
@@ -90,6 +90,7 @@ function SkillOrderModal({ skill, cat, open, onClose }) {
 }
 
 export function SkillBoostTab() {
+  const { nick } = usePlayerAuth();
   const [selected, setSelected] = useState(null);
 
   return (
@@ -172,10 +173,12 @@ export function SkillBoostTab() {
                       fullWidth
                       variant={style.featured ? 'primary' : 'secondary'}
                       size="sm"
-                      onClick={() => setSelected({ skill, cat })}
+                      onClick={() => nick && setSelected({ skill, cat })}
+                      disabled={!nick}
+                      title={!nick ? 'Login dulu untuk order' : undefined}
                       className={!style.featured ? 'opacity-75' : ''}
                     >
-                      <ChevronRight size={14} /> Boost Skill
+                      {nick ? <><ChevronRight size={14} /> Boost Skill</> : <><Lock size={12} className="inline mr-1" />Login dulu</>}
                     </Button>
                   </div>
                 ))}

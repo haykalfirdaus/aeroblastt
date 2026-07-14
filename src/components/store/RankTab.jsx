@@ -1,11 +1,12 @@
 import { useState } from 'react';
-import { Check } from 'lucide-react';
+import { Check, Lock } from 'lucide-react';
 import { Button } from '@/components/ui/Button';
 import { Icon } from '@/components/ui/Icon';
 import { Badge } from '@/components/ui/Badge';
 import { RankOrderModal } from './RankOrderModal';
 import { RANKS } from '@/data/ranks';
 import { formatRupiah } from '@/utils/currency';
+import { usePlayerAuth } from '@/context/PlayerAuthContext';
 import { cn } from '@/lib/cn';
 
 // Ranks displayed highest-price first (anchoring effect)
@@ -99,6 +100,7 @@ const TIER_STYLES = {
 };
 
 export function RankTab() {
+  const { nick } = usePlayerAuth();
   const [selected, setSelected] = useState(null);
 
   return (
@@ -199,13 +201,15 @@ export function RankTab() {
                   fullWidth
                   variant={isFeatured ? 'primary' : 'secondary'}
                   size="sm"
-                  onClick={() => setSelected(rank)}
+                  onClick={() => nick && setSelected(rank)}
+                  disabled={!nick}
+                  title={!nick ? 'Login dulu untuk order' : undefined}
                   className={cn(
-                    isUltimate && 'bg-gradient-to-r from-purple/80 to-neon-600 text-white',
+                    isUltimate && nick && 'bg-gradient-to-r from-purple/80 to-neon-600 text-white',
                     !isFeatured && 'opacity-75',
                   )}
                 >
-                  Order Sekarang
+                  {nick ? 'Order Sekarang' : <><Lock size={12} className="inline mr-1" />Login dulu</>}
                 </Button>
               </div>
             </div>

@@ -39,7 +39,7 @@ export function RankOrderModal({ rank, open, onClose }) {
   const canOrder = ownedRank !== rank.key.toLowerCase() && RANK_ORDER.indexOf(rank.key) > RANK_ORDER.indexOf(ownedRank === 'none' ? 'NONE' : ownedRank.toUpperCase());
 
   function handleSend() {
-    if (!nick.trim()) return showToast('Masukkan nickname kamu!', 'error');
+    if (!(playerNick || nick).trim()) return showToast('Masukkan nickname kamu!', 'error');
     if (!platform) return showToast('Pilih platform!', 'error');
     if (!payment) return showToast('Pilih metode pembayaran!', 'error');
     if (!agreed) return showToast('Setujui syarat & ketentuan terlebih dahulu!', 'error');

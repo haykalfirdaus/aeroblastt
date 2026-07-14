@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Coins } from 'lucide-react';
+import { Coins, Lock } from 'lucide-react';
 import { GlassCard } from '@/components/ui/GlassCard';
 import { Button } from '@/components/ui/Button';
 import { Modal } from '@/components/ui/Modal';
@@ -35,7 +35,7 @@ function BalanceOrderModal({ open, onClose, initialRupiah = 0 }) {
   const finalPrice = Math.round(rupiah * (1 - discount / 100));
 
   function handleSend() {
-    if (!nick.trim()) return showToast('Masukkan nickname!', 'error');
+    if (!(playerNick || nick).trim()) return showToast('Masukkan nickname!', 'error');
     if (!platform) return showToast('Pilih platform!', 'error');
     if (rupiah < 5000) return showToast('Minimum pembelian Rp 5.000!', 'error');
     if (!payment) return showToast('Pilih metode pembayaran!', 'error');
@@ -99,10 +99,12 @@ function getPickTier(idx, total) {
 }
 
 export function BalanceTab() {
+  const { nick } = usePlayerAuth();
   const [modalOpen, setModalOpen] = useState(false);
   const [selectedRupiah, setSelectedRupiah] = useState(0);
 
   function openWith(rupiah) {
+    if (!nick) return;
     setSelectedRupiah(rupiah);
     setModalOpen(true);
   }
@@ -137,12 +139,15 @@ export function BalanceTab() {
                   key={rupiah}
                   type="button"
                   onClick={() => openWith(rupiah)}
+                  disabled={!nick}
+                  title={!nick ? 'Login dulu untuk order' : undefined}
                   className={cn(
                     'relative overflow-hidden rounded-xl border px-4 py-4 text-center transition-all',
                     tier.featured
                       ? 'border-neon-400/30 bg-neon-500/8 hover:-translate-y-0.5 hover:brightness-110'
                       : 'border-white/8 bg-white/[0.02] hover:border-white/15',
                     tier.opacity,
+                    !nick && 'cursor-not-allowed opacity-50',
                   )}
                 >
                   {popular && (
@@ -166,7 +171,9 @@ export function BalanceTab() {
             })}
           </div>
 
-          <Button fullWidth size="sm" onClick={() => openWith(0)}>Top-Up Custom Amount</Button>
+          <Button fullWidth size="sm" onClick={() => openWith(0)} disabled={!nick} title={!nick ? 'Login dulu untuk order' : undefined}>
+            {nick ? 'Top-Up Custom Amount' : <><Lock size={12} className="inline mr-1" />Login dulu untuk order</>}
+          </Button>
         </GlassCard>
       </div>
 

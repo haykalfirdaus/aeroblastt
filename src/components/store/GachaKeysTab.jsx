@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Check, Minus, Plus } from 'lucide-react';
+import { Check, Lock, Minus, Plus } from 'lucide-react';
 import { GlassCard } from '@/components/ui/GlassCard';
 import { Button } from '@/components/ui/Button';
 import { Icon } from '@/components/ui/Icon';
@@ -55,7 +55,7 @@ function KeyOrderModal({ keyData, open, onClose }) {
   const finalPrice = Math.round(basePrice * (1 - discount / 100));
 
   function handleSend() {
-    if (!nick.trim()) return showToast('Masukkan nickname!', 'error');
+    if (!(playerNick || nick).trim()) return showToast('Masukkan nickname!', 'error');
     if (!platform) return showToast('Pilih platform!', 'error');
     if (!payment) return showToast('Pilih metode pembayaran!', 'error');
     if (!agreed) return showToast('Setujui syarat & ketentuan!', 'error');
@@ -96,6 +96,7 @@ function KeyOrderModal({ keyData, open, onClose }) {
 }
 
 export function GachaKeysTab() {
+  const { nick } = usePlayerAuth();
   const [selected, setSelected] = useState(null);
 
   return (
@@ -156,10 +157,12 @@ export function GachaKeysTab() {
                   fullWidth
                   variant={tier.featured ? 'primary' : 'secondary'}
                   size="sm"
-                  onClick={() => setSelected(k)}
+                  onClick={() => nick && setSelected(k)}
+                  disabled={!nick}
+                  title={!nick ? 'Login dulu untuk order' : undefined}
                   className={!tier.featured ? 'opacity-75' : ''}
                 >
-                  Order Sekarang
+                  {nick ? 'Order Sekarang' : <><Lock size={12} className="inline mr-1" />Login dulu</>}
                 </Button>
               </div>
             </div>

@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { Lock } from 'lucide-react';
 import { Modal } from '@/components/ui/Modal';
 import { CheckboxField, FieldLabel, SelectField, TextField } from '@/components/ui/FormFields';
 import { Button } from '@/components/ui/Button';
@@ -36,7 +37,7 @@ function CosmeticOrderModal({ prefixText, prefixColor, nickColor, open, onClose 
   const finalPrice = Math.round(basePrice * (1 - discount / 100));
 
   function handleSend() {
-    if (!nick.trim()) return showToast('Masukkan nickname!', 'error');
+    if (!(playerNick || nick).trim()) return showToast('Masukkan nickname!', 'error');
     if (!platform) return showToast('Pilih platform!', 'error');
     if (!prefixText.trim()) return showToast('Masukkan teks prefix!', 'error');
     if (!payment) return showToast('Pilih metode pembayaran!', 'error');
@@ -81,6 +82,7 @@ function CosmeticOrderModal({ prefixText, prefixColor, nickColor, open, onClose 
 }
 
 export function CosmeticsTab() {
+  const { nick } = usePlayerAuth();
   const showToast = useToast();
   const [prefixText, setPrefixText] = useState('');
   const [prefixColor, setPrefixColor] = useState('#00bfff');
@@ -154,7 +156,9 @@ export function CosmeticsTab() {
             <div className="mt-3 flex justify-between border-t border-white/8 pt-3"><span className="font-bold text-text-bright">Total</span><span className="font-mono text-lg font-bold text-neon-300">{formatRupiah(totalPrice)}</span></div>
           </div>
 
-          <Button fullWidth size="sm" onClick={handleOrder}>Order Sekarang</Button>
+          <Button fullWidth size="sm" onClick={handleOrder} disabled={!nick} title={!nick ? 'Login dulu untuk order' : undefined}>
+            {nick ? 'Order Sekarang' : <><Lock size={12} className="inline mr-1" />Login dulu untuk order</>}
+          </Button>
         </GlassCard>
 
         {/* Example Card */}

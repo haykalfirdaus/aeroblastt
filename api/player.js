@@ -1,5 +1,5 @@
 import { setCorsHeaders, signPlayerToken, verifyPlayerToken } from './_auth.js';
-import { verifyPlayer } from './_rcon.js';
+import { isRegisteredInAuthme } from './_mysql.js';
 
 const NICK_RE = /^[a-zA-Z0-9_]{1,16}$/;
 const isProd = process.env.NODE_ENV !== 'development';
@@ -70,12 +70,15 @@ export default async function handler(req, res) {
       return;
     }
 
-    const result = await verifyPlayer(nick);
-    if (!result.ok) {
-      res.status(503).json({ ok: false, error: 'Tidak bisa terhubung ke server Minecraft. Coba lagi nanti.' });
+    let registered;
+    try {
+      registered = await isRegisteredInAuthme(nick);
+    } catch (err) {
+      console.error('[player/login] MySQL error:', err.message);
+      res.status(503).json({ ok: false, error: 'Tidak bisa terhubung ke database. Coba lagi nanti.' });
       return;
     }
-    if (!result.registered) {
+    if (!registered) {
       res.status(404).json({ ok: false, error: `Username "${nick}" tidak ditemukan di server. Pastikan kamu sudah pernah join server AeroBlast.` });
       return;
     }
