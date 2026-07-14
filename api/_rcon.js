@@ -64,15 +64,23 @@ export async function giveKey(nick, keyName, qty) {
   return rconSend(`case key give ${nick} ${keyName} ${qty}`);
 }
 
-// bansos key <keyName> <qty> <duration> | bansos balance <amount> <duration>
-export async function giveBansos(type, amount, duration, keyName) {
-  if (type === 'key') {
-    if (!KEY_NAMES.includes(keyName)) {
-      return { ok: false, error: `Key tidak dikenal: ${keyName}` };
-    }
-    return rconSend(`bansos key ${keyName} ${amount} ${duration}`);
+// bansos <keyName> <amount> [duration]
+export async function giveBansos(keyName, amount, duration) {
+  if (!KEY_NAMES.includes(keyName)) {
+    return { ok: false, error: `Key tidak dikenal: ${keyName}` };
   }
-  return rconSend(`bansos balance ${amount} ${duration}`);
+  const cmd = duration ? `bansos ${keyName} ${amount} ${duration}` : `bansos ${keyName} ${amount}`;
+  return rconSend(cmd);
+}
+
+// bansos cancel <id>
+export async function bansosCancel(id) {
+  return rconSend(`bansos cancel ${id}`);
+}
+
+// bansos list
+export async function bansosList() {
+  return rconSend('bansos list');
 }
 
 // eventadmin add <nama> <waktu_mulai> <durasi>

@@ -912,10 +912,11 @@ function RconSection() {
   const [money, setMoney] = useState('');
   const [keyName, setKeyName] = useState('basic');
   const [keyQty, setKeyQty] = useState('');
-  const [bansosType, setBansosType] = useState('balance');
+  const [bansosSub, setBansosSub] = useState('give');
   const [bansosKeyName, setBansosKeyName] = useState('basic');
   const [bansosAmount, setBansosAmount] = useState('');
   const [bansosDuration, setBansosDuration] = useState('');
+  const [bansosCancelId, setBansosCancelId] = useState('');
   const [eventSub, setEventSub] = useState('add');
   const [eventName, setEventName] = useState('');
   const [eventStart, setEventStart] = useState('');
@@ -926,7 +927,7 @@ function RconSection() {
 
   function resetFields() {
     setNick(''); setMoney(''); setKeyQty('');
-    setBansosAmount(''); setBansosDuration('');
+    setBansosAmount(''); setBansosDuration(''); setBansosCancelId('');
     setEventName(''); setEventStart(''); setEventDuration('');
     setEventTarget(''); setEventTime('');
   }
@@ -939,7 +940,12 @@ function RconSection() {
     if (action === 'rank')   payload = { ...payload, nick: nick.trim(), rankKey, duration: rankDuration };
     if (action === 'money')  payload = { ...payload, nick: nick.trim(), amount: Number(money) };
     if (action === 'key')    payload = { ...payload, nick: nick.trim(), keyName, qty: Number(keyQty) };
-    if (action === 'bansos') payload = { ...payload, type: bansosType, keyName: bansosKeyName, amount: Number(bansosAmount), duration: bansosDuration.trim() };
+    if (action === 'bansos') {
+      payload.subAction = bansosSub;
+      if (bansosSub === 'give')   payload = { ...payload, keyName: bansosKeyName, amount: Number(bansosAmount), duration: bansosDuration.trim() || undefined };
+      if (bansosSub === 'cancel') payload = { ...payload, bansosId: bansosCancelId.trim() };
+      // list tidak butuh field tambahan
+    }
     if (action === 'event') {
       payload.subAction = eventSub;
       if (eventSub === 'add')    payload = { ...payload, name: eventName.trim(), startTime: eventStart.trim(), duration: eventDuration.trim() };
@@ -1061,12 +1067,12 @@ function RconSection() {
         {action === 'bansos' && (
           <>
             <div>
-              <FieldLabel required>Tipe Bansos</FieldLabel>
+              <FieldLabel required>Sub-Aksi</FieldLabel>
               <div className="flex gap-2">
-                {[{ id:'balance', label:'💰 Balance' }, { id:'key', label:'🗝️ Key' }].map(({ id, label }) => (
-                  <button key={id} type="button" onClick={() => setBansosType(id)} disabled={loading}
+                {[{ id:'give', label:'🎁 Give' }, { id:'cancel', label:'❌ Cancel' }, { id:'list', label:'📋 List' }].map(({ id, label }) => (
+                  <button key={id} type="button" onClick={() => setBansosSub(id)} disabled={loading}
                     className={cn('flex-1 rounded-xl border py-2 text-xs font-semibold transition-colors',
-                      bansosType === id ? 'border-cyan-400/50 bg-cyan-400/10 text-cyan-300'
+                      bansosSub === id ? 'border-cyan-400/50 bg-cyan-400/10 text-cyan-300'
                         : 'border-white/10 bg-white/[0.03] text-text-dim hover:border-white/20 hover:text-text-muted'
                     )}>
                     {label}
@@ -1074,26 +1080,50 @@ function RconSection() {
                 ))}
               </div>
             </div>
-            {bansosType === 'key' && (
+
+            {bansosSub === 'give' && (
+              <>
+                <div>
+                  <FieldLabel required>Tipe Key</FieldLabel>
+                  <select value={bansosKeyName} onChange={(e) => setBansosKeyName(e.target.value)} disabled={loading} className={fieldBase}>
+                    {KEY_OPTIONS.map((k) => <option key={k} value={k}>{k}</option>)}
+                  </select>
+                </div>
+                <div className="grid grid-cols-2 gap-4">
+                  <div>
+                    <FieldLabel required>Jumlah</FieldLabel>
+                    <input type="number" min={1} value={bansosAmount} onChange={(e) => setBansosAmount(e.target.value)}
+                      placeholder="misal: 5" required disabled={loading} className={fieldBase} />
+                  </div>
+                  <div>
+                    <FieldLabel>Durasi (opsional)</FieldLabel>
+                    <input type="text" value={bansosDuration} onChange={(e) => setBansosDuration(e.target.value)}
+                      placeholder="30s, 5m, 1h (kosong = langsung)" disabled={loading} className={fieldBase} />
+                  </div>
+                </div>
+                <p className="text-[11px] text-text-dim">
+                  Command: <code className="font-mono text-cyan-300">bansos {bansosKeyName} {bansosAmount || '?'}{bansosDuration ? ` ${bansosDuration}` : ''}</code>
+                  {' '}→ <code className="font-mono text-text-muted">case key giveall {bansosKeyName} {bansosAmount || '?'}</code>
+                </p>
+              </>
+            )}
+
+            {bansosSub === 'cancel' && (
               <div>
-                <FieldLabel required>Tipe Key</FieldLabel>
-                <select value={bansosKeyName} onChange={(e) => setBansosKeyName(e.target.value)} disabled={loading} className={fieldBase}>
-                  {KEY_OPTIONS.map((k) => <option key={k} value={k}>{k}</option>)}
-                </select>
+                <FieldLabel required>ID Bansos</FieldLabel>
+                <input type="text" value={bansosCancelId} onChange={(e) => setBansosCancelId(e.target.value)}
+                  placeholder="misal: 1" required disabled={loading} className={fieldBase} />
+                <p className="mt-1 text-[11px] text-text-dim">
+                  Gunakan <strong>bansos list</strong> dulu untuk lihat ID aktif.
+                </p>
               </div>
             )}
-            <div className="grid grid-cols-2 gap-4">
-              <div>
-                <FieldLabel required>Jumlah</FieldLabel>
-                <input type="number" min={1} value={bansosAmount} onChange={(e) => setBansosAmount(e.target.value)}
-                  placeholder="misal: 5000" required disabled={loading} className={fieldBase} />
-              </div>
-              <div>
-                <FieldLabel required>Durasi</FieldLabel>
-                <input type="text" value={bansosDuration} onChange={(e) => setBansosDuration(e.target.value)}
-                  placeholder="10, 1h, 2d, 1w…" required disabled={loading} className={fieldBase} />
-              </div>
-            </div>
+
+            {bansosSub === 'list' && (
+              <p className="rounded-xl border border-white/8 bg-white/[0.02] px-4 py-3 text-xs text-text-dim">
+                Klik <strong>Eksekusi RCON</strong> untuk melihat daftar bansos yang sedang aktif di server.
+              </p>
+            )}
           </>
         )}
 

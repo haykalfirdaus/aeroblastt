@@ -1,5 +1,5 @@
 import { isAuthenticated, setCorsHeaders } from '../_auth.js';
-import { grantRank, giveMoney, giveKey, giveBansos, eventAdd, eventClear, eventTime, KEY_NAMES } from '../_rcon.js';
+import { grantRank, giveMoney, giveKey, giveBansos, bansosCancel, bansosList, eventAdd, eventClear, eventTime, KEY_NAMES } from '../_rcon.js';
 
 const VALID_ACTIONS = ['rank', 'money', 'key', 'bansos', 'event'];
 
@@ -52,14 +52,23 @@ export default async function handler(req, res) {
     result = await giveKey(nick.trim(), keyName, qty);
 
   } else if (action === 'bansos') {
-    const { type, keyName, duration } = body;
-    const amount = Number(body.amount);
-    if (!['key', 'balance'].includes(type)) {
-      res.status(400).json({ ok: false, error: 'type bansos harus key atau balance' }); return;
+    const { subAction, keyName } = body;
+
+    if (subAction === 'list') {
+      result = await bansosList();
+    } else if (subAction === 'cancel') {
+      const { bansosId } = body;
+      if (!bansosId) { res.status(400).json({ ok: false, error: 'bansosId diperlukan' }); return; }
+      result = await bansosCancel(bansosId);
+    } else {
+      // give bansos
+      if (!keyName || !KEY_NAMES.includes(keyName)) {
+        res.status(400).json({ ok: false, error: `keyName tidak valid. Pilih: ${KEY_NAMES.join(', ')}` }); return;
+      }
+      const amount = Number(body.amount);
+      if (!amount || amount <= 0) { res.status(400).json({ ok: false, error: 'amount harus angka positif' }); return; }
+      result = await giveBansos(keyName, amount, body.duration?.trim() || null);
     }
-    if (!amount || amount <= 0) { res.status(400).json({ ok: false, error: 'amount harus angka positif' }); return; }
-    if (!duration?.trim()) { res.status(400).json({ ok: false, error: 'duration diperlukan (contoh: 10, 1h, 2d)' }); return; }
-    result = await giveBansos(type, amount, duration.trim(), keyName);
 
   } else if (action === 'event') {
     const { subAction } = body;
