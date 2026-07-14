@@ -4,7 +4,6 @@ import { FotbarSlider } from '@/components/home/FotbarSlider';
 import { AnnouncementBanner } from '@/components/home/AnnouncementBanner';
 import { AnnouncementPopup } from '@/components/home/AnnouncementPopup';
 import { FeaturesSection } from '@/components/home/FeaturesSection';
-import { GallerySlider } from '@/components/home/GallerySlider';
 import { AnnouncementTicker } from '@/components/home/AnnouncementTicker';
 import { SpecialRanksSection } from '@/components/home/SpecialRanksSection';
 import { RulesSection } from '@/components/home/RulesSection';
@@ -19,8 +18,6 @@ export default function HomePage() {
       <FotbarSlider />
       <AnnouncementBanner />
       <FeaturesSection />
-      {/* Gallery with a ticker divider below it */}
-      <GallerySlider />
       <AnnouncementTicker />
       <SpecialRanksSection />
       <RulesSection />
