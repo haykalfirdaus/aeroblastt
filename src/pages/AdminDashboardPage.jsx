@@ -10,7 +10,9 @@ import {
   PercentCircle,
   Plus,
   Shield,
+  Terminal,
   Trash2,
+  Zap,
 } from 'lucide-react';
 import { useAuth } from '@/context/AuthContext';
 import { useToast } from '@/context/ToastContext';
@@ -151,7 +153,18 @@ function InvoicesSection() {
         const d = await res.json().catch(() => ({}));
         throw new Error(d.error || 'Gagal menandai lunas');
       }
-      showToast('Invoice ditandai lunas & notifikasi Discord terkirim', 'success');
+      const resData = await res.json().catch(() => ({}));
+      const rcon = resData.rcon;
+      if (rcon) {
+        showToast(
+          rcon.ok
+            ? 'Invoice lunas — RCON berhasil dieksekusi'
+            : `Invoice lunas — RCON gagal: ${rcon.error || 'unknown'}`,
+          rcon.ok ? 'success' : 'error',
+        );
+      } else {
+        showToast('Invoice ditandai lunas & notifikasi Discord terkirim', 'success');
+      }
       setPaidIds((prev) => new Set([...prev, id]));
       // Hapus dari DB 1 menit setelah dikonfirmasi, lalu hilangkan dari list
       setTimeout(async () => {
@@ -873,6 +886,215 @@ function DiscountItem({ item, pending, confirming, onRequestDelete, onCancelDele
 }
 
 // ---------------------------------------------------------------------------
+// Section C — RCON Manual
+// ---------------------------------------------------------------------------
+
+const RANK_OPTIONS = [
+  'SCOUT','VOYAGER','ORBITER','RAVEST','VORTEX','QUANTUM','GALATICS','UNIVERSE',
+];
+
+const SKILL_OPTIONS = [
+  'Fighting','Defense','Archery','Agility','Alchemy',
+  'Farming','Foraging','Mining','Fishing','Excavation','Enchanting',
+];
+
+function RconSection() {
+  const showToast = useToast();
+  const [action, setAction] = useState('rank');
+  const [nick, setNick] = useState('');
+  const [rankKey, setRankKey] = useState('SCOUT');
+  const [rankDuration, setRankDuration] = useState('permanent');
+  const [money, setMoney] = useState('');
+  const [skillName, setSkillName] = useState('Fighting');
+  const [skillLevels, setSkillLevels] = useState('');
+  const [loading, setLoading] = useState(false);
+
+  async function handleSubmit(e) {
+    e.preventDefault();
+    if (!nick.trim()) return;
+    setLoading(true);
+
+    const payload = { action, nick: nick.trim() };
+    if (action === 'rank') {
+      payload.rankKey = rankKey;
+      payload.duration = rankDuration;
+    } else if (action === 'money') {
+      payload.amount = Number(money);
+    } else if (action === 'skill') {
+      payload.skillName = skillName;
+      payload.levels = Number(skillLevels);
+    }
+
+    try {
+      const res = await fetch('/api/admin/rcon', {
+        method: 'POST',
+        credentials: 'include',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(payload),
+      });
+      const data = await res.json().catch(() => ({}));
+      if (data.ok) {
+        showToast(`RCON berhasil: ${data.response || 'OK'}`, 'success');
+        setNick('');
+        setMoney('');
+        setSkillLevels('');
+      } else {
+        showToast(`RCON gagal: ${data.error || 'Unknown error'}`, 'error');
+      }
+    } catch (err) {
+      showToast(err.message, 'error');
+    } finally {
+      setLoading(false);
+    }
+  }
+
+  return (
+    <SectionCard icon={Terminal} title="RCON Manual" accent="cyan-400">
+      <form onSubmit={handleSubmit} className="space-y-4">
+        {/* Action tabs */}
+        <div>
+          <FieldLabel required>Tipe Aksi</FieldLabel>
+          <div className="flex gap-2">
+            {[
+              { id: 'rank', label: '🎖️ Rank' },
+              { id: 'money', label: '💰 Money' },
+              { id: 'skill', label: '⚡ Skill' },
+            ].map(({ id, label }) => (
+              <button
+                key={id}
+                type="button"
+                onClick={() => setAction(id)}
+                className={cn(
+                  'flex-1 rounded-xl border py-2 text-xs font-semibold transition-colors',
+                  action === id
+                    ? 'border-cyan-400/50 bg-cyan-400/10 text-cyan-300'
+                    : 'border-white/10 bg-white/[0.03] text-text-dim hover:border-white/20 hover:text-text-muted',
+                )}
+              >
+                {label}
+              </button>
+            ))}
+          </div>
+        </div>
+
+        {/* Nick */}
+        <div>
+          <FieldLabel required>Nickname Player</FieldLabel>
+          <input
+            type="text"
+            value={nick}
+            onChange={(e) => setNick(e.target.value)}
+            placeholder="Nama IGN player…"
+            required
+            disabled={loading}
+            className={fieldBase}
+          />
+        </div>
+
+        {/* Rank fields */}
+        {action === 'rank' && (
+          <div className="grid grid-cols-2 gap-4">
+            <div>
+              <FieldLabel required>Rank</FieldLabel>
+              <select
+                value={rankKey}
+                onChange={(e) => setRankKey(e.target.value)}
+                disabled={loading}
+                className={fieldBase}
+              >
+                {RANK_OPTIONS.map((r) => (
+                  <option key={r} value={r}>{r}</option>
+                ))}
+              </select>
+            </div>
+            <div>
+              <FieldLabel required>Durasi</FieldLabel>
+              <select
+                value={rankDuration}
+                onChange={(e) => setRankDuration(e.target.value)}
+                disabled={loading}
+                className={fieldBase}
+              >
+                <option value="permanent">Permanent</option>
+                <option value="monthly">Monthly (30 hari)</option>
+              </select>
+            </div>
+          </div>
+        )}
+
+        {/* Money fields */}
+        {action === 'money' && (
+          <div>
+            <FieldLabel required>Jumlah Balance (in-game)</FieldLabel>
+            <input
+              type="number"
+              min={1}
+              value={money}
+              onChange={(e) => setMoney(e.target.value)}
+              placeholder="misal: 10000"
+              required
+              disabled={loading}
+              className={fieldBase}
+            />
+          </div>
+        )}
+
+        {/* Skill fields */}
+        {action === 'skill' && (
+          <div className="grid grid-cols-2 gap-4">
+            <div>
+              <FieldLabel required>Skill</FieldLabel>
+              <select
+                value={skillName}
+                onChange={(e) => setSkillName(e.target.value)}
+                disabled={loading}
+                className={fieldBase}
+              >
+                {SKILL_OPTIONS.map((s) => (
+                  <option key={s} value={s}>{s}</option>
+                ))}
+              </select>
+            </div>
+            <div>
+              <FieldLabel required>Jumlah Level</FieldLabel>
+              <input
+                type="number"
+                min={1}
+                max={100}
+                value={skillLevels}
+                onChange={(e) => setSkillLevels(e.target.value)}
+                placeholder="misal: 10"
+                required
+                disabled={loading}
+                className={fieldBase}
+              />
+            </div>
+          </div>
+        )}
+
+        <Button
+          type="submit"
+          variant="primary"
+          size="sm"
+          disabled={loading || !nick.trim()}
+          className="w-full gap-1.5"
+          style={{
+            background: 'linear-gradient(to right, var(--color-cyan-500), var(--color-neon-500))',
+          }}
+        >
+          {loading ? (
+            <span className="h-3.5 w-3.5 animate-spin rounded-full border-2 border-white/30 border-t-white" />
+          ) : (
+            <Zap size={14} />
+          )}
+          Eksekusi RCON
+        </Button>
+      </form>
+    </SectionCard>
+  );
+}
+
+// ---------------------------------------------------------------------------
 // Dashboard page
 // ---------------------------------------------------------------------------
 
@@ -959,6 +1181,11 @@ export default function AdminDashboardPage() {
         <div className="grid grid-cols-1 gap-6 lg:grid-cols-2">
           <AnnouncementsSection />
           <DiscountsSection />
+        </div>
+
+        {/* RCON Manual — full width */}
+        <div className="mt-6">
+          <RconSection />
         </div>
       </main>
     </div>

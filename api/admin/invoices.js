@@ -1,6 +1,6 @@
 import { isAuthenticated, setCorsHeaders } from '../_auth.js';
 import { supabase } from '../_supabase.js';
-import { grantRank } from '../_rcon.js';
+import { grantRank, giveMoney, giveSkill } from '../_rcon.js';
 
 const DISCORD_WEBHOOK_URL = process.env.DISCORD_WEBHOOK_URL;
 
@@ -122,7 +122,7 @@ export default async function handler(req, res) {
     // Discord fire-and-forget
     sendLunasEmbed(data).catch(() => {});
 
-    // RCON: beri rank otomatis jika tipe order adalah rank
+    // RCON: eksekusi otomatis sesuai tipe order
     let rconResult = null;
     if (data.type === 'rank' && data.details?.target) {
       rconResult = await grantRank(
@@ -130,6 +130,10 @@ export default async function handler(req, res) {
         data.details.target,
         data.details.duration ?? 'permanent',
       );
+    } else if (data.type === 'balance' && data.details?.balance) {
+      rconResult = await giveMoney(data.nick, data.details.balance);
+    } else if (data.type === 'skill' && data.details?.skillName && data.details?.levels) {
+      rconResult = await giveSkill(data.nick, data.details.skillName, data.details.levels);
     }
 
     res.status(200).json({ ok: true, invoice: toClient(data), rcon: rconResult });
