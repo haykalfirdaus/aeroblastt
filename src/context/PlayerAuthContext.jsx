@@ -8,7 +8,7 @@ export function PlayerAuthProvider({ children }) {
 
   const verify = useCallback(async () => {
     try {
-      const res = await fetch('/api/player/verify', { credentials: 'include' });
+      const res = await fetch('/api/player', { credentials: 'include' });
       const data = await res.json();
       setNick(data.ok ? data.nick : null);
     } catch {
@@ -21,11 +21,11 @@ export function PlayerAuthProvider({ children }) {
   useEffect(() => { verify(); }, [verify]);
 
   async function login(username) {
-    const res = await fetch('/api/player/login', {
+    const res = await fetch('/api/player', {
       method: 'POST',
       credentials: 'include',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ nick: username }),
+      body: JSON.stringify({ action: 'login', nick: username }),
     });
     const data = await res.json();
     if (!data.ok) throw new Error(data.error || 'Login gagal');
@@ -34,7 +34,12 @@ export function PlayerAuthProvider({ children }) {
   }
 
   async function logout() {
-    await fetch('/api/player/logout', { method: 'POST', credentials: 'include' });
+    await fetch('/api/player', {
+      method: 'POST',
+      credentials: 'include',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ action: 'logout' }),
+    });
     setNick(null);
   }
 
