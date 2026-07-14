@@ -10,7 +10,7 @@ const SLIDES = [
   },
   {
     title: 'PvP Arena',
-    subtitle: 'Buktikan kemampuanmu di arena pertempuran',
+    subtitle: 'Buktikan kemampuanmu di arena pertempuran sengit',
     img: 'https://placehold.co/800x500/12213d/60a5fa?text=PvP+Arena',
   },
   {
@@ -20,7 +20,7 @@ const SLIDES = [
   },
   {
     title: 'Rank & Prestise',
-    subtitle: 'Dapatkan rank eksklusif, tunjukkan statusmu',
+    subtitle: 'Dapatkan rank eksklusif dan tunjukkan statusmu',
     img: 'https://placehold.co/800x500/0a1424/8b5cf6?text=Rank+%26+Prestise',
   },
   {
@@ -38,44 +38,35 @@ const SLIDES = [
 export function GallerySlider() {
   const trackRef = useRef(null);
   const [isDragging, setIsDragging] = useState(false);
-  const dragState = useRef({ startX: 0, scrollLeft: 0, active: false });
+  const drag = useRef({ active: false, startX: 0, scrollLeft: 0 });
 
   const onMouseDown = useCallback((e) => {
     const el = trackRef.current;
     if (!el) return;
-    dragState.current = { startX: e.pageX - el.offsetLeft, scrollLeft: el.scrollLeft, active: true };
+    drag.current = { active: true, startX: e.clientX, scrollLeft: el.scrollLeft };
     setIsDragging(true);
   }, []);
 
   const onMouseMove = useCallback((e) => {
-    if (!dragState.current.active) return;
-    const el = trackRef.current;
-    if (!el) return;
-    e.preventDefault();
-    const walk = (e.pageX - el.offsetLeft - dragState.current.startX) * 1.5;
-    el.scrollLeft = dragState.current.scrollLeft - walk;
+    if (!drag.current.active) return;
+    trackRef.current.scrollLeft = drag.current.scrollLeft - (e.clientX - drag.current.startX);
   }, []);
 
   const stopDrag = useCallback(() => {
-    dragState.current.active = false;
+    drag.current.active = false;
     setIsDragging(false);
   }, []);
 
   const onTouchStart = useCallback((e) => {
     const el = trackRef.current;
     if (!el) return;
-    dragState.current = { startX: e.touches[0].pageX - el.offsetLeft, scrollLeft: el.scrollLeft, active: true };
+    drag.current = { active: true, startX: e.touches[0].clientX, scrollLeft: el.scrollLeft };
   }, []);
 
   const onTouchMove = useCallback((e) => {
-    if (!dragState.current.active) return;
-    const el = trackRef.current;
-    if (!el) return;
-    const walk = (e.touches[0].pageX - el.offsetLeft - dragState.current.startX) * 1.5;
-    el.scrollLeft = dragState.current.scrollLeft - walk;
+    if (!drag.current.active) return;
+    trackRef.current.scrollLeft = drag.current.scrollLeft - (e.touches[0].clientX - drag.current.startX);
   }, []);
-
-  const onTouchEnd = useCallback(() => { dragState.current.active = false; }, []);
 
   return (
     <section id="gallery" className="py-14 px-4 sm:px-6 lg:px-8">
@@ -91,14 +82,13 @@ export function GallerySlider() {
           'flex gap-3 overflow-x-auto no-scrollbar px-4 sm:px-6 lg:px-8 pb-2 select-none',
           isDragging ? 'cursor-grabbing' : 'cursor-grab',
         )}
-        style={{ scrollSnapType: 'x mandatory', WebkitOverflowScrolling: 'touch' }}
         onMouseDown={onMouseDown}
         onMouseMove={onMouseMove}
         onMouseUp={stopDrag}
         onMouseLeave={stopDrag}
         onTouchStart={onTouchStart}
         onTouchMove={onTouchMove}
-        onTouchEnd={onTouchEnd}
+        onTouchEnd={() => { drag.current.active = false; }}
       >
         {SLIDES.map((slide) => (
           <GalleryCard key={slide.title} slide={slide} />
@@ -112,7 +102,7 @@ function GalleryCard({ slide }) {
   return (
     <article
       className="group relative shrink-0 overflow-hidden rounded-xl border border-white/8 bg-surface"
-      style={{ width: 'clamp(220px, 28vw, 300px)', height: 180, scrollSnapAlign: 'start' }}
+      style={{ width: 260, height: 174 }}
     >
       <img
         src={slide.img}
@@ -126,15 +116,15 @@ function GalleryCard({ slide }) {
       <div
         aria-hidden="true"
         className="absolute inset-0"
-        style={{ background: 'linear-gradient(to top, rgba(1,4,10,0.90) 0%, rgba(1,4,10,0.25) 50%, transparent 100%)' }}
+        style={{ background: 'linear-gradient(to top, rgba(1,4,10,0.92) 0%, rgba(1,4,10,0.3) 55%, transparent 100%)' }}
       />
 
-      {/* text — ukuran seragam, tidak ada sm: breakpoint berbeda */}
-      <div className="absolute bottom-0 left-0 right-0 p-3">
-        <p className="font-display text-[0.72rem] font-bold leading-tight text-text-bright">
+      {/* teks — font, ukuran, dan struktur seragam */}
+      <div className="absolute bottom-0 left-0 right-0 px-3 pb-3">
+        <p className="font-sans text-[0.7rem] font-semibold leading-tight text-white">
           {slide.title}
         </p>
-        <p className="mt-0.5 text-[0.62rem] leading-snug text-text-muted line-clamp-2">
+        <p className="mt-0.5 font-sans text-[0.6rem] font-normal leading-snug text-white/60 line-clamp-2">
           {slide.subtitle}
         </p>
       </div>
