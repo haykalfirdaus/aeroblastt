@@ -32,7 +32,8 @@
       "Bash(git add *)",
       "PowerShell(gh auth *)",
       "PowerShell(git config *)",
-      "PowerShell(git *)"
+      "PowerShell(git *)",
+      "Bash(git checkout *)"
     ]
   }
 }
