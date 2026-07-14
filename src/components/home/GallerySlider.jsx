@@ -5,32 +5,32 @@ import { SectionHeading } from '@/components/ui/SectionHeading';
 const SLIDES = [
   {
     title: 'Survive & Thrive',
-    subtitle: 'Jelajahi dunia survival seru bersama ratusan player',
+    subtitle: 'Jelajahi dunia survival bersama ratusan player',
     img: 'https://placehold.co/800x500/0e1a30/3b82f6?text=Survive+%26+Thrive',
   },
   {
     title: 'PvP Arena',
-    subtitle: 'Buktikan kemampuanmu di arena pertempuran sengit',
+    subtitle: 'Buktikan kemampuanmu di arena pertempuran',
     img: 'https://placehold.co/800x500/12213d/60a5fa?text=PvP+Arena',
   },
   {
     title: 'Gacha System',
-    subtitle: 'Buka kunci item legendaris dengan sistem gacha eksklusif',
+    subtitle: 'Buka item legendaris dengan gacha eksklusif',
     img: 'https://placehold.co/800x500/060d1a/93c5fd?text=Gacha+System',
   },
   {
     title: 'Rank & Prestise',
-    subtitle: 'Dapatkan rank eksklusif dan tunjukkan statusmu',
+    subtitle: 'Dapatkan rank eksklusif, tunjukkan statusmu',
     img: 'https://placehold.co/800x500/0a1424/8b5cf6?text=Rank+%26+Prestise',
   },
   {
     title: 'Economy System',
-    subtitle: 'Bangun kerajaan bisnismu di auction house & market',
+    subtitle: 'Bangun bisnis di auction house & market',
     img: 'https://placehold.co/800x500/0e1a30/22d3ee?text=Economy+System',
   },
   {
     title: 'Custom Enchant',
-    subtitle: 'Senjatamu, aturanmu — ratusan enchantment unik',
+    subtitle: 'Ratusan enchantment unik untuk senjatamu',
     img: 'https://placehold.co/800x500/12213d/f59e0b?text=Custom+Enchant',
   },
 ];
@@ -40,7 +40,6 @@ export function GallerySlider() {
   const [isDragging, setIsDragging] = useState(false);
   const dragState = useRef({ startX: 0, scrollLeft: 0, active: false });
 
-  /* ── Mouse drag handlers ───────────────────────────────────────────── */
   const onMouseDown = useCallback((e) => {
     const el = trackRef.current;
     if (!el) return;
@@ -53,8 +52,7 @@ export function GallerySlider() {
     const el = trackRef.current;
     if (!el) return;
     e.preventDefault();
-    const x = e.pageX - el.offsetLeft;
-    const walk = (x - dragState.current.startX) * 1.2;
+    const walk = (e.pageX - el.offsetLeft - dragState.current.startX) * 1.5;
     el.scrollLeft = dragState.current.scrollLeft - walk;
   }, []);
 
@@ -63,44 +61,34 @@ export function GallerySlider() {
     setIsDragging(false);
   }, []);
 
-  /* ── Touch swipe handlers ──────────────────────────────────────────── */
   const onTouchStart = useCallback((e) => {
     const el = trackRef.current;
     if (!el) return;
-    dragState.current = {
-      startX: e.touches[0].pageX - el.offsetLeft,
-      scrollLeft: el.scrollLeft,
-      active: true,
-    };
+    dragState.current = { startX: e.touches[0].pageX - el.offsetLeft, scrollLeft: el.scrollLeft, active: true };
   }, []);
 
   const onTouchMove = useCallback((e) => {
     if (!dragState.current.active) return;
     const el = trackRef.current;
     if (!el) return;
-    const x = e.touches[0].pageX - el.offsetLeft;
-    const walk = (x - dragState.current.startX) * 1.2;
+    const walk = (e.touches[0].pageX - el.offsetLeft - dragState.current.startX) * 1.5;
     el.scrollLeft = dragState.current.scrollLeft - walk;
   }, []);
 
-  const onTouchEnd = useCallback(() => {
-    dragState.current.active = false;
-  }, []);
+  const onTouchEnd = useCallback(() => { dragState.current.active = false; }, []);
 
   return (
-    <section id="gallery" className="py-16 px-4 sm:px-6 lg:px-8">
+    <section id="gallery" className="py-14 px-4 sm:px-6 lg:px-8">
       <div className="mx-auto max-w-7xl">
         <SectionHeading eyebrow="Galeri Server" title="Dunia AeroBlast" />
       </div>
 
-      {/* Scrollable track */}
       <div
         ref={trackRef}
         role="region"
         aria-label="Galeri gambar server"
         className={cn(
-          'flex gap-4 overflow-x-auto no-scrollbar px-4 sm:px-6 lg:px-8 pb-3',
-          'select-none',
+          'flex gap-3 overflow-x-auto no-scrollbar px-4 sm:px-6 lg:px-8 pb-2 select-none',
           isDragging ? 'cursor-grabbing' : 'cursor-grab',
         )}
         style={{ scrollSnapType: 'x mandatory', WebkitOverflowScrolling: 'touch' }}
@@ -123,37 +111,30 @@ export function GallerySlider() {
 function GalleryCard({ slide }) {
   return (
     <article
-      className="group relative shrink-0 overflow-hidden rounded-2xl border border-white/8 bg-surface"
-      style={{
-        minWidth: 'clamp(280px, 30vw, 340px)',
-        height: 220,
-        scrollSnapAlign: 'start',
-      }}
+      className="group relative shrink-0 overflow-hidden rounded-xl border border-white/8 bg-surface"
+      style={{ width: 'clamp(220px, 28vw, 300px)', height: 180, scrollSnapAlign: 'start' }}
     >
-      {/* Image with zoom on hover */}
       <img
         src={slide.img}
         alt={slide.title}
         draggable={false}
         loading="lazy"
-        className="absolute inset-0 h-full w-full object-cover transition-transform duration-300 ease-in-out group-hover:scale-105"
+        className="absolute inset-0 h-full w-full object-cover transition-transform duration-300 group-hover:scale-105 pointer-events-none"
       />
 
-      {/* Bottom gradient overlay */}
+      {/* gradient overlay */}
       <div
         aria-hidden="true"
         className="absolute inset-0"
-        style={{
-          background: 'linear-gradient(to top, rgba(1,4,10,0.88) 0%, rgba(1,4,10,0.35) 55%, transparent 100%)',
-        }}
+        style={{ background: 'linear-gradient(to top, rgba(1,4,10,0.90) 0%, rgba(1,4,10,0.25) 50%, transparent 100%)' }}
       />
 
-      {/* Text content */}
-      <div className="absolute bottom-0 left-0 right-0 p-4">
-        <h3 className="mb-0.5 font-display text-sm font-bold leading-tight text-text-bright sm:text-base">
+      {/* text — ukuran seragam, tidak ada sm: breakpoint berbeda */}
+      <div className="absolute bottom-0 left-0 right-0 p-3">
+        <p className="font-display text-[0.72rem] font-bold leading-tight text-text-bright">
           {slide.title}
-        </h3>
-        <p className="text-[0.68rem] leading-relaxed text-text-muted sm:text-xs">
+        </p>
+        <p className="mt-0.5 text-[0.62rem] leading-snug text-text-muted line-clamp-2">
           {slide.subtitle}
         </p>
       </div>
