@@ -1,7 +1,7 @@
 import { setCorsHeaders, signPlayerToken, verifyPlayerToken } from './_auth.js';
 import { isRegisteredInAuthme } from './_mysql.js';
 
-const NICK_RE = /^[a-zA-Z0-9_]{1,16}$/;
+const NICK_RE = /^[a-zA-Z0-9_.]{1,30}$/;
 const isProd = process.env.NODE_ENV !== 'development';
 
 const requests = new Map();

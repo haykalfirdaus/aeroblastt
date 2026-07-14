@@ -23,8 +23,9 @@ const PICKS_DESC = [...BALANCE_QUICK_PICKS].sort((a, b) => b.rupiah - a.rupiah);
 function BalanceOrderModal({ open, onClose, initialRupiah = 0 }) {
   const showToast = useToast();
   const { nick: playerNick } = usePlayerAuth();
+  const isBedrock = playerNick?.includes('.');
   const [nick, setNick] = useState('');
-  const [platform, setPlatform] = useState('');
+  const [platform, setPlatform] = useState(isBedrock ? 'Bedrock / PE' : '');
   const [rupiahInput, setRupiahInput] = useState(String(initialRupiah || ''));
   const [discount, setDiscount] = useState(0);
   const [payment, setPayment] = useState('');
@@ -56,10 +57,11 @@ function BalanceOrderModal({ open, onClose, initialRupiah = 0 }) {
         <div><FieldLabel required>Nickname</FieldLabel><TextField value={playerNick || nick} onChange={(e) => !playerNick && setNick(e.target.value)} placeholder={playerNick ? '' : 'Username in-game'} readOnly={!!playerNick} /></div>
         <div>
           <FieldLabel required>Platform</FieldLabel>
-          <SelectField value={platform} onChange={(e) => setPlatform(e.target.value)}>
+          <SelectField value={platform} onChange={(e) => !isBedrock && setPlatform(e.target.value)} disabled={isBedrock}>
             <option value="">-- Pilih Platform --</option>
             {SITE.platforms.map((p) => <option key={p}>{p}</option>)}
           </SelectField>
+          {isBedrock && <p className="mt-1 text-[11px] text-cyan-400">Terdeteksi Bedrock — platform dikunci otomatis</p>}
         </div>
         <div>
           <FieldLabel required>Jumlah Rupiah</FieldLabel>
