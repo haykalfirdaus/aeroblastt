@@ -173,11 +173,14 @@ export default async function handler(req, res) {
     // Discord setelah RCON selesai — bukan fire-and-forget
     await sendLunasEmbed(data, rconResult, betaOrderExpired);
 
+    // Hapus invoice langsung dari DB — tidak perlu frontend DELETE terpisah
+    await supabase.from('invoices').delete().eq('id', id).catch(() => {});
+
     res.status(200).json({ ok: true, invoice: toClient(data), rcon: rconResult });
     return;
   }
 
-  // DELETE — hapus invoice (dipanggil frontend 1 menit setelah lunas)
+  // DELETE — masih disupport untuk backward compat, no-op jika sudah dihapus PATCH
   if (req.method === 'DELETE') {
     const id = req.query?.id || new URL(req.url, 'http://localhost').searchParams.get('id');
     if (!id) {

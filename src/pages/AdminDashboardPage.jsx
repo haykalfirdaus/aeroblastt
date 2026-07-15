@@ -126,8 +126,15 @@ function InvoicesSection() {
 
   useEffect(() => {
     fetchInvoices();
-    const interval = setInterval(fetchInvoices, 30000);
-    return () => clearInterval(interval);
+    // Poll tiap 5 detik supaya auto-paid dari MacroDroid langsung kedeteksi
+    const interval = setInterval(fetchInvoices, 5000);
+    // Refresh juga saat tab di-focus kembali
+    function onFocus() { fetchInvoices(); }
+    window.addEventListener('focus', onFocus);
+    return () => {
+      clearInterval(interval);
+      window.removeEventListener('focus', onFocus);
+    };
   }, [fetchInvoices]);
 
   function requestConfirm(id) { setConfirmId(id); }
@@ -159,10 +166,6 @@ function InvoicesSection() {
         showToast('Invoice ditandai lunas & notifikasi Discord terkirim', 'success');
       }
       setItems((prev) => prev.filter((i) => i.id !== id));
-      fetch(`/api/admin/invoices?id=${encodeURIComponent(id)}`, {
-        method: 'DELETE',
-        credentials: 'include',
-      }).catch(() => {});
     } catch (err) {
       showToast(err.message, 'error');
     } finally {
