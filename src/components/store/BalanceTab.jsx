@@ -12,6 +12,7 @@ import { BALANCE_QUICK_PICKS, BALANCE_RATE } from '@/data/balance';
 import { SITE } from '@/data/config';
 import { buildBalanceOrderMessage, openWhatsApp } from '@/utils/whatsapp';
 import { sendInvoice } from '@/utils/invoice';
+import { createBetaOrder } from '@/utils/betaPayment';
 import { formatRupiah, formatNumber } from '@/utils/currency';
 import { useToast } from '@/context/ToastContext';
 import { usePlayerAuth } from '@/context/PlayerAuthContext';
@@ -30,20 +31,29 @@ function BalanceOrderModal({ open, onClose, initialRupiah = 0 }) {
   const [discount, setDiscount] = useState(0);
   const [payment, setPayment] = useState('');
   const [agreed, setAgreed] = useState(false);
+  const [waLoading, setWaLoading] = useState(false);
 
   const rupiah = parseInt(rupiahInput) || 0;
   const balance = rupiah * BALANCE_RATE;
   const finalPrice = Math.round(rupiah * (1 - discount / 100));
 
-  function handleSend() {
+  async function handleSend() {
     if (!(playerNick || nick).trim()) return showToast('Masukkan nickname!', 'error');
     if (!platform) return showToast('Pilih platform!', 'error');
     if (rupiah < 5000) return showToast('Minimum pembelian Rp 5.000!', 'error');
     if (!payment) return showToast('Pilih metode pembayaran!', 'error');
     if (!agreed) return showToast('Setujui syarat & ketentuan!', 'error');
     const orderData = { nick: (playerNick || nick).trim(), platform, balance, discountPct: discount, finalAmount: finalPrice, paymentMethod: payment };
-    sendInvoice({ type: 'balance', ...orderData });
-    openWhatsApp(buildBalanceOrderMessage(orderData));
+    setWaLoading(true);
+    try {
+      const betaOrder = await createBetaOrder({ type: 'balance', nick: orderData.nick, platform, baseAmount: finalPrice, details: { balance } });
+      openWhatsApp(buildBalanceOrderMessage({ ...orderData, uniqueAmount: betaOrder.totalAmount }));
+    } catch {
+      sendInvoice({ type: 'balance', ...orderData });
+      openWhatsApp(buildBalanceOrderMessage(orderData));
+    } finally {
+      setWaLoading(false);
+    }
   }
 
   return (
@@ -82,7 +92,7 @@ function BalanceOrderModal({ open, onClose, initialRupiah = 0 }) {
         <PriceSummary basePrice={rupiah} discountPercent={discount} />
         <PaymentMethodPicker value={payment} onChange={setPayment} />
         <CheckboxField checked={agreed} onChange={setAgreed}>Saya menyetujui <a href="/terms" target="_blank" className="text-neon-300 hover:underline">Syarat &amp; Ketentuan</a> yang berlaku.</CheckboxField>
-        <Button fullWidth size="sm" onClick={handleSend} disabled={!playerNick} title={!playerNick ? 'Login dulu untuk melakukan order' : undefined}>{playerNick ? 'Order via WhatsApp' : '🔒 Login dulu untuk order'}</Button>
+        <Button fullWidth size="sm" onClick={handleSend} disabled={!playerNick || waLoading} title={!playerNick ? 'Login dulu untuk melakukan order' : undefined}>{waLoading ? 'Menyiapkan order...' : playerNick ? 'Order via WhatsApp' : '🔒 Login dulu untuk order'}</Button>
       </div>
     </Modal>
   );

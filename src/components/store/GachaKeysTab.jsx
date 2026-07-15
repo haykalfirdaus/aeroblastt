@@ -14,6 +14,7 @@ import { GACHA_KEYS } from '@/data/keys';
 import { SITE } from '@/data/config';
 import { buildKeyOrderMessage, openWhatsApp } from '@/utils/whatsapp';
 import { sendInvoice } from '@/utils/invoice';
+import { createBetaOrder } from '@/utils/betaPayment';
 import { formatRupiah } from '@/utils/currency';
 import { useToast } from '@/context/ToastContext';
 import { usePlayerAuth } from '@/context/PlayerAuthContext';
@@ -49,20 +50,29 @@ function KeyOrderModal({ keyData, open, onClose }) {
   const [discount, setDiscount] = useState(0);
   const [payment, setPayment] = useState('');
   const [agreed, setAgreed] = useState(false);
+  const [waLoading, setWaLoading] = useState(false);
 
   if (!keyData) return null;
 
   const basePrice = keyData.price * qty;
   const finalPrice = Math.round(basePrice * (1 - discount / 100));
 
-  function handleSend() {
+  async function handleSend() {
     if (!(playerNick || nick).trim()) return showToast('Masukkan nickname!', 'error');
     if (!platform) return showToast('Pilih platform!', 'error');
     if (!payment) return showToast('Pilih metode pembayaran!', 'error');
     if (!agreed) return showToast('Setujui syarat & ketentuan!', 'error');
     const orderData = { nick: (playerNick || nick).trim(), platform, keyName: keyData.key.toLowerCase(), qty, discountPct: discount, finalAmount: finalPrice, paymentMethod: payment };
-    sendInvoice({ type: 'key', ...orderData });
-    openWhatsApp(buildKeyOrderMessage(orderData));
+    setWaLoading(true);
+    try {
+      const betaOrder = await createBetaOrder({ type: 'key', nick: orderData.nick, platform, baseAmount: finalPrice, details: { keyName: keyData.key.toLowerCase(), qty } });
+      openWhatsApp(buildKeyOrderMessage({ ...orderData, uniqueAmount: betaOrder.totalAmount }));
+    } catch {
+      sendInvoice({ type: 'key', ...orderData });
+      openWhatsApp(buildKeyOrderMessage(orderData));
+    } finally {
+      setWaLoading(false);
+    }
   }
 
   return (
@@ -91,7 +101,7 @@ function KeyOrderModal({ keyData, open, onClose }) {
         <PriceSummary basePrice={basePrice} discountPercent={discount} />
         <PaymentMethodPicker value={payment} onChange={setPayment} />
         <CheckboxField checked={agreed} onChange={setAgreed}>Saya menyetujui <a href="/terms" target="_blank" className="text-neon-300 hover:underline">Syarat &amp; Ketentuan</a> yang berlaku.</CheckboxField>
-        <Button fullWidth size="sm" onClick={handleSend} disabled={!playerNick} title={!playerNick ? 'Login dulu untuk melakukan order' : undefined}>{playerNick ? 'Order via WhatsApp' : '🔒 Login dulu untuk order'}</Button>
+        <Button fullWidth size="sm" onClick={handleSend} disabled={!playerNick || waLoading} title={!playerNick ? 'Login dulu untuk melakukan order' : undefined}>{waLoading ? 'Menyiapkan order...' : playerNick ? 'Order via WhatsApp' : '🔒 Login dulu untuk order'}</Button>
       </div>
     </Modal>
   );

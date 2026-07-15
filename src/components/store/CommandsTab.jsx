@@ -14,6 +14,7 @@ import { COMMANDS, COMMAND_DURATION_OPTIONS } from '@/data/commands';
 import { SITE } from '@/data/config';
 import { buildCommandOrderMessage, openWhatsApp } from '@/utils/whatsapp';
 import { sendInvoice } from '@/utils/invoice';
+import { createBetaOrder } from '@/utils/betaPayment';
 import { formatRupiah } from '@/utils/currency';
 import { useToast } from '@/context/ToastContext';
 import { usePlayerAuth } from '@/context/PlayerAuthContext';
@@ -46,20 +47,29 @@ function CommandOrderModal({ cmd, open, onClose }) {
   const [discount, setDiscount] = useState(0);
   const [payment, setPayment] = useState('');
   const [agreed, setAgreed] = useState(false);
+  const [waLoading, setWaLoading] = useState(false);
 
   if (!cmd) return null;
   const durOpt = COMMAND_DURATION_OPTIONS.find((d) => d.id === duration);
   const basePrice = Math.round(cmd.basePrice * (durOpt.percentOfBase / 100));
   const finalPrice = Math.round(basePrice * (1 - discount / 100));
 
-  function handleSend() {
+  async function handleSend() {
     if (!(playerNick || nick).trim()) return showToast('Masukkan nickname!', 'error');
     if (!platform) return showToast('Pilih platform!', 'error');
     if (!payment) return showToast('Pilih metode pembayaran!', 'error');
     if (!agreed) return showToast('Setujui syarat & ketentuan!', 'error');
     const orderData = { nick: (playerNick || nick).trim(), platform, cmdName: cmd.orderLabel, duration: durOpt.label, discountPct: discount, finalAmount: finalPrice, paymentMethod: payment };
-    sendInvoice({ type: 'command', ...orderData });
-    openWhatsApp(buildCommandOrderMessage(orderData));
+    setWaLoading(true);
+    try {
+      const betaOrder = await createBetaOrder({ type: 'command', nick: orderData.nick, platform, baseAmount: finalPrice, details: { cmdName: cmd.orderLabel, duration: durOpt.id } });
+      openWhatsApp(buildCommandOrderMessage({ ...orderData, uniqueAmount: betaOrder.totalAmount }));
+    } catch {
+      sendInvoice({ type: 'command', ...orderData });
+      openWhatsApp(buildCommandOrderMessage(orderData));
+    } finally {
+      setWaLoading(false);
+    }
   }
 
   return (
@@ -102,7 +112,7 @@ function CommandOrderModal({ cmd, open, onClose }) {
         <CheckboxField checked={agreed} onChange={setAgreed}>
           Saya menyetujui <a href="/terms" target="_blank" className="text-neon-300 hover:underline">Syarat &amp; Ketentuan</a> yang berlaku.
         </CheckboxField>
-        <Button fullWidth size="sm" onClick={handleSend} disabled={!playerNick} title={!playerNick ? 'Login dulu untuk melakukan order' : undefined}>{playerNick ? 'Order via WhatsApp' : '🔒 Login dulu untuk order'}</Button>
+        <Button fullWidth size="sm" onClick={handleSend} disabled={!playerNick || waLoading} title={!playerNick ? 'Login dulu untuk melakukan order' : undefined}>{waLoading ? 'Menyiapkan order...' : playerNick ? 'Order via WhatsApp' : '🔒 Login dulu untuk order'}</Button>
       </div>
     </Modal>
   );

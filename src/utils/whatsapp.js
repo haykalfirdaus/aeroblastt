@@ -93,14 +93,19 @@ export function buildRankOrderMessage({ nick, platform, target, owned, duration,
   return compose('AEROBLAST RANK ORDER', lines, TNC_LINE);
 }
 
+const UNIQUE_AMOUNT_NOTE = '⚠️ _Wajib transfer exact nominal ini agar terdeteksi otomatis. Nominal berbeda = proses manual & lebih lama._';
+
 /* Store: Gacha key order */
-export function buildKeyOrderMessage({ nick, platform, keyName, qty, discountPct, finalAmount, paymentMethod }) {
+export function buildKeyOrderMessage({ nick, platform, keyName, qty, discountPct, finalAmount, paymentMethod, uniqueAmount }) {
+  const bayar = uniqueAmount ?? finalAmount;
   const lines = [
     `Nickname: ${nick}`,
     `Platform: ${platform}`,
     `Tipe Key: ${keyName}`,
     `Jumlah: ${qty}x` + (discountPct > 0 ? `\nDiskon: ${discountPct}%` : ''),
-    `Total Bayar: ${formatRupiah(finalAmount)}`,
+    uniqueAmount
+      ? `*Total Bayar TEPAT: ${formatRupiah(bayar)}*\n${UNIQUE_AMOUNT_NOTE}`
+      : `Total Bayar: ${formatRupiah(bayar)}`,
     '',
     buildPaymentInfo(paymentMethod),
   ];
@@ -108,13 +113,16 @@ export function buildKeyOrderMessage({ nick, platform, keyName, qty, discountPct
 }
 
 /* Store: Skill boost order */
-export function buildSkillOrderMessage({ nick, platform, skillName, levels, discountPct, finalAmount, paymentMethod }) {
+export function buildSkillOrderMessage({ nick, platform, skillName, levels, discountPct, finalAmount, paymentMethod, uniqueAmount }) {
+  const bayar = uniqueAmount ?? finalAmount;
   const lines = [
     `Nickname: ${nick}`,
     `Platform: ${platform}`,
     `Skill: ${skillName}`,
     `Jumlah Level: ${levels}x` + (discountPct > 0 ? `\nDiskon: ${discountPct}%` : ''),
-    `Total Bayar: ${formatRupiah(finalAmount)}`,
+    uniqueAmount
+      ? `*Total Bayar TEPAT: ${formatRupiah(bayar)}*\n${UNIQUE_AMOUNT_NOTE}`
+      : `Total Bayar: ${formatRupiah(bayar)}`,
     '',
     buildPaymentInfo(paymentMethod),
   ];
@@ -122,12 +130,15 @@ export function buildSkillOrderMessage({ nick, platform, skillName, levels, disc
 }
 
 /* Store: Balance order */
-export function buildBalanceOrderMessage({ nick, platform, balance, discountPct, finalAmount, paymentMethod }) {
+export function buildBalanceOrderMessage({ nick, platform, balance, discountPct, finalAmount, paymentMethod, uniqueAmount }) {
+  const bayar = uniqueAmount ?? finalAmount;
   const lines = [
     `Nickname: ${nick}`,
     `Platform: ${platform}`,
     `Balance: ${balance.toLocaleString('id-ID')}` + (discountPct > 0 ? `\nDiskon: ${discountPct}%` : ''),
-    `Total Bayar: ${formatRupiah(finalAmount)}`,
+    uniqueAmount
+      ? `*Total Bayar TEPAT: ${formatRupiah(bayar)}*\n${UNIQUE_AMOUNT_NOTE}`
+      : `Total Bayar: ${formatRupiah(bayar)}`,
     '',
     buildPaymentInfo(paymentMethod),
   ];
@@ -135,12 +146,15 @@ export function buildBalanceOrderMessage({ nick, platform, balance, discountPct,
 }
 
 /* Store: Command access order */
-export function buildCommandOrderMessage({ nick, platform, cmdName, duration, discountPct, finalAmount, paymentMethod }) {
+export function buildCommandOrderMessage({ nick, platform, cmdName, duration, discountPct, finalAmount, paymentMethod, uniqueAmount }) {
+  const bayar = uniqueAmount ?? finalAmount;
   const lines = [
     `Nickname: ${nick}`,
     `Platform: ${platform}`,
     `Command: ${cmdName}\nDurasi: ${duration}` + (discountPct > 0 ? `\nDiskon: ${discountPct}%` : ''),
-    `Total Bayar: ${formatRupiah(finalAmount)}`,
+    uniqueAmount
+      ? `*Total Bayar TEPAT: ${formatRupiah(bayar)}*\n${UNIQUE_AMOUNT_NOTE}`
+      : `Total Bayar: ${formatRupiah(bayar)}`,
     '',
     buildPaymentInfo(paymentMethod),
   ];
@@ -148,7 +162,8 @@ export function buildCommandOrderMessage({ nick, platform, cmdName, duration, di
 }
 
 /* Store: Custom prefix (cosmetic) order */
-export function buildCosmeticOrderMessage({ nick, platform, prefixText, prefixColor, nickColor, discountPct, finalAmount, paymentMethod }) {
+export function buildCosmeticOrderMessage({ nick, platform, prefixText, prefixColor, nickColor, discountPct, finalAmount, paymentMethod, uniqueAmount }) {
+  const bayar = uniqueAmount ?? finalAmount;
   const lines = [
     `Nickname: ${nick}`,
     `Platform: ${platform}`,
@@ -156,7 +171,9 @@ export function buildCosmeticOrderMessage({ nick, platform, prefixText, prefixCo
     `Warna Prefix: ${prefixColor}` +
       (nickColor ? `\nWarna Nickname: ${nickColor}` : '') +
       (discountPct > 0 ? `\nDiskon: ${discountPct}%` : ''),
-    `Total Bayar: ${formatRupiah(finalAmount)}`,
+    uniqueAmount
+      ? `*Total Bayar TEPAT: ${formatRupiah(bayar)}*\n${UNIQUE_AMOUNT_NOTE}`
+      : `Total Bayar: ${formatRupiah(bayar)}`,
     '',
     buildPaymentInfo(paymentMethod),
   ];
