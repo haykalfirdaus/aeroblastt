@@ -104,23 +104,34 @@ async function handleCreate(req, res) {
 }
 
 // ── NOTIFY ────────────────────────────────────────────────────────────────────
+// Menerima teks notifikasi via query param untuk hindari masalah JSON encoding
+// URL: POST /api/beta-payment?action=notify&secret=XXX&text=teks+notif
 async function handleNotify(req, res) {
-  let body = req.body;
-  if (typeof body === 'string') {
-    try { body = JSON.parse(body); } catch {
-      return res.status(400).json({ ok: false, error: 'Invalid JSON' });
+  // Support dua cara: query param (MacroDroid) atau JSON body (fallback)
+  let text = req.query.text;
+  let secret = req.query.secret;
+
+  if (!text || !secret) {
+    // Fallback: coba baca dari body
+    let body = req.body;
+    if (typeof body === 'string') {
+      try { body = JSON.parse(body); } catch { /* abaikan — coba ambil mentah */ }
+    }
+    if (typeof body === 'object' && body !== null) {
+      text = text || body.text;
+      secret = secret || body.secret;
+    } else if (typeof body === 'string') {
+      text = text || body;
     }
   }
-
-  const { text, secret } = body || {};
 
   if (!NOTIFY_SECRET || secret !== NOTIFY_SECRET)
     return res.status(401).json({ ok: false, error: 'Unauthorized' });
 
-  if (!text || typeof text !== 'string' || !text.trim())
+  if (!text || !String(text).trim())
     return res.status(400).json({ ok: false, error: 'text notifikasi diperlukan' });
 
-  const matches = text.replace(/\./g, '').match(/\d+/g);
+  const matches = String(text).replace(/\./g, '').match(/\d+/g);
   if (!matches)
     return res.status(400).json({ ok: false, error: 'Tidak ada angka di teks notifikasi' });
 
