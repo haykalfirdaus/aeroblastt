@@ -74,7 +74,8 @@ export function buildReportMessage({ nick, target, category, description }) {
 }
 
 /* Store: Rank order */
-export function buildRankOrderMessage({ nick, platform, target, owned, duration, discountPct, basePrice, finalAmount, paymentMethod }) {
+export function buildRankOrderMessage({ nick, platform, target, owned, duration, discountPct, basePrice, finalAmount, paymentMethod, uniqueAmount }) {
+  const bayar = uniqueAmount ?? finalAmount;
   const lines = [
     `Nickname: ${nick}`,
     `Platform: ${platform}`,
@@ -83,7 +84,9 @@ export function buildRankOrderMessage({ nick, platform, target, owned, duration,
       `\nDurasi: ${duration}` +
       (discountPct > 0 ? `\nDiskon: ${discountPct}%` : ''),
     `Harga Normal: ${formatRupiah(basePrice)}`,
-    `Total Bayar: ${formatRupiah(finalAmount)}`,
+    uniqueAmount
+      ? `*Total Bayar TEPAT: ${formatRupiah(bayar)}*\n⚠️ _Wajib transfer exact nominal ini agar rank otomatis masuk. Nominal berbeda = proses manual & lebih lama._`
+      : `Total Bayar: ${formatRupiah(finalAmount)}`,
     '',
     buildPaymentInfo(paymentMethod),
   ];

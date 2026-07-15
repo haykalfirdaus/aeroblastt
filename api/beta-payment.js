@@ -7,8 +7,8 @@ import { setCorsHeaders } from './_auth.js';
 import { supabase } from './_supabase.js';
 import { grantRank, giveKey, giveMoney } from './_rcon.js';
 
-const SUFFIX_MIN = 1001;
-const SUFFIX_MAX = 2000;
+const SUFFIX_MIN = 1;
+const SUFFIX_MAX = 999;
 const ORDER_TTL_MS = 30 * 60 * 1000;
 const VALID_TYPES = ['rank', 'key', 'skill', 'balance', 'command', 'cosmetic'];
 const NOTIFY_SECRET = process.env.NOTIFY_SECRET;
@@ -94,6 +94,16 @@ async function handleCreate(req, res) {
 
   if (error) return res.status(500).json({ ok: false, error: 'Gagal membuat order' });
 
+  // Announce ke Discord
+  await sendDiscord(
+    `📋 **Order Baru Masuk**\n` +
+    `Nick: \`${nick.trim()}\` | Platform: ${platform}\n` +
+    `Tipe: ${type} | Produk: ${JSON.stringify(details || {})}\n` +
+    `💰 **Bayar TEPAT: Rp ${order.total_amount.toLocaleString('id-ID')}**\n` +
+    `⚠️ Nominal harus exact — lebih/kurang tidak terdeteksi otomatis\n` +
+    `⏳ Berlaku 30 menit`
+  );
+
   return res.status(200).json({
     ok: true,
     orderId: order.id,
@@ -150,7 +160,12 @@ async function handleNotify(req, res) {
   const order = orders?.[0];
 
   if (!order) {
-    await sendDiscord(`⚠️ **Pembayaran tidak dikenal**\nNominal: Rp ${amount.toLocaleString('id-ID')}\nTidak ada order pending yang cocok.`);
+    await sendDiscord(
+      `⚠️ **Pembayaran Tidak Dikenal**\n` +
+      `Nominal: Rp ${amount.toLocaleString('id-ID')}\n` +
+      `Tidak ada order pending yang cocok — kemungkinan nominal tidak exact.\n` +
+      `Proses manual diperlukan.`
+    );
     return res.status(404).json({ ok: false, error: 'Order tidak ditemukan untuk nominal ini' });
   }
 

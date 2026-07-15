@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useCallback } from 'react';
 import { Modal } from '@/components/ui/Modal';
 import { CheckboxField, FieldLabel, SelectField, TextField } from '@/components/ui/FormFields';
 import { Button } from '@/components/ui/Button';
@@ -11,6 +11,7 @@ import { RANKS, RANK_DURATION_OPTIONS, RANK_ORDER, RANK_PRICES } from '@/data/ra
 import { SITE } from '@/data/config';
 import { buildRankOrderMessage, openWhatsApp } from '@/utils/whatsapp';
 import { sendInvoice } from '@/utils/invoice';
+import { createBetaOrder } from '@/utils/betaPayment';
 import { formatRupiah } from '@/utils/currency';
 import { useToast } from '@/context/ToastContext';
 import { usePlayerAuth } from '@/context/PlayerAuthContext';
@@ -28,6 +29,7 @@ export function RankOrderModal({ rank, open, onClose }) {
   const [payment, setPayment] = useState('');
   const [agreed, setAgreed] = useState(false);
   const [betaOpen, setBetaOpen] = useState(false);
+  const [waLoading, setWaLoading] = useState(false);
 
   if (!rank) return null;
 
@@ -40,14 +42,15 @@ export function RankOrderModal({ rank, open, onClose }) {
 
   const canOrder = ownedRank !== rank.key.toLowerCase() && RANK_ORDER.indexOf(rank.key) > RANK_ORDER.indexOf(ownedRank === 'none' ? 'NONE' : ownedRank.toUpperCase());
 
-  function handleSend() {
+  async function handleSend() {
     if (!(playerNick || nick).trim()) return showToast('Masukkan nickname kamu!', 'error');
     if (!platform) return showToast('Pilih platform!', 'error');
     if (!payment) return showToast('Pilih metode pembayaran!', 'error');
     if (!agreed) return showToast('Setujui syarat & ketentuan terlebih dahulu!', 'error');
 
+    const orderNick = (playerNick || nick).trim();
     const orderData = {
-      nick: (playerNick || nick).trim(), platform,
+      nick: orderNick, platform,
       target: rank.name.toUpperCase(),
       owned: ownedRank === 'none' ? null : ownedRank,
       duration: durOpt.label,
@@ -56,8 +59,30 @@ export function RankOrderModal({ rank, open, onClose }) {
       finalAmount: finalPrice,
       paymentMethod: payment,
     };
-    sendInvoice({ type: 'rank', ...orderData });
-    openWhatsApp(buildRankOrderMessage(orderData));
+
+    setWaLoading(true);
+    try {
+      // Generate unique amount — buat order di DB + announce Discord
+      const betaOrder = await createBetaOrder({
+        type: 'rank',
+        nick: orderNick,
+        platform,
+        baseAmount: finalPrice,
+        details: {
+          target: rank.key,
+          duration: durOpt.id,
+          owned: ownedRank === 'none' ? null : ownedRank,
+        },
+      });
+      sendInvoice({ type: 'rank', ...orderData });
+      openWhatsApp(buildRankOrderMessage({ ...orderData, uniqueAmount: betaOrder.totalAmount }));
+    } catch {
+      // Gagal generate order — tetap buka WA tanpa nominal unik
+      sendInvoice({ type: 'rank', ...orderData });
+      openWhatsApp(buildRankOrderMessage(orderData));
+    } finally {
+      setWaLoading(false);
+    }
   }
 
   return (
@@ -130,8 +155,8 @@ export function RankOrderModal({ rank, open, onClose }) {
         </CheckboxField>
 
         <div className="flex flex-col gap-2">
-          <Button fullWidth size="sm" onClick={handleSend} disabled={basePrice <= 0 || !playerNick} title={!playerNick ? 'Login dulu untuk melakukan order' : undefined}>
-            {playerNick ? 'Order via WhatsApp' : '🔒 Login dulu untuk order'}
+          <Button fullWidth size="sm" onClick={handleSend} disabled={basePrice <= 0 || !playerNick || waLoading} title={!playerNick ? 'Login dulu untuk melakukan order' : undefined}>
+            {waLoading ? 'Menyiapkan order...' : playerNick ? 'Order via WhatsApp' : '🔒 Login dulu untuk order'}
           </Button>
 
           {playerNick && basePrice > 0 && (
