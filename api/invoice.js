@@ -1,6 +1,29 @@
 import { setCorsHeaders } from './_auth.js';
 import { supabase } from './_supabase.js';
 
+const SUFFIX_MIN = 1;
+const SUFFIX_MAX = 999;
+
+async function expireOldOrders() {
+  await supabase
+    .from('beta_orders')
+    .update({ status: 'expired' })
+    .eq('status', 'pending')
+    .lt('expires_at', new Date().toISOString());
+}
+
+async function allocateSuffix() {
+  const { data: pending } = await supabase
+    .from('beta_orders')
+    .select('suffix')
+    .eq('status', 'pending');
+  const used = new Set((pending || []).map((r) => r.suffix));
+  for (let s = SUFFIX_MIN; s <= SUFFIX_MAX; s++) {
+    if (!used.has(s)) return s;
+  }
+  return null;
+}
+
 const DISCORD_WEBHOOK_URL = process.env.DISCORD_WEBHOOK_URL;
 
 const requests = new Map();

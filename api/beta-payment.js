@@ -39,11 +39,25 @@ const TYPE_LABEL = {
 };
 
 async function expireOldOrders() {
-  await supabase
+  // Ambil order yang expired beserta invoice_id-nya
+  const { data: expiring } = await supabase
     .from('beta_orders')
-    .update({ status: 'expired' })
+    .select('id, invoice_id')
     .eq('status', 'pending')
     .lt('expires_at', new Date().toISOString());
+
+  if (!expiring?.length) return;
+
+  const ids = expiring.map((r) => r.id);
+  const invoiceIds = expiring.map((r) => r.invoice_id).filter(Boolean);
+
+  // Expire semua sekaligus
+  await supabase.from('beta_orders').update({ status: 'expired' }).in('id', ids);
+
+  // Hapus invoice yang terasosiasi — otomatis expired berarti tidak perlu manual
+  if (invoiceIds.length) {
+    await supabase.from('invoices').delete().in('id', invoiceIds);
+  }
 }
 
 async function allocateSuffix() {
@@ -133,6 +147,11 @@ async function handleCreate(req, res) {
   if (details?.duration) productFields.push({ name: 'Durasi', value: details.duration, inline: true });
   if (details?.keyName) productFields.push({ name: 'Key', value: details.keyName, inline: true });
   if (details?.qty) productFields.push({ name: 'Jumlah', value: `${details.qty}x`, inline: true });
+  if (details?.balance) productFields.push({ name: 'Balance', value: Number(details.balance).toLocaleString('id-ID'), inline: true });
+
+  const invoiceTag = invoiceId
+    ? `\`${invoiceId.slice(0, 8).toUpperCase()}\` (fallback manual tersedia)`
+    : '— (tidak tersedia)';
 
   await sendDiscord({
     title: `📋 Order Baru — ${TYPE_LABEL[type] || type}`,
@@ -142,7 +161,8 @@ async function handleCreate(req, res) {
       { name: 'Platform', value: platform, inline: true },
       ...productFields,
       { name: '💰 Bayar TEPAT', value: `**${formatRp(order.total_amount)}**`, inline: false },
-      { name: '⚠️ Penting', value: 'Nominal harus **exact** — lebih/kurang tidak terdeteksi otomatis & harus diproses manual', inline: false },
+      { name: 'Invoice Fallback', value: invoiceTag, inline: false },
+      { name: 'ℹ️ Alur', value: 'Jika bayar tepat → otomatis. Jika tidak exact → admin konfirmasi invoice manual, beta order dihapus.', inline: false },
     ],
     footer: { text: 'AeroBlast Network • Berlaku 30 menit' },
     timestamp: new Date().toISOString(),
@@ -223,27 +243,40 @@ async function handleNotify(req, res) {
     .update({ status: 'paid', paid_at: new Date().toISOString() })
     .eq('id', order.id);
 
-  // Hapus invoice dari DB karena otomatis sudah berhasil
+  // Hapus invoice dari DB — otomatis berhasil, tidak perlu proses manual
   if (order.invoice_id) {
     await supabase.from('invoices').delete().eq('id', order.invoice_id);
   }
 
   const rconResult = await executeRcon(order);
-
   const rconOk = rconResult.ok;
+
+  const invoiceTag = order.invoice_id
+    ? `\`${order.invoice_id.slice(0, 8).toUpperCase()}\` (dihapus otomatis)`
+    : '—';
+
+  const productFields = [];
+  if (order.details?.target) productFields.push({ name: 'Produk', value: order.details.target.toUpperCase(), inline: true });
+  if (order.details?.duration) productFields.push({ name: 'Durasi', value: order.details.duration, inline: true });
+  if (order.details?.keyName) productFields.push({ name: 'Key', value: order.details.keyName, inline: true });
+  if (order.details?.qty) productFields.push({ name: 'Jumlah', value: `${order.details.qty}x`, inline: true });
+  if (order.details?.balance) productFields.push({ name: 'Balance', value: Number(order.details.balance).toLocaleString('id-ID'), inline: true });
+
   await sendDiscord({
-    title: rconOk ? '✅ Pembayaran Berhasil' : '✅ Dibayar — ⚠️ RCON Gagal',
+    title: rconOk ? '✅ Otomatis — Pembayaran & RCON Berhasil' : '✅ Dibayar Otomatis — ⚠️ RCON Gagal',
     color: rconOk ? 0x22c55e : 0xef4444,
     fields: [
       { name: 'Nickname', value: `\`${order.nick}\``, inline: true },
       { name: 'Platform', value: order.platform, inline: true },
       { name: 'Tipe', value: TYPE_LABEL[order.type] || order.type, inline: true },
       { name: 'Nominal Diterima', value: formatRp(amount), inline: true },
+      ...productFields,
+      { name: 'Invoice', value: invoiceTag, inline: false },
       rconOk
         ? { name: 'RCON', value: rconResult.response || 'OK', inline: false }
-        : { name: 'Error RCON', value: rconResult.error || 'Unknown', inline: false },
+        : { name: '⚠️ RCON Error', value: rconResult.error || 'Unknown — proses manual diperlukan', inline: false },
     ],
-    footer: { text: 'AeroBlast Network' },
+    footer: { text: 'AeroBlast Network • Diproses otomatis via MacroDroid' },
     timestamp: new Date().toISOString(),
   });
 
