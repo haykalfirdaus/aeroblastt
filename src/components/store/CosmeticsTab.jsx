@@ -6,13 +6,11 @@ import { Button } from '@/components/ui/Button';
 import { GlassCard } from '@/components/ui/GlassCard';
 import { CountdownBanner } from './CountdownBanner';
 import { DiscountCodeInput } from './DiscountCodeInput';
-import { PaymentMethodPicker } from './PaymentMethodPicker';
 import { PriceSummary } from './PriceSummary';
+import { BetaPaymentModal } from './BetaPaymentModal';
 import { SITE } from '@/data/config';
 import { buildCosmeticOrderMessage, openWhatsApp } from '@/utils/whatsapp';
 import { sendInvoice } from '@/utils/invoice';
-import { createBetaOrder } from '@/utils/betaPayment';
-// discount check is done inside DiscountCodeInput via async API
 import { formatRupiah } from '@/utils/currency';
 import { useToast } from '@/context/ToastContext';
 import { usePlayerAuth } from '@/context/PlayerAuthContext';
@@ -32,33 +30,35 @@ function CosmeticOrderModal({ prefixText, prefixColor, nickColor, open, onClose 
   const [nick, setNick] = useState('');
   const [platform, setPlatform] = useState(isBedrock ? 'Bedrock / PE' : '');
   const [discount, setDiscount] = useState(0);
-  const [payment, setPayment] = useState('');
   const [agreed, setAgreed] = useState(false);
+  const [betaOpen, setBetaOpen] = useState(false);
   const [waLoading, setWaLoading] = useState(false);
 
   const basePrice = BASE_PRICE + (nickColor ? NICK_COLOR_ADDON : 0);
   const finalPrice = Math.round(basePrice * (1 - discount / 100));
 
-  async function handleSend() {
+  function handleQris() {
     if (!(playerNick || nick).trim()) return showToast('Masukkan nickname!', 'error');
     if (!platform) return showToast('Pilih platform!', 'error');
     if (!prefixText.trim()) return showToast('Masukkan teks prefix!', 'error');
-    if (!payment) return showToast('Pilih metode pembayaran!', 'error');
     if (!agreed) return showToast('Setujui syarat & ketentuan!', 'error');
-    const orderData = { nick: (playerNick || nick).trim(), platform, prefixText, prefixColor, nickColor: nickColor || null, discountPct: discount, finalAmount: finalPrice, paymentMethod: payment };
+    setBetaOpen(true);
+  }
+
+  function handleWa() {
+    if (!(playerNick || nick).trim()) return showToast('Masukkan nickname!', 'error');
+    if (!platform) return showToast('Pilih platform!', 'error');
+    if (!prefixText.trim()) return showToast('Masukkan teks prefix!', 'error');
+    if (!agreed) return showToast('Setujui syarat & ketentuan!', 'error');
+    const orderData = { nick: (playerNick || nick).trim(), platform, prefixText, prefixColor, nickColor: nickColor || null, discountPct: discount, finalAmount: finalPrice, paymentMethod: 'Transfer / QRIS' };
     setWaLoading(true);
-    try {
-      const betaOrder = await createBetaOrder({ type: 'cosmetic', nick: orderData.nick, platform, baseAmount: finalPrice, details: { prefixText, prefixColor, nickColor: nickColor || null } });
-      openWhatsApp(buildCosmeticOrderMessage({ ...orderData, uniqueAmount: betaOrder.totalAmount }));
-    } catch {
-      sendInvoice({ type: 'cosmetic', ...orderData });
-      openWhatsApp(buildCosmeticOrderMessage(orderData));
-    } finally {
-      setWaLoading(false);
-    }
+    sendInvoice({ type: 'cosmetic', ...orderData });
+    openWhatsApp(buildCosmeticOrderMessage(orderData));
+    setWaLoading(false);
   }
 
   return (
+    <>
     <Modal open={open} onClose={onClose} title="Order Custom Prefix" badge="COSMETIC">
       <div className="mt-6 flex flex-col gap-4">
         <CountdownBanner open={open} />
@@ -85,11 +85,26 @@ function CosmeticOrderModal({ prefixText, prefixColor, nickColor, open, onClose 
         </div>
         <DiscountCodeInput onApply={setDiscount} />
         <PriceSummary basePrice={basePrice} discountPercent={discount} />
-        <PaymentMethodPicker value={payment} onChange={setPayment} />
         <CheckboxField checked={agreed} onChange={setAgreed}>Saya menyetujui <a href="/terms" target="_blank" className="text-neon-300 hover:underline">Syarat &amp; Ketentuan</a> yang berlaku.</CheckboxField>
-        <Button fullWidth size="sm" onClick={handleSend} disabled={!playerNick || waLoading} title={!playerNick ? 'Login dulu untuk melakukan order' : undefined}>{waLoading ? 'Menyiapkan order...' : playerNick ? 'Order via WhatsApp' : '🔒 Login dulu untuk order'}</Button>
+        <div className="flex flex-col gap-2">
+          <Button fullWidth size="sm" onClick={handleQris} disabled={!playerNick} title={!playerNick ? 'Login dulu untuk melakukan order' : undefined}>
+            {playerNick ? '⚡ Bayar via QRIS Otomatis' : '🔒 Login dulu untuk order'}
+          </Button>
+          {playerNick && (
+            <button type="button" onClick={handleWa} disabled={waLoading} className="w-full rounded-xl border border-white/12 bg-white/[0.03] py-2.5 text-sm font-semibold text-text-muted transition-all hover:border-white/20 hover:text-text-bright">
+              Lanjut via WhatsApp (Manual)
+            </button>
+          )}
+        </div>
       </div>
     </Modal>
+    <BetaPaymentModal
+      open={betaOpen}
+      onClose={() => setBetaOpen(false)}
+      productLabel={`Custom Prefix [${prefixText || 'CUSTOM'}]`}
+      orderPayload={{ type: 'cosmetic', nick: (playerNick || nick).trim(), platform, baseAmount: finalPrice, details: { prefixText, prefixColor, nickColor: nickColor || null } }}
+    />
+    </>
   );
 }
 

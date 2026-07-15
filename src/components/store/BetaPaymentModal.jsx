@@ -96,7 +96,7 @@ export function BetaPaymentModal({ open, onClose, orderPayload, productLabel }) 
   }
 
   return (
-    <Modal open={open} onClose={handleClose} title="Bayar via QRIS Otomatis" badge="BETA" size="sm">
+    <Modal open={open} onClose={handleClose} title="Bayar via QRIS" size="sm">
       <div className="mt-4 flex flex-col gap-4">
 
         {/* IDLE — belum generate order */}
@@ -106,10 +106,7 @@ export function BetaPaymentModal({ open, onClose, orderPayload, productLabel }) 
               Sistem akan generate nominal unik untuk order <span className="font-semibold text-text-bright">{productLabel}</span>.
               Scan QRIS dan bayar <span className="font-semibold text-cyan-400">tepat sesuai nominal</span> yang diberikan — lebih/kurang tidak terdeteksi otomatis.
             </p>
-            <p className="rounded-lg border border-yellow-400/20 bg-yellow-400/5 px-3 py-2 text-xs text-yellow-300">
-              ⚠️ Fitur ini masih dalam tahap beta. Pastikan bayar tepat nominal yang ditampilkan.
-            </p>
-            <Button fullWidth onClick={handleCreate}>Generate Nominal & Tampilkan QRIS</Button>
+            <Button fullWidth onClick={handleCreate}>Tampilkan QRIS & Nominal</Button>
           </div>
         )}
 

@@ -1,17 +1,15 @@
-import { useState, useCallback } from 'react';
+import { useState } from 'react';
 import { Modal } from '@/components/ui/Modal';
 import { CheckboxField, FieldLabel, SelectField, TextField } from '@/components/ui/FormFields';
 import { Button } from '@/components/ui/Button';
 import { CountdownBanner } from './CountdownBanner';
 import { DiscountCodeInput } from './DiscountCodeInput';
-import { PaymentMethodPicker } from './PaymentMethodPicker';
 import { PriceSummary } from './PriceSummary';
 import { BetaPaymentModal } from './BetaPaymentModal';
 import { RANKS, RANK_DURATION_OPTIONS, RANK_ORDER, RANK_PRICES } from '@/data/ranks';
 import { SITE } from '@/data/config';
 import { buildRankOrderMessage, openWhatsApp } from '@/utils/whatsapp';
 import { sendInvoice } from '@/utils/invoice';
-import { createBetaOrder } from '@/utils/betaPayment';
 import { formatRupiah } from '@/utils/currency';
 import { useToast } from '@/context/ToastContext';
 import { usePlayerAuth } from '@/context/PlayerAuthContext';
@@ -26,7 +24,6 @@ export function RankOrderModal({ rank, open, onClose }) {
   const [ownedRank, setOwnedRank] = useState('none');
   const [duration, setDuration] = useState('permanent');
   const [discount, setDiscount] = useState(0);
-  const [payment, setPayment] = useState('');
   const [agreed, setAgreed] = useState(false);
   const [betaOpen, setBetaOpen] = useState(false);
   const [waLoading, setWaLoading] = useState(false);
@@ -42,10 +39,16 @@ export function RankOrderModal({ rank, open, onClose }) {
 
   const canOrder = ownedRank !== rank.key.toLowerCase() && RANK_ORDER.indexOf(rank.key) > RANK_ORDER.indexOf(ownedRank === 'none' ? 'NONE' : ownedRank.toUpperCase());
 
-  async function handleSend() {
+  function handleQris() {
     if (!(playerNick || nick).trim()) return showToast('Masukkan nickname kamu!', 'error');
     if (!platform) return showToast('Pilih platform!', 'error');
-    if (!payment) return showToast('Pilih metode pembayaran!', 'error');
+    if (!agreed) return showToast('Setujui syarat & ketentuan terlebih dahulu!', 'error');
+    setBetaOpen(true);
+  }
+
+  function handleWa() {
+    if (!(playerNick || nick).trim()) return showToast('Masukkan nickname kamu!', 'error');
+    if (!platform) return showToast('Pilih platform!', 'error');
     if (!agreed) return showToast('Setujui syarat & ketentuan terlebih dahulu!', 'error');
 
     const orderNick = (playerNick || nick).trim();
@@ -57,35 +60,16 @@ export function RankOrderModal({ rank, open, onClose }) {
       discountPct: discount,
       basePrice,
       finalAmount: finalPrice,
-      paymentMethod: payment,
+      paymentMethod: 'Transfer / QRIS',
     };
-
     setWaLoading(true);
-    try {
-      // Beta order: buat order + invoice sekaligus di server, Discord announce otomatis
-      const betaOrder = await createBetaOrder({
-        type: 'rank',
-        nick: orderNick,
-        platform,
-        baseAmount: finalPrice,
-        details: {
-          target: rank.key,
-          duration: durOpt.id,
-          owned: ownedRank === 'none' ? null : ownedRank,
-        },
-      });
-      // Buka WA dengan nominal unik — invoice sudah dibuat di server
-      openWhatsApp(buildRankOrderMessage({ ...orderData, uniqueAmount: betaOrder.totalAmount }));
-    } catch {
-      // Beta gagal — fallback ke invoice lama + Discord manual
-      sendInvoice({ type: 'rank', ...orderData });
-      openWhatsApp(buildRankOrderMessage(orderData));
-    } finally {
-      setWaLoading(false);
-    }
+    sendInvoice({ type: 'rank', ...orderData });
+    openWhatsApp(buildRankOrderMessage(orderData));
+    setWaLoading(false);
   }
 
   return (
+    <>
     <Modal open={open} onClose={onClose} title={`Order Rank ${rank.name}`} badge="AEROBLAST STORE" size="md">
       <div className="mt-6 flex flex-col gap-4">
         <CountdownBanner open={open} />
@@ -148,49 +132,45 @@ export function RankOrderModal({ rank, open, onClose }) {
 
         <PriceSummary basePrice={basePrice} discountPercent={discount} />
 
-        <PaymentMethodPicker value={payment} onChange={setPayment} />
-
         <CheckboxField checked={agreed} onChange={setAgreed}>
           Saya menyetujui <a href="/terms" target="_blank" className="text-neon-300 hover:underline">Syarat &amp; Ketentuan</a> yang berlaku di AeroBlast Network.
         </CheckboxField>
 
         <div className="flex flex-col gap-2">
-          <Button fullWidth size="sm" onClick={handleSend} disabled={basePrice <= 0 || !playerNick || waLoading} title={!playerNick ? 'Login dulu untuk melakukan order' : undefined}>
-            {waLoading ? 'Menyiapkan order...' : playerNick ? 'Order via WhatsApp' : '🔒 Login dulu untuk order'}
+          <Button fullWidth size="sm" onClick={handleQris} disabled={basePrice <= 0 || !playerNick} title={!playerNick ? 'Login dulu untuk melakukan order' : undefined}>
+            {playerNick ? '⚡ Bayar via QRIS Otomatis' : '🔒 Login dulu untuk order'}
           </Button>
 
           {playerNick && basePrice > 0 && (
             <button
               type="button"
-              onClick={() => {
-                if (!agreed) return showToast('Setujui syarat & ketentuan terlebih dahulu!', 'error');
-                setBetaOpen(true);
-              }}
-              className="w-full rounded-xl border border-cyan-400/30 bg-cyan-500/10 py-2.5 text-sm font-semibold text-cyan-300 transition-all hover:border-cyan-400/50 hover:bg-cyan-500/15"
+              onClick={handleWa}
+              disabled={waLoading}
+              className="w-full rounded-xl border border-white/12 bg-white/[0.03] py-2.5 text-sm font-semibold text-text-muted transition-all hover:border-white/20 hover:text-text-bright"
             >
-              ⚡ Bayar QRIS Otomatis
-              <span className="ml-2 rounded-full bg-cyan-400/20 px-1.5 py-0.5 text-[10px] font-bold uppercase tracking-wide text-cyan-400">Beta</span>
+              Lanjut via WhatsApp (Manual)
             </button>
           )}
         </div>
       </div>
 
-      <BetaPaymentModal
-        open={betaOpen}
-        onClose={() => setBetaOpen(false)}
-        productLabel={`Rank ${rank.name}${durOpt.label !== 'Permanen' ? ` (${durOpt.label})` : ''}`}
-        orderPayload={{
-          type: 'rank',
-          nick: (playerNick || nick).trim(),
-          platform,
-          baseAmount: finalPrice,
-          details: {
-            target: rank.key,
-            duration: durOpt.id,
-            owned: ownedRank === 'none' ? null : ownedRank,
-          },
-        }}
-      />
     </Modal>
+    <BetaPaymentModal
+      open={betaOpen}
+      onClose={() => setBetaOpen(false)}
+      productLabel={`Rank ${rank.name}${durOpt.label !== 'Permanen' ? ` (${durOpt.label})` : ''}`}
+      orderPayload={{
+        type: 'rank',
+        nick: (playerNick || nick).trim(),
+        platform,
+        baseAmount: finalPrice,
+        details: {
+          target: rank.key,
+          duration: durOpt.id,
+          owned: ownedRank === 'none' ? null : ownedRank,
+        },
+      }}
+    />
+    </>
   );
 }

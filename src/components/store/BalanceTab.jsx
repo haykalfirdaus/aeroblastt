@@ -6,13 +6,12 @@ import { Modal } from '@/components/ui/Modal';
 import { CheckboxField, FieldLabel, SelectField, TextField } from '@/components/ui/FormFields';
 import { CountdownBanner } from './CountdownBanner';
 import { DiscountCodeInput } from './DiscountCodeInput';
-import { PaymentMethodPicker } from './PaymentMethodPicker';
 import { PriceSummary } from './PriceSummary';
+import { BetaPaymentModal } from './BetaPaymentModal';
 import { BALANCE_QUICK_PICKS, BALANCE_RATE } from '@/data/balance';
 import { SITE } from '@/data/config';
 import { buildBalanceOrderMessage, openWhatsApp } from '@/utils/whatsapp';
 import { sendInvoice } from '@/utils/invoice';
-import { createBetaOrder } from '@/utils/betaPayment';
 import { formatRupiah, formatNumber } from '@/utils/currency';
 import { useToast } from '@/context/ToastContext';
 import { usePlayerAuth } from '@/context/PlayerAuthContext';
@@ -29,34 +28,36 @@ function BalanceOrderModal({ open, onClose, initialRupiah = 0 }) {
   const [platform, setPlatform] = useState(isBedrock ? 'Bedrock / PE' : '');
   const [rupiahInput, setRupiahInput] = useState(String(initialRupiah || ''));
   const [discount, setDiscount] = useState(0);
-  const [payment, setPayment] = useState('');
   const [agreed, setAgreed] = useState(false);
+  const [betaOpen, setBetaOpen] = useState(false);
   const [waLoading, setWaLoading] = useState(false);
 
   const rupiah = parseInt(rupiahInput) || 0;
   const balance = rupiah * BALANCE_RATE;
   const finalPrice = Math.round(rupiah * (1 - discount / 100));
 
-  async function handleSend() {
+  function handleQris() {
     if (!(playerNick || nick).trim()) return showToast('Masukkan nickname!', 'error');
     if (!platform) return showToast('Pilih platform!', 'error');
     if (rupiah < 5000) return showToast('Minimum pembelian Rp 5.000!', 'error');
-    if (!payment) return showToast('Pilih metode pembayaran!', 'error');
     if (!agreed) return showToast('Setujui syarat & ketentuan!', 'error');
-    const orderData = { nick: (playerNick || nick).trim(), platform, balance, discountPct: discount, finalAmount: finalPrice, paymentMethod: payment };
+    setBetaOpen(true);
+  }
+
+  function handleWa() {
+    if (!(playerNick || nick).trim()) return showToast('Masukkan nickname!', 'error');
+    if (!platform) return showToast('Pilih platform!', 'error');
+    if (rupiah < 5000) return showToast('Minimum pembelian Rp 5.000!', 'error');
+    if (!agreed) return showToast('Setujui syarat & ketentuan!', 'error');
+    const orderData = { nick: (playerNick || nick).trim(), platform, balance, discountPct: discount, finalAmount: finalPrice, paymentMethod: 'Transfer / QRIS' };
     setWaLoading(true);
-    try {
-      const betaOrder = await createBetaOrder({ type: 'balance', nick: orderData.nick, platform, baseAmount: finalPrice, details: { balance } });
-      openWhatsApp(buildBalanceOrderMessage({ ...orderData, uniqueAmount: betaOrder.totalAmount }));
-    } catch {
-      sendInvoice({ type: 'balance', ...orderData });
-      openWhatsApp(buildBalanceOrderMessage(orderData));
-    } finally {
-      setWaLoading(false);
-    }
+    sendInvoice({ type: 'balance', ...orderData });
+    openWhatsApp(buildBalanceOrderMessage(orderData));
+    setWaLoading(false);
   }
 
   return (
+    <>
     <Modal open={open} onClose={onClose} title="Top-Up Balance" badge="IN-GAME BALANCE">
       <div className="mt-6 flex flex-col gap-4">
         <CountdownBanner open={open} />
@@ -90,11 +91,26 @@ function BalanceOrderModal({ open, onClose, initialRupiah = 0 }) {
         </div>
         <DiscountCodeInput onApply={setDiscount} category="Balance" />
         <PriceSummary basePrice={rupiah} discountPercent={discount} />
-        <PaymentMethodPicker value={payment} onChange={setPayment} />
         <CheckboxField checked={agreed} onChange={setAgreed}>Saya menyetujui <a href="/terms" target="_blank" className="text-neon-300 hover:underline">Syarat &amp; Ketentuan</a> yang berlaku.</CheckboxField>
-        <Button fullWidth size="sm" onClick={handleSend} disabled={!playerNick || waLoading} title={!playerNick ? 'Login dulu untuk melakukan order' : undefined}>{waLoading ? 'Menyiapkan order...' : playerNick ? 'Order via WhatsApp' : '🔒 Login dulu untuk order'}</Button>
+        <div className="flex flex-col gap-2">
+          <Button fullWidth size="sm" onClick={handleQris} disabled={!playerNick} title={!playerNick ? 'Login dulu untuk melakukan order' : undefined}>
+            {playerNick ? '⚡ Bayar via QRIS Otomatis' : '🔒 Login dulu untuk order'}
+          </Button>
+          {playerNick && (
+            <button type="button" onClick={handleWa} disabled={waLoading} className="w-full rounded-xl border border-white/12 bg-white/[0.03] py-2.5 text-sm font-semibold text-text-muted transition-all hover:border-white/20 hover:text-text-bright">
+              Lanjut via WhatsApp (Manual)
+            </button>
+          )}
+        </div>
       </div>
     </Modal>
+    <BetaPaymentModal
+      open={betaOpen}
+      onClose={() => setBetaOpen(false)}
+      productLabel={`Top-Up ${formatNumber(balance)} Balance`}
+      orderPayload={{ type: 'balance', nick: (playerNick || nick).trim(), platform, baseAmount: finalPrice, details: { balance } }}
+    />
+    </>
   );
 }
 

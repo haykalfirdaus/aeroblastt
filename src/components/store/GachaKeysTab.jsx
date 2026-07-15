@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Check, Lock, Minus, Plus } from 'lucide-react';
+import { Lock, Minus, Plus } from 'lucide-react';
 import { GlassCard } from '@/components/ui/GlassCard';
 import { Button } from '@/components/ui/Button';
 import { Icon } from '@/components/ui/Icon';
@@ -8,13 +8,12 @@ import { Modal } from '@/components/ui/Modal';
 import { CheckboxField, FieldLabel, SelectField, TextField } from '@/components/ui/FormFields';
 import { CountdownBanner } from './CountdownBanner';
 import { DiscountCodeInput } from './DiscountCodeInput';
-import { PaymentMethodPicker } from './PaymentMethodPicker';
 import { PriceSummary } from './PriceSummary';
+import { BetaPaymentModal } from './BetaPaymentModal';
 import { GACHA_KEYS } from '@/data/keys';
 import { SITE } from '@/data/config';
 import { buildKeyOrderMessage, openWhatsApp } from '@/utils/whatsapp';
 import { sendInvoice } from '@/utils/invoice';
-import { createBetaOrder } from '@/utils/betaPayment';
 import { formatRupiah } from '@/utils/currency';
 import { useToast } from '@/context/ToastContext';
 import { usePlayerAuth } from '@/context/PlayerAuthContext';
@@ -48,8 +47,8 @@ function KeyOrderModal({ keyData, open, onClose }) {
   const [platform, setPlatform] = useState(isBedrock ? 'Bedrock / PE' : '');
   const [qty, setQty] = useState(1);
   const [discount, setDiscount] = useState(0);
-  const [payment, setPayment] = useState('');
   const [agreed, setAgreed] = useState(false);
+  const [betaOpen, setBetaOpen] = useState(false);
   const [waLoading, setWaLoading] = useState(false);
 
   if (!keyData) return null;
@@ -57,25 +56,26 @@ function KeyOrderModal({ keyData, open, onClose }) {
   const basePrice = keyData.price * qty;
   const finalPrice = Math.round(basePrice * (1 - discount / 100));
 
-  async function handleSend() {
+  function handleQris() {
     if (!(playerNick || nick).trim()) return showToast('Masukkan nickname!', 'error');
     if (!platform) return showToast('Pilih platform!', 'error');
-    if (!payment) return showToast('Pilih metode pembayaran!', 'error');
     if (!agreed) return showToast('Setujui syarat & ketentuan!', 'error');
-    const orderData = { nick: (playerNick || nick).trim(), platform, keyName: keyData.key.toLowerCase(), qty, discountPct: discount, finalAmount: finalPrice, paymentMethod: payment };
+    setBetaOpen(true);
+  }
+
+  function handleWa() {
+    if (!(playerNick || nick).trim()) return showToast('Masukkan nickname!', 'error');
+    if (!platform) return showToast('Pilih platform!', 'error');
+    if (!agreed) return showToast('Setujui syarat & ketentuan!', 'error');
+    const orderData = { nick: (playerNick || nick).trim(), platform, keyName: keyData.key.toLowerCase(), qty, discountPct: discount, finalAmount: finalPrice, paymentMethod: 'Transfer / QRIS' };
     setWaLoading(true);
-    try {
-      const betaOrder = await createBetaOrder({ type: 'key', nick: orderData.nick, platform, baseAmount: finalPrice, details: { keyName: keyData.key.toLowerCase(), qty } });
-      openWhatsApp(buildKeyOrderMessage({ ...orderData, uniqueAmount: betaOrder.totalAmount }));
-    } catch {
-      sendInvoice({ type: 'key', ...orderData });
-      openWhatsApp(buildKeyOrderMessage(orderData));
-    } finally {
-      setWaLoading(false);
-    }
+    sendInvoice({ type: 'key', ...orderData });
+    openWhatsApp(buildKeyOrderMessage(orderData));
+    setWaLoading(false);
   }
 
   return (
+    <>
     <Modal open={open} onClose={onClose} title={`Order ${keyData.name}`} badge="GACHA KEYS">
       <div className="mt-6 flex flex-col gap-4">
         <CountdownBanner open={open} />
@@ -99,11 +99,26 @@ function KeyOrderModal({ keyData, open, onClose }) {
         </div>
         <DiscountCodeInput onApply={setDiscount} category="Gacha Key" />
         <PriceSummary basePrice={basePrice} discountPercent={discount} />
-        <PaymentMethodPicker value={payment} onChange={setPayment} />
         <CheckboxField checked={agreed} onChange={setAgreed}>Saya menyetujui <a href="/terms" target="_blank" className="text-neon-300 hover:underline">Syarat &amp; Ketentuan</a> yang berlaku.</CheckboxField>
-        <Button fullWidth size="sm" onClick={handleSend} disabled={!playerNick || waLoading} title={!playerNick ? 'Login dulu untuk melakukan order' : undefined}>{waLoading ? 'Menyiapkan order...' : playerNick ? 'Order via WhatsApp' : '🔒 Login dulu untuk order'}</Button>
+        <div className="flex flex-col gap-2">
+          <Button fullWidth size="sm" onClick={handleQris} disabled={!playerNick} title={!playerNick ? 'Login dulu untuk melakukan order' : undefined}>
+            {playerNick ? '⚡ Bayar via QRIS Otomatis' : '🔒 Login dulu untuk order'}
+          </Button>
+          {playerNick && (
+            <button type="button" onClick={handleWa} disabled={waLoading} className="w-full rounded-xl border border-white/12 bg-white/[0.03] py-2.5 text-sm font-semibold text-text-muted transition-all hover:border-white/20 hover:text-text-bright">
+              Lanjut via WhatsApp (Manual)
+            </button>
+          )}
+        </div>
       </div>
     </Modal>
+    <BetaPaymentModal
+      open={betaOpen}
+      onClose={() => setBetaOpen(false)}
+      productLabel={`${keyData.name} ×${qty}`}
+      orderPayload={{ type: 'key', nick: (playerNick || nick).trim(), platform, baseAmount: finalPrice, details: { keyName: keyData.key.toLowerCase(), qty } }}
+    />
+    </>
   );
 }
 
