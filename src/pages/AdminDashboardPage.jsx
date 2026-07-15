@@ -158,14 +158,11 @@ function InvoicesSection() {
       } else {
         showToast('Invoice ditandai lunas & notifikasi Discord terkirim', 'success');
       }
-      // Langsung hilangkan dari panel; hapus dari DB setelah 1 menit
       setItems((prev) => prev.filter((i) => i.id !== id));
-      setTimeout(() => {
-        fetch(`/api/admin/invoices?id=${encodeURIComponent(id)}`, {
-          method: 'DELETE',
-          credentials: 'include',
-        }).catch(() => {});
-      }, 60 * 1000);
+      fetch(`/api/admin/invoices?id=${encodeURIComponent(id)}`, {
+        method: 'DELETE',
+        credentials: 'include',
+      }).catch(() => {});
     } catch (err) {
       showToast(err.message, 'error');
     } finally {
@@ -383,15 +380,12 @@ function AnnouncementsSection() {
 
   function handleConfirmDelete(id) {
     setConfirmId(null);
-    // Langsung hilangkan dari panel; hapus dari DB setelah 1 menit
     setItems((prev) => prev.filter((i) => i.id !== id));
     showToast('Pengumuman dihapus', 'success');
-    setTimeout(() => {
-      fetch(`/api/admin/announcements?id=${encodeURIComponent(id)}`, {
-        method: 'DELETE',
-        credentials: 'include',
-      }).catch(() => {});
-    }, 60 * 1000);
+    fetch(`/api/admin/announcements?id=${encodeURIComponent(id)}`, {
+      method: 'DELETE',
+      credentials: 'include',
+    }).catch(() => {});
   }
 
   // Filter expired dari tampilan (expired auto-hilang; GET API juga sudah filter)
@@ -595,15 +589,12 @@ function DiscountsSection() {
 
   function handleConfirmDelete(id) {
     setConfirmId(null);
-    // Langsung hilangkan dari panel; hapus dari DB setelah 1 menit
     setItems((prev) => prev.filter((i) => i.id !== id));
     showToast('Diskon dihapus', 'success');
-    setTimeout(() => {
-      fetch(`/api/admin/discounts?id=${encodeURIComponent(id)}`, {
-        method: 'DELETE',
-        credentials: 'include',
-      }).catch(() => {});
-    }, 60 * 1000);
+    fetch(`/api/admin/discounts?id=${encodeURIComponent(id)}`, {
+      method: 'DELETE',
+      credentials: 'include',
+    }).catch(() => {});
   }
 
   const activeItems = items.filter((i) => new Date(i.expiresAt) > new Date());
