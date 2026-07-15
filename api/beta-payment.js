@@ -14,16 +14,29 @@ const VALID_TYPES = ['rank', 'key', 'skill', 'balance', 'command', 'cosmetic'];
 const NOTIFY_SECRET = process.env.NOTIFY_SECRET;
 const DISCORD_WEBHOOK_URL = process.env.DISCORD_WEBHOOK_URL;
 
-async function sendDiscord(msg) {
+async function sendDiscord(embed) {
   if (!DISCORD_WEBHOOK_URL) return;
   try {
     await fetch(DISCORD_WEBHOOK_URL, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ content: msg }),
+      body: JSON.stringify({ embeds: [embed] }),
     });
   } catch { /* non-fatal */ }
 }
+
+function formatRp(n) {
+  return `Rp ${Number(n).toLocaleString('id-ID')}`;
+}
+
+const TYPE_LABEL = {
+  rank: '🎖️ Rank',
+  key: '🗝️ Gacha Key',
+  skill: '⚡ Skill Boost',
+  balance: '💰 Balance',
+  command: '⌨️ Command',
+  cosmetic: '✨ Custom Prefix',
+};
 
 async function expireOldOrders() {
   await supabase
@@ -94,15 +107,26 @@ async function handleCreate(req, res) {
 
   if (error) return res.status(500).json({ ok: false, error: 'Gagal membuat order' });
 
-  // Announce ke Discord
-  await sendDiscord(
-    `📋 **Order Baru Masuk**\n` +
-    `Nick: \`${nick.trim()}\` | Platform: ${platform}\n` +
-    `Tipe: ${type} | Produk: ${JSON.stringify(details || {})}\n` +
-    `💰 **Bayar TEPAT: Rp ${order.total_amount.toLocaleString('id-ID')}**\n` +
-    `⚠️ Nominal harus exact — lebih/kurang tidak terdeteksi otomatis\n` +
-    `⏳ Berlaku 30 menit`
-  );
+  // Announce ke Discord — embed order baru
+  const productFields = [];
+  if (details?.target) productFields.push({ name: 'Produk', value: details.target.toUpperCase(), inline: true });
+  if (details?.duration) productFields.push({ name: 'Durasi', value: details.duration, inline: true });
+  if (details?.keyName) productFields.push({ name: 'Key', value: details.keyName, inline: true });
+  if (details?.qty) productFields.push({ name: 'Jumlah', value: `${details.qty}x`, inline: true });
+
+  await sendDiscord({
+    title: `📋 Order Baru — ${TYPE_LABEL[type] || type}`,
+    color: 0x3b82f6,
+    fields: [
+      { name: 'Nickname', value: `\`${nick.trim()}\``, inline: true },
+      { name: 'Platform', value: platform, inline: true },
+      ...productFields,
+      { name: '💰 Bayar TEPAT', value: `**${formatRp(order.total_amount)}**`, inline: false },
+      { name: '⚠️ Penting', value: 'Nominal harus **exact** — lebih/kurang tidak terdeteksi otomatis & harus diproses manual', inline: false },
+    ],
+    footer: { text: 'AeroBlast Network • Berlaku 30 menit' },
+    timestamp: new Date().toISOString(),
+  });
 
   return res.status(200).json({
     ok: true,
@@ -160,12 +184,17 @@ async function handleNotify(req, res) {
   const order = orders?.[0];
 
   if (!order) {
-    await sendDiscord(
-      `⚠️ **Pembayaran Tidak Dikenal**\n` +
-      `Nominal: Rp ${amount.toLocaleString('id-ID')}\n` +
-      `Tidak ada order pending yang cocok — kemungkinan nominal tidak exact.\n` +
-      `Proses manual diperlukan.`
-    );
+    await sendDiscord({
+      title: '⚠️ Pembayaran Tidak Dikenal',
+      color: 0xf59e0b,
+      fields: [
+        { name: 'Nominal Masuk', value: formatRp(amount), inline: true },
+        { name: 'Status', value: 'Tidak ada order pending yang cocok', inline: false },
+        { name: 'Tindakan', value: 'Kemungkinan nominal tidak exact — proses **manual** diperlukan', inline: false },
+      ],
+      footer: { text: 'AeroBlast Network' },
+      timestamp: new Date().toISOString(),
+    });
     return res.status(404).json({ ok: false, error: 'Order tidak ditemukan untuk nominal ini' });
   }
 
@@ -176,11 +205,22 @@ async function handleNotify(req, res) {
 
   const rconResult = await executeRcon(order);
 
-  const statusMsg = rconResult.ok
-    ? `✅ **Pembayaran BERHASIL**\nNick: \`${order.nick}\`\nTipe: ${order.type}\nNominal: Rp ${amount.toLocaleString('id-ID')}\nRCON: ${rconResult.response || 'OK'}`
-    : `✅ Dibayar | ⚠️ **RCON Gagal**\nNick: \`${order.nick}\`\nTipe: ${order.type}\nNominal: Rp ${amount.toLocaleString('id-ID')}\nError: ${rconResult.error}`;
-
-  await sendDiscord(statusMsg);
+  const rconOk = rconResult.ok;
+  await sendDiscord({
+    title: rconOk ? '✅ Pembayaran Berhasil' : '✅ Dibayar — ⚠️ RCON Gagal',
+    color: rconOk ? 0x22c55e : 0xef4444,
+    fields: [
+      { name: 'Nickname', value: `\`${order.nick}\``, inline: true },
+      { name: 'Platform', value: order.platform, inline: true },
+      { name: 'Tipe', value: TYPE_LABEL[order.type] || order.type, inline: true },
+      { name: 'Nominal Diterima', value: formatRp(amount), inline: true },
+      rconOk
+        ? { name: 'RCON', value: rconResult.response || 'OK', inline: false }
+        : { name: 'Error RCON', value: rconResult.error || 'Unknown', inline: false },
+    ],
+    footer: { text: 'AeroBlast Network' },
+    timestamp: new Date().toISOString(),
+  });
 
   return res.status(200).json({
     ok: true,
