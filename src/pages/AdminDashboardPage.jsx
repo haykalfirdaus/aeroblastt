@@ -108,9 +108,7 @@ function InvoicesSection() {
   const showToast = useToast();
   const [items, setItems] = useState([]);
   const [fetching, setFetching] = useState(true);
-  const [paidIds, setPaidIds] = useState(new Set());
   const [markingId, setMarkingId] = useState(null);
-  // confirmId: id invoice yang sedang menunggu konfirmasi "Yakin?"
   const [confirmId, setConfirmId] = useState(null);
 
   const fetchInvoices = useCallback(async () => {
@@ -132,13 +130,8 @@ function InvoicesSection() {
     return () => clearInterval(interval);
   }, [fetchInvoices]);
 
-  function requestConfirm(id) {
-    setConfirmId(id);
-  }
-
-  function cancelConfirm() {
-    setConfirmId(null);
-  }
+  function requestConfirm(id) { setConfirmId(id); }
+  function cancelConfirm() { setConfirmId(null); }
 
   async function handleMarkPaid(id) {
     if (markingId) return;
@@ -165,19 +158,13 @@ function InvoicesSection() {
       } else {
         showToast('Invoice ditandai lunas & notifikasi Discord terkirim', 'success');
       }
-      setPaidIds((prev) => new Set([...prev, id]));
-      // Hapus dari DB 1 menit setelah dikonfirmasi, lalu hilangkan dari list
-      setTimeout(async () => {
-        await fetch(`/api/admin/invoices?id=${encodeURIComponent(id)}`, {
+      // Langsung hilangkan dari panel; hapus dari DB setelah 1 menit
+      setItems((prev) => prev.filter((i) => i.id !== id));
+      setTimeout(() => {
+        fetch(`/api/admin/invoices?id=${encodeURIComponent(id)}`, {
           method: 'DELETE',
           credentials: 'include',
         }).catch(() => {});
-        setItems((prev) => prev.filter((i) => i.id !== id));
-        setPaidIds((prev) => {
-          const next = new Set(prev);
-          next.delete(id);
-          return next;
-        });
       }, 60 * 1000);
     } catch (err) {
       showToast(err.message, 'error');
@@ -186,64 +173,45 @@ function InvoicesSection() {
     }
   }
 
-  const pending = items.filter((i) => !paidIds.has(i.id));
-  const recentlyPaid = items.filter((i) => paidIds.has(i.id));
-
   return (
     <SectionCard
       icon={FileText}
       title="Invoice Masuk"
       accent="neon-500"
-      badge={pending.length > 0 ? pending.length : undefined}
+      badge={items.length > 0 ? items.length : undefined}
     >
       {fetching ? (
         <div className="flex justify-center py-10">
           <span className="h-6 w-6 animate-spin rounded-full border-2 border-neon-500/20 border-t-neon-400" />
         </div>
-      ) : pending.length === 0 && recentlyPaid.length === 0 ? (
+      ) : items.length === 0 ? (
         <div className="flex flex-col items-center justify-center gap-2 py-10 text-center">
           <CheckCircle size={32} className="text-success/40" />
           <p className="text-sm text-text-dim">Tidak ada invoice pending.</p>
         </div>
       ) : (
         <div className="space-y-2">
-          {recentlyPaid.length > 0 && (
-            <>
-              <p className="mb-2 text-xs font-semibold uppercase tracking-wide text-success/70">
-                Baru saja lunas (dihapus otomatis dalam 1 menit)
-              </p>
-              {recentlyPaid.map((item) => (
-                <InvoiceItem key={item.id} item={item} paid onMark={handleMarkPaid} marking={false} confirming={false} onRequestConfirm={requestConfirm} onCancelConfirm={cancelConfirm} />
-              ))}
-              {pending.length > 0 && <div className="my-3 border-t border-white/6" />}
-            </>
-          )}
-          {pending.length > 0 && (
-            <>
-              <p className="mb-2 text-xs font-semibold uppercase tracking-wide text-text-dim">
-                Menunggu pembayaran
-              </p>
-              {pending.map((item) => (
-                <InvoiceItem
-                  key={item.id}
-                  item={item}
-                  paid={false}
-                  onMark={handleMarkPaid}
-                  marking={markingId === item.id}
-                  confirming={confirmId === item.id}
-                  onRequestConfirm={requestConfirm}
-                  onCancelConfirm={cancelConfirm}
-                />
-              ))}
-            </>
-          )}
+          <p className="mb-2 text-xs font-semibold uppercase tracking-wide text-text-dim">
+            Menunggu pembayaran
+          </p>
+          {items.map((item) => (
+            <InvoiceItem
+              key={item.id}
+              item={item}
+              onMark={handleMarkPaid}
+              marking={markingId === item.id}
+              confirming={confirmId === item.id}
+              onRequestConfirm={requestConfirm}
+              onCancelConfirm={cancelConfirm}
+            />
+          ))}
         </div>
       )}
     </SectionCard>
   );
 }
 
-function InvoiceItem({ item, paid, onMark, marking, confirming, onRequestConfirm, onCancelConfirm }) {
+function InvoiceItem({ item, onMark, marking, confirming, onRequestConfirm, onCancelConfirm }) {
   const [remaining, setRemaining] = useState(() => formatRemaining(item.expiresAt));
 
   useEffect(() => {
@@ -254,21 +222,10 @@ function InvoiceItem({ item, paid, onMark, marking, confirming, onRequestConfirm
   const details = item.details || {};
 
   return (
-    <div
-      className={cn(
-        'rounded-xl border px-4 py-3 transition-colors',
-        paid
-          ? 'border-success/25 bg-success/[0.06]'
-          : 'border-warning/30 bg-warning/[0.04] hover:border-warning/50'
-      )}
-    >
-      {/* Status bar di atas */}
-      <div className={cn(
-        'mb-2.5 flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider',
-        paid ? 'text-success' : 'text-warning'
-      )}>
-        <span className={cn('h-1.5 w-1.5 rounded-full', paid ? 'bg-success' : 'bg-warning animate-pulse')} />
-        {paid ? 'Sudah Lunas' : 'Menunggu Pembayaran'}
+    <div className="rounded-xl border border-warning/30 bg-warning/[0.04] px-4 py-3 transition-colors hover:border-warning/50">
+      <div className="mb-2.5 flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-warning">
+        <span className="h-1.5 w-1.5 rounded-full bg-warning animate-pulse" />
+        Menunggu Pembayaran
       </div>
 
       <div className="flex items-start gap-3">
@@ -316,16 +273,14 @@ function InvoiceItem({ item, paid, onMark, marking, confirming, onRequestConfirm
                 -{details.discountPct}%
               </span>
             )}
-            {!paid && (
-              <span className="inline-flex items-center gap-1 text-xs text-text-dim">
-                <Clock size={10} />
-                {remaining}
-              </span>
-            )}
+            <span className="inline-flex items-center gap-1 text-xs text-text-dim">
+              <Clock size={10} />
+              {remaining}
+            </span>
           </div>
         </div>
 
-        {!paid && !confirming && (
+        {!confirming && (
           <button
             onClick={() => onRequestConfirm(item.id)}
             disabled={marking}
@@ -340,7 +295,7 @@ function InvoiceItem({ item, paid, onMark, marking, confirming, onRequestConfirm
             Tandai Lunas
           </button>
         )}
-        {!paid && confirming && (
+        {confirming && (
           <div className="shrink-0 flex flex-col items-end gap-1.5">
             <span className="text-[10px] font-semibold text-warning">Yakin lunas?</span>
             <div className="flex items-center gap-1.5">
@@ -365,11 +320,6 @@ function InvoiceItem({ item, paid, onMark, marking, confirming, onRequestConfirm
             </div>
           </div>
         )}
-        {paid && (
-          <span className="shrink-0 rounded-lg border border-success/30 bg-success/15 px-3 py-1.5 text-xs font-semibold text-success">
-            ✓ Lunas
-          </span>
-        )}
       </div>
     </div>
   );
@@ -387,7 +337,6 @@ function AnnouncementsSection() {
   const [duration, setDuration] = useState('');
   const [submitting, setSubmitting] = useState(false);
   const [confirmId, setConfirmId] = useState(null);
-  const [pendingDeleteIds, setPendingDeleteIds] = useState(new Set());
 
   const fetchAnnouncements = useCallback(async () => {
     try {
@@ -434,29 +383,19 @@ function AnnouncementsSection() {
 
   function handleConfirmDelete(id) {
     setConfirmId(null);
-    setPendingDeleteIds((prev) => new Set([...prev, id]));
-    showToast('Pengumuman akan dihapus dalam 1 menit', 'success');
-    setTimeout(async () => {
-      try {
-        const res = await fetch(`/api/admin/announcements?id=${encodeURIComponent(id)}`, {
-          method: 'DELETE',
-          credentials: 'include',
-        });
-        if (!res.ok) {
-          const d = await res.json().catch(() => ({}));
-          throw new Error(d.error || d.message || 'Gagal menghapus pengumuman');
-        }
-      } catch (err) {
-        showToast(err.message, 'error');
-      }
-      setItems((prev) => prev.filter((i) => i.id !== id));
-      setPendingDeleteIds((prev) => {
-        const next = new Set(prev);
-        next.delete(id);
-        return next;
-      });
+    // Langsung hilangkan dari panel; hapus dari DB setelah 1 menit
+    setItems((prev) => prev.filter((i) => i.id !== id));
+    showToast('Pengumuman dihapus', 'success');
+    setTimeout(() => {
+      fetch(`/api/admin/announcements?id=${encodeURIComponent(id)}`, {
+        method: 'DELETE',
+        credentials: 'include',
+      }).catch(() => {});
     }, 60 * 1000);
   }
+
+  // Filter expired dari tampilan (expired auto-hilang; GET API juga sudah filter)
+  const activeItems = items.filter((i) => new Date(i.expiresAt) > new Date());
 
   return (
     <SectionCard icon={Megaphone} title="Manajemen Announcement" accent="neon-500">
@@ -511,14 +450,13 @@ function AnnouncementsSection() {
           <div className="flex justify-center py-6">
             <span className="h-6 w-6 animate-spin rounded-full border-2 border-neon-500/20 border-t-neon-400" />
           </div>
-        ) : items.length === 0 ? (
+        ) : activeItems.length === 0 ? (
           <p className="py-4 text-center text-sm text-text-dim">Belum ada pengumuman aktif.</p>
         ) : (
-          items.map((item) => (
+          activeItems.map((item) => (
             <AnnouncementItem
               key={item.id}
               item={item}
-              pending={pendingDeleteIds.has(item.id)}
               confirming={confirmId === item.id}
               onRequestDelete={() => setConfirmId(item.id)}
               onCancelDelete={() => setConfirmId(null)}
@@ -531,7 +469,7 @@ function AnnouncementsSection() {
   );
 }
 
-function AnnouncementItem({ item, pending, confirming, onRequestDelete, onCancelDelete, onConfirmDelete }) {
+function AnnouncementItem({ item, confirming, onRequestDelete, onCancelDelete, onConfirmDelete }) {
   const [remaining, setRemaining] = useState(() => formatRemaining(item.expiresAt));
 
   useEffect(() => {
@@ -540,22 +478,15 @@ function AnnouncementItem({ item, pending, confirming, onRequestDelete, onCancel
   }, [item.expiresAt]);
 
   return (
-    <div className={cn(
-      'flex items-start gap-3 rounded-xl border px-4 py-3 transition-colors',
-      pending ? 'border-danger/20 bg-danger/[0.04]' : 'border-white/6 bg-white/[0.02] hover:border-white/10'
-    )}>
-      <BellRing size={15} className={cn('mt-0.5 shrink-0', pending ? 'text-danger/60' : 'text-neon-400')} />
+    <div className="flex items-start gap-3 rounded-xl border border-white/6 bg-white/[0.02] px-4 py-3 transition-colors hover:border-white/10">
+      <BellRing size={15} className="mt-0.5 shrink-0 text-neon-400" />
       <div className="min-w-0 flex-1">
-        <p className={cn('line-clamp-2 text-sm', pending ? 'text-text-dim line-through' : 'text-text-bright')}>{item.text}</p>
+        <p className="line-clamp-2 text-sm text-text-bright">{item.text}</p>
         <span className="mt-1 inline-flex items-center gap-1 text-xs text-text-dim">
-          {pending ? (
-            <span className="text-danger/70">Dihapus dalam 1 menit…</span>
-          ) : (
-            <><Clock size={11} />{remaining}</>
-          )}
+          <Clock size={11} />{remaining}
         </span>
       </div>
-      {!pending && !confirming && (
+      {!confirming && (
         <button
           onClick={onRequestDelete}
           aria-label="Hapus pengumuman"
@@ -564,7 +495,7 @@ function AnnouncementItem({ item, pending, confirming, onRequestDelete, onCancel
           <Trash2 size={14} />
         </button>
       )}
-      {!pending && confirming && (
+      {confirming && (
         <div className="shrink-0 flex flex-col items-end gap-1.5">
           <span className="text-[10px] font-semibold text-danger/80">Yakin hapus?</span>
           <div className="flex items-center gap-1.5">
@@ -605,7 +536,6 @@ function DiscountsSection() {
   const [duration, setDuration] = useState('');
   const [submitting, setSubmitting] = useState(false);
   const [confirmId, setConfirmId] = useState(null);
-  const [pendingDeleteIds, setPendingDeleteIds] = useState(new Set());
 
   const fetchDiscounts = useCallback(async () => {
     try {
@@ -665,29 +595,19 @@ function DiscountsSection() {
 
   function handleConfirmDelete(id) {
     setConfirmId(null);
-    setPendingDeleteIds((prev) => new Set([...prev, id]));
-    showToast('Diskon akan dihapus dalam 1 menit', 'success');
-    setTimeout(async () => {
-      try {
-        const res = await fetch(`/api/admin/discounts?id=${encodeURIComponent(id)}`, {
-          method: 'DELETE',
-          credentials: 'include',
-        });
-        if (!res.ok) {
-          const d = await res.json().catch(() => ({}));
-          throw new Error(d.error || d.message || 'Gagal menghapus diskon');
-        }
-      } catch (err) {
-        showToast(err.message, 'error');
-      }
-      setItems((prev) => prev.filter((i) => i.id !== id));
-      setPendingDeleteIds((prev) => {
-        const next = new Set(prev);
-        next.delete(id);
-        return next;
-      });
+    // Langsung hilangkan dari panel; hapus dari DB setelah 1 menit
+    setItems((prev) => prev.filter((i) => i.id !== id));
+    showToast('Diskon dihapus', 'success');
+    setTimeout(() => {
+      fetch(`/api/admin/discounts?id=${encodeURIComponent(id)}`, {
+        method: 'DELETE',
+        credentials: 'include',
+      }).catch(() => {});
     }, 60 * 1000);
   }
+
+  const activeItems = items.filter((i) => new Date(i.expiresAt) > new Date());
+  const expiredItems = items.filter((i) => new Date(i.expiresAt) <= new Date());
 
   return (
     <SectionCard icon={PercentCircle} title="Manajemen Diskon" accent="cyan-400">
@@ -785,55 +705,93 @@ function DiscountsSection() {
       </form>
 
       <div className="space-y-2">
-        <p className="mb-3 text-xs font-semibold uppercase tracking-wide text-text-dim">
-          Diskon aktif
-        </p>
         {fetching ? (
           <div className="flex justify-center py-6">
             <span className="h-6 w-6 animate-spin rounded-full border-2 border-cyan-400/20 border-t-cyan-400" />
           </div>
         ) : items.length === 0 ? (
-          <p className="py-4 text-center text-sm text-text-dim">Belum ada diskon aktif.</p>
+          <p className="py-4 text-center text-sm text-text-dim">Belum ada diskon.</p>
         ) : (
-          items.map((item) => (
-            <DiscountItem
-              key={item.id}
-              item={item}
-              pending={pendingDeleteIds.has(item.id)}
-              confirming={confirmId === item.id}
-              onRequestDelete={() => setConfirmId(item.id)}
-              onCancelDelete={() => setConfirmId(null)}
-              onConfirmDelete={handleConfirmDelete}
-            />
-          ))
+          <>
+            {activeItems.length > 0 && (
+              <>
+                <p className="mb-2 text-xs font-semibold uppercase tracking-wide text-text-dim">
+                  Diskon aktif
+                </p>
+                {activeItems.map((item) => (
+                  <DiscountItem
+                    key={item.id}
+                    item={item}
+                    expired={false}
+                    confirming={confirmId === item.id}
+                    onRequestDelete={() => setConfirmId(item.id)}
+                    onCancelDelete={() => setConfirmId(null)}
+                    onConfirmDelete={handleConfirmDelete}
+                  />
+                ))}
+              </>
+            )}
+            {expiredItems.length > 0 && (
+              <>
+                {activeItems.length > 0 && <div className="my-3 border-t border-white/6" />}
+                <p className="mb-2 text-xs font-semibold uppercase tracking-wide text-text-dim/60">
+                  Sudah expired
+                </p>
+                {expiredItems.map((item) => (
+                  <DiscountItem
+                    key={item.id}
+                    item={item}
+                    expired={true}
+                    confirming={confirmId === item.id}
+                    onRequestDelete={() => setConfirmId(item.id)}
+                    onCancelDelete={() => setConfirmId(null)}
+                    onConfirmDelete={handleConfirmDelete}
+                  />
+                ))}
+              </>
+            )}
+          </>
         )}
       </div>
     </SectionCard>
   );
 }
 
-function DiscountItem({ item, pending, confirming, onRequestDelete, onCancelDelete, onConfirmDelete }) {
+function DiscountItem({ item, expired, confirming, onRequestDelete, onCancelDelete, onConfirmDelete }) {
   const [remaining, setRemaining] = useState(() => formatRemaining(item.expiresAt));
 
   useEffect(() => {
+    if (expired) return;
     const id = setInterval(() => setRemaining(formatRemaining(item.expiresAt)), 15000);
     return () => clearInterval(id);
-  }, [item.expiresAt]);
+  }, [item.expiresAt, expired]);
 
   return (
     <div className={cn(
       'flex items-start gap-3 rounded-xl border px-4 py-3 transition-colors',
-      pending ? 'border-danger/20 bg-danger/[0.04]' : 'border-white/6 bg-white/[0.02] hover:border-white/10'
+      expired
+        ? 'border-white/4 bg-white/[0.01] opacity-60'
+        : 'border-white/6 bg-white/[0.02] hover:border-white/10'
     )}>
-      <PercentCircle size={15} className={cn('mt-0.5 shrink-0', pending ? 'text-danger/60' : 'text-cyan-400')} />
+      <PercentCircle size={15} className={cn('mt-0.5 shrink-0', expired ? 'text-text-faint' : 'text-cyan-400')} />
       <div className="min-w-0 flex-1">
         <div className="flex items-center gap-2">
-          <span className={cn('font-mono text-sm font-bold tracking-wider', pending ? 'text-text-dim line-through' : 'text-text-bright')}>
+          <span className={cn('font-mono text-sm font-bold tracking-wider', expired ? 'text-text-dim' : 'text-text-bright')}>
             {item.code}
           </span>
-          <span className="rounded-md border border-cyan-400/30 bg-cyan-400/10 px-1.5 py-0.5 text-xs font-semibold text-cyan-300">
+          <span className={cn(
+            'rounded-md border px-1.5 py-0.5 text-xs font-semibold',
+            expired
+              ? 'border-white/10 bg-white/[0.03] text-text-dim'
+              : 'border-cyan-400/30 bg-cyan-400/10 text-cyan-300'
+          )}>
             -{item.percent}%
           </span>
+          {expired && (
+            <span className="rounded border border-white/10 bg-white/[0.03] px-1.5 py-0.5 text-[10px] font-semibold text-text-faint">
+              Expired
+            </span>
+          )}
         </div>
         {item.categories && item.categories.length > 0 && (
           <div className="mt-1 flex flex-wrap gap-1">
@@ -845,14 +803,14 @@ function DiscountItem({ item, pending, confirming, onRequestDelete, onCancelDele
           </div>
         )}
         <span className="mt-1 inline-flex items-center gap-1 text-xs text-text-dim">
-          {pending ? (
-            <span className="text-danger/70">Dihapus dalam 1 menit…</span>
+          {expired ? (
+            <span className="text-text-faint">Berakhir {new Date(item.expiresAt).toLocaleDateString('id-ID')}</span>
           ) : (
             <><Clock size={11} />{remaining}</>
           )}
         </span>
       </div>
-      {!pending && !confirming && (
+      {!confirming && (
         <button
           onClick={onRequestDelete}
           aria-label="Hapus diskon"
@@ -861,7 +819,7 @@ function DiscountItem({ item, pending, confirming, onRequestDelete, onCancelDele
           <Trash2 size={14} />
         </button>
       )}
-      {!pending && confirming && (
+      {confirming && (
         <div className="shrink-0 flex flex-col items-end gap-1.5">
           <span className="text-[10px] font-semibold text-danger/80">Yakin hapus?</span>
           <div className="flex items-center gap-1.5">

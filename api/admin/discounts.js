@@ -11,13 +11,15 @@ export default async function handler(req, res) {
     return;
   }
 
-  // GET — public, return only non-expired rows
+  // GET — admin: semua (termasuk expired); publik: hanya non-expired
   if (req.method === 'GET') {
-    const { data, error } = await supabase
-      .from('discounts')
-      .select('*')
-      .gt('expires_at', new Date().toISOString())
-      .order('created_at', { ascending: false });
+    const adminView = isAuthenticated(req);
+    let query = supabase.from('discounts').select('*').order('created_at', { ascending: false });
+    if (!adminView) {
+      query = query.gt('expires_at', new Date().toISOString());
+    }
+
+    const { data, error } = await query;
 
     if (error) {
       res.status(500).json({ ok: false, error: error.message });

@@ -60,7 +60,7 @@ function KeyOrderModal({ keyData, open, onClose }) {
     if (!platform) return showToast('Pilih platform!', 'error');
     if (!payment) return showToast('Pilih metode pembayaran!', 'error');
     if (!agreed) return showToast('Setujui syarat & ketentuan!', 'error');
-    const orderData = { nick: (playerNick || nick).trim(), platform, keyName: keyData.name, qty, discountPct: discount, finalAmount: finalPrice, paymentMethod: payment };
+    const orderData = { nick: (playerNick || nick).trim(), platform, keyName: keyData.key.toLowerCase(), qty, discountPct: discount, finalAmount: finalPrice, paymentMethod: payment };
     sendInvoice({ type: 'key', ...orderData });
     openWhatsApp(buildKeyOrderMessage(orderData));
   }
