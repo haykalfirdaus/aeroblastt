@@ -4,23 +4,21 @@
 -- Tabel utama order pembayaran
 create table if not exists beta_orders (
   id uuid primary key default gen_random_uuid(),
-  suffix integer not null unique,          -- angka unik 1001-2000
-  nick text not null,                      -- username MC
-  platform text not null,                  -- Java / Bedrock
-  type text not null,                      -- rank, key, skill, balance, command, cosmetic
-  base_amount integer not null,            -- harga asli (tanpa suffix)
-  total_amount integer not null,           -- base_amount + suffix = yang harus dibayar
-  details jsonb not null default '{}',     -- info produk (rank, keyName, qty, dll)
-  status text not null default 'pending',  -- pending | paid | expired | failed
+  suffix integer not null,                 -- angka unik 1-999 (recycled, tidak unique constraint)
+  nick text not null,
+  platform text not null,
+  type text not null,
+  base_amount integer not null,
+  total_amount integer not null,
+  details jsonb not null default '{}',
+  status text not null default 'pending',  -- pending | paid | expired
   created_at timestamptz not null default now(),
-  expires_at timestamptz not null,         -- default 30 menit
+  expires_at timestamptz not null,
   paid_at timestamptz
 );
 
--- Index untuk cari order berdasarkan total_amount (matching dari Tasker)
 create index if not exists beta_orders_total_amount_status
   on beta_orders (total_amount, status);
 
--- Index untuk cari suffix yang masih pending (buat pool)
 create index if not exists beta_orders_suffix_status
   on beta_orders (suffix, status);

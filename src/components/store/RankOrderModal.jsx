@@ -62,7 +62,7 @@ export function RankOrderModal({ rank, open, onClose }) {
 
     setWaLoading(true);
     try {
-      // Generate unique amount — buat order di DB + announce Discord
+      // Generate unique amount — buat order di DB + announce Discord otomatis dari server
       const betaOrder = await createBetaOrder({
         type: 'rank',
         nick: orderNick,
@@ -74,10 +74,10 @@ export function RankOrderModal({ rank, open, onClose }) {
           owned: ownedRank === 'none' ? null : ownedRank,
         },
       });
-      sendInvoice({ type: 'rank', ...orderData });
       openWhatsApp(buildRankOrderMessage({ ...orderData, uniqueAmount: betaOrder.totalAmount }));
-    } catch {
-      // Gagal generate order — tetap buka WA tanpa nominal unik
+    } catch (err) {
+      // Gagal generate order — fallback WA + invoice lama
+      showToast('Gagal generate nominal unik, order manual via WA', 'error');
       sendInvoice({ type: 'rank', ...orderData });
       openWhatsApp(buildRankOrderMessage(orderData));
     } finally {
