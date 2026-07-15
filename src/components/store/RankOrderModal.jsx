@@ -6,12 +6,12 @@ import { CountdownBanner } from './CountdownBanner';
 import { DiscountCodeInput } from './DiscountCodeInput';
 import { PaymentMethodPicker } from './PaymentMethodPicker';
 import { PriceSummary } from './PriceSummary';
+import { BetaPaymentModal } from './BetaPaymentModal';
 import { RANKS, RANK_DURATION_OPTIONS, RANK_ORDER, RANK_PRICES } from '@/data/ranks';
 import { SITE } from '@/data/config';
 import { buildRankOrderMessage, openWhatsApp } from '@/utils/whatsapp';
 import { sendInvoice } from '@/utils/invoice';
 import { formatRupiah } from '@/utils/currency';
-// discount check is now done inside DiscountCodeInput via async API
 import { useToast } from '@/context/ToastContext';
 import { usePlayerAuth } from '@/context/PlayerAuthContext';
 import { cn } from '@/lib/cn';
@@ -27,6 +27,7 @@ export function RankOrderModal({ rank, open, onClose }) {
   const [discount, setDiscount] = useState(0);
   const [payment, setPayment] = useState('');
   const [agreed, setAgreed] = useState(false);
+  const [betaOpen, setBetaOpen] = useState(false);
 
   if (!rank) return null;
 
@@ -128,10 +129,43 @@ export function RankOrderModal({ rank, open, onClose }) {
           Saya menyetujui <a href="/terms" target="_blank" className="text-neon-300 hover:underline">Syarat &amp; Ketentuan</a> yang berlaku di AeroBlast Network.
         </CheckboxField>
 
-        <Button fullWidth size="sm" onClick={handleSend} disabled={basePrice <= 0 || !playerNick} title={!playerNick ? 'Login dulu untuk melakukan order' : undefined}>
-          {playerNick ? 'Order via WhatsApp' : '🔒 Login dulu untuk order'}
-        </Button>
+        <div className="flex flex-col gap-2">
+          <Button fullWidth size="sm" onClick={handleSend} disabled={basePrice <= 0 || !playerNick} title={!playerNick ? 'Login dulu untuk melakukan order' : undefined}>
+            {playerNick ? 'Order via WhatsApp' : '🔒 Login dulu untuk order'}
+          </Button>
+
+          {playerNick && basePrice > 0 && (
+            <button
+              type="button"
+              onClick={() => {
+                if (!agreed) return showToast('Setujui syarat & ketentuan terlebih dahulu!', 'error');
+                setBetaOpen(true);
+              }}
+              className="w-full rounded-xl border border-cyan-400/30 bg-cyan-500/10 py-2.5 text-sm font-semibold text-cyan-300 transition-all hover:border-cyan-400/50 hover:bg-cyan-500/15"
+            >
+              ⚡ Bayar QRIS Otomatis
+              <span className="ml-2 rounded-full bg-cyan-400/20 px-1.5 py-0.5 text-[10px] font-bold uppercase tracking-wide text-cyan-400">Beta</span>
+            </button>
+          )}
+        </div>
       </div>
+
+      <BetaPaymentModal
+        open={betaOpen}
+        onClose={() => setBetaOpen(false)}
+        productLabel={`Rank ${rank.name}${durOpt.label !== 'Permanen' ? ` (${durOpt.label})` : ''}`}
+        orderPayload={{
+          type: 'rank',
+          nick: (playerNick || nick).trim(),
+          platform,
+          baseAmount: finalPrice,
+          details: {
+            target: rank.key,
+            duration: durOpt.id,
+            owned: ownedRank === 'none' ? null : ownedRank,
+          },
+        }}
+      />
     </Modal>
   );
 }
