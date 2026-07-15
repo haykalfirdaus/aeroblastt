@@ -218,7 +218,7 @@ export default async function handler(req, res) {
   const { action } = req.query;
 
   if (action === 'create' && req.method === 'POST') return handleCreate(req, res);
-  if (action === 'notify' && req.method === 'POST') return handleNotify(req, res);
+  if (action === 'notify') return handleNotify(req, res); // GET atau POST
   if (action === 'status' && req.method === 'GET') return handleStatus(req, res);
 
   return res.status(400).json({ ok: false, error: 'action tidak valid' });
