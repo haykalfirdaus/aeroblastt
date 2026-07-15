@@ -95,12 +95,32 @@ async function handleCreate(req, res) {
   const totalAmount = baseAmount + suffix;
   const expiresAt = new Date(Date.now() + ORDER_TTL_MS).toISOString();
 
+  // Buat invoice di DB dulu (fallback jika beta gagal)
+  let invoiceId = null;
+  try {
+    const { data: inv } = await supabase
+      .from('invoices')
+      .insert({
+        type,
+        nick: nick.trim(),
+        platform,
+        final_amount: baseAmount,
+        payment_method: 'QRIS',
+        details: details || {},
+        expires_at: expiresAt,
+      })
+      .select('id')
+      .single();
+    if (inv?.id) invoiceId = inv.id;
+  } catch { /* tabel invoices mungkin belum ada — lanjut */ }
+
   const { data: order, error } = await supabase
     .from('beta_orders')
     .insert({
       suffix, nick: nick.trim(), platform, type,
       base_amount: baseAmount, total_amount: totalAmount,
       details: details || {}, expires_at: expiresAt,
+      invoice_id: invoiceId,
     })
     .select('id, suffix, total_amount, expires_at')
     .single();
@@ -202,6 +222,11 @@ async function handleNotify(req, res) {
     .from('beta_orders')
     .update({ status: 'paid', paid_at: new Date().toISOString() })
     .eq('id', order.id);
+
+  // Hapus invoice dari DB karena otomatis sudah berhasil
+  if (order.invoice_id) {
+    await supabase.from('invoices').delete().eq('id', order.invoice_id);
+  }
 
   const rconResult = await executeRcon(order);
 
