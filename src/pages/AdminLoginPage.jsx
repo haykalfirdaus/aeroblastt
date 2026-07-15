@@ -140,7 +140,7 @@ function ForgotView({ onBack, onSent }) {
   async function handleSend() {
     setSubmitting(true);
     try {
-      const res = await fetch('/api/admin/forgot-password', {
+      const res = await fetch('/api/admin/otp?action=send', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         credentials: 'include',
@@ -210,7 +210,7 @@ function OtpView({ token, onBack, onResend, onUnlocked }) {
     if (otp.length !== 6) return;
     setSubmitting(true);
     try {
-      const res = await fetch('/api/admin/verify-otp', {
+      const res = await fetch('/api/admin/otp?action=verify', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         credentials: 'include',

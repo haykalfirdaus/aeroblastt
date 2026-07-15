@@ -1,5 +1,5 @@
 export async function createBetaOrder(payload) {
-  const res = await fetch('/api/beta-payment/create', {
+  const res = await fetch('/api/beta-payment?action=create', {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify(payload),
@@ -10,7 +10,7 @@ export async function createBetaOrder(payload) {
 }
 
 export async function pollBetaOrderStatus(orderId) {
-  const res = await fetch(`/api/beta-payment/status?orderId=${orderId}`);
+  const res = await fetch(`/api/beta-payment?action=status&orderId=${orderId}`);
   const data = await res.json();
   if (!res.ok || !data.ok) throw new Error(data.error || 'Gagal cek status');
   return data; // { status, nick, type, totalAmount, expiresAt, paidAt }
