@@ -1,20 +1,14 @@
 import { NextResponse } from 'next/server';
 import { supabase } from '@/api/_supabase';
+import { isValidOrigin } from '@/api/_auth';
+import { rateLimit } from '@/api/_ratelimit';
+import { getMinBaseAmount } from '@/api/_prices';
 
 const DISCORD_WEBHOOK_URL = process.env.DISCORD_WEBHOOK_URL;
 const VALID_TYPES = ['rank', 'key', 'skill', 'balance', 'command', 'cosmetic'];
 
-const requests = new Map();
-function isRateLimited(ip) {
-  const now = Date.now();
-  const entry = requests.get(ip);
-  if (!entry || now - entry.windowStart > 60_000) {
-    requests.set(ip, { count: 1, windowStart: now });
-    return false;
-  }
-  if (entry.count >= 10) return true;
-  entry.count++;
-  return false;
+function getIp(request) {
+  return request.headers.get('x-forwarded-for')?.split(',')[0]?.trim() || 'unknown';
 }
 
 function formatRupiah(n) {
@@ -60,9 +54,10 @@ function buildEmbed(body, invoiceId) {
 
 export async function POST(request) {
   if (!DISCORD_WEBHOOK_URL) return NextResponse.json({ ok: false, error: 'Server misconfigured' }, { status: 500 });
+  if (!isValidOrigin(request)) return NextResponse.json({ ok: false, error: 'Forbidden' }, { status: 403 });
 
-  const ip = request.headers.get('x-forwarded-for')?.split(',')[0].trim() || 'unknown';
-  if (isRateLimited(ip)) return NextResponse.json({ ok: false, error: 'Terlalu banyak request.' }, { status: 429 });
+  const rl = rateLimit(getIp(request), { max: 10, windowMs: 60 * 1000 });
+  if (!rl.ok) return NextResponse.json({ ok: false, error: `Terlalu banyak request. Coba lagi dalam ${rl.retryAfter} detik.` }, { status: 429, headers: { 'Retry-After': String(rl.retryAfter) } });
 
   let body;
   try { body = await request.json(); } catch { return NextResponse.json({ ok: false, error: 'Invalid JSON' }, { status: 400 }); }
@@ -73,6 +68,13 @@ export async function POST(request) {
   if (!platform) return NextResponse.json({ ok: false, error: 'platform diperlukan' }, { status: 400 });
   if (!finalAmount || finalAmount <= 0) return NextResponse.json({ ok: false, error: 'finalAmount tidak valid' }, { status: 400 });
   if (!paymentMethod) return NextResponse.json({ ok: false, error: 'paymentMethod diperlukan' }, { status: 400 });
+
+  // Validasi harga server-side
+  const details = { ...body };
+  const minAmount = getMinBaseAmount(type, details);
+  if (minAmount !== null && Number(finalAmount) < minAmount) {
+    return NextResponse.json({ ok: false, error: `Nominal terlalu kecil (minimum ${new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR', maximumFractionDigits: 0 }).format(minAmount)})` }, { status: 400 });
+  }
 
   const expiresAt = new Date(Date.now() + 24 * 60 * 60 * 1000).toISOString();
   let invoiceId = 'PENDING';

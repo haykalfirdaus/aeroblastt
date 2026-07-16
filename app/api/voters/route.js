@@ -1,9 +1,13 @@
 import { NextResponse } from 'next/server';
+import { rateLimit } from '@/api/_ratelimit';
 
 const VOTERS_API_KEY = process.env.VOTERS_API_KEY;
 const SERVER_ID = 'aeroblast.my.id:25543';
 
 export async function GET(request) {
+  const ip = request.headers.get('x-forwarded-for')?.split(',')[0]?.trim() || 'unknown';
+  const rl = rateLimit(ip, { max: 10, windowMs: 60 * 1000 });
+  if (!rl.ok) return NextResponse.json({ error: 'Terlalu banyak request.' }, { status: 429, headers: { 'Retry-After': String(rl.retryAfter) } });
   if (!VOTERS_API_KEY) {
     return NextResponse.json({ error: 'Server misconfigured: VOTERS_API_KEY not set' }, { status: 500 });
   }
