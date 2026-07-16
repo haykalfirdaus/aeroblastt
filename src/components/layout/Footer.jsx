@@ -5,7 +5,7 @@ import { Copy, Check, Home, ShoppingBag, Trophy, HelpCircle, FileText, MessageCi
 import { SITE } from '@/data/config';
 import { useClipboard } from '@/hooks/useClipboard';
 import { scrollToId } from '@/lib/motion';
-import logo from '@/assets/images/logo.png';
+const logo = '/logo.png';
 
 const LINKS = [
   { label: 'Beranda',           to: '/',       icon: Home,        sectionId: 'home' },

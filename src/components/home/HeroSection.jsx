@@ -1,12 +1,6 @@
 'use client';
 import { useEffect, useRef } from 'react';
 import { Copy, Check, ChevronRight, MessageCircle, Dot } from 'lucide-react';
-
-const TICKER_FEATURES = [
-  'Survival Economy', 'Claim Land', 'Key Gacha', 'Custom Rank',
-  'Voting Rewards', 'Jobs System', 'Skill RPG', 'PlayerVault',
-  'PvP Arena', 'Auction House', 'Daily Quest', 'Warp Publik',
-];
 import Link from 'next/link';
 import { gsap } from 'gsap';
 import { Button } from '@/components/ui/Button';
@@ -15,7 +9,13 @@ import { useServerStatus } from '@/hooks/useServerStatus';
 import { prefersReducedMotion } from '@/lib/motion';
 import { SITE } from '@/data/config';
 import { cn } from '@/lib/cn';
-import logo from '@/assets/images/logo.png';
+
+const logo = '/logo.png';
+const TICKER_FEATURES = [
+  'Survival Economy', 'Claim Land', 'Key Gacha', 'Custom Rank',
+  'Voting Rewards', 'Jobs System', 'Skill RPG', 'PlayerVault',
+  'PvP Arena', 'Auction House', 'Daily Quest', 'Warp Publik',
+];
 
 export function HeroSection() {
   const [copiedKey, copy] = useClipboard();

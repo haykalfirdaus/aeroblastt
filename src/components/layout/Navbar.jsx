@@ -5,7 +5,7 @@ import { usePathname } from 'next/navigation';
 import { Menu, X, Home, ShoppingBag, Trophy, HelpCircle, MessageCircle } from 'lucide-react';
 import { cn } from '@/lib/cn';
 import { scrollToId } from '@/lib/motion';
-import logo from '@/assets/images/logo.png';
+const logo = '/logo.png';
 
 const NAV_LINKS = [
   { to: '/', label: 'Beranda', exact: true, icon: Home,        sectionId: 'home' },

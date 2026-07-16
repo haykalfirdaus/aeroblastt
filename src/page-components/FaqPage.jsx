@@ -1,13 +1,13 @@
 'use client';
 import { useMemo, useState } from 'react';
 import { Search, HelpCircle, MessageCircle, Headphones, Wifi, Gamepad2, Coins, Medal } from 'lucide-react';
-
-const CAT_ICONS = { Wifi, Gamepad2, Coins, Medal };
 import { PageLayout } from '@/components/layout/PageLayout';
 import { Accordion, AccordionItem } from '@/components/ui/Accordion';
 import { FaqAnswer } from '@/components/faq/FaqAnswer';
 import { FAQ_CATEGORIES } from '@/data/faqData';
 import { cn } from '@/lib/cn';
+
+const CAT_ICONS = { Wifi, Gamepad2, Coins, Medal };
 
 export default function FaqPage() {
   const [query, setQuery] = useState('');

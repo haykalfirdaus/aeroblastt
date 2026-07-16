@@ -15,7 +15,7 @@ import { sendInvoice } from '@/utils/invoice';
 import { formatRupiah } from '@/utils/currency';
 import { useToast } from '@/context/ToastContext';
 import { usePlayerAuth } from '@/context/PlayerAuthContext';
-import customPrefixImg from '@/assets/images/customprefix.png';
+const customPrefixImg = '/customprefix.png';
 
 const BASE_PRICE = 25000;
 const NICK_COLOR_ADDON = 10000;
