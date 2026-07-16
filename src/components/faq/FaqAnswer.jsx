@@ -13,7 +13,7 @@ function renderInline(text) {
     if (part.startsWith('[[') && part.endsWith(']]')) {
       const [label, href] = part.slice(2, -2).split('|');
       return href?.startsWith('/') ? (
-        <Link key={i} to={href} className="text-neon-300 underline-offset-2 hover:underline">{label}</Link>
+        <Link key={i} href={href} className="text-neon-300 underline-offset-2 hover:underline">{label}</Link>
       ) : (
         <a key={i} href={href} target="_blank" rel="noopener noreferrer" className="text-neon-300 underline-offset-2 hover:underline">{label}</a>
       );
