@@ -1,5 +1,6 @@
+'use client';
 import { RefreshCw, Trophy, Vote } from 'lucide-react';
-import { Link } from 'react-router-dom';
+import Link from 'next/link';
 import { Button } from '@/components/ui/Button';
 import { GlassCard } from '@/components/ui/GlassCard';
 import { SectionHeading } from '@/components/ui/SectionHeading';
@@ -64,7 +65,7 @@ export function TopVotersPreview() {
               <Vote size={13} /> Vote Sekarang
             </Button>
           </a>
-          <Link to="/top-voters">
+          <Link href="/top-voters">
             <Button variant="secondary" size="sm">Lihat Leaderboard Lengkap</Button>
           </Link>
         </div>

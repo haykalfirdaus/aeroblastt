@@ -1,3 +1,4 @@
+'use client';
 import { FileText, AlertTriangle, MessageCircle } from 'lucide-react';
 import { PageLayout } from '@/components/layout/PageLayout';
 import { GlassCard } from '@/components/ui/GlassCard';

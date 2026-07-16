@@ -1,5 +1,6 @@
+'use client';
 import { useCallback, useEffect, useRef, useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useRouter } from 'next/navigation';
 import {
   BellRing,
   CheckCircle,
@@ -1185,21 +1186,21 @@ function RconSection() {
 export default function AdminDashboardPage() {
   const { isAdmin, loading, logout } = useAuth();
   const showToast = useToast();
-  const navigate = useNavigate();
+  const router = useRouter();
   const loggingOut = useRef(false);
 
   useEffect(() => {
     if (!loading && !isAdmin) {
-      navigate('/admin/login', { replace: true });
+      router.replace('/admin/login');
     }
-  }, [isAdmin, loading, navigate]);
+  }, [isAdmin, loading, router]);
 
   async function handleLogout() {
     if (loggingOut.current) return;
     loggingOut.current = true;
     try {
       await logout();
-      navigate('/admin/login', { replace: true });
+      router.replace('/admin/login');
     } catch {
       showToast('Gagal logout, coba lagi.', 'error');
     } finally {

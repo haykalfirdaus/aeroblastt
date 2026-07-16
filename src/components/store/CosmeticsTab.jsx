@@ -1,3 +1,4 @@
+'use client';
 import { useState } from 'react';
 import { Lock } from 'lucide-react';
 import { Modal } from '@/components/ui/Modal';

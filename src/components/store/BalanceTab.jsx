@@ -1,3 +1,4 @@
+'use client';
 import { useState } from 'react';
 import { Coins, Lock } from 'lucide-react';
 import { GlassCard } from '@/components/ui/GlassCard';

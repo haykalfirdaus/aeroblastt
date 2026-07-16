@@ -1,3 +1,4 @@
+'use client';
 import { useEffect, useRef, useState } from 'react';
 import { RefreshCw, Trophy, Vote, Gift, Users } from 'lucide-react';
 import { PageLayout } from '@/components/layout/PageLayout';

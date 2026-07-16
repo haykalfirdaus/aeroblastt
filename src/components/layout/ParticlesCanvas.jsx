@@ -1,3 +1,4 @@
+'use client';
 import { useEffect, useRef } from 'react';
 
 export function ParticlesCanvas({ className = 'fixed inset-0 z-0' }) {

@@ -1,4 +1,5 @@
-import { Link } from 'react-router-dom';
+'use client';
+import Link from 'next/link';
 
 const DOT_COLOR = { blue: 'bg-neon-400', green: 'bg-success-bright', yellow: 'bg-warning', red: 'bg-danger-bright', purple: 'bg-purple' };
 

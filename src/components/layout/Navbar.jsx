@@ -1,5 +1,7 @@
+'use client';
 import { useEffect, useRef, useState } from 'react';
-import { Link, NavLink, useLocation } from 'react-router-dom';
+import Link from 'next/link';
+import { usePathname } from 'next/navigation';
 import { Menu, X, Home, ShoppingBag, Trophy, HelpCircle, MessageCircle } from 'lucide-react';
 import { cn } from '@/lib/cn';
 import { scrollToId } from '@/lib/motion';
@@ -15,7 +17,7 @@ const NAV_LINKS = [
 export function Navbar() {
   const [scrolled, setScrolled] = useState(false);
   const [open, setOpen] = useState(false);
-  const location = useLocation();
+  const pathname = usePathname();
   const menuRef = useRef(null);
 
   useEffect(() => {
@@ -24,7 +26,7 @@ export function Navbar() {
     return () => window.removeEventListener('scroll', onScroll);
   }, []);
 
-  useEffect(() => { setOpen(false); }, [location]);
+  useEffect(() => { setOpen(false); }, [pathname]);
 
   useEffect(() => {
     function handleClickOutside(e) {
@@ -35,7 +37,7 @@ export function Navbar() {
   }, [open]);
 
   function handleNavClick(e, link) {
-    if (link.sectionId && location.pathname === '/') {
+    if (link.sectionId && pathname === '/') {
       e.preventDefault();
       setOpen(false);
       scrollToId(link.sectionId);
@@ -54,7 +56,7 @@ export function Navbar() {
     >
       <nav className="mx-auto flex w-full max-w-7xl items-center justify-between px-4 py-3 sm:px-6 lg:px-8">
         {/* Logo */}
-        <Link to="/" className="flex items-center gap-2 group shrink-0" aria-label="AeroBlast Network Home">
+        <Link href="/" className="flex items-center gap-2 group shrink-0" aria-label="AeroBlast Network Home">
           <div className="logo-orbit-wrapper">
             <span className="orbit-star" aria-hidden="true" />
             <span className="orbit-star" aria-hidden="true" />
@@ -73,20 +75,20 @@ export function Navbar() {
 
         {/* Desktop nav — pill-shaped links */}
         <div className="hidden items-center gap-1.5 md:flex">
-          {NAV_LINKS.map((link) => (
-            <NavLink
-              key={link.to}
-              to={link.to}
-              end={link.exact}
-              onClick={(e) => handleNavClick(e, link)}
-              className={({ isActive }) =>
-                cn('nav-pill', isActive && 'nav-pill-active')
-              }
-            >
-              <link.icon size={11} className="shrink-0" />
-              {link.label}
-            </NavLink>
-          ))}
+          {NAV_LINKS.map((link) => {
+            const isActive = link.exact ? pathname === link.to : pathname.startsWith(link.to);
+            return (
+              <Link
+                key={link.to}
+                href={link.to}
+                onClick={(e) => handleNavClick(e, link)}
+                className={cn('nav-pill', isActive && 'nav-pill-active')}
+              >
+                <link.icon size={11} className="shrink-0" />
+                {link.label}
+              </Link>
+            );
+          })}
         </div>
 
         {/* Discord CTA — pill */}
@@ -121,25 +123,25 @@ export function Navbar() {
         aria-hidden={!open}
       >
         <div className="flex flex-col gap-1 px-4 pb-4 pt-2">
-          {NAV_LINKS.map((link) => (
-            <NavLink
-              key={link.to}
-              to={link.to}
-              end={link.exact}
-              onClick={(e) => handleNavClick(e, link)}
-              className={({ isActive }) =>
-                cn(
+          {NAV_LINKS.map((link) => {
+            const isActive = link.exact ? pathname === link.to : pathname.startsWith(link.to);
+            return (
+              <Link
+                key={link.to}
+                href={link.to}
+                onClick={(e) => handleNavClick(e, link)}
+                className={cn(
                   'flex items-center gap-2.5 rounded-full px-4 py-2.5 text-xs font-semibold transition-all',
                   isActive
                     ? 'border border-neon-500/30 bg-neon-500/10 text-neon-300'
                     : 'border border-transparent text-text-muted hover:border-white/12 hover:bg-white/5 hover:text-text-bright'
-                )
-              }
-            >
-              <link.icon size={13} />
-              {link.label}
-            </NavLink>
-          ))}
+                )}
+              >
+                <link.icon size={13} />
+                {link.label}
+              </Link>
+            );
+          })}
           <a
             href="https://discord.gg/rgRRnPS9cp"
             target="_blank"

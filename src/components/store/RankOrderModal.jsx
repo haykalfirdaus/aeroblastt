@@ -1,3 +1,4 @@
+'use client';
 import { useState } from 'react';
 import { Modal } from '@/components/ui/Modal';
 import { CheckboxField, FieldLabel, SelectField, TextField } from '@/components/ui/FormFields';

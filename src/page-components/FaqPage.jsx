@@ -1,3 +1,4 @@
+'use client';
 import { useMemo, useState } from 'react';
 import { Search, HelpCircle, MessageCircle, Headphones, Wifi, Gamepad2, Coins, Medal } from 'lucide-react';
 

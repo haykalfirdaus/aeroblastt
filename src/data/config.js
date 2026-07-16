@@ -10,7 +10,7 @@
 export const SITE = {
   name: 'AeroBlast Network',
   domain: 'aeroblast.my.id',
-  baseUrl: import.meta.env.VITE_SITE_URL || 'https://store.aeroblast.my.id',
+  baseUrl: process.env.NEXT_PUBLIC_SITE_URL || 'https://store.aeroblast.my.id',
 
   server: {
     ip: 'aeroblast.my.id',

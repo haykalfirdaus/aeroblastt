@@ -1,3 +1,4 @@
+'use client';
 import { useEffect } from 'react';
 import { ParticlesCanvas } from './ParticlesCanvas';
 import { Navbar } from './Navbar';

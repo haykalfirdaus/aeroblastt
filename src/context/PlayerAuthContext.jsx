@@ -1,3 +1,4 @@
+'use client';
 import { createContext, use, useCallback, useEffect, useState } from 'react';
 
 const PlayerAuthContext = createContext(null);

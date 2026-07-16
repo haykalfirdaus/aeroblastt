@@ -1,5 +1,6 @@
+'use client';
 import { useEffect, useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useRouter } from 'next/navigation';
 import { ArrowLeft, Eye, EyeOff, KeyRound, Shield } from 'lucide-react';
 import { useAuth } from '@/context/AuthContext';
 import { useToast } from '@/context/ToastContext';
@@ -29,7 +30,7 @@ function GlowLine() {
 function LoginView({ onForgot }) {
   const { login } = useAuth();
   const showToast = useToast();
-  const navigate = useNavigate();
+  const router = useRouter();
 
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
@@ -44,7 +45,7 @@ function LoginView({ onForgot }) {
     try {
       await login(email.trim(), password);
       showToast('Login berhasil. Selamat datang!', 'success');
-      navigate('/admin', { replace: true });
+      router.replace('/admin');
     } catch (err) {
       showToast(err.message || 'Login gagal.', 'error');
       setShake(true);
@@ -137,7 +138,7 @@ function ForgotView({ onBack }) {
     setSubmitting(true);
     try {
       if (!supabase) throw new Error('Supabase belum dikonfigurasi. Tambahkan VITE_SUPABASE_URL dan VITE_SUPABASE_ANON_KEY ke env vars.');
-      const siteUrl = import.meta.env.VITE_SITE_URL || window.location.origin;
+      const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || window.location.origin;
       const { error } = await supabase.auth.resetPasswordForEmail(email.trim(), {
         redirectTo: `${siteUrl}/admin/login#reset`,
       });
@@ -286,7 +287,7 @@ function ResetPasswordView({ onDone }) {
 // ---------------------------------------------------------------------------
 export default function AdminLoginPage() {
   const { isAdmin, loading } = useAuth();
-  const navigate = useNavigate();
+  const router = useRouter();
 
   // 'login' | 'forgot' | 'reset'
   const [view, setView] = useState('login');
@@ -301,8 +302,8 @@ export default function AdminLoginPage() {
   }, []);
 
   useEffect(() => {
-    if (!loading && isAdmin) navigate('/admin', { replace: true });
-  }, [isAdmin, loading, navigate]);
+    if (!loading && isAdmin) router.replace('/admin');
+  }, [isAdmin, loading, router]);
 
   if (loading) {
     return (

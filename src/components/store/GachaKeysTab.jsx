@@ -1,3 +1,4 @@
+'use client';
 import { useState } from 'react';
 import { Lock, Minus, Plus } from 'lucide-react';
 import { GlassCard } from '@/components/ui/GlassCard';

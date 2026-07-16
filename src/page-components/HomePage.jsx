@@ -1,3 +1,4 @@
+'use client';
 import { PageLayout } from '@/components/layout/PageLayout';
 import { HeroSection } from '@/components/home/HeroSection';
 import { FotbarSlider } from '@/components/home/FotbarSlider';

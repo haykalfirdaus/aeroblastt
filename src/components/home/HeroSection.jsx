@@ -1,3 +1,4 @@
+'use client';
 import { useEffect, useRef } from 'react';
 import { Copy, Check, ChevronRight, MessageCircle, Dot } from 'lucide-react';
 
@@ -6,7 +7,7 @@ const TICKER_FEATURES = [
   'Voting Rewards', 'Jobs System', 'Skill RPG', 'PlayerVault',
   'PvP Arena', 'Auction House', 'Daily Quest', 'Warp Publik',
 ];
-import { Link } from 'react-router-dom';
+import Link from 'next/link';
 import { gsap } from 'gsap';
 import { Button } from '@/components/ui/Button';
 import { useClipboard } from '@/hooks/useClipboard';

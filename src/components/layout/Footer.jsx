@@ -1,9 +1,10 @@
-import { Link } from 'react-router-dom';
+'use client';
+import Link from 'next/link';
+import { usePathname } from 'next/navigation';
 import { Copy, Check, Home, ShoppingBag, Trophy, HelpCircle, FileText, MessageCircle, Phone, Server } from 'lucide-react';
 import { SITE } from '@/data/config';
 import { useClipboard } from '@/hooks/useClipboard';
 import { scrollToId } from '@/lib/motion';
-import { useLocation } from 'react-router-dom';
 import logo from '@/assets/images/logo.png';
 
 const LINKS = [
@@ -16,10 +17,10 @@ const LINKS = [
 
 export function Footer() {
   const [copiedKey, copy] = useClipboard();
-  const location = useLocation();
+  const pathname = usePathname();
 
   function handleLinkClick(e, link) {
-    if (link.sectionId && location.pathname === '/') {
+    if (link.sectionId && pathname === '/') {
       e.preventDefault();
       scrollToId(link.sectionId);
     }
@@ -31,7 +32,7 @@ export function Footer() {
         <div className="grid gap-7 md:grid-cols-3">
           {/* Brand */}
           <div className="flex flex-col gap-3">
-            <Link to="/" className="flex items-center gap-2 w-fit">
+            <Link href="/" className="flex items-center gap-2 w-fit">
               <img src={logo} alt="AeroBlast" className="h-7 w-7 rounded-lg object-cover shadow-[0_0_6px_rgba(59,130,246,0.14)]" />
               <span className="font-display text-sm font-bold text-text-bright">
                 Aero<span className="text-neon-400">Blast</span>
@@ -67,7 +68,7 @@ export function Footer() {
               {LINKS.map((l) => (
                 <li key={l.to}>
                   <Link
-                    to={l.to}
+                    href={l.to}
                     onClick={(e) => handleLinkClick(e, l)}
                     className="inline-flex items-center gap-1.5 text-xs text-text-dim transition-all hover:text-neon-300"
                   >

@@ -1,4 +1,5 @@
-import { Link } from 'react-router-dom';
+'use client';
+import Link from 'next/link';
 import { Rocket, Home, ShoppingBag } from 'lucide-react';
 import { PageLayout } from '@/components/layout/PageLayout';
 import { Button } from '@/components/ui/Button';
@@ -20,8 +21,8 @@ export default function NotFoundPage() {
           </p>
         </div>
         <div className="flex flex-wrap justify-center gap-2.5">
-          <Link to="/"><Button size="sm"><Home size={13} /> Kembali ke Beranda</Button></Link>
-          <Link to="/store"><Button variant="secondary" size="sm"><ShoppingBag size={13} /> Buka Store</Button></Link>
+          <Link href="/"><Button size="sm"><Home size={13} /> Kembali ke Beranda</Button></Link>
+          <Link href="/store"><Button variant="secondary" size="sm"><ShoppingBag size={13} /> Buka Store</Button></Link>
         </div>
       </div>
     </PageLayout>
