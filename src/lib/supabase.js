@@ -1,7 +1,10 @@
 import { createClient } from '@supabase/supabase-js';
 
-export const supabase = createClient(
-  import.meta.env.VITE_SUPABASE_URL,
-  import.meta.env.VITE_SUPABASE_ANON_KEY,
-  { auth: { persistSession: false } }
-);
+const url = import.meta.env.VITE_SUPABASE_URL;
+const key = import.meta.env.VITE_SUPABASE_ANON_KEY;
+
+// Export null if env vars missing — AuthContext handles null gracefully.
+// Store and public pages still work; only admin login requires these vars.
+export const supabase = (url && key)
+  ? createClient(url, key, { auth: { persistSession: false } })
+  : null;

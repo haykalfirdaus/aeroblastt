@@ -58,22 +58,16 @@ async function sendLunasEmbed(invoice, rconResult, betaOrderExpired) {
   if (rconResult !== null) {
     fields.push(
       rconOk
-        ? { name: 'RCON', value: rconResult.response || 'OK', inline: false }
-        : { name: '⚠️ RCON Gagal', value: rconResult.error || 'Unknown — perlu eksekusi manual', inline: false }
+        ? { name: 'Item', value: rconResult.response || 'Diberikan', inline: false }
+        : { name: '⚠️ Item Belum Diberikan', value: rconResult.error || 'Silakan cek dan berikan manual', inline: false }
     );
   }
 
-  fields.push({
-    name: 'Beta Order',
-    value: betaOrderExpired ? 'Dihapus otomatis (invoice manual digunakan)' : 'Tidak ada beta order aktif',
-    inline: false,
-  });
-
   const embed = {
-    title: rconOk ? '✅ Manual — Lunas & RCON Berhasil' : '✅ Manual — Lunas ⚠️ RCON Gagal',
-    color: rconOk ? 0x22c55e : 0xef4444,
+    title: rconOk ? '✅ Pembayaran Dikonfirmasi' : '✅ Pembayaran Dikonfirmasi — ⚠️ Perlu Cek RCON',
+    color: rconOk ? 0x22c55e : 0xf59e0b,
     fields,
-    footer: { text: 'AeroBlast Network • Dikonfirmasi admin' },
+    footer: { text: 'AeroBlast Network' },
     timestamp: new Date().toISOString(),
   };
   await fetch(DISCORD_WEBHOOK_URL, {

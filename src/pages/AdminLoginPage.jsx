@@ -136,6 +136,7 @@ function ForgotView({ onBack }) {
     if (!email.trim()) return;
     setSubmitting(true);
     try {
+      if (!supabase) throw new Error('Supabase belum dikonfigurasi. Tambahkan VITE_SUPABASE_URL dan VITE_SUPABASE_ANON_KEY ke env vars.');
       const siteUrl = import.meta.env.VITE_SITE_URL || window.location.origin;
       const { error } = await supabase.auth.resetPasswordForEmail(email.trim(), {
         redirectTo: `${siteUrl}/admin/login#reset`,
@@ -223,6 +224,7 @@ function ResetPasswordView({ onDone }) {
     }
     setSubmitting(true);
     try {
+      if (!supabase) throw new Error('Supabase belum dikonfigurasi. Tambahkan VITE_SUPABASE_URL dan VITE_SUPABASE_ANON_KEY ke env vars.');
       const { error } = await supabase.auth.updateUser({ password });
       if (error) throw new Error(error.message || 'Gagal mengubah password');
       showToast('Password berhasil diubah! Silakan login.', 'success');

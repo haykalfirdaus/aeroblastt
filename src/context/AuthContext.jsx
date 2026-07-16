@@ -26,6 +26,7 @@ export function AuthProvider({ children }) {
 
   // Login: Supabase client auth → tukar token ke HttpOnly cookie via server
   const login = useCallback(async (email, password) => {
+    if (!supabase) throw new Error('Supabase belum dikonfigurasi. Tambahkan VITE_SUPABASE_URL dan VITE_SUPABASE_ANON_KEY ke env vars.');
     const { data, error } = await supabase.auth.signInWithPassword({ email, password });
     if (error) throw new Error(error.message || 'Login gagal. Periksa kembali kredensial Anda.');
 
@@ -46,7 +47,7 @@ export function AuthProvider({ children }) {
   const logout = useCallback(async () => {
     try {
       await fetch('/api/admin/session', { method: 'DELETE', credentials: 'include' });
-      await supabase.auth.signOut();
+      if (supabase) await supabase.auth.signOut();
     } finally {
       setIsAdmin(false);
       setLoading(false);

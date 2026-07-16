@@ -6,7 +6,7 @@ import { formatRupiah } from '@/utils/currency';
 import { SITE } from '@/data/config';
 import { cn } from '@/lib/cn';
 
-const POLL_INTERVAL = 5000;  // cek status tiap 5 detik
+const POLL_INTERVAL = 5000;
 const QRIS_IMG = SITE.payment.QRIS?.imgPath || '/payment/qris.png';
 
 function CountdownTimer({ expiresAt }) {
@@ -28,7 +28,7 @@ function CountdownTimer({ expiresAt }) {
   const isUrgent = remaining !== 'Expired' && parseInt(remaining) < 5;
 
   return (
-    <span className={cn('font-mono font-bold', isUrgent ? 'text-red-400' : 'text-cyan-400')}>
+    <span className={cn('font-mono font-bold tabular-nums', isUrgent ? 'text-red-400' : 'text-cyan-400')}>
       {remaining}
     </span>
   );
@@ -71,7 +71,6 @@ export function BetaPaymentModal({ open, onClose, orderPayload, productLabel }) 
   function startPolling(orderId, expiresAt) {
     stopPolling();
     pollRef.current = setInterval(async () => {
-      // Stop polling jika sudah expired
       if (new Date(expiresAt) < new Date()) {
         stopPolling();
         setStatus('expired');
@@ -96,66 +95,76 @@ export function BetaPaymentModal({ open, onClose, orderPayload, productLabel }) 
   }
 
   return (
-    <Modal open={open} onClose={handleClose} title="Bayar via QRIS" size="sm">
+    <Modal open={open} onClose={handleClose} title="Pembayaran QRIS" size="sm">
       <div className="mt-4 flex flex-col gap-4">
 
-        {/* IDLE — belum generate order */}
+        {/* IDLE */}
         {status === 'idle' && (
-          <div className="flex flex-col gap-3">
-            <p className="text-sm text-text-muted">
-              Sistem akan generate nominal unik untuk order <span className="font-semibold text-text-bright">{productLabel}</span>.
-              Scan QRIS dan bayar <span className="font-semibold text-cyan-400">tepat sesuai nominal</span> yang diberikan — lebih/kurang tidak terdeteksi otomatis.
-            </p>
-            <Button fullWidth onClick={handleCreate}>Tampilkan QRIS & Nominal</Button>
+          <div className="flex flex-col gap-4">
+            <div className="rounded-xl border border-white/8 bg-white/[0.03] px-4 py-3">
+              <p className="text-sm text-text-muted leading-relaxed">
+                Bayar <span className="font-semibold text-text-bright">{productLabel}</span> dengan nominal unik yang akan ditampilkan.
+                Scan QRIS dan transfer <span className="font-semibold text-cyan-400">tepat sesuai nominal</span> — item masuk otomatis setelah pembayaran terdeteksi.
+              </p>
+            </div>
+            <Button fullWidth onClick={handleCreate} variant="primary">
+              Tampilkan Kode QRIS
+            </Button>
           </div>
         )}
 
         {/* LOADING */}
         {status === 'loading' && (
-          <div className="flex flex-col items-center gap-3 py-6">
+          <div className="flex flex-col items-center gap-3 py-8">
             <div className="h-8 w-8 animate-spin rounded-full border-2 border-neon-500 border-t-transparent" />
-            <p className="text-sm text-text-muted">Membuat order...</p>
+            <p className="text-sm text-text-muted">Menyiapkan pembayaran...</p>
           </div>
         )}
 
-        {/* WAITING — tampilkan QRIS + nominal */}
+        {/* WAITING */}
         {status === 'waiting' && order && (
-          <div className="flex flex-col items-center gap-4">
-            <div className="flex flex-col items-center gap-1">
-              <p className="text-xs text-text-muted">Bayar TEPAT sebesar</p>
-              <p className="text-2xl font-bold text-cyan-400">{formatRupiah(order.totalAmount)}</p>
-              <p className="text-xs text-text-dim">
-                Berlaku: <CountdownTimer expiresAt={order.expiresAt} />
+          <div className="flex flex-col items-center gap-5">
+            {/* Nominal */}
+            <div className="w-full rounded-xl border border-cyan-400/20 bg-cyan-400/5 px-4 py-3 text-center">
+              <p className="text-xs text-text-dim mb-1">Transfer TEPAT sebesar</p>
+              <p className="text-3xl font-bold tracking-tight text-cyan-400">{formatRupiah(order.totalAmount)}</p>
+              <p className="mt-1.5 text-xs text-text-dim">
+                Sisa waktu: <CountdownTimer expiresAt={order.expiresAt} />
               </p>
             </div>
 
-            <div className="rounded-2xl border border-white/10 bg-white p-3">
+            {/* QRIS */}
+            <div className="rounded-2xl border border-white/10 bg-white p-3 shadow-lg">
               <img src={QRIS_IMG} alt="QRIS AeroBlast" className="h-52 w-52 object-contain" />
             </div>
 
-            <p className="text-center text-xs text-text-dim">
-              Scan dengan GoPay, OVO, ShopeePay, DANA, atau app banking apapun.<br />
-              Rank akan masuk otomatis setelah pembayaran terdeteksi.
+            <p className="text-center text-xs text-text-dim leading-relaxed">
+              Bisa scan pakai GoPay, OVO, ShopeePay, DANA, atau m-banking apapun.
             </p>
 
-            <div className="flex w-full items-center gap-2 rounded-lg border border-white/10 bg-white/5 px-3 py-2">
-              <div className="h-2 w-2 animate-pulse rounded-full bg-cyan-400" />
-              <p className="text-xs text-text-muted">Menunggu pembayaran...</p>
+            {/* Polling indicator */}
+            <div className="flex w-full items-center justify-center gap-2 rounded-lg border border-white/8 bg-white/[0.03] py-2.5">
+              <span className="relative flex h-2 w-2">
+                <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-cyan-400 opacity-60" />
+                <span className="relative inline-flex h-2 w-2 rounded-full bg-cyan-400" />
+              </span>
+              <p className="text-xs text-text-muted">Menunggu konfirmasi pembayaran...</p>
             </div>
           </div>
         )}
 
-        {/* PAID — sukses */}
+        {/* PAID */}
         {status === 'paid' && (
-          <div className="flex flex-col items-center gap-4 py-4">
-            <div className="flex h-16 w-16 items-center justify-center rounded-full bg-green-500/20">
-              <span className="text-3xl">✅</span>
+          <div className="flex flex-col items-center gap-5 py-4">
+            <div className="relative flex h-20 w-20 items-center justify-center rounded-full border border-green-500/30 bg-green-500/15">
+              <span className="text-4xl">✅</span>
+              <span className="absolute inset-0 rounded-full animate-ping bg-green-500/10" style={{ animationDuration: '1.5s', animationIterationCount: 2 }} />
             </div>
             <div className="text-center">
-              <p className="text-lg font-bold text-green-400">Pembayaran Berhasil!</p>
-              <p className="mt-1 text-sm text-text-muted">
-                {productLabel} sedang diproses ke akun MC kamu.<br />
-                Masuk ke server dalam beberapa detik.
+              <p className="text-xl font-bold text-green-400">Pembayaran Berhasil!</p>
+              <p className="mt-2 text-sm text-text-muted leading-relaxed">
+                <span className="font-semibold text-text-bright">{productLabel}</span> sedang diproses ke akun kamu.<br />
+                Masuk ke server — item akan sudah aktif.
               </p>
             </div>
             <Button fullWidth variant="ghost" onClick={handleClose}>Tutup</Button>
@@ -165,24 +174,27 @@ export function BetaPaymentModal({ open, onClose, orderPayload, productLabel }) 
         {/* EXPIRED */}
         {status === 'expired' && (
           <div className="flex flex-col items-center gap-4 py-4">
-            <div className="flex h-16 w-16 items-center justify-center rounded-full bg-red-500/20">
+            <div className="flex h-16 w-16 items-center justify-center rounded-full border border-red-500/20 bg-red-500/10">
               <span className="text-3xl">⏰</span>
             </div>
             <div className="text-center">
-              <p className="text-lg font-bold text-red-400">Order Expired</p>
+              <p className="text-lg font-bold text-red-400">Waktu Habis</p>
               <p className="mt-1 text-sm text-text-muted">
-                Waktu pembayaran habis. Order otomatis dibatalkan.
+                Sesi pembayaran sudah berakhir. Buat order baru untuk melanjutkan.
               </p>
             </div>
-            <Button fullWidth onClick={handleCreate}>Coba Lagi</Button>
+            <Button fullWidth onClick={handleCreate}>Buat Order Baru</Button>
           </div>
         )}
 
         {/* FAILED */}
         {status === 'failed' && (
           <div className="flex flex-col items-center gap-4 py-4">
+            <div className="flex h-16 w-16 items-center justify-center rounded-full border border-red-500/20 bg-red-500/10">
+              <span className="text-3xl">⚠️</span>
+            </div>
             <div className="text-center">
-              <p className="text-lg font-bold text-red-400">Gagal Membuat Order</p>
+              <p className="text-lg font-bold text-red-400">Gagal Memproses</p>
               <p className="mt-1 text-sm text-text-dim">{error}</p>
             </div>
             <Button fullWidth onClick={handleCreate}>Coba Lagi</Button>

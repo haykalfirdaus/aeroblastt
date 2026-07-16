@@ -151,20 +151,14 @@ async function handleCreate(req, res) {
   if (details?.qty) productFields.push({ name: 'Jumlah', value: `${details.qty}x`, inline: true });
   if (details?.balance) productFields.push({ name: 'Balance', value: Number(details.balance).toLocaleString('id-ID'), inline: true });
 
-  const invoiceTag = invoiceId
-    ? `\`${invoiceId.slice(0, 8).toUpperCase()}\` (fallback manual tersedia)`
-    : '— (tidak tersedia)';
-
   await sendDiscord({
-    title: `📋 Order Baru — ${TYPE_LABEL[type] || type}`,
+    title: `📋 Order Masuk — ${TYPE_LABEL[type] || type}`,
     color: 0x3b82f6,
     fields: [
       { name: 'Nickname', value: `\`${nick.trim()}\``, inline: true },
       { name: 'Platform', value: platform, inline: true },
       ...productFields,
-      { name: '💰 Bayar TEPAT', value: `**${formatRp(order.total_amount)}**`, inline: false },
-      { name: 'Invoice Fallback', value: invoiceTag, inline: false },
-      { name: 'ℹ️ Alur', value: 'Jika bayar tepat → otomatis. Jika tidak exact → admin konfirmasi invoice manual, beta order dihapus.', inline: false },
+      { name: '💰 Nominal Pembayaran', value: `**${formatRp(order.total_amount)}**`, inline: false },
     ],
     footer: { text: 'AeroBlast Network • Berlaku 30 menit' },
     timestamp: new Date().toISOString(),
@@ -227,12 +221,11 @@ async function handleNotify(req, res) {
 
   if (!order) {
     await sendDiscord({
-      title: '⚠️ Pembayaran Tidak Dikenal',
+      title: '⚠️ Pembayaran Perlu Dicek',
       color: 0xf59e0b,
       fields: [
         { name: 'Nominal Masuk', value: formatRp(amount), inline: true },
-        { name: 'Status', value: 'Tidak ada order pending yang cocok', inline: false },
-        { name: 'Tindakan', value: 'Kemungkinan nominal tidak exact — proses **manual** diperlukan', inline: false },
+        { name: 'Status', value: 'Order tidak ditemukan untuk nominal ini', inline: false },
       ],
       footer: { text: 'AeroBlast Network' },
       timestamp: new Date().toISOString(),
@@ -253,10 +246,6 @@ async function handleNotify(req, res) {
   const rconResult = await executeRcon(order);
   const rconOk = rconResult.ok;
 
-  const invoiceTag = order.invoice_id
-    ? `\`${order.invoice_id.slice(0, 8).toUpperCase()}\` (dihapus otomatis)`
-    : '—';
-
   const productFields = [];
   if (order.details?.target) productFields.push({ name: 'Produk', value: order.details.target.toUpperCase(), inline: true });
   if (order.details?.duration) productFields.push({ name: 'Durasi', value: order.details.duration, inline: true });
@@ -265,20 +254,19 @@ async function handleNotify(req, res) {
   if (order.details?.balance) productFields.push({ name: 'Balance', value: Number(order.details.balance).toLocaleString('id-ID'), inline: true });
 
   await sendDiscord({
-    title: rconOk ? '✅ Otomatis — Pembayaran & RCON Berhasil' : '✅ Dibayar Otomatis — ⚠️ RCON Gagal',
-    color: rconOk ? 0x22c55e : 0xef4444,
+    title: rconOk ? '✅ Pembayaran Berhasil' : '✅ Pembayaran Berhasil — ⚠️ Perlu Cek RCON',
+    color: rconOk ? 0x22c55e : 0xf59e0b,
     fields: [
       { name: 'Nickname', value: `\`${order.nick}\``, inline: true },
       { name: 'Platform', value: order.platform, inline: true },
       { name: 'Tipe', value: TYPE_LABEL[order.type] || order.type, inline: true },
-      { name: 'Nominal Diterima', value: formatRp(amount), inline: true },
+      { name: 'Total Dibayar', value: formatRp(amount), inline: true },
       ...productFields,
-      { name: 'Invoice', value: invoiceTag, inline: false },
       rconOk
-        ? { name: 'RCON', value: rconResult.response || 'OK', inline: false }
-        : { name: '⚠️ RCON Error', value: rconResult.error || 'Unknown — proses manual diperlukan', inline: false },
+        ? { name: 'Item', value: rconResult.response || 'Diberikan', inline: false }
+        : { name: '⚠️ Item Belum Diberikan', value: rconResult.error || 'Silakan cek dan berikan manual', inline: false },
     ],
-    footer: { text: 'AeroBlast Network • Diproses otomatis via MacroDroid' },
+    footer: { text: 'AeroBlast Network' },
     timestamp: new Date().toISOString(),
   });
 
