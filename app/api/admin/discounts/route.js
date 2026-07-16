@@ -2,6 +2,7 @@ import crypto from 'crypto';
 import { NextResponse } from 'next/server';
 import { isAuthenticated, isValidOrigin } from '@/api/_auth';
 import { supabase } from '@/api/_supabase';
+import { rateLimit } from '@/api/_ratelimit';
 
 function toClient(row) {
   return { id: row.id, code: row.code, percent: row.percent, categories: row.categories, expiresAt: row.expires_at, createdAt: row.created_at };
@@ -12,6 +13,9 @@ function makeReq(request) {
 }
 
 export async function GET(request) {
+  const ip = request.headers.get('x-forwarded-for')?.split(',')[0]?.trim() || 'unknown';
+  const rl = rateLimit(ip, { max: 30, windowMs: 60 * 1000 });
+  if (!rl.ok) return NextResponse.json({ ok: false, error: 'Terlalu banyak request.' }, { status: 429, headers: { 'Retry-After': String(rl.retryAfter) } });
   const adminView = await isAuthenticated(makeReq(request));
   let query = supabase.from('discounts').select('*').order('created_at', { ascending: false });
   if (!adminView) query = query.gt('expires_at', new Date().toISOString());

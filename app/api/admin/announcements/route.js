@@ -2,6 +2,7 @@ import crypto from 'crypto';
 import { NextResponse } from 'next/server';
 import { isAuthenticated, isValidOrigin } from '@/api/_auth';
 import { supabase } from '@/api/_supabase';
+import { rateLimit } from '@/api/_ratelimit';
 
 function toClient(row) {
   return { id: row.id, text: row.text, expiresAt: row.expires_at, createdAt: row.created_at };
@@ -11,7 +12,10 @@ function makeReq(request) {
   return { headers: { cookie: request.headers.get('cookie') || '' } };
 }
 
-export async function GET() {
+export async function GET(request) {
+  const ip = request.headers.get('x-forwarded-for')?.split(',')[0]?.trim() || 'unknown';
+  const rl = rateLimit(ip, { max: 30, windowMs: 60 * 1000 });
+  if (!rl.ok) return NextResponse.json({ ok: false, error: 'Terlalu banyak request.' }, { status: 429, headers: { 'Retry-After': String(rl.retryAfter) } });
   const { data, error } = await supabase.from('announcements').select('*').gt('expires_at', new Date().toISOString()).order('created_at', { ascending: false });
   if (error) return NextResponse.json({ ok: false, error: error.message }, { status: 500 });
   return NextResponse.json(data.map(toClient));

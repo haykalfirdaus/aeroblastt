@@ -1,8 +1,10 @@
+import crypto from 'crypto';
 import { NextResponse } from 'next/server';
 import { supabase } from '@/api/_supabase';
 import { grantRank, giveKey, giveMoney } from '@/api/_rcon';
 import { rateLimit } from '@/api/_ratelimit';
 import { getMinBaseAmount } from '@/api/_prices';
+import { isValidOrigin } from '@/api/_auth';
 
 const SUFFIX_MIN = 1;
 const SUFFIX_MAX = 999;
@@ -48,6 +50,7 @@ async function executeRcon(order) {
 }
 
 async function handleCreate(body, request) {
+  if (!isValidOrigin(request)) return NextResponse.json({ ok: false, error: 'Forbidden' }, { status: 403 });
   // Rate limit: 5 order per IP per 10 menit
   const rl = rateLimit(getIp(request), { max: 5, windowMs: 10 * 60 * 1000 });
   if (!rl.ok) return NextResponse.json({ ok: false, error: `Terlalu banyak request. Coba lagi dalam ${rl.retryAfter} detik.` }, { status: 429, headers: { 'Retry-After': String(rl.retryAfter) } });
@@ -94,15 +97,21 @@ async function handleCreate(body, request) {
 }
 
 async function handleNotify(request) {
-  const { searchParams } = new URL(request.url);
-  let text = searchParams.get('text');
-  let secret = searchParams.get('secret');
+  // Rate limit: 20 req/menit — sebelum baca body
+  const ip = getIp(request);
+  const rl = rateLimit(ip, { max: 20, windowMs: 60 * 1000 });
+  if (!rl.ok) return NextResponse.json({ ok: false, error: 'Terlalu banyak request.' }, { status: 429, headers: { 'Retry-After': String(rl.retryAfter) } });
 
-  if (!text || !secret) {
-    try { const b = await request.json(); text = text || b.text; secret = secret || b.secret; } catch { }
-  }
+  // Secret HANYA dari body (bukan query string — query masuk ke server log)
+  let text, secret;
+  try { const b = await request.json(); text = b.text; secret = b.secret; } catch { }
 
-  if (!NOTIFY_SECRET || secret !== NOTIFY_SECRET) return NextResponse.json({ ok: false, error: 'Unauthorized' }, { status: 401 });
+  if (!NOTIFY_SECRET) return NextResponse.json({ ok: false, error: 'NOTIFY_SECRET tidak dikonfigurasi' }, { status: 500 });
+  // Timing-safe comparison — cegah timing attack
+  const secretBuf = Buffer.from(String(secret ?? ''));
+  const expectedBuf = Buffer.from(NOTIFY_SECRET);
+  const valid = secretBuf.length === expectedBuf.length && crypto.timingSafeEqual(secretBuf, expectedBuf);
+  if (!valid) return NextResponse.json({ ok: false, error: 'Unauthorized' }, { status: 401 });
   if (!text?.trim()) return NextResponse.json({ ok: false, error: 'text diperlukan' }, { status: 400 });
 
   const matches = String(text).replace(/\./g, '').match(/\d+/g);
@@ -163,7 +172,6 @@ export async function POST(request) {
 export async function GET(request) {
   const action = new URL(request.url).searchParams.get('action');
   if (action === 'status') return handleStatus(request);
-  if (action === 'notify') return handleNotify(request);
   return NextResponse.json({ ok: false, error: 'action tidak valid' }, { status: 400 });
 }
 

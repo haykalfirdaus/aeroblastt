@@ -17,6 +17,20 @@ export function onDevtoolsChange(fn) {
 }
 
 export function initDevtoolsProtection() {
+  // ── 0. Hello message — tampil sekali sebelum console dikunci ────────────────
+  console.log(
+    '%c👋 Halo, Hacker!',
+    'color:#22d3ee;font-family:Space Grotesk,sans-serif;font-size:22px;font-weight:800;'
+  );
+  console.log(
+    '%cLagi ngintip ya? Gapapa, tapi gaada yang menarik di sini. 😄\n\nKalau kamu nemu bug atau celah keamanan, kabarin kita ya — bukan dieksploitasi.',
+    'color:#94a3b8;font-family:Inter,sans-serif;font-size:13px;line-height:1.7;'
+  );
+  console.log(
+    '%c⚡ AeroBlast Network — store.aeroblast.my.id',
+    'color:#3b82f6;font-family:JetBrains Mono,monospace;font-size:11px;'
+  );
+
   // ── 1. Override console completely ──────────────────────────────────────────
   const noop = () => {};
   ['log','warn','error','info','debug','dir','table','trace','group','groupCollapsed','groupEnd','time','timeEnd','assert','clear','count','profile','profileEnd'].forEach((m) => {
