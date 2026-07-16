@@ -1,34 +1,26 @@
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { ArrowLeft, Eye, EyeOff, KeyRound, Shield } from 'lucide-react';
 import { useAuth } from '@/context/AuthContext';
 import { useToast } from '@/context/ToastContext';
 import { Button } from '@/components/ui/Button';
+import { supabase } from '@/lib/supabase';
 import { cn } from '@/lib/cn';
 
 const fieldBase =
   'w-full rounded-xl border border-white/12 bg-white/[0.04] px-4 py-3 text-sm text-text-bright placeholder:text-text-faint outline-none transition-colors focus:border-neon-400/60 focus:bg-white/[0.06]';
 
 // ---------------------------------------------------------------------------
-// Countdown hook — returns seconds remaining from a start timestamp
+// Decorative element
 // ---------------------------------------------------------------------------
-function useCountdown(startedAt, durationMs) {
-  const [remaining, setRemaining] = useState(() =>
-    startedAt ? Math.max(0, Math.floor((startedAt + durationMs - Date.now()) / 1000)) : 0
+function GlowLine() {
+  return (
+    <span
+      aria-hidden="true"
+      className="absolute inset-x-0 top-0 h-px opacity-60"
+      style={{ background: 'linear-gradient(90deg, transparent, var(--color-neon-500), transparent)' }}
+    />
   );
-
-  useEffect(() => {
-    if (!startedAt) return;
-    const tick = () => {
-      const left = Math.max(0, Math.floor((startedAt + durationMs - Date.now()) / 1000));
-      setRemaining(left);
-    };
-    tick();
-    const id = setInterval(tick, 1000);
-    return () => clearInterval(id);
-  }, [startedAt, durationMs]);
-
-  return remaining;
 }
 
 // ---------------------------------------------------------------------------
@@ -39,7 +31,7 @@ function LoginView({ onForgot }) {
   const showToast = useToast();
   const navigate = useNavigate();
 
-  const [username, setUsername] = useState('');
+  const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
   const [submitting, setSubmitting] = useState(false);
@@ -47,10 +39,10 @@ function LoginView({ onForgot }) {
 
   async function handleSubmit(e) {
     e.preventDefault();
-    if (!username.trim() || !password) return;
+    if (!email.trim() || !password) return;
     setSubmitting(true);
     try {
-      await login(username.trim(), password);
+      await login(email.trim(), password);
       showToast('Login berhasil. Selamat datang!', 'success');
       navigate('/admin', { replace: true });
     } catch (err) {
@@ -71,15 +63,15 @@ function LoginView({ onForgot }) {
         </h2>
 
         <div className="mb-4">
-          <label className="mb-1.5 block text-xs font-semibold uppercase tracking-wide text-text-muted">Username</label>
+          <label className="mb-1.5 block text-xs font-semibold uppercase tracking-wide text-text-muted">Email</label>
           <input
-            type="text"
-            autoComplete="username"
+            type="email"
+            autoComplete="email"
             autoFocus
             required
-            value={username}
-            onChange={(e) => setUsername(e.target.value)}
-            placeholder="admin"
+            value={email}
+            onChange={(e) => setEmail(e.target.value)}
+            placeholder="admin@aeroblast.id"
             className={fieldBase}
             disabled={submitting}
           />
@@ -110,7 +102,7 @@ function LoginView({ onForgot }) {
           </div>
         </div>
 
-        <Button type="submit" variant="primary" size="md" fullWidth disabled={submitting || !username.trim() || !password}>
+        <Button type="submit" variant="primary" size="md" fullWidth disabled={submitting || !email.trim() || !password}>
           {submitting ? (
             <><span className="h-4 w-4 animate-spin rounded-full border-2 border-white/30 border-t-white" />Memverifikasi…</>
           ) : 'Masuk'}
@@ -131,23 +123,25 @@ function LoginView({ onForgot }) {
 }
 
 // ---------------------------------------------------------------------------
-// View: Forgot (request OTP)
+// View: Forgot password — kirim reset link via Supabase
 // ---------------------------------------------------------------------------
-function ForgotView({ onBack, onSent }) {
+function ForgotView({ onBack }) {
   const showToast = useToast();
+  const [email, setEmail] = useState('');
   const [submitting, setSubmitting] = useState(false);
+  const [sent, setSent] = useState(false);
 
-  async function handleSend() {
+  async function handleSend(e) {
+    e.preventDefault();
+    if (!email.trim()) return;
     setSubmitting(true);
     try {
-      const res = await fetch('/api/admin/otp?action=send', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        credentials: 'include',
+      const siteUrl = import.meta.env.VITE_SITE_URL || window.location.origin;
+      const { error } = await supabase.auth.resetPasswordForEmail(email.trim(), {
+        redirectTo: `${siteUrl}/admin/login#reset`,
       });
-      const data = await res.json();
-      if (!res.ok) throw new Error(data.error || 'Gagal mengirim kode');
-      onSent(data.token);
+      if (error) throw new Error(error.message || 'Gagal mengirim link reset');
+      setSent(true);
     } catch (err) {
       showToast(err.message, 'error');
     } finally {
@@ -171,157 +165,117 @@ function ForgotView({ onBack, onSent }) {
           <KeyRound size={20} className="text-neon-400" />
         </div>
 
-        <h2 className="mb-1 font-display text-lg font-semibold text-text-bright">Reset Akses Admin</h2>
-        <p className="mb-6 text-sm text-text-dim">
-          Klik tombol di bawah — kode 6 digit akan dikirim ke perangkat admin.
-        </p>
-
-        <Button variant="primary" size="md" fullWidth disabled={submitting} onClick={handleSend}>
-          {submitting ? (
-            <><span className="h-4 w-4 animate-spin rounded-full border-2 border-white/30 border-t-white" />Mengirim…</>
-          ) : 'Kirim Kode'}
-        </Button>
+        {sent ? (
+          <>
+            <h2 className="mb-1 font-display text-lg font-semibold text-text-bright">Link Terkirim</h2>
+            <p className="mb-6 text-sm text-text-dim">
+              Cek email <span className="font-semibold text-text-bright">{email}</span> untuk link reset password. Link berlaku 1 jam.
+            </p>
+            <Button variant="ghost" size="md" fullWidth onClick={onBack}>Kembali ke Login</Button>
+          </>
+        ) : (
+          <>
+            <h2 className="mb-1 font-display text-lg font-semibold text-text-bright">Reset Password</h2>
+            <p className="mb-6 text-sm text-text-dim">
+              Masukkan email admin — link reset akan dikirim ke email tersebut.
+            </p>
+            <form onSubmit={handleSend} className="flex flex-col gap-4">
+              <div>
+                <label className="mb-1.5 block text-xs font-semibold uppercase tracking-wide text-text-muted">Email Admin</label>
+                <input
+                  type="email"
+                  autoFocus
+                  required
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
+                  placeholder="admin@aeroblast.id"
+                  className={fieldBase}
+                  disabled={submitting}
+                />
+              </div>
+              <Button type="submit" variant="primary" size="md" fullWidth disabled={submitting || !email.trim()}>
+                {submitting ? (
+                  <><span className="h-4 w-4 animate-spin rounded-full border-2 border-white/30 border-t-white" />Mengirim…</>
+                ) : 'Kirim Link Reset'}
+              </Button>
+            </form>
+          </>
+        )}
       </div>
     </div>
   );
 }
 
 // ---------------------------------------------------------------------------
-// View: OTP verification
+// View: Reset Password — handle callback dari email Supabase
 // ---------------------------------------------------------------------------
-const OTP_DURATION = 5 * 60 * 1000;
-
-function OtpView({ token, onBack, onResend, onUnlocked }) {
+function ResetPasswordView({ onDone }) {
   const showToast = useToast();
-  const navigate = useNavigate();
-  const { verify } = useAuth();
-  const [otp, setOtp] = useState('');
+  const [password, setPassword] = useState('');
+  const [showPassword, setShowPassword] = useState(false);
   const [submitting, setSubmitting] = useState(false);
-  const [shake, setShake] = useState(false);
-  const sentAt = useRef(Date.now());
-  const remaining = useCountdown(sentAt.current, OTP_DURATION);
 
-  const expired = remaining === 0;
-  const mm = String(Math.floor(remaining / 60)).padStart(2, '0');
-  const ss = String(remaining % 60).padStart(2, '0');
-
-  async function handleVerify(e) {
+  async function handleReset(e) {
     e.preventDefault();
-    if (otp.length !== 6) return;
+    if (password.length < 8) {
+      showToast('Password minimal 8 karakter', 'error');
+      return;
+    }
     setSubmitting(true);
     try {
-      const res = await fetch('/api/admin/otp?action=verify', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        credentials: 'include',
-        body: JSON.stringify({ token, otp }),
-      });
-      const data = await res.json();
-      if (!res.ok) throw new Error(data.error || 'Kode tidak valid');
-      showToast('Kode benar! Masuk ke panel admin…', 'success');
-      await verify();
-      navigate('/admin', { replace: true });
+      const { error } = await supabase.auth.updateUser({ password });
+      if (error) throw new Error(error.message || 'Gagal mengubah password');
+      showToast('Password berhasil diubah! Silakan login.', 'success');
+      onDone();
     } catch (err) {
       showToast(err.message, 'error');
-      setShake(true);
-      setTimeout(() => setShake(false), 400);
     } finally {
       setSubmitting(false);
     }
   }
 
   return (
-    <div className={cn('relative w-full max-w-sm overflow-hidden rounded-2xl border border-white/8 bg-white/[0.025] shadow-[0_32px_64px_-16px_rgba(0,0,0,0.6)]', shake && 'animate-shake')}>
+    <div className="relative w-full max-w-sm overflow-hidden rounded-2xl border border-white/8 bg-white/[0.025] shadow-[0_32px_64px_-16px_rgba(0,0,0,0.6)]">
       <GlowLine />
-      <form onSubmit={handleVerify} className="p-7 pt-8">
-        <button
-          type="button"
-          onClick={onBack}
-          className="mb-5 flex items-center gap-1.5 text-xs text-text-dim transition-colors hover:text-text-bright"
-        >
-          <ArrowLeft size={13} /> Kembali
-        </button>
-
+      <form onSubmit={handleReset} className="p-7 pt-8">
         <div className="mb-5 flex h-11 w-11 items-center justify-center rounded-xl border border-neon-500/25 bg-neon-500/10">
           <KeyRound size={20} className="text-neon-400" />
         </div>
+        <h2 className="mb-1 font-display text-lg font-semibold text-text-bright">Buat Password Baru</h2>
+        <p className="mb-6 text-sm text-text-dim">Masukkan password baru untuk akun admin.</p>
 
-        <h2 className="mb-1 font-display text-lg font-semibold text-text-bright">Masukkan Kode OTP</h2>
-        <p className="mb-6 text-sm text-text-dim">
-          Kode telah dikirim ke email admin. Masukkan kode untuk langsung masuk ke panel admin. Kode berlaku 5 menit.
-        </p>
-
-        <div className="mb-4">
-          <label className="mb-1.5 block text-xs font-semibold uppercase tracking-wide text-text-muted">
-            Kode 6 Digit
-          </label>
-          <input
-            type="text"
-            inputMode="numeric"
-            maxLength={6}
-            autoFocus
-            required
-            value={otp}
-            onChange={(e) => setOtp(e.target.value.replace(/\D/g, '').slice(0, 6))}
-            placeholder="000000"
-            disabled={submitting || expired}
-            className={cn(
-              fieldBase,
-              'text-center font-mono text-2xl tracking-[0.5em]',
-              expired && 'opacity-40'
-            )}
-          />
-        </div>
-
-        {/* Countdown */}
-        <div className="mb-5 flex items-center justify-between">
-          {!expired ? (
-            <span className="text-xs text-text-dim">
-              Kedaluwarsa dalam{' '}
-              <span className={cn('font-mono font-semibold', remaining <= 60 ? 'text-danger/80' : 'text-neon-300')}>
-                {mm}:{ss}
-              </span>
-            </span>
-          ) : (
-            <span className="text-xs text-danger/80">Kode kedaluwarsa</span>
-          )}
-          {expired && (
+        <div className="mb-6">
+          <label className="mb-1.5 block text-xs font-semibold uppercase tracking-wide text-text-muted">Password Baru</label>
+          <div className="relative">
+            <input
+              type={showPassword ? 'text' : 'password'}
+              autoFocus
+              required
+              minLength={8}
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+              placeholder="Minimal 8 karakter"
+              className={cn(fieldBase, 'pr-12')}
+              disabled={submitting}
+            />
             <button
               type="button"
-              onClick={onResend}
-              className="text-xs font-semibold text-neon-400 transition-colors hover:text-neon-300"
+              tabIndex={-1}
+              onClick={() => setShowPassword((v) => !v)}
+              className="absolute right-3.5 top-1/2 -translate-y-1/2 text-text-dim transition-colors hover:text-text-bright"
             >
-              Kirim ulang kode
+              {showPassword ? <EyeOff size={16} /> : <Eye size={16} />}
             </button>
-          )}
+          </div>
         </div>
 
-        <Button
-          type="submit"
-          variant="primary"
-          size="md"
-          fullWidth
-          disabled={submitting || otp.length !== 6 || expired}
-        >
+        <Button type="submit" variant="primary" size="md" fullWidth disabled={submitting || password.length < 8}>
           {submitting ? (
-            <><span className="h-4 w-4 animate-spin rounded-full border-2 border-white/30 border-t-white" />Memverifikasi…</>
-          ) : 'Verifikasi & Masuk'}
+            <><span className="h-4 w-4 animate-spin rounded-full border-2 border-white/30 border-t-white" />Menyimpan…</>
+          ) : 'Simpan Password Baru'}
         </Button>
       </form>
     </div>
-  );
-}
-
-// ---------------------------------------------------------------------------
-// Shared decorative element
-// ---------------------------------------------------------------------------
-function GlowLine() {
-  return (
-    <span
-      aria-hidden="true"
-      className="absolute inset-x-0 top-0 h-px opacity-60"
-      style={{ background: 'linear-gradient(90deg, transparent, var(--color-neon-500), transparent)' }}
-    />
   );
 }
 
@@ -332,9 +286,17 @@ export default function AdminLoginPage() {
   const { isAdmin, loading } = useAuth();
   const navigate = useNavigate();
 
-  // 'login' | 'forgot' | 'otp'
+  // 'login' | 'forgot' | 'reset'
   const [view, setView] = useState('login');
-  const [otpToken, setOtpToken] = useState(null);
+
+  // Deteksi callback reset password dari Supabase (hash #reset + ada session di URL)
+  useEffect(() => {
+    if (window.location.hash === '#reset') {
+      setView('reset');
+      // Bersihkan hash dari URL tanpa reload
+      window.history.replaceState(null, '', window.location.pathname);
+    }
+  }, []);
 
   useEffect(() => {
     if (!loading && isAdmin) navigate('/admin', { replace: true });
@@ -348,11 +310,6 @@ export default function AdminLoginPage() {
     );
   }
 
-  function handleOtpSent(token) {
-    setOtpToken(token);
-    setView('otp');
-  }
-
   return (
     <div className="relative min-h-screen overflow-hidden bg-void">
       <div className="bg-app" aria-hidden="true" />
@@ -363,7 +320,6 @@ export default function AdminLoginPage() {
       />
 
       <main className="relative z-10 flex min-h-screen flex-col items-center justify-center px-4 py-12">
-        {/* Branding */}
         <div className="mb-8 flex flex-col items-center gap-3">
           <div className="flex h-16 w-16 items-center justify-center rounded-2xl border border-neon-500/30 bg-neon-500/10 shadow-[0_0_32px_rgba(59,130,246,0.18)]" aria-hidden="true">
             <Shield size={30} className="text-neon-400" />
@@ -377,20 +333,9 @@ export default function AdminLoginPage() {
           </div>
         </div>
 
-        {view === 'login' && (
-          <LoginView onForgot={() => setView('forgot')} />
-        )}
-        {view === 'forgot' && (
-          <ForgotView onBack={() => setView('login')} onSent={handleOtpSent} />
-        )}
-        {view === 'otp' && (
-          <OtpView
-            token={otpToken}
-            onBack={() => setView('forgot')}
-            onResend={() => { setOtpToken(null); setView('forgot'); }}
-            onUnlocked={() => { setOtpToken(null); setView('login'); }}
-          />
-        )}
+        {view === 'login' && <LoginView onForgot={() => setView('forgot')} />}
+        {view === 'forgot' && <ForgotView onBack={() => setView('login')} />}
+        {view === 'reset' && <ResetPasswordView onDone={() => setView('login')} />}
 
         <p className="mt-6 text-xs text-text-faint">
           AeroBlast &copy; {new Date().getFullYear()} &mdash; Hanya untuk staf resmi

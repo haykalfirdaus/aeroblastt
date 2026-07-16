@@ -9,7 +9,7 @@ export default async function handler(req, res) {
   res.setHeader('Cache-Control', 'no-store');
 
   if (req.method === 'OPTIONS') { res.status(204).end(); return; }
-  if (!isAuthenticated(req)) { res.status(401).json({ ok: false, error: 'Unauthorized' }); return; }
+  if (!(await isAuthenticated(req))) { res.status(401).json({ ok: false, error: 'Unauthorized' }); return; }
   if (req.method !== 'POST') { res.status(405).json({ ok: false, error: 'Method not allowed' }); return; }
 
   let body = req.body;

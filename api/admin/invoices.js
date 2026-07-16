@@ -93,7 +93,7 @@ export default async function handler(req, res) {
     return;
   }
 
-  if (!isAuthenticated(req)) {
+  if (!(await isAuthenticated(req))) {
     res.status(401).json({ ok: false, error: 'Unauthorized' });
     return;
   }

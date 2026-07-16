@@ -1,4 +1,5 @@
 import { createContext, use, useCallback, useEffect, useState } from 'react';
+import { supabase } from '@/lib/supabase';
 
 const AuthContext = createContext(null);
 
@@ -6,9 +7,10 @@ export function AuthProvider({ children }) {
   const [isAdmin, setIsAdmin] = useState(false);
   const [loading, setLoading] = useState(true);
 
+  // Cek session dari HttpOnly cookie via server
   const verify = useCallback(async () => {
     try {
-      const res = await fetch('/api/admin/verify', { credentials: 'include' });
+      const res = await fetch('/api/admin/session', { credentials: 'include' });
       const data = await res.json().catch(() => ({}));
       setIsAdmin(data.authenticated === true);
     } catch {
@@ -22,26 +24,29 @@ export function AuthProvider({ children }) {
     verify();
   }, [verify]);
 
-  const login = useCallback(async (username, password) => {
-    const res = await fetch('/api/admin/login', {
+  // Login: Supabase client auth → tukar token ke HttpOnly cookie via server
+  const login = useCallback(async (email, password) => {
+    const { data, error } = await supabase.auth.signInWithPassword({ email, password });
+    if (error) throw new Error(error.message || 'Login gagal. Periksa kembali kredensial Anda.');
+
+    const res = await fetch('/api/admin/session', {
       method: 'POST',
       credentials: 'include',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ username, password }),
+      body: JSON.stringify({ access_token: data.session.access_token }),
     });
     if (!res.ok) {
-      const data = await res.json().catch(() => ({}));
-      throw new Error(data.error || data.message || 'Login gagal. Periksa kembali kredensial Anda.');
+      const d = await res.json().catch(() => ({}));
+      throw new Error(d.error || 'Gagal menyimpan session');
     }
-    await verify();
-  }, [verify]);
+    setIsAdmin(true);
+  }, []);
 
+  // Logout: hapus HttpOnly cookie + sign out dari Supabase
   const logout = useCallback(async () => {
     try {
-      await fetch('/api/admin/logout', {
-        method: 'POST',
-        credentials: 'include',
-      });
+      await fetch('/api/admin/session', { method: 'DELETE', credentials: 'include' });
+      await supabase.auth.signOut();
     } finally {
       setIsAdmin(false);
       setLoading(false);

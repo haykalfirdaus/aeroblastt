@@ -30,7 +30,7 @@ export default async function handler(req, res) {
 
   // POST — admin only
   if (req.method === 'POST') {
-    if (!isAuthenticated(req)) {
+    if (!await isAuthenticated(req)) {
       res.status(401).json({ ok: false, error: 'Unauthorized' });
       return;
     }
@@ -73,7 +73,7 @@ export default async function handler(req, res) {
 
   // DELETE — admin only
   if (req.method === 'DELETE') {
-    if (!isAuthenticated(req)) {
+    if (!await isAuthenticated(req)) {
       res.status(401).json({ ok: false, error: 'Unauthorized' });
       return;
     }

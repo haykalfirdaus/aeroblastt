@@ -1,40 +1,7 @@
 import crypto from 'crypto';
+import { supabaseAuth } from './_supabase.js';
 
-export function getSecret() {
-  const secret = process.env.ADMIN_SECRET;
-  if (!secret) {
-    throw new Error('Missing ADMIN_SECRET env var (see .env.local / Vercel env).');
-  }
-  return secret;
-}
-
-export function verifyToken(token) {
-  if (!token || typeof token !== 'string') return false;
-  const dotIndex = token.lastIndexOf('.');
-  if (dotIndex === -1) return false;
-
-  const payload = token.slice(0, dotIndex);
-  const sig = token.slice(dotIndex + 1);
-
-  const secret = getSecret();
-  const expectedSig = crypto.createHmac('sha256', secret).update(payload).digest('hex');
-
-  const sigBuf = Buffer.from(sig);
-  const expectedBuf = Buffer.from(expectedSig);
-
-  if (sigBuf.length !== expectedBuf.length) return false;
-  if (!crypto.timingSafeEqual(sigBuf, expectedBuf)) return false;
-
-  try {
-    const parsed = JSON.parse(Buffer.from(payload, 'base64').toString('utf8'));
-    if (!parsed.adminId || !parsed.iat) return false;
-    const maxAge = 7 * 24 * 60 * 60 * 1000;
-    if (Date.now() - parsed.iat > maxAge) return false;
-    return true;
-  } catch {
-    return false;
-  }
-}
+// ── Cookie helper ─────────────────────────────────────────────────────────────
 
 export function parseCookies(cookieHeader) {
   const cookies = {};
@@ -42,22 +9,33 @@ export function parseCookies(cookieHeader) {
   cookieHeader.split(';').forEach((part) => {
     const eqIdx = part.indexOf('=');
     if (eqIdx === -1) return;
-    const key = part.slice(0, eqIdx).trim();
-    const value = part.slice(eqIdx + 1).trim();
-    cookies[key] = decodeURIComponent(value);
+    cookies[part.slice(0, eqIdx).trim()] = decodeURIComponent(part.slice(eqIdx + 1).trim());
   });
   return cookies;
 }
 
-export function isAuthenticated(req) {
+// ── Admin auth — Supabase JWT verified server-side ────────────────────────────
+
+export async function isAuthenticated(req) {
   const cookies = parseCookies(req.headers['cookie']);
-  return verifyToken(cookies['aeroblast_admin_session']);
+  const token = cookies['aeroblast_admin_session'];
+  if (!token) return false;
+  if (!supabaseAuth) return false;
+  const { data, error } = await supabaseAuth.auth.getUser(token);
+  return !error && !!data?.user;
 }
 
-// ── Player session (24-jam, cookie: aeroblast_player_session) ──────────────
+// ── Player session (24h, cookie: aeroblast_player_session) ───────────────────
+// Kept as custom HMAC — players are not Supabase Auth users.
+
+function getPlayerSecret() {
+  const secret = process.env.ADMIN_SECRET || process.env.PLAYER_SECRET;
+  if (!secret) throw new Error('Missing ADMIN_SECRET / PLAYER_SECRET env var');
+  return secret;
+}
 
 export function signPlayerToken(nick) {
-  const secret = getSecret();
+  const secret = getPlayerSecret();
   const payload = Buffer.from(JSON.stringify({ nick, iat: Date.now() })).toString('base64');
   const sig = crypto.createHmac('sha256', secret).update(payload).digest('hex');
   return `${payload}.${sig}`;
@@ -74,9 +52,10 @@ export function verifyPlayerToken(req) {
   const payload = token.slice(0, dotIndex);
   const sig = token.slice(dotIndex + 1);
 
-  const secret = getSecret();
-  const expectedSig = crypto.createHmac('sha256', secret).update(payload).digest('hex');
+  let secret;
+  try { secret = getPlayerSecret(); } catch { return null; }
 
+  const expectedSig = crypto.createHmac('sha256', secret).update(payload).digest('hex');
   const sigBuf = Buffer.from(sig);
   const expectedBuf = Buffer.from(expectedSig);
   if (sigBuf.length !== expectedBuf.length) return null;
@@ -91,6 +70,8 @@ export function verifyPlayerToken(req) {
     return null;
   }
 }
+
+// ── CORS ──────────────────────────────────────────────────────────────────────
 
 export function setCorsHeaders(req, res, methods = 'GET, OPTIONS') {
   const origin = req.headers['origin'];
