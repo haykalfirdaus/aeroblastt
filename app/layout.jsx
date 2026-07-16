@@ -64,8 +64,8 @@ export default function RootLayout({ children }) {
         <ToastProvider>
           <AuthProvider>
             <PlayerAuthProvider>
-              <DevtoolsWarningOverlay />
               {children}
+              <DevtoolsWarningOverlay />
             </PlayerAuthProvider>
           </AuthProvider>
         </ToastProvider>
