@@ -4,14 +4,6 @@ import { supabase } from './_supabase.js';
 const SUFFIX_MIN = 1;
 const SUFFIX_MAX = 999;
 
-async function expireOldOrders() {
-  await supabase
-    .from('beta_orders')
-    .update({ status: 'expired' })
-    .eq('status', 'pending')
-    .lt('expires_at', new Date().toISOString());
-}
-
 async function allocateSuffix() {
   const { data: pending } = await supabase
     .from('beta_orders')
