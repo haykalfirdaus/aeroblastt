@@ -1,5 +1,5 @@
 import { NextResponse } from 'next/server';
-import { isAuthenticated } from '@/api/_auth';
+import { isAuthenticated, isValidOrigin } from '@/api/_auth';
 import { supabase } from '@/api/_supabase';
 import { grantRank, giveMoney, giveKey } from '@/api/_rcon';
 
@@ -47,6 +47,7 @@ export async function GET(request) {
 }
 
 export async function PATCH(request) {
+  if (!isValidOrigin(request)) return NextResponse.json({ ok: false, error: 'Forbidden' }, { status: 403 });
   if (!(await isAuthenticated(makeReq(request)))) return NextResponse.json({ ok: false, error: 'Unauthorized' }, { status: 401 });
   const id = new URL(request.url).searchParams.get('id');
   if (!id) return NextResponse.json({ ok: false, error: 'id diperlukan' }, { status: 400 });
@@ -68,6 +69,7 @@ export async function PATCH(request) {
 }
 
 export async function DELETE(request) {
+  if (!isValidOrigin(request)) return NextResponse.json({ ok: false, error: 'Forbidden' }, { status: 403 });
   if (!(await isAuthenticated(makeReq(request)))) return NextResponse.json({ ok: false, error: 'Unauthorized' }, { status: 401 });
   const id = new URL(request.url).searchParams.get('id');
   if (!id) return NextResponse.json({ ok: false, error: 'id diperlukan' }, { status: 400 });

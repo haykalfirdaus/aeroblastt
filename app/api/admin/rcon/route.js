@@ -1,5 +1,5 @@
 import { NextResponse } from 'next/server';
-import { isAuthenticated } from '@/api/_auth';
+import { isAuthenticated, isValidOrigin } from '@/api/_auth';
 import { grantRank, giveMoney, giveKey, giveBansos, bansosCancel, bansosList, eventAdd, eventClear, eventTime, KEY_NAMES } from '@/api/_rcon';
 
 const VALID_ACTIONS = ['rank', 'money', 'key', 'bansos', 'event'];
@@ -9,6 +9,7 @@ function makeReq(request) {
 }
 
 export async function POST(request) {
+  if (!isValidOrigin(request)) return NextResponse.json({ ok: false, error: 'Forbidden' }, { status: 403 });
   if (!(await isAuthenticated(makeReq(request)))) return NextResponse.json({ ok: false, error: 'Unauthorized' }, { status: 401 });
 
   let body;

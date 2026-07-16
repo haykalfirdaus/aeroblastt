@@ -1,6 +1,7 @@
 import { NextResponse } from 'next/server';
 import { supabaseAuth } from '@/api/_supabase';
-import { parseCookies } from '@/api/_auth';
+import { parseCookies, isValidOrigin } from '@/api/_auth';
+import { rateLimit } from '@/api/_ratelimit';
 
 const COOKIE_NAME = 'aeroblast_admin_session';
 const COOKIE_MAX_AGE = 60 * 60 * 24 * 7;
@@ -8,6 +9,12 @@ const isProd = process.env.NODE_ENV !== 'development';
 
 function setCookieHeader(value, maxAge) {
   return `${COOKIE_NAME}=${value}; HttpOnly; Path=/; Max-Age=${maxAge}; SameSite=Strict${isProd ? '; Secure' : ''}`;
+}
+
+function getIp(request) {
+  return request.headers.get('x-forwarded-for')?.split(',')[0]?.trim()
+    || request.headers.get('x-real-ip')
+    || 'unknown';
 }
 
 export async function GET(request) {
@@ -19,6 +26,18 @@ export async function GET(request) {
 }
 
 export async function POST(request) {
+  if (!isValidOrigin(request)) return NextResponse.json({ ok: false, error: 'Forbidden' }, { status: 403 });
+
+  // Rate limit: max 5 login attempt per IP per 15 menit
+  const ip = getIp(request);
+  const rl = rateLimit(ip, { max: 5, windowMs: 15 * 60 * 1000 });
+  if (!rl.ok) {
+    return NextResponse.json(
+      { ok: false, error: `Terlalu banyak percobaan. Coba lagi dalam ${rl.retryAfter} detik.` },
+      { status: 429, headers: { 'Retry-After': String(rl.retryAfter) } }
+    );
+  }
+
   let body;
   try { body = await request.json(); } catch { return NextResponse.json({ ok: false, error: 'Invalid JSON' }, { status: 400 }); }
 

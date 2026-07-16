@@ -71,6 +71,25 @@ export function verifyPlayerToken(req) {
   }
 }
 
+// ── CSRF Origin check (untuk Next.js Route Handlers) ─────────────────────────
+// Panggil ini di setiap mutation endpoint (POST/DELETE/PATCH admin).
+// Menolak request yang Origin-nya bukan domain sendiri — blokir CSRF dari
+// halaman luar yang coba trigger admin action lewat cookie admin korban.
+
+export function isValidOrigin(request) {
+  const allowed = process.env.ALLOWED_ORIGIN || 'https://store.aeroblast.my.id';
+  if (process.env.NODE_ENV !== 'production') return true; // dev: skip
+  const origin = request.headers.get('origin');
+  const referer = request.headers.get('referer');
+  // Minimal salah satu harus ada dan cocok
+  if (origin) return origin === allowed;
+  if (referer) {
+    try { return new URL(referer).origin === allowed; } catch { return false; }
+  }
+  // Tidak ada origin/referer — tolak untuk mutation endpoint
+  return false;
+}
+
 // ── CORS ──────────────────────────────────────────────────────────────────────
 
 export function setCorsHeaders(req, res, methods = 'GET, OPTIONS') {

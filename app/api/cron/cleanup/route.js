@@ -4,8 +4,12 @@ import { supabase } from '@/api/_supabase';
 export const maxDuration = 30;
 
 export async function GET(request) {
+  const cronSecret = process.env.CRON_SECRET;
+  if (!cronSecret) {
+    return NextResponse.json({ ok: false, error: 'CRON_SECRET tidak dikonfigurasi' }, { status: 500 });
+  }
   const auth = request.headers.get('authorization');
-  if (process.env.CRON_SECRET && auth !== `Bearer ${process.env.CRON_SECRET}`) {
+  if (auth !== `Bearer ${cronSecret}`) {
     return NextResponse.json({ ok: false, error: 'Unauthorized' }, { status: 401 });
   }
 
