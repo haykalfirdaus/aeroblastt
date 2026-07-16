@@ -137,12 +137,13 @@ function ForgotView({ onBack }) {
     if (!email.trim()) return;
     setSubmitting(true);
     try {
-      if (!supabase) throw new Error('Supabase belum dikonfigurasi. Tambahkan VITE_SUPABASE_URL dan VITE_SUPABASE_ANON_KEY ke env vars.');
-      const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || window.location.origin;
-      const { error } = await supabase.auth.resetPasswordForEmail(email.trim(), {
-        redirectTo: `${siteUrl}/admin/login#reset`,
+      const res = await fetch('/api/admin/reset-password', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email: email.trim() }),
       });
-      if (error) throw new Error(error.message || 'Gagal mengirim link reset');
+      const data = await res.json().catch(() => ({}));
+      if (!res.ok) throw new Error(data.error || 'Gagal mengirim link reset');
       setSent(true);
     } catch (err) {
       showToast(err.message, 'error');
