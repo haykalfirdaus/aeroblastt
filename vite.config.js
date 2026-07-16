@@ -30,7 +30,7 @@ export default defineConfig(({ mode }) => ({
     terserOptions: {
       compress: {
         drop_console: mode === 'production',
-        drop_debugger: true,
+        drop_debugger: false,
         passes: 2,
       },
       mangle: {

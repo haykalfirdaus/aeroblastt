@@ -95,6 +95,8 @@ async function handleCreate(req, res) {
     return res.status(400).json({ ok: false, error: 'type tidak valid' });
   if (!nick || typeof nick !== 'string' || !nick.trim())
     return res.status(400).json({ ok: false, error: 'nick diperlukan' });
+  if (!/^[a-zA-Z0-9_.]{1,36}$/.test(nick.trim()))
+    return res.status(400).json({ ok: false, error: 'nick mengandung karakter tidak valid' });
   if (!platform || typeof platform !== 'string')
     return res.status(400).json({ ok: false, error: 'platform diperlukan' });
   if (!baseAmount || typeof baseAmount !== 'number' || baseAmount <= 0)

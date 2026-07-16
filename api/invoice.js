@@ -205,6 +205,10 @@ export default async function handler(req, res) {
     res.status(400).json({ ok: false, error: 'nick diperlukan' });
     return;
   }
+  if (!/^[a-zA-Z0-9_.]{1,36}$/.test(nick.trim())) {
+    res.status(400).json({ ok: false, error: 'nick mengandung karakter tidak valid' });
+    return;
+  }
   if (!platform || typeof platform !== 'string') {
     res.status(400).json({ ok: false, error: 'platform diperlukan' });
     return;

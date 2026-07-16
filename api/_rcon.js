@@ -4,6 +4,19 @@ const RCON_HOST = process.env.RCON_HOST;
 const RCON_PORT = Number(process.env.RCON_PORT) || 25575;
 const RCON_PASSWORD = process.env.RCON_PASSWORD;
 
+// Whitelist patterns — reject anything that could break/extend a command string
+const SAFE_NICK    = /^[a-zA-Z0-9_.]{1,36}$/;
+const SAFE_LABEL   = /^[a-zA-Z0-9_\-. ]{1,64}$/;
+const SAFE_DIGITS  = /^\d{1,19}$/;
+const SAFE_DATETIME = /^\d{2}\/\d{2}\/\d{2} \d{2}:\d{2}$/;
+const SAFE_SUBACT  = /^(add|reduce)$/;
+
+function guard(value, re, label) {
+  if (typeof value !== 'string' || !re.test(value))
+    throw new Error(`RCON guard: invalid ${label} — "${value}"`);
+  return value;
+}
+
 const RANK_GROUP = {
   SCOUT: 'scout',
   VOYAGER: 'voyager',
@@ -39,6 +52,7 @@ async function rconSend(command) {
 }
 
 export async function grantRank(nick, rankKey, duration) {
+  try { guard(nick, SAFE_NICK, 'nick'); } catch (e) { return { ok: false, error: e.message }; }
   const group = RANK_GROUP[rankKey?.toUpperCase()];
   if (!group) return { ok: false, error: `Rank key tidak dikenal: ${rankKey}` };
 
@@ -46,6 +60,7 @@ export async function grantRank(nick, rankKey, duration) {
     const exp = new Date(Date.now() + 30 * 24 * 60 * 60 * 1000);
     const pad = (n) => String(n).padStart(2, '0');
     const expStr = `${pad(exp.getDate())}/${pad(exp.getMonth() + 1)}/${String(exp.getFullYear()).slice(2)} ${pad(exp.getHours())}:${pad(exp.getMinutes())}`;
+    try { guard(expStr, SAFE_DATETIME, 'expStr'); } catch (e) { return { ok: false, error: e.message }; }
     return rconSend(`lp user ${nick} parent addtemp ${group} ${expStr} replace`);
   }
   return rconSend(`lp user ${nick} parent set ${group}`);
@@ -53,6 +68,7 @@ export async function grantRank(nick, rankKey, duration) {
 
 // nlogin verify <nick> — returns { ok, registered, response }
 export async function verifyPlayer(nick) {
+  try { guard(nick, SAFE_NICK, 'nick'); } catch (e) { return { ok: false, registered: false, error: e.message }; }
   const result = await rconSend(`nlogin verify ${nick}`);
   if (!result.ok) return { ok: false, registered: false, error: result.error };
   const resp = (result.response || '').toLowerCase();
@@ -63,11 +79,13 @@ export async function verifyPlayer(nick) {
 
 // eco give <nick> <amount>
 export async function giveMoney(nick, amount) {
+  try { guard(nick, SAFE_NICK, 'nick'); guard(String(amount), SAFE_DIGITS, 'amount'); } catch (e) { return { ok: false, error: e.message }; }
   return rconSend(`eco give ${nick} ${amount}`);
 }
 
 // case key give <nick> <keyName> <qty>
 export async function giveKey(nick, keyName, qty) {
+  try { guard(nick, SAFE_NICK, 'nick'); guard(String(qty), SAFE_DIGITS, 'qty'); } catch (e) { return { ok: false, error: e.message }; }
   if (!KEY_NAMES.includes(keyName)) {
     return { ok: false, error: `Key tidak dikenal: ${keyName}` };
   }
@@ -76,8 +94,12 @@ export async function giveKey(nick, keyName, qty) {
 
 // bansos <keyName> <amount> [duration]
 export async function giveBansos(keyName, amount, duration) {
+  try { guard(String(amount), SAFE_DIGITS, 'amount'); } catch (e) { return { ok: false, error: e.message }; }
   if (!KEY_NAMES.includes(keyName)) {
     return { ok: false, error: `Key tidak dikenal: ${keyName}` };
+  }
+  if (duration !== undefined) {
+    try { guard(String(duration), SAFE_LABEL, 'duration'); } catch (e) { return { ok: false, error: e.message }; }
   }
   const cmd = duration ? `bansos ${keyName} ${amount} ${duration}` : `bansos ${keyName} ${amount}`;
   return rconSend(cmd);
@@ -85,6 +107,7 @@ export async function giveBansos(keyName, amount, duration) {
 
 // bansos cancel <id>
 export async function bansosCancel(id) {
+  try { guard(String(id), SAFE_LABEL, 'id'); } catch (e) { return { ok: false, error: e.message }; }
   return rconSend(`bansos cancel ${id}`);
 }
 
@@ -95,15 +118,26 @@ export async function bansosList() {
 
 // eventadmin add <nama> <waktu_mulai> <durasi>
 export async function eventAdd(name, startTime, duration) {
+  try {
+    guard(name,      SAFE_LABEL, 'name');
+    guard(startTime, SAFE_LABEL, 'startTime');
+    guard(duration,  SAFE_LABEL, 'duration');
+  } catch (e) { return { ok: false, error: e.message }; }
   return rconSend(`eventadmin add ${name} ${startTime} ${duration}`);
 }
 
 // eventadmin clear <id/nama>
 export async function eventClear(target) {
+  try { guard(target, SAFE_LABEL, 'target'); } catch (e) { return { ok: false, error: e.message }; }
   return rconSend(`eventadmin clear ${target}`);
 }
 
 // eventadmin time <add|reduce> <id/nama> <waktu>
 export async function eventTime(subAction, target, time) {
+  try {
+    guard(subAction, SAFE_SUBACT, 'subAction');
+    guard(target,    SAFE_LABEL,  'target');
+    guard(time,      SAFE_LABEL,  'time');
+  } catch (e) { return { ok: false, error: e.message }; }
   return rconSend(`eventadmin time ${subAction} ${target} ${time}`);
 }

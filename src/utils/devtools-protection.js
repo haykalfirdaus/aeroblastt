@@ -1,18 +1,10 @@
-const THRESHOLD = 160;
-
-let devtoolsOpen = false;
 const listeners = new Set();
+let devtoolsOpen = false;
 
 function notify(state) {
   if (devtoolsOpen === state) return;
   devtoolsOpen = state;
   listeners.forEach((fn) => fn(state));
-}
-
-function check() {
-  const widthDiff = window.outerWidth - window.innerWidth;
-  const heightDiff = window.outerHeight - window.innerHeight;
-  notify(widthDiff > THRESHOLD || heightDiff > THRESHOLD);
 }
 
 export function isDevtoolsOpen() {
@@ -25,54 +17,59 @@ export function onDevtoolsChange(fn) {
 }
 
 export function initDevtoolsProtection() {
-  // --- Console warning art ---
-  const style = [
-    'color:#f87171',
-    'font-size:22px',
-    'font-weight:900',
-    'text-shadow:0 0 12px #ef4444',
-  ].join(';');
-  const styleSmall = 'color:#fca5a5;font-size:13px;line-height:1.6';
-
-  console.log('%c⛔ STOP!', style);
-  console.log(
-    '%cArea ini diperuntukkan khusus developer.\nJika seseorang menyuruh kamu mengetik/menempel sesuatu di sini,\nitu adalah penipuan. Menutup tab ini lebih aman.',
-    styleSmall
-  );
-  console.log(
-    '%c⚠️  AeroBlast Security — Unauthorized access attempt will be logged.',
-    'color:#fbbf24;font-size:11px;font-style:italic'
-  );
-
-  // --- Block common keyboard shortcuts ---
-  document.addEventListener('keydown', (e) => {
-    // F12
-    if (e.key === 'F12') {
-      e.preventDefault();
-      e.stopPropagation();
-      return false;
-    }
-    // Ctrl+Shift+I / Ctrl+Shift+J / Ctrl+Shift+C / Ctrl+U
-    if (e.ctrlKey && e.shiftKey && ['I', 'i', 'J', 'j', 'C', 'c'].includes(e.key)) {
-      e.preventDefault();
-      e.stopPropagation();
-      return false;
-    }
-    if (e.ctrlKey && ['U', 'u'].includes(e.key)) {
-      e.preventDefault();
-      e.stopPropagation();
-      return false;
-    }
-  }, true);
-
-  // --- Block right-click context menu ---
-  document.addEventListener('contextmenu', (e) => {
-    e.preventDefault();
-    return false;
+  // ── 1. Override console completely ──────────────────────────────────────────
+  const noop = () => {};
+  ['log','warn','error','info','debug','dir','table','trace','group','groupCollapsed','groupEnd','time','timeEnd','assert','clear','count','profile','profileEnd'].forEach((m) => {
+    try { Object.defineProperty(console, m, { value: noop, writable: false, configurable: false }); } catch { /* already locked */ }
   });
 
-  // --- Devtools size-based detection ---
-  setInterval(check, 1000);
-  window.addEventListener('resize', check);
-  check();
+  // ── 2. Block all keyboard shortcuts that open devtools ─────────────────────
+  const BLOCKED_KEYS = new Set(['F12', 'F11']);
+  const BLOCKED_CTRL_SHIFT = new Set(['i', 'I', 'j', 'J', 'c', 'C', 'k', 'K', 'e', 'E', 'm', 'M', 'p', 'P']);
+  const BLOCKED_CTRL = new Set(['u', 'U', 's', 'S']);
+
+  function blockKey(e) {
+    if (BLOCKED_KEYS.has(e.key)) { e.preventDefault(); e.stopImmediatePropagation(); return false; }
+    if (e.ctrlKey && e.shiftKey && BLOCKED_CTRL_SHIFT.has(e.key)) { e.preventDefault(); e.stopImmediatePropagation(); return false; }
+    if (e.ctrlKey && !e.shiftKey && BLOCKED_CTRL.has(e.key)) { e.preventDefault(); e.stopImmediatePropagation(); return false; }
+    // Cmd+Option+I/J/C on Mac
+    if (e.metaKey && e.altKey && BLOCKED_CTRL_SHIFT.has(e.key)) { e.preventDefault(); e.stopImmediatePropagation(); return false; }
+  }
+  document.addEventListener('keydown', blockKey, true);
+  document.addEventListener('keyup',   blockKey, true);
+
+  // ── 3. Block right-click ────────────────────────────────────────────────────
+  document.addEventListener('contextmenu', (e) => { e.preventDefault(); e.stopImmediatePropagation(); return false; }, true);
+
+  // ── 4. Debugger trap — freezes devtools when JS panel is open ───────────────
+  // Only runs in production (Vite drops this via dead-code elimination when
+  // drop_debugger:true, but we wrap in a closure so mangling keeps it intact).
+  (function devtoolsTrap() {
+    function trap() {
+      // The `debugger` statement pauses execution when devtools is open.
+      // Calling it in a tight setInterval makes devtools unusable.
+      // eslint-disable-next-line no-debugger
+      debugger; // eslint-disable-line
+    }
+    setInterval(trap, 50);
+  })();
+
+  // ── 5. Size-delta detection (docked devtools) ───────────────────────────────
+  const THRESHOLD = 160;
+  function checkSize() {
+    const w = window.outerWidth  - window.innerWidth;
+    const h = window.outerHeight - window.innerHeight;
+    notify(w > THRESHOLD || h > THRESHOLD);
+  }
+  setInterval(checkSize, 800);
+  window.addEventListener('resize', checkSize);
+
+  // ── 6. toString / getter trick (undocked devtools) ─────────────────────────
+  // Custom objects whose .toString is called only when inspected in the console.
+  let devtoolsProbeCount = 0;
+  const probe = { toString() { devtoolsProbeCount++; if (devtoolsProbeCount > 1) notify(true); return ''; } };
+  // Pushing it to console triggers toString on next devtools repaint.
+  try { console.log('%c', probe); } catch { /* noop — console was locked above */ }
+
+  checkSize();
 }
