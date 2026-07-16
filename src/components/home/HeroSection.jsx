@@ -79,7 +79,7 @@ export function HeroSection() {
 
             {/* CTA buttons */}
             <div data-hero className="flex flex-wrap items-center justify-center gap-3">
-              <Link to="/store">
+              <Link href="/store">
                 <Button size="md">
                   Buka Store <ChevronRight size={14} />
                 </Button>
