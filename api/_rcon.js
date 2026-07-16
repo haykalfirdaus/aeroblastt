@@ -30,6 +30,10 @@ const RANK_GROUP = {
 
 export const KEY_NAMES = ['basic', 'vote', 'vip', 'legend', 'aerospace'];
 
+function stripMcColors(str) {
+  return String(str ?? '').replace(/§[0-9a-fk-orx]/gi, '').trim();
+}
+
 async function rconSend(command) {
   if (!RCON_HOST || !RCON_PASSWORD) {
     return { ok: false, error: 'RCON env vars tidak dikonfigurasi' };
@@ -42,8 +46,8 @@ async function rconSend(command) {
       password: RCON_PASSWORD,
       timeout: 5000,
     });
-    const response = await rcon.send(command);
-    return { ok: true, response };
+    const raw = await rcon.send(command);
+    return { ok: true, response: stripMcColors(raw) };
   } catch (err) {
     return { ok: false, error: err.message };
   } finally {

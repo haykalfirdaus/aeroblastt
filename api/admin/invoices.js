@@ -37,10 +37,6 @@ function toClient(row) {
   };
 }
 
-function stripMcColors(str) {
-  return String(str).replace(/§[0-9a-fk-orx]/gi, '').trim();
-}
-
 async function sendLunasEmbed(invoice, rconResult, betaOrderExpired) {
   if (!DISCORD_WEBHOOK_URL) return;
   const rconOk = rconResult?.ok;
@@ -62,8 +58,8 @@ async function sendLunasEmbed(invoice, rconResult, betaOrderExpired) {
   if (rconResult !== null) {
     fields.push(
       rconOk
-        ? { name: 'Item', value: stripMcColors(rconResult.response || 'Diberikan'), inline: false }
-        : { name: '⚠️ Item Belum Diberikan', value: stripMcColors(rconResult.error || 'Silakan cek dan berikan manual'), inline: false }
+        ? { name: 'Item', value: rconResult.response || 'Diberikan', inline: false }
+        : { name: '⚠️ Item Belum Diberikan', value: rconResult.error || 'Silakan cek dan berikan manual', inline: false }
     );
   }
 

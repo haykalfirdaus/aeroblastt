@@ -14,10 +14,6 @@ const VALID_TYPES = ['rank', 'key', 'skill', 'balance', 'command', 'cosmetic'];
 const NOTIFY_SECRET = process.env.NOTIFY_SECRET;
 const DISCORD_WEBHOOK_URL = process.env.DISCORD_WEBHOOK_URL;
 
-function stripMcColors(str) {
-  return String(str).replace(/§[0-9a-fk-orx]|§[0-9a-fk-orx]/gi, '').trim();
-}
-
 async function sendDiscord(embed) {
   if (!DISCORD_WEBHOOK_URL) return;
   try {
@@ -267,8 +263,8 @@ async function handleNotify(req, res) {
       { name: 'Total Dibayar', value: formatRp(amount), inline: true },
       ...productFields,
       rconOk
-        ? { name: 'Item', value: stripMcColors(rconResult.response || 'Diberikan'), inline: false }
-        : { name: '⚠️ Item Belum Diberikan', value: stripMcColors(rconResult.error || 'Silakan cek dan berikan manual'), inline: false },
+        ? { name: 'Item', value: rconResult.response || 'Diberikan', inline: false }
+        : { name: '⚠️ Item Belum Diberikan', value: rconResult.error || 'Silakan cek dan berikan manual', inline: false },
     ],
     footer: { text: 'AeroBlast Network' },
     timestamp: new Date().toISOString(),
