@@ -114,8 +114,8 @@ export async function PATCH(request) {
     timestamp: new Date().toISOString(),
   });
 
-  // DELETE order dari beta_orders
-  await supabase.from('beta_orders').delete().eq('id', id);
+  // Hapus order dari beta_orders setelah semua proses selesai
+  await supabase.from('beta_orders').delete().eq('id', id).catch(() => {});
 
   return NextResponse.json({ ok: true });
 }

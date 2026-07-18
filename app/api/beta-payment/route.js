@@ -172,29 +172,32 @@ async function handleNotify(request) {
     return NextResponse.json({ ok: false, error: 'Order tidak ditemukan' }, { status: 404 });
   }
 
-  // ── Donate: simpan ke donations table, announce Discord, DELETE order ─────────
+  // ── Donate: simpan ke donations table, announce Discord, tandai paid ─────────
   if (order.type === 'donate') {
     const donorName = order.details?.name || order.nick || 'Anonim';
     const donorMsg = order.details?.message || '';
-    // Insert ke tabel donations (best-effort, jangan blokir response)
-    // nick dari details — null jika anonim (tidak masuk leaderboard)
     const donorNick = order.details?.nick || null;
-    try {
-      await supabase.from('donations').insert({
-        donor_name: donorName.slice(0, 40),
-        nick: donorNick ? donorNick.slice(0, 36) : null,
-        amount,
-        message: donorMsg.slice(0, 200),
-        paid_at: new Date().toISOString(),
-      });
-    } catch { }
+    const paidAt = new Date().toISOString();
+
+    // Tandai paid dulu — client polling handleStatus akan detect ini
+    await supabase.from('beta_orders').update({ status: 'paid', paid_at: paidAt }).eq('id', order.id);
+
+    await supabase.from('donations').insert({
+      donor_name: donorName.slice(0, 40),
+      nick: donorNick ? donorNick.slice(0, 36) : null,
+      amount,
+      message: donorMsg.slice(0, 200),
+      paid_at: paidAt,
+    }).catch(() => {});
+
     const donateFields = [
       { name: 'Donatur', value: donorName, inline: true },
       { name: 'Nominal', value: `**${formatRp(amount)}**`, inline: true },
     ];
+    if (donorNick) donateFields.push({ name: 'Minecraft Nick', value: `\`${donorNick}\``, inline: true });
     if (donorMsg) donateFields.push({ name: 'Pesan', value: `"${donorMsg}"`, inline: false });
     await sendDiscord({ title: '💚 Donasi Diterima!', color: 0x84cc16, fields: donateFields, footer: { text: 'AeroBlast Network • Donasi via QRIS' }, timestamp: new Date().toISOString() });
-    await supabase.from('beta_orders').delete().eq('id', order.id);
+
     return NextResponse.json({ ok: true, type: 'donate' });
   }
 
@@ -226,13 +229,17 @@ async function handleStatus(request) {
   if (error || !order) return NextResponse.json({ ok: false, error: 'Order tidak ditemukan' }, { status: 404 });
 
   if (order.status === 'pending' && new Date(order.expires_at) < new Date()) {
-    // Donate order yang expired langsung dihapus, order biasa di-update ke expired
     if (order.type === 'donate') {
       await supabase.from('beta_orders').delete().eq('id', orderId);
     } else {
       await supabase.from('beta_orders').update({ status: 'expired' }).eq('id', orderId);
     }
     order.status = 'expired';
+  }
+
+  // Donate yang sudah paid: hapus dari beta_orders setelah client detect
+  if (order.status === 'paid' && order.type === 'donate') {
+    await supabase.from('beta_orders').delete().eq('id', orderId).catch(() => {});
   }
 
   return NextResponse.json({ ok: true, orderId: order.id, status: order.status, expiresAt: order.expires_at, paidAt: order.paid_at });
