@@ -97,42 +97,16 @@ export async function giveKey(nick, keyName, qty) {
   return rconSend(`case key give ${nick} ${keyName} ${qty}`);
 }
 
-const PURCHASABLE_RANKS_DESC = ['universe', 'galatics', 'quantum', 'vortex', 'ravest', 'orbiter', 'voyager', 'scout'];
+import { getPlayerRankFromLP } from './_mysql.js';
 
-function parseRankFromLp(response) {
-  const lower = (response || '').toLowerCase();
-  for (const name of PURCHASABLE_RANKS_DESC) {
-    const re = new RegExp(`(?<![a-z0-9])${name}(?![a-z0-9])`);
-    if (re.test(lower)) return name.toUpperCase();
-  }
-  return null;
-}
-
-// LP command async — kirim sekali untuk trigger load player, tunggu, lalu ambil hasilnya
+// Query rank via MySQL LP (primary) — instant dan reliable
 export async function getPlayerRank(nick) {
   try { guard(nick, SAFE_NICK, 'nick'); } catch (e) { return { ok: false, rank: null, error: e.message }; }
-
-  if (!RCON_HOST || !RCON_PASSWORD) {
-    return { ok: false, rank: null, error: 'RCON env vars tidak dikonfigurasi' };
-  }
-
-  let rcon;
   try {
-    rcon = await Rcon.connect({ host: RCON_HOST, port: RCON_PORT, password: RCON_PASSWORD, timeout: 8000 });
-
-    // Kirim pertama — trigger LP load player data dari storage
-    await rcon.send(`lp user ${nick} parent info`);
-
-    // Tunggu LP selesai load (async), lalu ambil output yang sebenarnya
-    await new Promise((r) => setTimeout(r, 1200));
-    const raw = await rcon.send(`lp user ${nick} parent info`);
-
-    const rank = parseRankFromLp(stripMcColors(raw));
+    const rank = await getPlayerRankFromLP(nick);
     return { ok: true, rank };
   } catch (err) {
     return { ok: false, rank: null, error: err.message };
-  } finally {
-    rcon?.end().catch(() => {});
   }
 }
 
