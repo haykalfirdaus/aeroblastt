@@ -1,5 +1,6 @@
 'use client';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
+import { RefreshCw } from 'lucide-react';
 import { Modal } from '@/components/ui/Modal';
 import { CheckboxField, FieldLabel, SelectField, TextField } from '@/components/ui/FormFields';
 import { Button } from '@/components/ui/Button';
@@ -23,11 +24,26 @@ export function RankOrderModal({ rank, open, onClose }) {
   const [nick, setNick] = useState('');
   const [platform, setPlatform] = useState(isBedrock ? 'Bedrock / PE' : '');
   const [ownedRank, setOwnedRank] = useState('none');
+  const [rankLoading, setRankLoading] = useState(false);
   const [duration, setDuration] = useState('permanent');
   const [discount, setDiscount] = useState(0);
   const [agreed, setAgreed] = useState(false);
   const [betaOpen, setBetaOpen] = useState(false);
   const [waLoading, setWaLoading] = useState(false);
+
+  useEffect(() => {
+    if (!open || !playerNick) return;
+    setRankLoading(true);
+    fetch(`/api/player/rank?nick=${encodeURIComponent(playerNick)}`, { credentials: 'include' })
+      .then((r) => r.json())
+      .then((data) => {
+        if (data.ok && data.rank) {
+          setOwnedRank(data.rank.toLowerCase());
+        }
+      })
+      .catch(() => {})
+      .finally(() => setRankLoading(false));
+  }, [open, playerNick]);
 
   if (!rank) return null;
 
@@ -90,8 +106,12 @@ export function RankOrderModal({ rank, open, onClose }) {
         </div>
 
         <div>
-          <FieldLabel>Rank Saat Ini (jika ada — untuk kalkulasi upgrade)</FieldLabel>
-          <SelectField value={ownedRank} onChange={(e) => setOwnedRank(e.target.value)}>
+          <FieldLabel>
+            Rank Saat Ini
+            {rankLoading && <RefreshCw size={11} className="ml-1.5 inline animate-spin text-[#8A9E7A]" />}
+            {!rankLoading && playerNick && <span className="ml-1.5 text-[0.6rem] text-[#8A9E7A]">(terdeteksi otomatis)</span>}
+          </FieldLabel>
+          <SelectField value={ownedRank} onChange={(e) => setOwnedRank(e.target.value)} disabled={rankLoading}>
             <option value="none">Belum punya rank / Member</option>
             {(() => {
               const targetIdx = RANKS.findIndex((r) => r.key === rank.key);

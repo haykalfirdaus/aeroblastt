@@ -30,6 +30,9 @@ const RANK_GROUP = {
 
 export const KEY_NAMES = ['basic', 'vote', 'vip', 'legend', 'aerospace'];
 
+// Rank group names in descending tier order (highest first) for LP output parsing
+const RANK_NAMES_DESC = ['universe', 'galatics', 'quantum', 'vortex', 'ravest', 'orbiter', 'voyager', 'scout'];
+
 function stripMcColors(str) {
   return String(str ?? '').replace(/§[0-9a-fk-orx]/gi, '').trim();
 }
@@ -94,6 +97,18 @@ export async function giveKey(nick, keyName, qty) {
     return { ok: false, error: `Key tidak dikenal: ${keyName}` };
   }
   return rconSend(`case key give ${nick} ${keyName} ${qty}`);
+}
+
+// lp user <nick> parent info — returns { ok, rank: 'SCOUT'|...|null }
+export async function getPlayerRank(nick) {
+  try { guard(nick, SAFE_NICK, 'nick'); } catch (e) { return { ok: false, rank: null, error: e.message }; }
+  const result = await rconSend(`lp user ${nick} parent info`);
+  if (!result.ok) return { ok: false, rank: null, error: result.error };
+  const lower = (result.response || '').toLowerCase();
+  for (const name of RANK_NAMES_DESC) {
+    if (lower.includes(name)) return { ok: true, rank: name.toUpperCase() };
+  }
+  return { ok: true, rank: null };
 }
 
 // bansos <keyName> <amount> [duration]
