@@ -30,8 +30,10 @@ const RANK_GROUP = {
 
 export const KEY_NAMES = ['basic', 'vote', 'vip', 'legend', 'aerospace'];
 
-// Rank group names in descending tier order (highest first) for LP output parsing
-const RANK_NAMES_DESC = ['universe', 'galatics', 'quantum', 'vortex', 'ravest', 'orbiter', 'voyager', 'scout'];
+// Only purchasable rank names, descending tier order (highest first).
+// Non-purchasable ranks (builder, media, default, member, etc.) are intentionally
+// absent — if LP output only lists those, getPlayerRank returns null (= no rank).
+const PURCHASABLE_RANKS_DESC = ['universe', 'galatics', 'quantum', 'vortex', 'ravest', 'orbiter', 'voyager', 'scout'];
 
 function stripMcColors(str) {
   return String(str ?? '').replace(/§[0-9a-fk-orx]/gi, '').trim();
@@ -100,13 +102,18 @@ export async function giveKey(nick, keyName, qty) {
 }
 
 // lp user <nick> parent info — returns { ok, rank: 'SCOUT'|...|null }
+// Hanya rank yang bisa dibeli di store yang dihitung. Rank lain (builder, media,
+// default, dll) diabaikan — jika tidak ada rank purchasable sama sekali, rank: null.
 export async function getPlayerRank(nick) {
   try { guard(nick, SAFE_NICK, 'nick'); } catch (e) { return { ok: false, rank: null, error: e.message }; }
   const result = await rconSend(`lp user ${nick} parent info`);
   if (!result.ok) return { ok: false, rank: null, error: result.error };
   const lower = (result.response || '').toLowerCase();
-  for (const name of RANK_NAMES_DESC) {
-    if (lower.includes(name)) return { ok: true, rank: name.toUpperCase() };
+  // Word-boundary check: rank name harus dikelilingi non-alphanumeric agar tidak
+  // false-match substring (misal "scout" dalam nama pemain "escoutxyz")
+  for (const name of PURCHASABLE_RANKS_DESC) {
+    const re = new RegExp(`(?<![a-z0-9])${name}(?![a-z0-9])`);
+    if (re.test(lower)) return { ok: true, rank: name.toUpperCase() };
   }
   return { ok: true, rank: null };
 }
