@@ -107,15 +107,13 @@ export async function giveKey(nick, keyName, qty) {
 export async function getPlayerRank(nick) {
   try { guard(nick, SAFE_NICK, 'nick'); } catch (e) { return { ok: false, rank: null, error: e.message }; }
   const result = await rconSend(`lp user ${nick} parent info`);
-  if (!result.ok) return { ok: false, rank: null, error: result.error };
+  if (!result.ok) return { ok: false, rank: null, error: result.error, _raw: result.response ?? null };
   const lower = (result.response || '').toLowerCase();
-  // Word-boundary check: rank name harus dikelilingi non-alphanumeric agar tidak
-  // false-match substring (misal "scout" dalam nama pemain "escoutxyz")
   for (const name of PURCHASABLE_RANKS_DESC) {
     const re = new RegExp(`(?<![a-z0-9])${name}(?![a-z0-9])`);
-    if (re.test(lower)) return { ok: true, rank: name.toUpperCase() };
+    if (re.test(lower)) return { ok: true, rank: name.toUpperCase(), _raw: result.response };
   }
-  return { ok: true, rank: null };
+  return { ok: true, rank: null, _raw: result.response };
 }
 
 // bansos <keyName> <amount> [duration]
