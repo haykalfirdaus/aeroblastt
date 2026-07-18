@@ -18,19 +18,28 @@ const AdminDashboardPage = lazy(() => import('@/pages/AdminDashboardPage'));
 
 /* ─── Intro loader (first visit only) ─────────────────────────────────────── */
 function IntroLoader({ onDone }) {
-  const [phase, setPhase] = useState('enter'); // enter → fill → rise → done
+  // enter → logo → fill → hold → rise → done
+  const [phase, setPhase] = useState('enter');
 
   useEffect(() => {
-    // Phase 1: show wordmark for a beat, then fill bar
-    const t1 = setTimeout(() => setPhase('fill'), 300);
-    // Phase 2: bar filled, hold briefly
-    const t2 = setTimeout(() => setPhase('rise'), 1700);
-    // Phase 3: curtain risen, unmount
-    const t3 = setTimeout(() => onDone(), 2250);
-    return () => { clearTimeout(t1); clearTimeout(t2); clearTimeout(t3); };
+    // 0ms   : curtain visible, all hidden
+    // 400ms : logo fades in
+    const t1 = setTimeout(() => setPhase('logo'),  400);
+    // 900ms : progress bar starts filling (2.2s duration → done at ~3.1s)
+    const t2 = setTimeout(() => setPhase('fill'),  900);
+    // 3200ms: brief hold at 100%, tagline visible
+    const t3 = setTimeout(() => setPhase('hold'),  3200);
+    // 3500ms: curtain sweeps up
+    const t4 = setTimeout(() => setPhase('rise'),  3500);
+    // 4200ms: unmount
+    const t5 = setTimeout(() => onDone(),          4200);
+    return () => { [t1,t2,t3,t4,t5].forEach(clearTimeout); };
   }, [onDone]);
 
-  const rising = phase === 'rise';
+  const rising  = phase === 'rise';
+  const visible = phase !== 'enter';
+  const filling = phase === 'fill' || phase === 'hold' || phase === 'rise';
+  const held    = phase === 'hold' || phase === 'rise';
 
   return (
     <div
@@ -43,45 +52,44 @@ function IntroLoader({ onDone }) {
         flexDirection: 'column',
         alignItems: 'center',
         justifyContent: 'center',
-        // slide the whole curtain upward on exit
         transform: rising ? 'translateY(-100%)' : 'translateY(0)',
-        transition: rising ? 'transform 0.55s cubic-bezier(0.76, 0, 0.24, 1)' : 'none',
+        transition: rising ? 'transform 0.72s cubic-bezier(0.76, 0, 0.24, 1)' : 'none',
       }}
     >
       {/* Top lime hairline */}
       <div style={{ position: 'absolute', top: 0, left: 0, right: 0, height: 3, background: '#B4E035' }} />
 
-      {/* Wordmark */}
-      <div
-        style={{
-          display: 'flex',
-          flexDirection: 'column',
-          alignItems: 'center',
-          gap: 12,
-          opacity: rising ? 0 : 1,
-          transform: rising ? 'translateY(-8px)' : 'translateY(0)',
-          transition: 'opacity 0.3s ease, transform 0.3s ease',
-          animation: 'loader-fade-in 0.5s cubic-bezier(0.22,1,0.36,1) both',
-        }}
-      >
+      {/* Centre content */}
+      <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 20 }}>
+
         {/* Logo block */}
         <div style={{
-          width: 56, height: 56,
-          borderRadius: 14,
+          width: 72, height: 72,
+          borderRadius: 20,
           background: 'linear-gradient(135deg, #B4E035 0%, #748F1C 100%)',
           display: 'flex', alignItems: 'center', justifyContent: 'center',
-          boxShadow: '0 8px 32px rgba(180,224,53,0.35)',
-          fontSize: 28,
+          boxShadow: '0 12px 40px rgba(180,224,53,0.4)',
+          fontSize: 36,
+          opacity: visible ? 1 : 0,
+          transform: visible ? 'translateY(0) scale(1)' : 'translateY(16px) scale(0.88)',
+          transition: 'opacity 0.6s cubic-bezier(0.22,1,0.36,1), transform 0.6s cubic-bezier(0.22,1,0.36,1)',
         }}>
           ⚡
         </div>
-        <div style={{ textAlign: 'center' }}>
+
+        {/* Wordmark */}
+        <div style={{
+          textAlign: 'center',
+          opacity: visible ? 1 : 0,
+          transform: visible ? 'translateY(0)' : 'translateY(10px)',
+          transition: 'opacity 0.55s 0.1s cubic-bezier(0.22,1,0.36,1), transform 0.55s 0.1s cubic-bezier(0.22,1,0.36,1)',
+        }}>
           <p style={{
             fontFamily: "'Plus Jakarta Sans', sans-serif",
-            fontSize: 22,
+            fontSize: 28,
             fontWeight: 800,
             color: '#1A2E1A',
-            letterSpacing: '-0.03em',
+            letterSpacing: '-0.04em',
             lineHeight: 1,
             margin: 0,
           }}>
@@ -91,22 +99,38 @@ function IntroLoader({ onDone }) {
             fontFamily: "'JetBrains Mono', monospace",
             fontSize: 10,
             color: '#6B7F5A',
-            letterSpacing: '0.14em',
+            letterSpacing: '0.18em',
             textTransform: 'uppercase',
-            margin: '4px 0 0',
+            margin: '6px 0 0',
+            opacity: visible ? 1 : 0,
+            transition: 'opacity 0.5s 0.25s ease',
           }}>
             Network Store
           </p>
         </div>
+
+        {/* Tagline — appears when bar is almost full */}
+        <p style={{
+          fontFamily: "'Plus Jakarta Sans', sans-serif",
+          fontSize: 12,
+          color: '#8A9E7A',
+          margin: 0,
+          letterSpacing: '0.02em',
+          opacity: held ? 1 : 0,
+          transform: held ? 'translateY(0)' : 'translateY(6px)',
+          transition: 'opacity 0.5s ease, transform 0.5s ease',
+        }}>
+          Memuat pengalaman terbaik…
+        </p>
       </div>
 
       {/* Progress bar */}
       <div style={{
         position: 'absolute',
-        bottom: 40,
+        bottom: 44,
         left: '50%',
         transform: 'translateX(-50%)',
-        width: 160,
+        width: 200,
         height: 3,
         borderRadius: 99,
         background: 'rgba(26,46,26,0.08)',
@@ -115,9 +139,14 @@ function IntroLoader({ onDone }) {
         <div style={{
           height: '100%',
           borderRadius: 99,
-          background: 'linear-gradient(90deg, #B4E035, #748F1C)',
-          animation: phase !== 'enter' ? 'progress-fill 1.2s cubic-bezier(0.22,1,0.36,1) forwards' : 'none',
-          width: phase === 'enter' ? '0%' : undefined,
+          background: 'linear-gradient(90deg, #B4E035, #9CC81E, #748F1C)',
+          backgroundSize: '200% 100%',
+          animation: filling
+            ? 'progress-fill 2.2s cubic-bezier(0.4, 0, 0.2, 1) forwards, shimmer-bar 1.8s linear infinite'
+            : 'none',
+          width: filling ? undefined : '0%',
+          boxShadow: filling ? '0 0 10px rgba(180,224,53,0.5)' : 'none',
+          transition: 'box-shadow 0.3s ease',
         }} />
       </div>
 

@@ -142,12 +142,20 @@
   0%   { opacity: 0; transform: translateY(12px); }
   100% { opacity: 1; transform: translateY(0); }
 }
-/* Progress bar fill */
+/* Progress bar fill — 2.2s, eases into full then holds */
 @keyframes progress-fill {
   0%   { width: 0%; }
-  60%  { width: 72%; }
-  85%  { width: 88%; }
+  15%  { width: 18%; }
+  40%  { width: 52%; }
+  65%  { width: 74%; }
+  82%  { width: 88%; }
+  95%  { width: 96%; }
   100% { width: 100%; }
+}
+/* Shimmer sweep on bar */
+@keyframes shimmer-bar {
+  0%   { background-position: 200% center; }
+  100% { background-position: -200% center; }
 }
 /* Top nav progress bar */
 @keyframes nav-progress {
