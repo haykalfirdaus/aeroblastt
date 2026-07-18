@@ -71,7 +71,7 @@ export function GallerySlider() {
   return (
     <section id="gallery" className="py-14 px-4 sm:px-6 lg:px-8">
       <div className="mx-auto max-w-7xl">
-        <SectionHeading eyebrow="Galeri Server" title="Dunia AeroBlast" />
+        <SectionHeading eyebrow="Galeri Server" title="Dunia AeroBlast" data-aos="fade-up" data-aos-duration="700" />
       </div>
 
       <div

@@ -129,6 +129,7 @@ export function RankTab() {
                 'hover:scale-[1.015]',
                 isFeatured ? 'hover:brightness-110' : 'opacity-90 hover:opacity-100',
               )}
+              style={{ animation: 'page-wipe-in 0.5s cubic-bezier(0.22,1,0.36,1) both', animationDelay: `${idx * 70}ms` }}
             >
               {/* Top shimmer — unified lime */}
               <span

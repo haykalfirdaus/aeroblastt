@@ -166,11 +166,11 @@
 /* Page wipe — slide out left */
 @keyframes page-wipe-out {
   0%   { transform: translateX(0); opacity: 1; }
-  100% { transform: translateX(-18px); opacity: 0; }
+  100% { transform: translateX(-24px); opacity: 0; }
 }
-/* Page reveal — slide in right */
+/* Page reveal — slide in from right (used for tab content + store cards) */
 @keyframes page-wipe-in {
-  0%   { transform: translateX(18px); opacity: 0; }
+  0%   { transform: translateX(32px); opacity: 0; }
   100% { transform: translateX(0); opacity: 1; }
 }
 

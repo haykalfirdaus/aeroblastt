@@ -142,7 +142,7 @@ export function BalanceTab() {
 
   return (
     <>
-      <div className="mx-auto max-w-2xl">
+      <div className="mx-auto max-w-2xl" style={{ animation: 'page-wipe-in 0.45s cubic-bezier(0.22,1,0.36,1) both' }}>
         <GlassCard className="p-5 sm:p-6">
           <div className="mb-5 flex items-center gap-3">
             <div className="grid h-10 w-10 place-items-center rounded-xl border border-[#B4E035]/25 bg-[#B4E035]/10">
@@ -170,6 +170,7 @@ export function BalanceTab() {
                   onClick={() => openWith(rupiah)}
                   disabled={!nick}
                   title={!nick ? 'Login dulu untuk order' : undefined}
+                  style={{ animation: 'page-wipe-in 0.45s cubic-bezier(0.22,1,0.36,1) both', animationDelay: `${idx * 55}ms` }}
                   className={cn(
                     'relative overflow-hidden rounded-xl border px-4 py-4 text-center transition-all',
                     tier.featured

@@ -147,7 +147,7 @@ export function GachaKeysTab() {
                   : 'border-[#D8D1C0]/60 bg-[#FAFAF7] hover:scale-[1.01]',
                 tier.opacity,
               )}
-              style={{ '--accent': `var(--color-${tone})` }}
+              style={{ '--accent': `var(--color-${tone})`, animation: 'page-wipe-in 0.5s cubic-bezier(0.22,1,0.36,1) both', animationDelay: `${idx * 80}ms` }}
             >
               {/* top shimmer */}
               <span

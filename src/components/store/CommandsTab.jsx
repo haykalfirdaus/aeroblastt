@@ -158,6 +158,7 @@ export function CommandsTab() {
                   : 'border-[#D8D1C0]/60 bg-[#FAFAF7] hover:scale-[1.01]',
                 tier.opacity,
               )}
+              style={{ animation: 'page-wipe-in 0.5s cubic-bezier(0.22,1,0.36,1) both', animationDelay: `${idx * 55}ms` }}
             >
               {/* top shimmer */}
               <span

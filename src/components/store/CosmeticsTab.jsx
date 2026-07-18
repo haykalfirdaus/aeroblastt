@@ -131,7 +131,7 @@ export function CosmeticsTab() {
     <>
       <div className="mx-auto grid max-w-4xl grid-cols-1 gap-6 lg:grid-cols-2">
         {/* Builder Card */}
-        <GlassCard className="p-6">
+        <GlassCard className="p-6" style={{ animation: 'page-wipe-in 0.5s cubic-bezier(0.22,1,0.36,1) both' }}>
           <h3 className="mb-5 font-display text-base font-bold text-[#1A2E1A]">Custom Prefix Builder</h3>
 
           {/* Live Preview */}
@@ -190,7 +190,7 @@ export function CosmeticsTab() {
         </GlassCard>
 
         {/* Example Card */}
-        <GlassCard className="flex flex-col items-center gap-5 p-6">
+        <GlassCard className="flex flex-col items-center gap-5 p-6" style={{ animation: 'page-wipe-in 0.5s cubic-bezier(0.22,1,0.36,1) both', animationDelay: '100ms' }}>
           <h3 className="font-display text-base font-bold text-[#1A2E1A]">Contoh Tampilan In-Game</h3>
           <img src={customPrefixImg} alt="Contoh Custom Prefix in-game" className="max-w-full rounded-xl border border-[#D8D1C0]" />
           <p className="text-center text-xs text-[#4A5E3E]">Tampilan prefix kamu di in-game setelah setup selesai.</p>

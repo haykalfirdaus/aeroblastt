@@ -90,11 +90,13 @@ export function CommunitySection() {
           eyebrow="Komunitas"
           title="Bergabung & Berkontribusi"
           description="Jadilah bagian dari komunitas AeroBlast. Kirim request, laporkan pemain, atau bergabung di platform kami."
+          data-aos="fade-up"
+          data-aos-duration="700"
         />
 
         <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
           {/* WhatsApp Group */}
-          <GlassCard interactive as="a" href={SITE.social.whatsapp} target="_blank" rel="noopener noreferrer" className="p-5">
+          <GlassCard interactive as="a" href={SITE.social.whatsapp} target="_blank" rel="noopener noreferrer" className="p-5" data-aos="fade-right" data-aos-duration="750">
             <div className="flex flex-col gap-3 h-full">
               <div className="grid h-10 w-10 place-items-center rounded-xl border border-success/25 bg-success/8">
                 <MessageCircle size={18} className="text-success" />
@@ -110,7 +112,7 @@ export function CommunitySection() {
           </GlassCard>
 
           {/* Discord */}
-          <GlassCard interactive as="a" href={SITE.social.discord} target="_blank" rel="noopener noreferrer" className="p-5">
+          <GlassCard interactive as="a" href={SITE.social.discord} target="_blank" rel="noopener noreferrer" className="p-5" data-aos="fade-up" data-aos-delay="80" data-aos-duration="750">
             <div className="flex flex-col gap-3 h-full">
               <div className="grid h-10 w-10 place-items-center rounded-xl border border-[#B4E035]/35 bg-[#B4E035]/10">
                 <Gamepad2 size={18} className="text-[#748F1C]" />
@@ -126,7 +128,7 @@ export function CommunitySection() {
           </GlassCard>
 
           {/* Request Feature */}
-          <GlassCard interactive className="p-5 cursor-pointer" onClick={() => setRequestOpen(true)}>
+          <GlassCard interactive className="p-5 cursor-pointer" onClick={() => setRequestOpen(true)} data-aos="fade-left" data-aos-delay="160" data-aos-duration="750">
             <div className="flex flex-col gap-3 h-full">
               <div className="grid h-10 w-10 place-items-center rounded-xl border border-[#6B7F5A]/30 bg-[#6B7F5A]/10">
                 <Lightbulb size={18} className="text-[#566947]" />
@@ -142,7 +144,7 @@ export function CommunitySection() {
           </GlassCard>
 
           {/* Report Player */}
-          <GlassCard interactive className="p-5 cursor-pointer sm:col-span-2 lg:col-span-3" onClick={() => setReportOpen(true)}>
+          <GlassCard interactive className="p-5 cursor-pointer sm:col-span-2 lg:col-span-3" onClick={() => setReportOpen(true)} data-aos="fade-up" data-aos-delay="240" data-aos-duration="750">
             <div className="flex flex-col sm:flex-row items-center gap-4">
               <div className="grid h-10 w-10 shrink-0 place-items-center rounded-xl border border-danger/18 bg-danger/8">
                 <AlertTriangle size={18} className="text-danger-bright" />

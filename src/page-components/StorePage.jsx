@@ -119,7 +119,7 @@ export default function StorePage() {
             <p className="text-xs text-[#6B7F5A]">{current.desc}</p>
           </div>
         )}
-        <div key={activeTab}>{TAB_CONTENT[activeTab]}</div>
+        <div key={activeTab} style={{ animation: 'page-wipe-in 0.28s cubic-bezier(0.22,1,0.36,1) both' }}>{TAB_CONTENT[activeTab]}</div>
       </div>
     </PageLayout>
   );
