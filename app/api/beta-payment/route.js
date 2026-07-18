@@ -28,17 +28,23 @@ async function sendDiscord(embed) {
 }
 
 async function expireOldOrders() {
-  const { data: expiring } = await supabase.from('beta_orders').select('id, type, invoice_id').eq('status', 'pending').lt('expires_at', new Date().toISOString());
-  if (!expiring?.length) return;
-  const donateIds = expiring.filter(r => r.type === 'donate').map(r => r.id);
-  const normalOrders = expiring.filter(r => r.type !== 'donate');
-  const normalIds = normalOrders.map(r => r.id);
-  const invoiceIds = normalOrders.map(r => r.invoice_id).filter(Boolean);
-  // Donate orders yang expired: langsung hapus dari database
-  if (donateIds.length) await supabase.from('beta_orders').delete().in('id', donateIds);
-  // Normal orders: update ke expired + hapus invoice
-  if (normalIds.length) await supabase.from('beta_orders').update({ status: 'expired' }).in('id', normalIds);
-  if (invoiceIds.length) await supabase.from('invoices').delete().in('id', invoiceIds);
+  const now = new Date().toISOString();
+  const oneHourAgo = new Date(Date.now() - 60 * 60 * 1000).toISOString();
+
+  // Pending orders yang melewati expires_at
+  const { data: expiring } = await supabase.from('beta_orders').select('id, type, invoice_id').eq('status', 'pending').lt('expires_at', now);
+  if (expiring?.length) {
+    const donateIds = expiring.filter(r => r.type === 'donate').map(r => r.id);
+    const normalOrders = expiring.filter(r => r.type !== 'donate');
+    const normalIds = normalOrders.map(r => r.id);
+    const invoiceIds = normalOrders.map(r => r.invoice_id).filter(Boolean);
+    if (donateIds.length) await supabase.from('beta_orders').delete().in('id', donateIds);
+    if (normalIds.length) await supabase.from('beta_orders').update({ status: 'expired' }).in('id', normalIds);
+    if (invoiceIds.length) await supabase.from('invoices').delete().in('id', invoiceIds);
+  }
+
+  // Donate orders yang sudah paid lebih dari 1 jam — cleanup
+  await supabase.from('beta_orders').delete().eq('type', 'donate').eq('status', 'paid').lt('paid_at', oneHourAgo).catch(() => {});
 }
 
 async function allocateSuffix() {
@@ -225,7 +231,7 @@ async function handleStatus(request) {
   if (!orderId) return NextResponse.json({ ok: false, error: 'orderId diperlukan' }, { status: 400 });
 
   // type dibutuhkan untuk logika expired donate; nick/details tetap tidak diexpose
-  const { data: order, error } = await supabase.from('beta_orders').select('id, type, status, expires_at, paid_at').eq('id', orderId).single();
+  const { data: order, error } = await supabase.from('beta_orders').select('id, type, status, expires_at, paid_at, invoice_id').eq('id', orderId).single();
   if (error || !order) return NextResponse.json({ ok: false, error: 'Order tidak ditemukan' }, { status: 404 });
 
   if (order.status === 'pending' && new Date(order.expires_at) < new Date()) {
@@ -235,11 +241,6 @@ async function handleStatus(request) {
       await supabase.from('beta_orders').update({ status: 'expired' }).eq('id', orderId);
     }
     order.status = 'expired';
-  }
-
-  // Donate yang sudah paid: hapus dari beta_orders setelah client detect
-  if (order.status === 'paid' && order.type === 'donate') {
-    await supabase.from('beta_orders').delete().eq('id', orderId).catch(() => {});
   }
 
   return NextResponse.json({ ok: true, orderId: order.id, status: order.status, expiresAt: order.expires_at, paidAt: order.paid_at });
