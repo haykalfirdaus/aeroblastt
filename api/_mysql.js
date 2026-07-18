@@ -37,27 +37,23 @@ export async function isRegisteredInAuthme(nick) {
 // LuckPerms group names yang bisa dibeli di store, urutan tertinggi dulu
 const PURCHASABLE_RANKS_DESC = ['universe', 'galatics', 'quantum', 'vortex', 'ravest', 'orbiter', 'voyager', 'scout'];
 
-// Query rank purchasable tertinggi milik player langsung dari tabel LP
-// LP simpan UUID player — cari UUID dari nlogin, lalu cek luckperms_user_permissions
+// Query rank purchasable tertinggi milik player langsung dari tabel LP.
+// Pakai luckperms_players (LP kelola sendiri) untuk lookup UUID by username —
+// tidak bergantung pada tabel nlogin/authme yang strukturnya bisa beda-beda.
 export async function getPlayerRankFromDB(nick) {
   const db = getPool();
 
-  // Cari UUID dari tabel nlogin (LP pakai UUID, bukan nama)
-  const [uuidRows] = await db.execute(
-    'SELECT * FROM nlogin WHERE last_name = ? LIMIT 1',
+  // luckperms_players: uuid, username, primary_group — LP update ini tiap player join
+  const [lpRows] = await db.execute(
+    'SELECT uuid FROM luckperms_players WHERE username = ? LIMIT 1',
     [nick]
   );
-  if (uuidRows.length === 0) return null;
+  if (lpRows.length === 0) return null;
 
-  // Deteksi nama kolom UUID secara dinamis
-  const row = uuidRows[0];
-  const uuid = row.uuid ?? row.uniqueId ?? row.unique_id ?? row.player_uuid ?? row.playerUUID
-    ?? Object.values(row).find((v) => typeof v === 'string' && /^[0-9a-f-]{32,36}$/i.test(v));
+  const uuid = lpRows[0].uuid;
 
-  if (!uuid) throw new Error(`UUID kolom tidak ditemukan. Kolom nlogin: ${Object.keys(row).join(', ')}`);
-
-  // Query semua grup aktif milik player ini dari LP
-  // permission berformat "group.namagrup", expiry 0 = permanen, >0 = temp (unix timestamp)
+  // Query semua grup aktif milik player ini
+  // permission = "group.namagrup", expiry 0 = permanen, >0 = unix timestamp temp rank
   const [rows] = await db.execute(
     `SELECT permission FROM luckperms_user_permissions
      WHERE uuid = ?
@@ -68,7 +64,6 @@ export async function getPlayerRankFromDB(nick) {
 
   const groups = rows.map((r) => r.permission.replace('group.', '').toLowerCase());
 
-  // Return rank purchasable tertinggi yang dimiliki
   for (const rank of PURCHASABLE_RANKS_DESC) {
     if (groups.includes(rank)) return rank.toUpperCase();
   }
