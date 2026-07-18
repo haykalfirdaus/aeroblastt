@@ -127,6 +127,45 @@
   50%       { border-color: rgba(180, 224, 53, 0.55); }
 }
 
+/* Page intro — curtain slides up and off */
+@keyframes curtain-rise {
+  0%   { transform: translateY(0); }
+  100% { transform: translateY(-100%); }
+}
+/* Curtain entry (starts off-screen below, slams in) */
+@keyframes curtain-slam {
+  0%   { transform: translateY(100%); }
+  100% { transform: translateY(0); }
+}
+/* Wordmark + tagline fade-in */
+@keyframes loader-fade-in {
+  0%   { opacity: 0; transform: translateY(12px); }
+  100% { opacity: 1; transform: translateY(0); }
+}
+/* Progress bar fill */
+@keyframes progress-fill {
+  0%   { width: 0%; }
+  60%  { width: 72%; }
+  85%  { width: 88%; }
+  100% { width: 100%; }
+}
+/* Top nav progress bar */
+@keyframes nav-progress {
+  0%   { transform: scaleX(0); }
+  50%  { transform: scaleX(0.7); }
+  100% { transform: scaleX(1); }
+}
+/* Page wipe — slide out left */
+@keyframes page-wipe-out {
+  0%   { transform: translateX(0); opacity: 1; }
+  100% { transform: translateX(-18px); opacity: 0; }
+}
+/* Page reveal — slide in right */
+@keyframes page-wipe-in {
+  0%   { transform: translateX(18px); opacity: 0; }
+  100% { transform: translateX(0); opacity: 1; }
+}
+
 /* ==========================================================================
    Base layer
    ========================================================================== */

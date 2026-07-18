@@ -24,16 +24,17 @@ let aosStarted = false;
 export function initAOS() {
   if (typeof window === 'undefined') return;
   if (prefersReducedMotion()) return;
-  // Skip AOS entirely on mobile — saves JS parse + layout work on first load
-  if (window.innerWidth < 768) return;
+
+  const isMobile = window.innerWidth < 768;
 
   if (!aosStarted) {
     AOS.init({
-      duration: 520,
+      duration: isMobile ? 380 : 520,
       easing: 'ease-out-cubic',
       once: true,
-      offset: 40,
-      disable: 'mobile',
+      offset: isMobile ? 24 : 40,
+      mirror: true,
+      disable: false,
     });
     aosStarted = true;
   } else {
