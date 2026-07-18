@@ -30,7 +30,6 @@ const RANK_GROUP = {
 
 export const KEY_NAMES = ['basic', 'vote', 'vip', 'legend', 'aerospace'];
 
-import { getPlayerRankFromDB } from './_mysql.js';
 
 function stripMcColors(str) {
   return String(str ?? '').replace(/§[0-9a-fk-orx]/gi, '').trim();
@@ -98,15 +97,42 @@ export async function giveKey(nick, keyName, qty) {
   return rconSend(`case key give ${nick} ${keyName} ${qty}`);
 }
 
-// Query rank purchasable player via MySQL LP — lebih reliable dari RCON
-// karena LP command bersifat async dan sering return kosong via RCON.
+const PURCHASABLE_RANKS_DESC = ['universe', 'galatics', 'quantum', 'vortex', 'ravest', 'orbiter', 'voyager', 'scout'];
+
+function parseRankFromLp(response) {
+  const lower = (response || '').toLowerCase();
+  for (const name of PURCHASABLE_RANKS_DESC) {
+    const re = new RegExp(`(?<![a-z0-9])${name}(?![a-z0-9])`);
+    if (re.test(lower)) return name.toUpperCase();
+  }
+  return null;
+}
+
+// LP command async — kirim sekali untuk trigger load player, tunggu, lalu ambil hasilnya
 export async function getPlayerRank(nick) {
   try { guard(nick, SAFE_NICK, 'nick'); } catch (e) { return { ok: false, rank: null, error: e.message }; }
+
+  if (!RCON_HOST || !RCON_PASSWORD) {
+    return { ok: false, rank: null, error: 'RCON env vars tidak dikonfigurasi' };
+  }
+
+  let rcon;
   try {
-    const rank = await getPlayerRankFromDB(nick);
+    rcon = await Rcon.connect({ host: RCON_HOST, port: RCON_PORT, password: RCON_PASSWORD, timeout: 8000 });
+
+    // Kirim pertama — trigger LP load player data dari storage
+    await rcon.send(`lp user ${nick} parent info`);
+
+    // Tunggu LP selesai load (async), lalu ambil output yang sebenarnya
+    await new Promise((r) => setTimeout(r, 1200));
+    const raw = await rcon.send(`lp user ${nick} parent info`);
+
+    const rank = parseRankFromLp(stripMcColors(raw));
     return { ok: true, rank };
   } catch (err) {
     return { ok: false, rank: null, error: err.message };
+  } finally {
+    rcon?.end().catch(() => {});
   }
 }
 

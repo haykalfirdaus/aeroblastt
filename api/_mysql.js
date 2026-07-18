@@ -34,38 +34,3 @@ export async function isRegisteredInAuthme(nick) {
   return rows.length > 0;
 }
 
-// LuckPerms group names yang bisa dibeli di store, urutan tertinggi dulu
-const PURCHASABLE_RANKS_DESC = ['universe', 'galatics', 'quantum', 'vortex', 'ravest', 'orbiter', 'voyager', 'scout'];
-
-// Query rank purchasable tertinggi milik player langsung dari tabel LP.
-// Pakai luckperms_players (LP kelola sendiri) untuk lookup UUID by username —
-// tidak bergantung pada tabel nlogin/authme yang strukturnya bisa beda-beda.
-export async function getPlayerRankFromDB(nick) {
-  const db = getPool();
-
-  // luckperms_players: uuid, username, primary_group — LP update ini tiap player join
-  const [lpRows] = await db.execute(
-    'SELECT uuid FROM luckperms_players WHERE username = ? LIMIT 1',
-    [nick]
-  );
-  if (lpRows.length === 0) return null;
-
-  const uuid = lpRows[0].uuid;
-
-  // Query semua grup aktif milik player ini
-  // permission = "group.namagrup", expiry 0 = permanen, >0 = unix timestamp temp rank
-  const [rows] = await db.execute(
-    `SELECT permission FROM luckperms_user_permissions
-     WHERE uuid = ?
-       AND permission LIKE 'group.%'
-       AND (expiry = 0 OR expiry > UNIX_TIMESTAMP())`,
-    [uuid]
-  );
-
-  const groups = rows.map((r) => r.permission.replace('group.', '').toLowerCase());
-
-  for (const rank of PURCHASABLE_RANKS_DESC) {
-    if (groups.includes(rank)) return rank.toUpperCase();
-  }
-  return null;
-}
