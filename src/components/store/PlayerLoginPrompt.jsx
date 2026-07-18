@@ -1,6 +1,8 @@
 import { useState } from 'react';
-import { LogIn, LogOut, Smartphone, User } from 'lucide-react';
+import { LogIn, LogOut, RefreshCw, Smartphone, User } from 'lucide-react';
 import { usePlayerAuth } from '@/context/PlayerAuthContext';
+import { usePlayerRank } from '@/hooks/usePlayerRank';
+import { RANKS } from '@/data/ranks';
 import { useToast } from '@/context/ToastContext';
 import { cn } from '@/lib/cn';
 
@@ -11,6 +13,8 @@ function isBedrock(nick) {
 
 export function PlayerLoginPrompt() {
   const { nick, loading, login, logout } = usePlayerAuth();
+  const { rank, loading: rankLoading } = usePlayerRank();
+  const rankMeta = rank ? RANKS.find((r) => r.key === rank) : null;
   const showToast = useToast();
   const [input, setInput] = useState('');
   const [submitting, setSubmitting] = useState(false);
@@ -44,7 +48,7 @@ export function PlayerLoginPrompt() {
     return (
       <div className="mb-6 flex items-center justify-between gap-4 rounded-2xl border border-[#B4E035]/25 bg-[#B4E035]/[0.07] px-5 py-3">
         <div className="flex items-center gap-2.5">
-          <div className="flex h-8 w-8 items-center justify-center rounded-lg border border-[#B4E035]/35 bg-[#B4E035]/15">
+          <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg border border-[#B4E035]/35 bg-[#B4E035]/15">
             {bedrock ? <Smartphone size={15} className="text-[#566947]" /> : <User size={15} className="text-[#748F1C]" />}
           </div>
           <div className="leading-tight">
@@ -52,7 +56,27 @@ export function PlayerLoginPrompt() {
               Login sebagai
               {bedrock && <span className="ml-1.5 rounded-full bg-[#6B7F5A]/15 px-1.5 py-0.5 text-[10px] font-bold text-[#566947]">BEDROCK</span>}
             </p>
-            <p className="font-mono text-sm font-bold text-[#1A2E1A]">{nick}</p>
+            <div className="flex items-center gap-1.5">
+              <p className="font-mono text-sm font-bold text-[#1A2E1A]">{nick}</p>
+              {rankLoading && <RefreshCw size={10} className="animate-spin text-[#8A9E7A]" />}
+              {!rankLoading && rankMeta && (
+                <span
+                  className="rounded-full border px-1.5 py-0.5 text-[0.6rem] font-bold"
+                  style={{
+                    borderColor: `color-mix(in srgb, var(--color-${rankMeta.accent}) 40%, transparent)`,
+                    backgroundColor: `color-mix(in srgb, var(--color-${rankMeta.accent}) 12%, transparent)`,
+                    color: `var(--color-${rankMeta.accent})`,
+                  }}
+                >
+                  {rankMeta.name.toUpperCase()}
+                </span>
+              )}
+              {!rankLoading && !rankMeta && (
+                <span className="rounded-full border border-[#D8D1C0] bg-[#F0EBE0] px-1.5 py-0.5 text-[0.6rem] font-bold text-[#8A9E7A]">
+                  MEMBER
+                </span>
+              )}
+            </div>
           </div>
         </div>
         <button

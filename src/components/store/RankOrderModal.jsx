@@ -15,35 +15,28 @@ import { sendInvoice } from '@/utils/invoice';
 import { formatRupiah } from '@/utils/currency';
 import { useToast } from '@/context/ToastContext';
 import { usePlayerAuth } from '@/context/PlayerAuthContext';
+import { usePlayerRank } from '@/hooks/usePlayerRank';
 import { cn } from '@/lib/cn';
 
 export function RankOrderModal({ rank, open, onClose }) {
   const showToast = useToast();
   const { nick: playerNick } = usePlayerAuth();
+  const { rank: detectedRank, loading: rankLoading } = usePlayerRank();
   const isBedrock = playerNick?.includes('.');
   const [nick, setNick] = useState('');
   const [platform, setPlatform] = useState(isBedrock ? 'Bedrock / PE' : '');
   const [ownedRank, setOwnedRank] = useState('none');
-  const [rankLoading, setRankLoading] = useState(false);
   const [duration, setDuration] = useState('permanent');
   const [discount, setDiscount] = useState(0);
   const [agreed, setAgreed] = useState(false);
   const [betaOpen, setBetaOpen] = useState(false);
   const [waLoading, setWaLoading] = useState(false);
 
+  // Sinkronisasi ownedRank dari hasil deteksi otomatis
   useEffect(() => {
-    if (!open || !playerNick) return;
-    setRankLoading(true);
-    fetch(`/api/player/rank?nick=${encodeURIComponent(playerNick)}`, { credentials: 'include' })
-      .then((r) => r.json())
-      .then((data) => {
-        if (data.ok && data.rank) {
-          setOwnedRank(data.rank.toLowerCase());
-        }
-      })
-      .catch(() => {})
-      .finally(() => setRankLoading(false));
-  }, [open, playerNick]);
+    if (!open) return;
+    setOwnedRank(detectedRank ? detectedRank.toLowerCase() : 'none');
+  }, [open, detectedRank]);
 
   if (!rank) return null;
 
