@@ -72,7 +72,9 @@ function ConfettiCanvas({ active }) {
 
 // ── Countdown ─────────────────────────────────────────────────────────────────
 function useCountdownSec(expiresAt) {
-  const [secs, setSecs] = useState(0);
+  const [secs, setSecs] = useState(() =>
+    expiresAt ? Math.max(0, Math.floor((new Date(expiresAt) - Date.now()) / 1000)) : 0
+  );
   useEffect(() => {
     if (!expiresAt) return;
     function tick() { setSecs(Math.max(0, Math.floor((new Date(expiresAt) - Date.now()) / 1000))); }
@@ -181,7 +183,9 @@ export default function DonatePage() {
   }, [step, order?.orderId, stopPoll, refreshRecent, refreshLb]);
 
   useEffect(() => {
-    if (step === 'qris' && expSecs === 0 && order) { stopPoll(); setStep('expired'); }
+    if (step === 'qris' && expSecs === 0 && order && new Date(order.expiresAt) <= new Date()) {
+      stopPoll(); setStep('expired');
+    }
   }, [step, expSecs, order, stopPoll]);
 
   function handleAmountInput(e) { setAmount(e.target.value.replace(/\D/g, '')); }
