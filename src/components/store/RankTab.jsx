@@ -15,55 +15,55 @@ const RANKS_DESC = [...RANKS].reverse();
 
 // idx here = position in the DESC array (0 = Universe, 7 = Scout)
 const TIER_STYLES = {
-  // Universe — most expensive, ultra premium feel
+  // Universe — most expensive, ultra premium
   0: {
-    border: 'border-rank-universe/40',
-    glow: 'shadow-[0_0_40px_-6px_var(--color-rank-universe)]',
-    ring: 'ring-1 ring-rank-universe/30',
+    border: 'border-[#B4E035]/50',
+    glow: 'shadow-[0_0_40px_-6px_rgba(180,224,53,0.35)]',
+    ring: 'ring-1 ring-[#B4E035]/30',
     badge: 'ULTIMATE',
     badgeTone: 'gold',
-    bg: 'bg-[#F5F2EA]',
+    bg: 'bg-[#EEF5D8]',
     priceClass: 'text-xl',
     featured: true,
   },
   // Galatics
   1: {
-    border: 'border-rank-galatics/30',
-    glow: 'shadow-[0_0_32px_-6px_var(--color-rank-galatics)]',
-    ring: 'ring-1 ring-rank-galatics/20',
+    border: 'border-[#B4E035]/40',
+    glow: 'shadow-[0_0_30px_-6px_rgba(180,224,53,0.28)]',
+    ring: 'ring-1 ring-[#B4E035]/20',
     badge: null,
-    bg: 'bg-[#F5F2EA]',
+    bg: 'bg-[#EEF5D8]',
     priceClass: 'text-lg',
     featured: true,
   },
   // Quantum
   2: {
-    border: 'border-rank-quantum/30',
-    glow: 'shadow-[0_0_28px_-6px_var(--color-rank-quantum)]',
-    ring: 'ring-1 ring-rank-quantum/20',
+    border: 'border-[#B4E035]/35',
+    glow: 'shadow-[0_0_24px_-6px_rgba(180,224,53,0.22)]',
+    ring: 'ring-1 ring-[#B4E035]/15',
     badge: null,
-    bg: 'bg-[#F7F4EE]',
+    bg: 'bg-[#F1F6DC]',
     priceClass: 'text-base',
     featured: true,
   },
   // Vortex
   3: {
-    border: 'border-rank-vortex/30',
-    glow: 'shadow-[0_0_24px_-6px_var(--color-rank-vortex)]',
-    ring: 'ring-1 ring-rank-vortex/20',
+    border: 'border-[#B4E035]/30',
+    glow: 'shadow-[0_0_20px_-6px_rgba(180,224,53,0.18)]',
+    ring: 'ring-1 ring-[#B4E035]/12',
     badge: 'POPULAR',
     badgeTone: 'neon',
-    bg: 'bg-[#F7F4EE]',
+    bg: 'bg-[#F1F6DC]',
     priceClass: 'text-base',
     featured: true,
   },
-  // Ravest — mid, transition from elite to budget
+  // Ravest
   4: {
-    border: 'border-rank-ravest/20',
-    glow: 'shadow-[0_0_20px_-6px_var(--color-rank-ravest)]',
+    border: 'border-[#D8D1C0]',
+    glow: '',
     ring: '',
     badge: null,
-    bg: 'bg-[#F9F6F0]',
+    bg: 'bg-[#F5F4EE]',
     priceClass: 'text-base',
     featured: false,
   },
@@ -87,7 +87,7 @@ const TIER_STYLES = {
     priceClass: 'text-sm',
     featured: false,
   },
-  // Scout — cheapest, visually de-emphasized
+  // Scout — cheapest
   7: {
     border: 'border-[#D8D1C0]/50',
     glow: '',
@@ -129,24 +129,23 @@ export function RankTab() {
                 'hover:scale-[1.015]',
                 isFeatured ? 'hover:brightness-110' : 'opacity-90 hover:opacity-100',
               )}
-              style={{ '--accent': `var(--color-${rank.accent})` }}
             >
-              {/* Top shimmer */}
+              {/* Top shimmer — unified lime */}
               <span
                 aria-hidden="true"
                 className="absolute inset-x-0 top-0 h-px"
                 style={{
-                  background: `linear-gradient(90deg, transparent, var(--accent), transparent)`,
-                  opacity: isFeatured ? 0.7 : 0.25,
+                  background: 'linear-gradient(90deg, transparent, #B4E035, transparent)',
+                  opacity: isFeatured ? 0.7 : 0.2,
                 }}
               />
 
-              {/* Universe gradient overlay */}
+              {/* Universe green glow overlay */}
               {isUltimate && (
                 <div
                   aria-hidden="true"
-                  className="pointer-events-none absolute inset-0 opacity-[0.04]"
-                  style={{ background: 'linear-gradient(135deg, #a855f7, #3b82f6, #22d3ee)' }}
+                  className="pointer-events-none absolute inset-0 opacity-[0.06]"
+                  style={{ background: 'linear-gradient(135deg, #B4E035, #748F1C)' }}
                 />
               )}
 
@@ -160,13 +159,13 @@ export function RankTab() {
                 {/* Icon + name */}
                 <div className="mb-3 flex flex-col items-center gap-2 text-center">
                   <div
-                    className="grid h-11 w-11 place-items-center rounded-xl border border-[#D8D1C0] bg-[#F0EBE0]"
-                    style={{ boxShadow: isFeatured ? `0 0 18px -4px var(--accent)` : undefined }}
+                    className="grid h-11 w-11 place-items-center rounded-xl border border-[#D8D1C0] bg-[#EEF5D8]"
+                    style={{ boxShadow: isFeatured ? '0 0 18px -4px rgba(180,224,53,0.5)' : undefined }}
                   >
                     <Icon
                       name={rank.icon}
                       size={22}
-                      className={cn('text-[var(--accent)]', !isFeatured && 'opacity-70')}
+                      className={cn(isFeatured ? 'text-[#748F1C]' : 'text-[#8A9E7A]')}
                     />
                   </div>
                   <div>
@@ -177,8 +176,7 @@ export function RankTab() {
                       {rank.name}
                     </h3>
                     <p
-                      className={cn('font-mono font-bold', tier.priceClass, !isFeatured && 'opacity-70')}
-                      style={{ color: `var(--color-${rank.accent})` }}
+                      className={cn('font-mono font-bold', tier.priceClass, isFeatured ? 'text-[#748F1C]' : 'text-[#8A9E7A]')}
                     >
                       {formatRupiah(rank.price)}
                     </p>
@@ -206,7 +204,7 @@ export function RankTab() {
                   disabled={!nick}
                   title={!nick ? 'Login dulu untuk order' : undefined}
                   className={cn(
-                    isUltimate && nick && 'bg-gradient-to-r from-purple/80 to-[#748F1C] text-white',
+                    isUltimate && nick && 'ring-2 ring-[#B4E035]/40',
                     !isFeatured && 'opacity-75',
                   )}
                 >

@@ -38,7 +38,7 @@ export function initDevtoolsProtection() {
   });
 
   // ── 2. Block all keyboard shortcuts that open devtools ─────────────────────
-  const BLOCKED_KEYS = new Set(['F12', 'F11']);
+  const BLOCKED_KEYS = new Set(['F12']);
   const BLOCKED_CTRL_SHIFT = new Set(['i', 'I', 'j', 'J', 'c', 'C', 'k', 'K', 'e', 'E', 'm', 'M', 'p', 'P']);
   const BLOCKED_CTRL = new Set(['u', 'U', 's', 'S']);
 
