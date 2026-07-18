@@ -28,11 +28,16 @@ async function sendDiscord(embed) {
 }
 
 async function expireOldOrders() {
-  const { data: expiring } = await supabase.from('beta_orders').select('id, invoice_id').eq('status', 'pending').lt('expires_at', new Date().toISOString());
+  const { data: expiring } = await supabase.from('beta_orders').select('id, type, invoice_id').eq('status', 'pending').lt('expires_at', new Date().toISOString());
   if (!expiring?.length) return;
-  const ids = expiring.map(r => r.id);
-  const invoiceIds = expiring.map(r => r.invoice_id).filter(Boolean);
-  await supabase.from('beta_orders').update({ status: 'expired' }).in('id', ids);
+  const donateIds = expiring.filter(r => r.type === 'donate').map(r => r.id);
+  const normalOrders = expiring.filter(r => r.type !== 'donate');
+  const normalIds = normalOrders.map(r => r.id);
+  const invoiceIds = normalOrders.map(r => r.invoice_id).filter(Boolean);
+  // Donate orders yang expired: langsung hapus dari database
+  if (donateIds.length) await supabase.from('beta_orders').delete().in('id', donateIds);
+  // Normal orders: update ke expired + hapus invoice
+  if (normalIds.length) await supabase.from('beta_orders').update({ status: 'expired' }).in('id', normalIds);
   if (invoiceIds.length) await supabase.from('invoices').delete().in('id', invoiceIds);
 }
 
@@ -147,15 +152,23 @@ async function handleNotify(request) {
 
   const matches = String(text).replace(/\./g, '').match(/\d+/g);
   if (!matches) return NextResponse.json({ ok: false, error: 'Tidak ada angka di teks' }, { status: 400 });
-  const amount = Math.max(...matches.map(Number));
+
+  // Coba semua angka dari notifikasi (bukan hanya max) supaya nomor ref transaksi
+  // tidak mengalahkan nominal transfer yang kecil
+  const candidates = [...new Set(matches.map(Number).filter(n => n >= 1000 && n <= 100_000_999))];
 
   await expireOldOrders();
 
-  const { data: orders } = await supabase.from('beta_orders').select('*').eq('total_amount', amount).eq('status', 'pending').order('created_at', { ascending: true }).limit(1);
-  const order = orders?.[0];
+  let order = null;
+  let amount = 0;
+  for (const candidate of candidates) {
+    const { data: orders } = await supabase.from('beta_orders').select('*').eq('total_amount', candidate).eq('status', 'pending').order('created_at', { ascending: true }).limit(1);
+    if (orders?.[0]) { order = orders[0]; amount = candidate; break; }
+  }
 
   if (!order) {
-    await sendDiscord({ title: '⚠️ Pembayaran Perlu Dicek', color: 0xf59e0b, fields: [{ name: 'Nominal Masuk', value: formatRp(amount), inline: true }, { name: 'Status', value: 'Order tidak ditemukan untuk nominal ini', inline: false }], footer: { text: 'AeroBlast Network' }, timestamp: new Date().toISOString() });
+    const tried = candidates.length ? candidates.join(', ') : 'tidak ada';
+    await sendDiscord({ title: '⚠️ Pembayaran Perlu Dicek', color: 0xf59e0b, fields: [{ name: 'Nominal Dicoba', value: tried, inline: true }, { name: 'Status', value: 'Order tidak ditemukan untuk nominal ini', inline: false }], footer: { text: 'AeroBlast Network' }, timestamp: new Date().toISOString() });
     return NextResponse.json({ ok: false, error: 'Order tidak ditemukan' }, { status: 404 });
   }
 
