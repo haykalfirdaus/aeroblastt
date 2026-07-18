@@ -104,8 +104,7 @@ export default function FaqPage() {
               <section
                 key={cat.title}
                 data-aos={catIdx % 2 === 0 ? 'fade-right' : 'fade-left'}
-                data-aos-delay={catIdx * 60}
-                data-aos-duration="700"
+                data-aos-duration="800"
               >
                 <div className="mb-3 flex items-center gap-2">
                   {CAT_ICONS[cat.icon] && (() => { const CatIcon = CAT_ICONS[cat.icon]; return <CatIcon size={15} className="text-[#748F1C] shrink-0" />; })()}
@@ -127,7 +126,7 @@ export default function FaqPage() {
         )}
 
         {/* Footer CTA */}
-        <div data-aos="fade-up" data-aos-duration="700" className="mt-10 rounded-2xl border border-[#D8D1C0] bg-[#F5F2EA] p-5 text-center">
+        <div data-aos="fade-up" data-aos-duration="800" className="mt-10 rounded-2xl border border-[#D8D1C0] bg-[#F5F2EA] p-5 text-center">
           <Headphones size={20} className="mx-auto mb-2 text-[#8A9E7A]" />
           <p className="font-semibold text-[#1A2E1A] font-display text-sm">Masih punya pertanyaan?</p>
           <p className="mt-1 text-xs text-[#6B7F5A] font-sans">Tim kami siap membantu kamu di Discord dan WhatsApp.</p>

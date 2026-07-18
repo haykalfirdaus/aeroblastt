@@ -29,10 +29,13 @@ export function initAOS() {
 
   if (!aosStarted) {
     AOS.init({
-      duration: isMobile ? 550 : 750,
-      easing: 'ease-out-cubic',
+      duration: isMobile ? 600 : 800,
+      easing: 'ease-out-quart',
       once: true,
-      offset: isMobile ? 24 : 60,
+      // Elemen trigger animasi saat bagian BAWAH elemen melewati 120px dari bawah viewport
+      // — jadi tidak akan muncul saat masih di luar layar
+      offset: isMobile ? 80 : 120,
+      anchorPlacement: 'top-bottom',
       mirror: false,
       disable: false,
     });

@@ -3,7 +3,7 @@ import { Icon } from '@/components/ui/Icon';
 import { SectionHeading } from '@/components/ui/SectionHeading';
 import { FEATURES } from '@/data/features';
 
-// Alternate left/right slide for each card in the grid
+// Alternate left/right slide per card
 const AOS_DIRS = ['fade-right', 'fade-left', 'fade-right', 'fade-left', 'fade-right', 'fade-left', 'fade-right', 'fade-left'];
 
 export function FeaturesSection() {
@@ -15,7 +15,7 @@ export function FeaturesSection() {
           title="Semua yang Kamu Butuhkan"
           description="Dari ekonomi hingga PvP, semua tersedia dalam satu server yang powerful dan stabil."
           data-aos="fade-up"
-          data-aos-duration="700"
+          data-aos-duration="800"
         />
 
         <div className="grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
@@ -25,8 +25,8 @@ export function FeaturesSection() {
               interactive
               className="card-hover"
               data-aos={AOS_DIRS[i % AOS_DIRS.length]}
-              data-aos-delay={i * 80}
-              data-aos-duration="750"
+              data-aos-delay={i * 60}
+              data-aos-duration="800"
             >
               <div className="flex flex-col gap-3 p-5">
                 <div className="flex h-10 w-10 items-center justify-center rounded-xl border border-[#B4E035]/30 bg-[#B4E035]/10 shadow-[0_0_16px_-4px_rgba(180,224,53,0.3)]">

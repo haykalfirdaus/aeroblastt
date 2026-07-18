@@ -26,7 +26,7 @@ export function RulesSection() {
                 key={cat.title}
                 data-aos={aosDir}
                 data-aos-delay={catIdx * 120}
-                data-aos-duration="750"
+                data-aos-duration="800"
               >
                 <div className="p-4">
                   <div className="mb-3 flex items-center gap-2">

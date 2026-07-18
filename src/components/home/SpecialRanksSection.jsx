@@ -195,7 +195,7 @@ export function SpecialRanksSection() {
               interactive
               data-aos={i === 0 ? 'fade-right' : 'fade-left'}
               data-aos-delay={i * 150}
-              data-aos-duration="750"
+              data-aos-duration="800"
             >
               <div className="flex flex-col gap-4 p-5">
                 <div className="flex items-center gap-3">

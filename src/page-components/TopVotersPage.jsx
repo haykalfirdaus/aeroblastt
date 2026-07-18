@@ -105,20 +105,20 @@ export default function TopVotersPage() {
         <div aria-hidden="true" className="pointer-events-none absolute inset-0">
           <div className="absolute left-1/2 top-0 h-48 w-80 -translate-x-1/2 rounded-full bg-warning/8 blur-3xl" />
         </div>
-        <span data-aos="fade-down" data-aos-duration="600" className="relative mb-3 inline-flex items-center gap-1.5 rounded-full border border-warning/30 bg-warning/8 px-3 py-1 font-mono text-[0.65rem] font-semibold uppercase tracking-[0.14em] text-warning">
+        <span data-aos="fade-down" data-aos-duration="700" className="relative mb-3 inline-flex items-center gap-1.5 rounded-full border border-warning/30 bg-warning/8 px-3 py-1 font-mono text-[0.65rem] font-semibold uppercase tracking-[0.14em] text-warning">
           <Trophy size={11} /> Top Voters Bulan Ini
         </span>
-        <h1 data-aos="fade-up" data-aos-delay="100" data-aos-duration="700" className="relative font-display text-2xl font-extrabold text-[#1A2E1A] sm:text-3xl">
+        <h1 data-aos="fade-up" data-aos-delay="100" data-aos-duration="800" className="relative font-display text-2xl font-extrabold text-[#1A2E1A] sm:text-3xl">
           Leaderboard Voter
         </h1>
-        <p data-aos="fade-up" data-aos-delay="200" data-aos-duration="700" className="relative mt-1.5 text-xs text-[#6B7F5A]">Vote setiap hari dan menangkan reward eksklusif!</p>
+        <p data-aos="fade-up" data-aos-delay="200" data-aos-duration="800" className="relative mt-1.5 text-xs text-[#6B7F5A]">Vote setiap hari dan menangkan reward eksklusif!</p>
       </div>
 
       <div className="mx-auto max-w-5xl px-4 py-8 sm:px-6 lg:px-8">
 
         {/* Reward Tiers */}
         <section className="mb-10">
-          <h2 data-aos="fade-right" data-aos-duration="650" className="mb-4 inline-flex items-center gap-2 font-display text-base font-bold text-[#1A2E1A]">
+          <h2 data-aos="fade-right" data-aos-duration="800" className="mb-4 inline-flex items-center gap-2 font-display text-base font-bold text-[#1A2E1A]">
             <Gift size={15} className="text-[#748F1C]" /> Hadiah Akhir Bulan
           </h2>
           <div className="grid grid-cols-2 gap-3 lg:grid-cols-4">
@@ -127,8 +127,7 @@ export default function TopVotersPage() {
                 key={tier.id}
                 className={cn('p-3.5', tier.span === 2 && 'col-span-2')}
                 data-aos={i % 2 === 0 ? 'fade-right' : 'fade-left'}
-                data-aos-delay={i * 80}
-                data-aos-duration="700"
+                data-aos-duration="800"
               >
                 <div className="mb-2.5 flex items-center gap-2">
                   <span className={cn('rounded-full border px-2 py-0.5 text-[0.62rem] font-bold',
@@ -167,7 +166,7 @@ export default function TopVotersPage() {
         {/* Podium */}
         {status === 'success' && voters.length >= 3 && (
           <section className="mb-8">
-            <h2 data-aos="fade-up" data-aos-duration="650" className="mb-5 flex items-center justify-center gap-2 font-display text-base font-bold text-[#1A2E1A]">
+            <h2 data-aos="fade-up" data-aos-duration="800" className="mb-5 flex items-center justify-center gap-2 font-display text-base font-bold text-[#1A2E1A]">
               <Trophy size={14} className="text-warning" /> Podium
             </h2>
             <div data-aos="fade-up" data-aos-delay="100" data-aos-duration="750" className="flex items-end justify-center gap-6 sm:gap-10">
@@ -179,7 +178,7 @@ export default function TopVotersPage() {
         )}
 
         {/* Full Leaderboard */}
-        <section data-aos="fade-up" data-aos-duration="700">
+        <section data-aos="fade-up" data-aos-duration="800">
           <div className="mb-3 flex items-center justify-between">
             <h2 className="inline-flex items-center gap-2 font-display text-base font-bold text-[#1A2E1A]">
               <Users size={14} className="text-[#748F1C]" /> Semua Voter
@@ -257,7 +256,7 @@ export default function TopVotersPage() {
         </section>
 
         {/* Vote CTA */}
-        <div data-aos="fade-up" data-aos-duration="700" className="mt-8 flex flex-col items-center gap-3 rounded-2xl border border-[#B4E035]/25 bg-[#B4E035]/[0.07] px-5 py-7 text-center">
+        <div data-aos="fade-up" data-aos-duration="800" className="mt-8 flex flex-col items-center gap-3 rounded-2xl border border-[#B4E035]/25 bg-[#B4E035]/[0.07] px-5 py-7 text-center">
           <Vote size={22} className="text-[#748F1C]" />
           <p className="font-display text-base font-bold text-[#1A2E1A]">Sudah Vote Hari Ini?</p>
           <p className="max-w-sm text-xs text-[#6B7F5A]">Vote gratis setiap hari! Dapatkan 15.000 Balance + 5 Basic Key + 1 Vote Key per vote.</p>

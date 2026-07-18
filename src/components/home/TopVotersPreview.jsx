@@ -22,10 +22,10 @@ export function TopVotersPreview() {
           title="Leaderboard Voter"
           description="Vote setiap hari dan menangkan reward eksklusif di akhir bulan!"
           data-aos="fade-up"
-          data-aos-duration="700"
+          data-aos-duration="800"
         />
 
-        <GlassCard className="mb-5 overflow-hidden" data-aos="fade-up" data-aos-duration="750">
+        <GlassCard className="mb-5 overflow-hidden" data-aos="fade-up" data-aos-duration="800">
           {status === 'loading' && (
             <div className="flex items-center justify-center gap-2 py-8 text-xs text-[#6B7F5A]">
               <RefreshCw size={14} className="animate-spin" /> Memuat data voter...
