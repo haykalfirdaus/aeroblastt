@@ -1,5 +1,5 @@
 'use client';
-import { useState } from 'react';
+import { useRef, useState } from 'react';
 import {
   Medal, KeyRound, Zap, Coins, Terminal, Palette,
 } from 'lucide-react';
@@ -31,9 +31,27 @@ const TAB_CONTENT = {
   cosmetics: <CosmeticsTab />,
 };
 
+const TAB_IDS = TABS.map((t) => t.id);
+
 export default function StorePage() {
   const [activeTab, setActiveTab] = useState('ranks');
   const current = TABS.find((t) => t.id === activeTab);
+  const swipeRef = useRef(null);
+  const touchStartX = useRef(null);
+
+  function handleTouchStart(e) {
+    touchStartX.current = e.touches[0].clientX;
+  }
+
+  function handleTouchEnd(e) {
+    if (touchStartX.current === null) return;
+    const dx = e.changedTouches[0].clientX - touchStartX.current;
+    touchStartX.current = null;
+    if (Math.abs(dx) < 50) return; // minimum swipe distance
+    const idx = TAB_IDS.indexOf(activeTab);
+    if (dx < 0 && idx < TAB_IDS.length - 1) setActiveTab(TAB_IDS[idx + 1]);
+    if (dx > 0 && idx > 0) setActiveTab(TAB_IDS[idx - 1]);
+  }
 
   return (
     <PageLayout>
@@ -56,27 +74,31 @@ export default function StorePage() {
 
       {/* Tab bar — desktop: dividers, mobile: horizontal chips */}
       <div className="sticky top-14 z-40 border-b border-[#D8D1C0] bg-[#EDE8DA]/95 backdrop-blur-sm">
-        {/* Mobile: scrollable chips */}
-        <div className="no-scrollbar flex overflow-x-auto px-3 py-2 gap-1.5 md:hidden">
-          {TABS.map((tab) => {
-            const TabIcon = tab.icon;
-            return (
-              <button
-                key={tab.id}
-                type="button"
-                onClick={() => setActiveTab(tab.id)}
-                className={cn(
-                  'inline-flex shrink-0 items-center gap-1.5 rounded-full px-3 py-1.5 text-xs font-medium transition-all',
-                  activeTab === tab.id
-                    ? 'bg-[#B4E035]/20 text-[#748F1C] ring-1 ring-[#B4E035]/40'
-                    : 'bg-[#D8D1C0]/40 text-[#6B7F5A] hover:bg-[#D8D1C0]/70 hover:text-[#1A2E1A]'
-                )}
-              >
-                <TabIcon size={12} />
-                {tab.label}
-              </button>
-            );
-          })}
+        {/* Mobile: scrollable chips dengan fade indicator */}
+        <div className="relative md:hidden">
+          <div className="no-scrollbar flex overflow-x-auto px-3 py-2 gap-1.5">
+            {TABS.map((tab) => {
+              const TabIcon = tab.icon;
+              return (
+                <button
+                  key={tab.id}
+                  type="button"
+                  onClick={() => setActiveTab(tab.id)}
+                  className={cn(
+                    'inline-flex shrink-0 items-center gap-1.5 rounded-full px-3 py-1.5 text-xs font-medium transition-all',
+                    activeTab === tab.id
+                      ? 'bg-[#B4E035]/20 text-[#748F1C] ring-1 ring-[#B4E035]/40'
+                      : 'bg-[#D8D1C0]/40 text-[#6B7F5A] hover:bg-[#D8D1C0]/70 hover:text-[#1A2E1A]'
+                  )}
+                >
+                  <TabIcon size={12} />
+                  {tab.label}
+                </button>
+              );
+            })}
+          </div>
+          {/* Gradient fade kanan — indikator ada konten tersembunyi */}
+          <div className="pointer-events-none absolute right-0 top-0 h-full w-8 bg-gradient-to-l from-[#EDE8DA] to-transparent" />
         </div>
         {/* Desktop: divider-separated tabs */}
         <div className="hidden md:block">
@@ -108,17 +130,38 @@ export default function StorePage() {
         </div>
       </div>
 
-      {/* Active tab content */}
-      <div className="mx-auto max-w-7xl px-4 py-8 sm:px-6 lg:px-8">
+      {/* Active tab content — swipeable di mobile */}
+      <div
+        ref={swipeRef}
+        className="mx-auto max-w-7xl px-4 py-8 sm:px-6 lg:px-8"
+        onTouchStart={handleTouchStart}
+        onTouchEnd={handleTouchEnd}
+      >
         <PlayerLoginPrompt />
         {current && (
-          <div data-aos="fade-right" data-aos-duration="500" className="mb-6 flex items-center gap-2">
+          <div className="mb-6 flex items-center gap-2">
             <current.icon size={16} className="text-[#748F1C]" />
             <h2 className="font-display text-lg font-bold text-[#1A2E1A]">{current.label}</h2>
             <span className="text-[#6B7F5A]">·</span>
             <p className="text-xs text-[#6B7F5A]">{current.desc}</p>
           </div>
         )}
+        {/* Dot indicator mobile */}
+        <div className="mb-5 flex justify-center gap-1.5 md:hidden">
+          {TABS.map((tab) => (
+            <button
+              key={tab.id}
+              type="button"
+              onClick={() => setActiveTab(tab.id)}
+              className={cn(
+                'rounded-full transition-all',
+                activeTab === tab.id
+                  ? 'h-1.5 w-4 bg-[#B4E035]'
+                  : 'h-1.5 w-1.5 bg-[#D8D1C0]'
+              )}
+            />
+          ))}
+        </div>
         <div key={activeTab} style={{ animation: 'page-wipe-in 0.28s cubic-bezier(0.22,1,0.36,1) both' }}>{TAB_CONTENT[activeTab]}</div>
       </div>
     </PageLayout>
