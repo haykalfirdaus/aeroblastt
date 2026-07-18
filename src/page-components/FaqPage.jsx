@@ -35,21 +35,21 @@ export default function FaqPage() {
         <div aria-hidden="true" className="pointer-events-none absolute inset-0">
           <div className="absolute left-1/2 top-0 h-48 w-80 -translate-x-1/2 rounded-full bg-[#6B7F5A]/10 blur-3xl" />
         </div>
-        <span className="relative mb-3 inline-flex items-center gap-1.5 rounded-full border border-[#6B7F5A]/30 bg-[#6B7F5A]/10 px-3 py-1 font-mono text-[0.65rem] font-semibold uppercase tracking-[0.15em] text-[#566947]">
+        <span data-aos="fade-down" data-aos-duration="600" className="relative mb-3 inline-flex items-center gap-1.5 rounded-full border border-[#6B7F5A]/30 bg-[#6B7F5A]/10 px-3 py-1 font-mono text-[0.65rem] font-semibold uppercase tracking-[0.15em] text-[#566947]">
           <HelpCircle size={11} />
           FAQ
         </span>
-        <h1 className="relative font-display text-2xl font-extrabold text-[#1A2E1A] sm:text-3xl">
+        <h1 data-aos="fade-up" data-aos-delay="100" data-aos-duration="700" className="relative font-display text-2xl font-extrabold text-[#1A2E1A] sm:text-3xl">
           Pertanyaan yang Sering Ditanyakan
         </h1>
-        <p className="relative mt-1.5 text-xs text-[#6B7F5A]">
+        <p data-aos="fade-up" data-aos-delay="200" data-aos-duration="700" className="relative mt-1.5 text-xs text-[#6B7F5A]">
           Tidak menemukan jawaban? Hubungi kami di Discord atau WhatsApp.
         </p>
       </div>
 
       <div className="mx-auto max-w-3xl px-4 py-8 sm:px-6 lg:px-8">
         {/* Search */}
-        <div className="relative mb-5">
+        <div data-aos="fade-up" data-aos-duration="600" className="relative mb-5">
           <Search size={14} className="absolute left-3.5 top-1/2 -translate-y-1/2 text-[#8A9E7A]" />
           <input
             type="search"
@@ -100,8 +100,13 @@ export default function FaqPage() {
           </div>
         ) : (
           <div className="flex flex-col gap-8">
-            {filtered.map((cat) => (
-              <section key={cat.title}>
+            {filtered.map((cat, catIdx) => (
+              <section
+                key={cat.title}
+                data-aos={catIdx % 2 === 0 ? 'fade-right' : 'fade-left'}
+                data-aos-delay={catIdx * 60}
+                data-aos-duration="700"
+              >
                 <div className="mb-3 flex items-center gap-2">
                   {CAT_ICONS[cat.icon] && (() => { const CatIcon = CAT_ICONS[cat.icon]; return <CatIcon size={15} className="text-[#748F1C] shrink-0" />; })()}
                   <h2 className="font-display text-base font-bold text-[#1A2E1A]">{cat.title}</h2>
@@ -122,7 +127,7 @@ export default function FaqPage() {
         )}
 
         {/* Footer CTA */}
-        <div className="mt-10 rounded-2xl border border-[#D8D1C0] bg-[#F5F2EA] p-5 text-center">
+        <div data-aos="fade-up" data-aos-duration="700" className="mt-10 rounded-2xl border border-[#D8D1C0] bg-[#F5F2EA] p-5 text-center">
           <Headphones size={20} className="mx-auto mb-2 text-[#8A9E7A]" />
           <p className="font-semibold text-[#1A2E1A] font-display text-sm">Masih punya pertanyaan?</p>
           <p className="mt-1 text-xs text-[#6B7F5A] font-sans">Tim kami siap membantu kamu di Discord dan WhatsApp.</p>

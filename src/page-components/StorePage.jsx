@@ -42,14 +42,14 @@ export default function StorePage() {
         <div aria-hidden="true" className="pointer-events-none absolute inset-0">
           <div className="absolute left-1/2 top-0 h-48 w-80 -translate-x-1/2 rounded-full bg-[#B4E035]/10 blur-3xl" />
         </div>
-        <span className="relative mb-3 inline-flex items-center gap-1.5 rounded-full border border-[#B4E035]/35 bg-[#B4E035]/10 px-3 py-1 font-mono text-[0.65rem] font-semibold uppercase tracking-[0.15em] text-[#748F1C]">
+        <span data-aos="fade-down" data-aos-duration="600" className="relative mb-3 inline-flex items-center gap-1.5 rounded-full border border-[#B4E035]/35 bg-[#B4E035]/10 px-3 py-1 font-mono text-[0.65rem] font-semibold uppercase tracking-[0.15em] text-[#748F1C]">
           <span className="h-1.5 w-1.5 animate-pulse-dot rounded-full bg-[#B4E035]" />
           AeroBlast Store
         </span>
-        <h1 className="relative font-display text-2xl font-extrabold text-[#1A2E1A] sm:text-3xl">
+        <h1 data-aos="fade-up" data-aos-delay="100" data-aos-duration="700" className="relative font-display text-2xl font-extrabold text-[#1A2E1A] sm:text-3xl">
           Toko In-Game Resmi
         </h1>
-        <p className="relative mt-1.5 text-xs text-[#6B7F5A]">
+        <p data-aos="fade-up" data-aos-delay="200" data-aos-duration="700" className="relative mt-1.5 text-xs text-[#6B7F5A]">
           Semua pembelian diproses manual via WhatsApp dalam 1–10 menit.
         </p>
       </div>
@@ -112,7 +112,7 @@ export default function StorePage() {
       <div className="mx-auto max-w-7xl px-4 py-8 sm:px-6 lg:px-8">
         <PlayerLoginPrompt />
         {current && (
-          <div className="mb-6 flex items-center gap-2">
+          <div data-aos="fade-right" data-aos-duration="500" className="mb-6 flex items-center gap-2">
             <current.icon size={16} className="text-[#748F1C]" />
             <h2 className="font-display text-lg font-bold text-[#1A2E1A]">{current.label}</h2>
             <span className="text-[#6B7F5A]">·</span>

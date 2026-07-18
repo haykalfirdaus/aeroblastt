@@ -29,11 +29,11 @@ export function initAOS() {
 
   if (!aosStarted) {
     AOS.init({
-      duration: isMobile ? 380 : 520,
+      duration: isMobile ? 550 : 750,
       easing: 'ease-out-cubic',
       once: true,
-      offset: isMobile ? 24 : 40,
-      mirror: true,
+      offset: isMobile ? 24 : 60,
+      mirror: false,
       disable: false,
     });
     aosStarted = true;

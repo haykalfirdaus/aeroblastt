@@ -190,7 +190,13 @@ export function SpecialRanksSection() {
 
         <div className="grid grid-cols-1 gap-5 md:grid-cols-2 max-w-3xl mx-auto">
           {SPECIAL_RANKS.map((rank, i) => (
-            <GlassCard key={rank.key} interactive>
+            <GlassCard
+              key={rank.key}
+              interactive
+              data-aos={i === 0 ? 'fade-right' : 'fade-left'}
+              data-aos-delay={i * 150}
+              data-aos-duration="750"
+            >
               <div className="flex flex-col gap-4 p-5">
                 <div className="flex items-center gap-3">
                   <div className="grid h-11 w-11 shrink-0 place-items-center rounded-xl border border-[#D8D1C0] bg-[#F0EBE0] shadow-[0_0_18px_-4px_rgba(180,224,53,0.25)]">

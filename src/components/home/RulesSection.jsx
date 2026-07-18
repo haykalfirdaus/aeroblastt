@@ -13,13 +13,21 @@ export function RulesSection() {
           eyebrow="Peraturan Server"
           title="Rules & Regulasi"
           description="Baca dan patuhi semua peraturan berikut. Pelanggaran akan dikenakan sanksi tegas."
+          data-aos="fade-up"
+          data-aos-duration="700"
         />
 
         <div className="grid grid-cols-1 gap-4 md:grid-cols-3">
           {RULES.map((cat, catIdx) => {
             const CatIcon = CAT_ICONS[catIdx] ?? Settings;
+            const aosDir = catIdx === 0 ? 'fade-right' : catIdx === 1 ? 'fade-up' : 'fade-left';
             return (
-              <GlassCard key={cat.title}>
+              <GlassCard
+                key={cat.title}
+                data-aos={aosDir}
+                data-aos-delay={catIdx * 120}
+                data-aos-duration="750"
+              >
                 <div className="p-4">
                   <div className="mb-3 flex items-center gap-2">
                     <CatIcon size={15} className="text-[#748F1C] shrink-0" />
