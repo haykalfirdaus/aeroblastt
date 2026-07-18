@@ -30,10 +30,7 @@ const RANK_GROUP = {
 
 export const KEY_NAMES = ['basic', 'vote', 'vip', 'legend', 'aerospace'];
 
-// Only purchasable rank names, descending tier order (highest first).
-// Non-purchasable ranks (builder, media, default, member, etc.) are intentionally
-// absent — if LP output only lists those, getPlayerRank returns null (= no rank).
-const PURCHASABLE_RANKS_DESC = ['universe', 'galatics', 'quantum', 'vortex', 'ravest', 'orbiter', 'voyager', 'scout'];
+import { getPlayerRankFromDB } from './_mysql.js';
 
 function stripMcColors(str) {
   return String(str ?? '').replace(/§[0-9a-fk-orx]/gi, '').trim();
@@ -101,19 +98,16 @@ export async function giveKey(nick, keyName, qty) {
   return rconSend(`case key give ${nick} ${keyName} ${qty}`);
 }
 
-// lp user <nick> parent info — returns { ok, rank: 'SCOUT'|...|null }
-// Hanya rank yang bisa dibeli di store yang dihitung. Rank lain (builder, media,
-// default, dll) diabaikan — jika tidak ada rank purchasable sama sekali, rank: null.
+// Query rank purchasable player via MySQL LP — lebih reliable dari RCON
+// karena LP command bersifat async dan sering return kosong via RCON.
 export async function getPlayerRank(nick) {
   try { guard(nick, SAFE_NICK, 'nick'); } catch (e) { return { ok: false, rank: null, error: e.message }; }
-  const result = await rconSend(`lp user ${nick} parent info`);
-  if (!result.ok) return { ok: false, rank: null, error: result.error, _raw: result.response ?? null };
-  const lower = (result.response || '').toLowerCase();
-  for (const name of PURCHASABLE_RANKS_DESC) {
-    const re = new RegExp(`(?<![a-z0-9])${name}(?![a-z0-9])`);
-    if (re.test(lower)) return { ok: true, rank: name.toUpperCase(), _raw: result.response };
+  try {
+    const rank = await getPlayerRankFromDB(nick);
+    return { ok: true, rank };
+  } catch (err) {
+    return { ok: false, rank: null, error: err.message };
   }
-  return { ok: true, rank: null, _raw: result.response };
 }
 
 // bansos <keyName> <amount> [duration]
