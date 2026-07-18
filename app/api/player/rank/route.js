@@ -1,6 +1,7 @@
 import { NextResponse } from 'next/server';
 import { verifyPlayerToken } from '@/api/_auth';
 import { getPlayerRank } from '@/api/_rcon';
+import { Rcon } from 'rcon-client';
 
 const NICK_RE = /^[a-zA-Z0-9_.]{1,36}$/;
 
@@ -10,9 +11,29 @@ export async function GET(request) {
 
   const { searchParams } = new URL(request.url);
   const nick = searchParams.get('nick') || sessionNick;
+  const debug = searchParams.get('debug') === '1' && process.env.NODE_ENV !== 'production';
 
   if (!nick || !NICK_RE.test(nick)) {
     return NextResponse.json({ ok: false, error: 'nick tidak valid' }, { status: 400 });
+  }
+
+  if (debug) {
+    // Return raw RCON output untuk debugging — hanya aktif di dev (non-production)
+    let rcon;
+    try {
+      rcon = await Rcon.connect({
+        host: process.env.RCON_HOST,
+        port: Number(process.env.RCON_PORT) || 25575,
+        password: process.env.RCON_PASSWORD,
+        timeout: 5000,
+      });
+      const raw = await rcon.send(`lp user ${nick} parent info`);
+      return NextResponse.json({ ok: true, raw });
+    } catch (err) {
+      return NextResponse.json({ ok: false, error: err.message });
+    } finally {
+      rcon?.end().catch(() => {});
+    }
   }
 
   const result = await getPlayerRank(nick);
