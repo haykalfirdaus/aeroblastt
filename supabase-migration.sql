@@ -65,3 +65,41 @@ create index if not exists idx_invoices_paid_paid_at on public.invoices (paid, p
 alter table public.invoices enable row level security;
 
 -- Tidak ada policy publik — hanya service_role (admin API) yang bisa akses
+
+-- ============================================================
+-- Tabel donations — riwayat donasi yang sudah berhasil masuk
+-- ============================================================
+
+create table if not exists public.donations (
+  id          uuid        primary key default gen_random_uuid(),
+  donor_name  text        not null default 'Anonim',
+  nick        text        null,           -- null = anonim, tidak masuk leaderboard
+  amount      integer     not null check (amount > 0),
+  message     text        not null default '',
+  paid_at     timestamptz not null default now(),
+  created_at  timestamptz not null default now()
+);
+
+create index if not exists idx_donations_paid_at on public.donations (paid_at desc);
+create index if not exists idx_donations_nick    on public.donations (nick) where nick is not null;
+
+alter table public.donations enable row level security;
+
+-- Policy: publik boleh SELECT semua donations (riwayat + leaderboard)
+create policy "public read donations"
+  on public.donations for select
+  using (true);
+
+-- service_role (server API) bypass RLS otomatis — insert dari handleNotify
+
+-- ── View: leaderboard per nick (hanya yang login) ──────────────────────────
+create or replace view public.donation_leaderboard as
+  select
+    nick,
+    sum(amount)   as total_amount,
+    count(*)      as donation_count,
+    max(paid_at)  as last_donated_at
+  from public.donations
+  where nick is not null
+  group by nick
+  order by total_amount desc;

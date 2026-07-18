@@ -1,10 +1,11 @@
 'use client';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-import { Copy, Check, Home, ShoppingBag, Trophy, HelpCircle, FileText, MessageCircle, Phone, Server } from 'lucide-react';
+import { Copy, Check, Home, ShoppingBag, Trophy, HelpCircle, FileText, MessageCircle, Phone, Server, Heart } from 'lucide-react';
 import { SITE } from '@/data/config';
 import { useClipboard } from '@/hooks/useClipboard';
 import { scrollToId } from '@/lib/motion';
+import { cn } from '@/lib/cn';
 const logo = '/logo.png';
 
 const LINKS = [
@@ -13,6 +14,7 @@ const LINKS = [
   { label: 'Top Voters',         to: '/top-voters',  icon: Trophy,      sectionId: null },
   { label: 'FAQ',                to: '/faq',         icon: HelpCircle,  sectionId: null },
   { label: 'Syarat & Ketentuan', to: '/terms',       icon: FileText,    sectionId: null },
+  { label: 'Donasi',             to: '/donate',      icon: Heart,       sectionId: null },
 ];
 
 export function Footer() {
@@ -66,18 +68,26 @@ export function Footer() {
           <div>
             <p className="mb-3 text-[0.6rem] font-semibold uppercase tracking-widest text-[#8A9E7A]">Navigasi</p>
             <ul className="flex flex-col gap-1.5">
-              {LINKS.map((l) => (
-                <li key={l.to}>
-                  <Link
-                    href={l.to}
-                    onClick={(e) => handleLinkClick(e, l)}
-                    className="inline-flex items-center gap-1.5 text-xs text-[#6B7F5A] transition-all hover:text-[#748F1C]"
-                  >
-                    <l.icon size={11} className="text-[#8A9E7A]" />
-                    {l.label}
-                  </Link>
-                </li>
-              ))}
+              {LINKS.map((l) => {
+                const isDonate = l.to === '/donate';
+                return (
+                  <li key={l.to}>
+                    <Link
+                      href={l.to}
+                      onClick={(e) => handleLinkClick(e, l)}
+                      className={cn(
+                        'inline-flex items-center gap-1.5 text-xs transition-all',
+                        isDonate
+                          ? 'font-bold text-[#748F1C] hover:text-[#5A8A08]'
+                          : 'text-[#6B7F5A] hover:text-[#748F1C]'
+                      )}
+                    >
+                      <l.icon size={11} className={isDonate ? 'text-[#748F1C]' : 'text-[#8A9E7A]'} />
+                      {l.label}
+                    </Link>
+                  </li>
+                );
+              })}
             </ul>
           </div>
 

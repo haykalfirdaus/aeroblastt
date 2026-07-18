@@ -1,7 +1,7 @@
 'use client';
 import { useRef, useState } from 'react';
 import {
-  Medal, KeyRound, Zap, Coins, Terminal, Palette, Heart,
+  Medal, KeyRound, Zap, Coins, Terminal, Palette,
 } from 'lucide-react';
 import { PageLayout } from '@/components/layout/PageLayout';
 import { PlayerLoginPrompt } from '@/components/store/PlayerLoginPrompt';
@@ -11,7 +11,6 @@ import { SkillBoostTab } from '@/components/store/SkillBoostTab';
 import { BalanceTab } from '@/components/store/BalanceTab';
 import { CommandsTab } from '@/components/store/CommandsTab';
 import { CosmeticsTab } from '@/components/store/CosmeticsTab';
-import { DonateTab } from '@/components/store/DonateTab';
 import { cn } from '@/lib/cn';
 
 const TABS = [
@@ -21,7 +20,6 @@ const TABS = [
   { id: 'balance',   label: 'Balance',     icon: Coins,    desc: 'Top-up balance in-game' },
   { id: 'commands',  label: 'Commands',    icon: Terminal, desc: 'Akses command premium' },
   { id: 'cosmetics', label: 'Cosmetics',   icon: Palette,  desc: 'Custom prefix & tampilan' },
-  { id: 'donate',   label: 'Donasi',      icon: Heart,    desc: 'Dukung server AeroBlast' },
 ];
 
 const TAB_CONTENT = {
@@ -31,7 +29,6 @@ const TAB_CONTENT = {
   balance:   <BalanceTab />,
   commands:  <CommandsTab />,
   cosmetics: <CosmeticsTab />,
-  donate:    <DonateTab />,
 };
 
 const TAB_IDS = TABS.map((t) => t.id);

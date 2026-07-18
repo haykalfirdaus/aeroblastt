@@ -9,7 +9,9 @@ import { isValidOrigin } from '@/api/_auth';
 const SUFFIX_MIN = 1;
 const SUFFIX_MAX = 999;
 const ORDER_TTL_MS = 30 * 60 * 1000;
-const VALID_TYPES = ['rank', 'key', 'skill', 'balance', 'command', 'cosmetic'];
+const VALID_TYPES = ['rank', 'key', 'skill', 'balance', 'command', 'cosmetic', 'donate'];
+const DONATE_MIN = 1000;
+const DONATE_MAX = 100_000_000;
 const NOTIFY_SECRET = process.env.NOTIFY_SECRET;
 const DISCORD_WEBHOOK_URL = process.env.DISCORD_WEBHOOK_URL;
 
@@ -46,24 +48,53 @@ async function executeRcon(order) {
   if (type === 'rank') return grantRank(nick, details.target, details.duration);
   if (type === 'key') return giveKey(nick, details.keyName, details.qty ?? 1);
   if (type === 'balance') return giveMoney(nick, details.balance);
+  if (type === 'donate') return { ok: true, response: 'Donasi diterima — tidak ada item RCON' };
   return { ok: false, error: `Tipe '${type}' belum di-handle RCON otomatis` };
 }
 
 async function handleCreate(body, request) {
   if (!isValidOrigin(request)) return NextResponse.json({ ok: false, error: 'Forbidden' }, { status: 403 });
-  // Rate limit: 5 order per IP per 10 menit
   const rl = rateLimit(getIp(request), { max: 5, windowMs: 10 * 60 * 1000 });
   if (!rl.ok) return NextResponse.json({ ok: false, error: `Terlalu banyak request. Coba lagi dalam ${rl.retryAfter} detik.` }, { status: 429, headers: { 'Retry-After': String(rl.retryAfter) } });
 
   const { type, nick, platform, baseAmount, details } = body || {};
   if (!VALID_TYPES.includes(type)) return NextResponse.json({ ok: false, error: 'type tidak valid' }, { status: 400 });
-  if (!nick?.trim() || !/^[a-zA-Z0-9_.]{1,36}$/.test(nick.trim())) return NextResponse.json({ ok: false, error: 'nick tidak valid' }, { status: 400 });
-  if (!platform) return NextResponse.json({ ok: false, error: 'platform diperlukan' }, { status: 400 });
 
   const amount = Number(baseAmount);
   if (!amount || amount <= 0 || !Number.isInteger(amount)) return NextResponse.json({ ok: false, error: 'baseAmount tidak valid' }, { status: 400 });
 
-  // Validasi harga server-side — tolak kalau di bawah minimum produk
+  // ── Donate: validasi berbeda (no nick/platform required) ─────────────────────
+  if (type === 'donate') {
+    if (amount < DONATE_MIN || amount > DONATE_MAX) {
+      return NextResponse.json({ ok: false, error: `Nominal donasi harus antara ${formatRp(DONATE_MIN)} – ${formatRp(DONATE_MAX)}` }, { status: 400 });
+    }
+
+    await expireOldOrders();
+    const suffix = await allocateSuffix();
+    if (suffix === null) return NextResponse.json({ ok: false, error: 'Server sibuk, coba lagi nanti' }, { status: 503 });
+
+    const totalAmount = amount + suffix;
+    const expiresAt = new Date(Date.now() + ORDER_TTL_MS).toISOString();
+
+    const { data: order, error } = await supabase.from('beta_orders').insert({
+      suffix,
+      nick: String(details?.name || 'Anonim').slice(0, 40),
+      platform: 'QRIS',
+      type: 'donate',
+      base_amount: amount,
+      total_amount: totalAmount,
+      details: { name: details?.name || 'Anonim', nick: details?.nick || null, message: details?.message || '' },
+      expires_at: expiresAt,
+    }).select('id, suffix, total_amount, expires_at').single();
+    if (error) return NextResponse.json({ ok: false, error: 'Gagal membuat order' }, { status: 500 });
+
+    return NextResponse.json({ ok: true, orderId: order.id, suffix: order.suffix, totalAmount: order.total_amount, expiresAt: order.expires_at });
+  }
+
+  // ── Normal order ──────────────────────────────────────────────────────────────
+  if (!nick?.trim() || !/^[a-zA-Z0-9_.]{1,36}$/.test(nick.trim())) return NextResponse.json({ ok: false, error: 'nick tidak valid' }, { status: 400 });
+  if (!platform) return NextResponse.json({ ok: false, error: 'platform diperlukan' }, { status: 400 });
+
   const minAmount = getMinBaseAmount(type, details);
   if (minAmount === null) return NextResponse.json({ ok: false, error: 'Detail produk tidak valid' }, { status: 400 });
   if (amount < minAmount) return NextResponse.json({ ok: false, error: `Nominal terlalu kecil (minimum ${formatRp(minAmount)})` }, { status: 400 });
@@ -128,6 +159,33 @@ async function handleNotify(request) {
     return NextResponse.json({ ok: false, error: 'Order tidak ditemukan' }, { status: 404 });
   }
 
+  // ── Donate: simpan ke donations table, announce Discord, DELETE order ─────────
+  if (order.type === 'donate') {
+    const donorName = order.details?.name || order.nick || 'Anonim';
+    const donorMsg = order.details?.message || '';
+    // Insert ke tabel donations (best-effort, jangan blokir response)
+    // nick dari details — null jika anonim (tidak masuk leaderboard)
+    const donorNick = order.details?.nick || null;
+    try {
+      await supabase.from('donations').insert({
+        donor_name: donorName.slice(0, 40),
+        nick: donorNick ? donorNick.slice(0, 36) : null,
+        amount,
+        message: donorMsg.slice(0, 200),
+        paid_at: new Date().toISOString(),
+      });
+    } catch { }
+    const donateFields = [
+      { name: 'Donatur', value: donorName, inline: true },
+      { name: 'Nominal', value: `**${formatRp(amount)}**`, inline: true },
+    ];
+    if (donorMsg) donateFields.push({ name: 'Pesan', value: `"${donorMsg}"`, inline: false });
+    await sendDiscord({ title: '💚 Donasi Diterima!', color: 0x84cc16, fields: donateFields, footer: { text: 'AeroBlast Network • Donasi via QRIS' }, timestamp: new Date().toISOString() });
+    await supabase.from('beta_orders').delete().eq('id', order.id);
+    return NextResponse.json({ ok: true, type: 'donate' });
+  }
+
+  // ── Normal order ──────────────────────────────────────────────────────────────
   await supabase.from('beta_orders').update({ status: 'paid', paid_at: new Date().toISOString() }).eq('id', order.id);
   if (order.invoice_id) await supabase.from('invoices').delete().eq('id', order.invoice_id);
 
@@ -150,12 +208,17 @@ async function handleStatus(request) {
   const orderId = new URL(request.url).searchParams.get('orderId');
   if (!orderId) return NextResponse.json({ ok: false, error: 'orderId diperlukan' }, { status: 400 });
 
-  // Hanya ambil field yang dibutuhkan client — jangan expose nick/type/detail ke publik
-  const { data: order, error } = await supabase.from('beta_orders').select('id, status, expires_at, paid_at').eq('id', orderId).single();
+  // type dibutuhkan untuk logika expired donate; nick/details tetap tidak diexpose
+  const { data: order, error } = await supabase.from('beta_orders').select('id, type, status, expires_at, paid_at').eq('id', orderId).single();
   if (error || !order) return NextResponse.json({ ok: false, error: 'Order tidak ditemukan' }, { status: 404 });
 
   if (order.status === 'pending' && new Date(order.expires_at) < new Date()) {
-    await supabase.from('beta_orders').update({ status: 'expired' }).eq('id', orderId);
+    // Donate order yang expired langsung dihapus, order biasa di-update ke expired
+    if (order.type === 'donate') {
+      await supabase.from('beta_orders').delete().eq('id', orderId);
+    } else {
+      await supabase.from('beta_orders').update({ status: 'expired' }).eq('id', orderId);
+    }
     order.status = 'expired';
   }
 

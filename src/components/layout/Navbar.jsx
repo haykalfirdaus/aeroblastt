@@ -2,7 +2,7 @@
 import { useEffect, useRef, useState } from 'react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-import { Menu, X, Home, ShoppingBag, Trophy, HelpCircle, MessageCircle } from 'lucide-react';
+import { Menu, X, Home, ShoppingBag, Trophy, HelpCircle, MessageCircle, Heart } from 'lucide-react';
 import { cn } from '@/lib/cn';
 import { scrollToId } from '@/lib/motion';
 const logo = '/logo.png';
@@ -12,6 +12,7 @@ const NAV_LINKS = [
   { to: '/store', label: 'Store',             icon: ShoppingBag, sectionId: null },
   { to: '/top-voters', label: 'Top Voters',   icon: Trophy,      sectionId: null },
   { to: '/faq', label: 'FAQ',                 icon: HelpCircle,  sectionId: null },
+  { to: '/donate', label: 'Donasi',           icon: Heart,       sectionId: null },
 ];
 
 export function Navbar() {
@@ -77,12 +78,17 @@ export function Navbar() {
         <div className="hidden items-center gap-1.5 md:flex">
           {NAV_LINKS.map((link) => {
             const isActive = link.exact ? pathname === link.to : pathname.startsWith(link.to);
+            const isDonate = link.to === '/donate';
             return (
               <Link
                 key={link.to}
                 href={link.to}
                 onClick={(e) => handleNavClick(e, link)}
-                className={cn('nav-pill', isActive && 'nav-pill-active')}
+                className={cn(
+                  isDonate
+                    ? 'inline-flex items-center gap-1.5 rounded-full border border-[#B4E035]/50 bg-[#B4E035]/15 px-3 py-1.5 text-xs font-bold text-[#748F1C] transition-all duration-150 hover:border-[#B4E035]/70 hover:bg-[#B4E035]/25'
+                    : cn('nav-pill', isActive && 'nav-pill-active')
+                )}
               >
                 <link.icon size={11} className="shrink-0" />
                 {link.label}
@@ -125,6 +131,7 @@ export function Navbar() {
         <div className="flex flex-col gap-1 px-4 pb-4 pt-2">
           {NAV_LINKS.map((link) => {
             const isActive = link.exact ? pathname === link.to : pathname.startsWith(link.to);
+            const isDonate = link.to === '/donate';
             return (
               <Link
                 key={link.to}
@@ -132,7 +139,9 @@ export function Navbar() {
                 onClick={(e) => handleNavClick(e, link)}
                 className={cn(
                   'flex items-center gap-2.5 rounded-full px-4 py-2.5 text-xs font-semibold transition-all',
-                  isActive
+                  isDonate
+                    ? 'border border-[#B4E035]/50 bg-[#B4E035]/15 text-[#748F1C] font-bold'
+                    : isActive
                     ? 'border border-[#B4E035]/50 bg-[#B4E035]/12 text-[#748F1C]'
                     : 'border border-transparent text-[#6B7F5A] hover:border-[#D8D1C0] hover:bg-[#E8E3D4] hover:text-[#1A2E1A]'
                 )}
