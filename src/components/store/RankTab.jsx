@@ -5,9 +5,10 @@ import { Button } from '@/components/ui/Button';
 import { Icon } from '@/components/ui/Icon';
 import { Badge } from '@/components/ui/Badge';
 import { RankOrderModal } from './RankOrderModal';
-import { RANKS } from '@/data/ranks';
+import { RANKS, RANK_ORDER } from '@/data/ranks';
 import { formatRupiah } from '@/utils/currency';
 import { usePlayerAuth } from '@/context/PlayerAuthContext';
+import { usePlayerRank } from '@/hooks/usePlayerRank';
 import { cn } from '@/lib/cn';
 
 // Ranks displayed highest-price first (anchoring effect)
@@ -102,7 +103,10 @@ const TIER_STYLES = {
 
 export function RankTab() {
   const { nick } = usePlayerAuth();
+  const { rank: ownedRank } = usePlayerRank();
   const [selected, setSelected] = useState(null);
+
+  const ownedIdx = RANK_ORDER.indexOf(ownedRank ?? 'NONE');
 
   return (
     <>
@@ -117,6 +121,10 @@ export function RankTab() {
           const isUltimate = idx === 0;
           const isFeatured = tier.featured;
 
+          const rankIdx = RANK_ORDER.indexOf(rank.key);
+          const isOwned = rank.key === ownedRank;
+          const isLocked = !!ownedRank && rankIdx <= ownedIdx;
+
           return (
             <div
               key={rank.key}
@@ -126,8 +134,8 @@ export function RankTab() {
                 tier.glow,
                 tier.ring,
                 tier.bg,
-                'hover:scale-[1.015]',
-                isFeatured ? 'hover:brightness-110' : 'opacity-90 hover:opacity-100',
+                isLocked && !isOwned ? 'opacity-50' : 'hover:scale-[1.015]',
+                !isLocked && (isFeatured ? 'hover:brightness-110' : 'opacity-90 hover:opacity-100'),
               )}
               style={{ animation: 'page-wipe-in 0.5s cubic-bezier(0.22,1,0.36,1) both', animationDelay: `${idx * 70}ms` }}
             >
@@ -151,11 +159,16 @@ export function RankTab() {
               )}
 
               <div className="flex h-full flex-col p-4">
-                {tier.badge && (
+                {/* Badge: DIMILIKI overrides tier badge */}
+                {isOwned ? (
+                  <div className="mb-2 flex justify-center">
+                    <Badge tone="success">DIMILIKI</Badge>
+                  </div>
+                ) : tier.badge ? (
                   <div className="mb-2 flex justify-center">
                     <Badge tone={tier.badgeTone ?? 'neon'}>{tier.badge}</Badge>
                   </div>
-                )}
+                ) : null}
 
                 {/* Icon + name */}
                 <div className="mb-3 flex flex-col items-center gap-2 text-center">
@@ -197,20 +210,42 @@ export function RankTab() {
                   ))}
                 </ul>
 
-                <Button
-                  fullWidth
-                  variant={isFeatured ? 'primary' : 'secondary'}
-                  size="sm"
-                  onClick={() => nick && setSelected(rank)}
-                  disabled={!nick}
-                  title={!nick ? 'Login dulu untuk order' : undefined}
-                  className={cn(
-                    isUltimate && nick && 'ring-2 ring-[#B4E035]/40',
-                    !isFeatured && 'opacity-75',
-                  )}
-                >
-                  {nick ? 'Order Sekarang' : <><Lock size={12} className="inline mr-1" />Login dulu</>}
-                </Button>
+                {isOwned ? (
+                  <Button
+                    fullWidth
+                    variant={isFeatured ? 'primary' : 'secondary'}
+                    size="sm"
+                    disabled
+                    className={cn(!isFeatured && 'opacity-75')}
+                  >
+                    Rank Kamu
+                  </Button>
+                ) : isLocked ? (
+                  <Button
+                    fullWidth
+                    variant="secondary"
+                    size="sm"
+                    disabled
+                    className="opacity-75"
+                  >
+                    <Lock size={12} className="inline mr-1" />Sudah Dilewati
+                  </Button>
+                ) : (
+                  <Button
+                    fullWidth
+                    variant={isFeatured ? 'primary' : 'secondary'}
+                    size="sm"
+                    onClick={() => nick && setSelected(rank)}
+                    disabled={!nick}
+                    title={!nick ? 'Login dulu untuk order' : undefined}
+                    className={cn(
+                      isUltimate && nick && 'ring-2 ring-[#B4E035]/40',
+                      !isFeatured && 'opacity-75',
+                    )}
+                  >
+                    {nick ? 'Order Sekarang' : <><Lock size={12} className="inline mr-1" />Login dulu</>}
+                  </Button>
+                )}
               </div>
             </div>
           );
