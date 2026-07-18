@@ -44,12 +44,17 @@ export async function getPlayerRankFromDB(nick) {
 
   // Cari UUID dari tabel nlogin (LP pakai UUID, bukan nama)
   const [uuidRows] = await db.execute(
-    'SELECT uuid FROM nlogin WHERE last_name = ? LIMIT 1',
+    'SELECT * FROM nlogin WHERE last_name = ? LIMIT 1',
     [nick]
   );
   if (uuidRows.length === 0) return null;
 
-  const uuid = uuidRows[0].uuid;
+  // Deteksi nama kolom UUID secara dinamis
+  const row = uuidRows[0];
+  const uuid = row.uuid ?? row.uniqueId ?? row.unique_id ?? row.player_uuid ?? row.playerUUID
+    ?? Object.values(row).find((v) => typeof v === 'string' && /^[0-9a-f-]{32,36}$/i.test(v));
+
+  if (!uuid) throw new Error(`UUID kolom tidak ditemukan. Kolom nlogin: ${Object.keys(row).join(', ')}`);
 
   // Query semua grup aktif milik player ini dari LP
   // permission berformat "group.namagrup", expiry 0 = permanen, >0 = temp (unix timestamp)
