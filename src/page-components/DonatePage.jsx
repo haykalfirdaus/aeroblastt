@@ -217,7 +217,7 @@ export default function DonatePage() {
       if (!data.ok) { setCreateError(data.error || 'Gagal membuat order'); return; }
       setOrder({ orderId: data.orderId, totalAmount: data.totalAmount, suffix: data.suffix, expiresAt: data.expiresAt });
       setStep('qris');
-    } catch { setCreateError('Koneksi bermasalah, coba lagi'); }
+    } catch (err) { setCreateError(`Koneksi bermasalah: ${err?.message || err}`); }
     finally { setCreating(false); }
   }
 
