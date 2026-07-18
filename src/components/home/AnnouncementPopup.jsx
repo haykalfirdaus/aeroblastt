@@ -71,7 +71,7 @@ export function AnnouncementPopup() {
     <div
       className={cn(
         'fixed inset-0 z-[9999] flex items-center justify-center p-4',
-        'bg-void/80 backdrop-blur-sm',
+        'bg-[#1A2E1A]/40 backdrop-blur-sm',
         'transition-opacity duration-250',
         closing ? 'opacity-0' : 'opacity-100',
       )}
@@ -80,7 +80,7 @@ export function AnnouncementPopup() {
       <div
         className={cn(
           'relative w-full max-w-lg overflow-hidden rounded-2xl',
-          'border border-neon-500/30 bg-deep shadow-[0_32px_64px_-16px_rgba(0,0,0,0.7)]',
+          'border border-[#B4E035]/30 bg-[#FAF8F4] shadow-[0_32px_64px_-16px_rgba(26,46,26,0.25)]',
           'transition-transform duration-250',
           closing ? 'scale-95' : 'scale-100',
         )}
@@ -90,22 +90,22 @@ export function AnnouncementPopup() {
         <span
           aria-hidden="true"
           className="absolute inset-x-0 top-0 h-px"
-          style={{ background: 'linear-gradient(90deg, transparent, var(--color-neon-500), transparent)' }}
+          style={{ background: 'linear-gradient(90deg, transparent, #B4E035, transparent)' }}
         />
 
         {/* Header */}
-        <div className="flex items-center justify-between border-b border-white/6 bg-neon-500/[0.06] px-5 py-3.5">
+        <div className="flex items-center justify-between border-b border-[#D8D1C0] bg-[#B4E035]/[0.06] px-5 py-3.5">
           <div className="flex items-center gap-2.5">
-            <span className="flex h-8 w-8 items-center justify-center rounded-lg border border-neon-500/30 bg-neon-500/15">
-              <Megaphone size={15} className="text-neon-400" />
+            <span className="flex h-8 w-8 items-center justify-center rounded-lg border border-[#B4E035]/40 bg-[#B4E035]/15">
+              <Megaphone size={15} className="text-[#748F1C]" />
             </span>
-            <span className="text-sm font-semibold uppercase tracking-widest text-neon-400">Pengumuman</span>
+            <span className="text-sm font-semibold uppercase tracking-widest text-[#748F1C]">Pengumuman</span>
           </div>
           <button
             type="button"
             onClick={dismiss}
             aria-label="Tutup pengumuman"
-            className="flex h-8 w-8 items-center justify-center rounded-lg border border-white/8 bg-white/[0.04] text-text-dim transition-colors hover:border-white/15 hover:text-text-bright"
+            className="flex h-8 w-8 items-center justify-center rounded-lg border border-[#D8D1C0] bg-[#FAFAF7] text-[#6B7F5A] transition-colors hover:border-[#B4E035]/40 hover:text-[#1A2E1A]"
           >
             <X size={14} />
           </button>
@@ -113,23 +113,23 @@ export function AnnouncementPopup() {
 
         {/* Content */}
         <div className="px-6 py-7 text-center">
-          <p className="text-lg font-semibold leading-relaxed text-text-bright sm:text-xl">
+          <p className="text-lg font-semibold leading-relaxed text-[#1A2E1A] sm:text-xl">
             {ann.message ?? ann.content ?? ann.text ?? ''}
           </p>
 
           {timeLabel && (
-            <div className="mt-4 inline-flex items-center gap-1.5 rounded-full border border-neon-500/25 bg-neon-500/10 px-4 py-1.5 font-mono text-sm font-medium text-neon-300">
+            <div className="mt-4 inline-flex items-center gap-1.5 rounded-full border border-[#B4E035]/35 bg-[#B4E035]/10 px-4 py-1.5 font-mono text-sm font-medium text-[#748F1C]">
               ⏱ {timeLabel}
             </div>
           )}
         </div>
 
         {/* Footer */}
-        <div className="border-t border-white/6 px-6 py-3.5">
+        <div className="border-t border-[#D8D1C0] px-6 py-3.5">
           <button
             type="button"
             onClick={dismiss}
-            className="w-full rounded-xl bg-neon-500/15 py-2.5 text-sm font-semibold text-neon-300 transition-colors hover:bg-neon-500/25 hover:text-neon-200"
+            className="w-full rounded-xl bg-[#B4E035] py-2.5 text-sm font-semibold text-[#1A2E1A] transition-colors hover:bg-[#9CC81E]"
           >
             Mengerti
           </button>

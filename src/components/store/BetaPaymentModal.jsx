@@ -29,7 +29,7 @@ function CountdownTimer({ expiresAt }) {
   const isUrgent = remaining !== 'Expired' && parseInt(remaining) < 5;
 
   return (
-    <span className={cn('font-mono font-bold tabular-nums', isUrgent ? 'text-red-400' : 'text-cyan-400')}>
+    <span className={cn('font-mono font-bold tabular-nums', isUrgent ? 'text-red-500' : 'text-[#748F1C]')}>
       {remaining}
     </span>
   );
@@ -102,10 +102,10 @@ export function BetaPaymentModal({ open, onClose, orderPayload, productLabel }) 
         {/* IDLE */}
         {status === 'idle' && (
           <div className="flex flex-col gap-4">
-            <div className="rounded-xl border border-white/8 bg-white/[0.03] px-4 py-3">
-              <p className="text-sm text-text-muted leading-relaxed">
-                Bayar <span className="font-semibold text-text-bright">{productLabel}</span> dengan nominal unik yang akan ditampilkan.
-                Scan QRIS dan transfer <span className="font-semibold text-cyan-400">tepat sesuai nominal</span> — item masuk otomatis setelah pembayaran terdeteksi.
+            <div className="rounded-xl border border-[#D8D1C0] bg-[#F5F2EA] px-4 py-3">
+              <p className="text-sm text-[#4A5E3E] leading-relaxed">
+                Bayar <span className="font-semibold text-[#1A2E1A]">{productLabel}</span> dengan nominal unik yang akan ditampilkan.
+                Scan QRIS dan transfer <span className="font-semibold text-[#748F1C]">tepat sesuai nominal</span> — item masuk otomatis setelah pembayaran terdeteksi.
               </p>
             </div>
             <Button fullWidth onClick={handleCreate} variant="primary">
@@ -117,8 +117,8 @@ export function BetaPaymentModal({ open, onClose, orderPayload, productLabel }) 
         {/* LOADING */}
         {status === 'loading' && (
           <div className="flex flex-col items-center gap-3 py-8">
-            <div className="h-8 w-8 animate-spin rounded-full border-2 border-neon-500 border-t-transparent" />
-            <p className="text-sm text-text-muted">Menyiapkan pembayaran...</p>
+            <div className="h-8 w-8 animate-spin rounded-full border-2 border-[#B4E035] border-t-transparent" />
+            <p className="text-sm text-[#4A5E3E]">Menyiapkan pembayaran...</p>
           </div>
         )}
 
@@ -126,30 +126,30 @@ export function BetaPaymentModal({ open, onClose, orderPayload, productLabel }) 
         {status === 'waiting' && order && (
           <div className="flex flex-col items-center gap-5">
             {/* Nominal */}
-            <div className="w-full rounded-xl border border-cyan-400/20 bg-cyan-400/5 px-4 py-3 text-center">
-              <p className="text-xs text-text-dim mb-1">Transfer TEPAT sebesar</p>
-              <p className="text-3xl font-bold tracking-tight text-cyan-400">{formatRupiah(order.totalAmount)}</p>
-              <p className="mt-1.5 text-xs text-text-dim">
+            <div className="w-full rounded-xl border border-[#B4E035]/25 bg-[#B4E035]/8 px-4 py-3 text-center">
+              <p className="text-xs text-[#6B7F5A] mb-1">Transfer TEPAT sebesar</p>
+              <p className="text-3xl font-bold tracking-tight text-[#748F1C]">{formatRupiah(order.totalAmount)}</p>
+              <p className="mt-1.5 text-xs text-[#6B7F5A]">
                 Sisa waktu: <CountdownTimer expiresAt={order.expiresAt} />
               </p>
             </div>
 
             {/* QRIS */}
-            <div className="rounded-2xl border border-white/10 bg-white p-3 shadow-lg">
+            <div className="rounded-2xl border border-[#D8D1C0] bg-white p-3 shadow-lg">
               <img src={QRIS_IMG} alt="QRIS AeroBlast" className="h-52 w-52 object-contain" />
             </div>
 
-            <p className="text-center text-xs text-text-dim leading-relaxed">
+            <p className="text-center text-xs text-[#6B7F5A] leading-relaxed">
               Bisa scan pakai GoPay, OVO, ShopeePay, DANA, atau m-banking apapun.
             </p>
 
             {/* Polling indicator */}
-            <div className="flex w-full items-center justify-center gap-2 rounded-lg border border-white/8 bg-white/[0.03] py-2.5">
+            <div className="flex w-full items-center justify-center gap-2 rounded-lg border border-[#D8D1C0] bg-[#F5F2EA] py-2.5">
               <span className="relative flex h-2 w-2">
-                <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-cyan-400 opacity-60" />
-                <span className="relative inline-flex h-2 w-2 rounded-full bg-cyan-400" />
+                <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-[#B4E035] opacity-60" />
+                <span className="relative inline-flex h-2 w-2 rounded-full bg-[#B4E035]" />
               </span>
-              <p className="text-xs text-text-muted">Menunggu konfirmasi pembayaran...</p>
+              <p className="text-xs text-[#4A5E3E]">Menunggu konfirmasi pembayaran...</p>
             </div>
           </div>
         )}
@@ -162,9 +162,9 @@ export function BetaPaymentModal({ open, onClose, orderPayload, productLabel }) 
               <span className="absolute inset-0 rounded-full animate-ping bg-green-500/10" style={{ animationDuration: '1.5s', animationIterationCount: 2 }} />
             </div>
             <div className="text-center">
-              <p className="text-xl font-bold text-green-400">Pembayaran Berhasil!</p>
-              <p className="mt-2 text-sm text-text-muted leading-relaxed">
-                <span className="font-semibold text-text-bright">{productLabel}</span> sedang diproses ke akun kamu.<br />
+              <p className="text-xl font-bold text-green-600">Pembayaran Berhasil!</p>
+              <p className="mt-2 text-sm text-[#4A5E3E] leading-relaxed">
+                <span className="font-semibold text-[#1A2E1A]">{productLabel}</span> sedang diproses ke akun kamu.<br />
                 Masuk ke server — item akan sudah aktif.
               </p>
             </div>
@@ -179,8 +179,8 @@ export function BetaPaymentModal({ open, onClose, orderPayload, productLabel }) 
               <span className="text-3xl">⏰</span>
             </div>
             <div className="text-center">
-              <p className="text-lg font-bold text-red-400">Waktu Habis</p>
-              <p className="mt-1 text-sm text-text-muted">
+              <p className="text-lg font-bold text-red-500">Waktu Habis</p>
+              <p className="mt-1 text-sm text-[#4A5E3E]">
                 Sesi pembayaran sudah berakhir. Buat order baru untuk melanjutkan.
               </p>
             </div>
@@ -195,8 +195,8 @@ export function BetaPaymentModal({ open, onClose, orderPayload, productLabel }) 
               <span className="text-3xl">⚠️</span>
             </div>
             <div className="text-center">
-              <p className="text-lg font-bold text-red-400">Gagal Memproses</p>
-              <p className="mt-1 text-sm text-text-dim">{error}</p>
+              <p className="text-lg font-bold text-red-500">Gagal Memproses</p>
+              <p className="mt-1 text-sm text-[#6B7F5A]">{error}</p>
             </div>
             <Button fullWidth onClick={handleCreate}>Coba Lagi</Button>
           </div>

@@ -32,10 +32,10 @@ function ScrollManager() {
 
 function PageLoader() {
   return (
-    <div className="fixed inset-0 z-[300] flex items-center justify-center bg-void">
+    <div className="fixed inset-0 z-[300] flex items-center justify-center bg-[#F4EFE4]">
       <div className="flex flex-col items-center gap-4">
-        <div className="h-10 w-10 animate-spin rounded-full border-2 border-neon-500/20 border-t-neon-400" />
-        <span className="font-mono text-xs text-text-dim">Memuat...</span>
+        <div className="h-10 w-10 animate-spin rounded-full border-2 border-[#B4E035]/20 border-t-[#B4E035]" />
+        <span className="font-mono text-xs text-[#6B7F5A]">Memuat...</span>
       </div>
     </div>
   );

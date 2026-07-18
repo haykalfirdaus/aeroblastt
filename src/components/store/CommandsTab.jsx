@@ -87,7 +87,7 @@ function CommandOrderModal({ cmd, open, onClose }) {
             <option value="">-- Pilih Platform --</option>
             {SITE.platforms.map((p) => <option key={p}>{p}</option>)}
           </SelectField>
-          {isBedrock && <p className="mt-1 text-[11px] text-cyan-400">Terdeteksi Bedrock — platform dikunci otomatis</p>}
+          {isBedrock && <p className="mt-1 text-[11px] text-[#566947]">Terdeteksi Bedrock — platform dikunci otomatis</p>}
         </div>
         <div>
           <FieldLabel required>Durasi</FieldLabel>
@@ -97,12 +97,12 @@ function CommandOrderModal({ cmd, open, onClose }) {
                 key={opt.id}
                 type="button"
                 onClick={() => setDuration(opt.id)}
-                className={cn('rounded-xl border px-3 py-2.5 text-center transition-all', duration === opt.id ? 'border-neon-400/60 bg-neon-500/15' : 'border-white/10 bg-white/4 hover:border-white/18')}
+                className={cn('rounded-xl border px-3 py-2.5 text-center transition-all', duration === opt.id ? 'border-[#B4E035]/60 bg-[#B4E035]/15' : 'border-[#D8D1C0] bg-[#F0EBE0] hover:border-[#B4E035]/25')}
               >
                 {opt.badge && <span className="mb-1 block text-[0.6rem] font-bold text-warning">{opt.badge}</span>}
-                <span className="block text-xs font-bold text-text-bright">{opt.label}</span>
-                <span className="block text-[0.6rem] text-text-dim">{opt.sub}</span>
-                <span className="mt-1 block font-mono text-xs font-semibold text-neon-300">{formatRupiah(Math.round(cmd.basePrice * opt.percentOfBase / 100))}</span>
+                <span className="block text-xs font-bold text-[#1A2E1A]">{opt.label}</span>
+                <span className="block text-[0.6rem] text-[#6B7F5A]">{opt.sub}</span>
+                <span className="mt-1 block font-mono text-xs font-semibold text-[#748F1C]">{formatRupiah(Math.round(cmd.basePrice * opt.percentOfBase / 100))}</span>
               </button>
             ))}
           </div>
@@ -110,14 +110,14 @@ function CommandOrderModal({ cmd, open, onClose }) {
         <DiscountCodeInput onApply={setDiscount} />
         <PriceSummary basePrice={basePrice} discountPercent={discount} />
         <CheckboxField checked={agreed} onChange={setAgreed}>
-          Saya menyetujui <a href="/terms" target="_blank" className="text-neon-300 hover:underline">Syarat &amp; Ketentuan</a> yang berlaku.
+          Saya menyetujui <a href="/terms" target="_blank" className="text-[#748F1C] hover:underline">Syarat &amp; Ketentuan</a> yang berlaku.
         </CheckboxField>
         <div className="flex flex-col gap-2">
           <Button fullWidth size="sm" onClick={handleQris} disabled={!playerNick} title={!playerNick ? 'Login dulu untuk melakukan order' : undefined}>
             {playerNick ? '⚡ Bayar via QRIS Otomatis' : '🔒 Login dulu untuk order'}
           </Button>
           {playerNick && (
-            <button type="button" onClick={handleWa} disabled={waLoading} className="w-full rounded-xl border border-white/12 bg-white/[0.03] py-2.5 text-sm font-semibold text-text-muted transition-all hover:border-white/20 hover:text-text-bright">
+            <button type="button" onClick={handleWa} disabled={waLoading} className="w-full rounded-xl border border-[#D8D1C0] bg-[#F5F2EA] py-2.5 text-sm font-semibold text-[#6B7F5A] transition-all hover:border-[#B4E035]/30 hover:text-[#1A2E1A]">
               Lanjut via WhatsApp (Manual)
             </button>
           )}
@@ -141,7 +141,7 @@ export function CommandsTab() {
 
   return (
     <>
-      <p className="mb-4 text-center text-xs text-text-faint">
+      <p className="mb-4 text-center text-xs text-[#8A9E7A]">
         Tampil dari harga tertinggi — semakin ke bawah semakin terjangkau
       </p>
       <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-4">
@@ -154,8 +154,8 @@ export function CommandsTab() {
               className={cn(
                 'group relative flex flex-col overflow-hidden rounded-xl border transition-all duration-200',
                 tier.featured
-                  ? 'border-neon-500/20 bg-white/[0.03] hover:scale-[1.015] hover:brightness-110'
-                  : 'border-white/8 bg-white/[0.015] hover:scale-[1.01]',
+                  ? 'border-[#D8D1C0] bg-[#F5F2EA] hover:scale-[1.015] hover:brightness-[1.02]'
+                  : 'border-[#D8D1C0]/60 bg-[#FAFAF7] hover:scale-[1.01]',
                 tier.opacity,
               )}
             >
@@ -163,7 +163,7 @@ export function CommandsTab() {
               <span
                 aria-hidden="true"
                 className="absolute inset-x-0 top-0 h-px"
-                style={{ background: 'linear-gradient(90deg, transparent, var(--color-neon-500), transparent)', opacity: tier.featured ? 0.5 : 0.15 }}
+                style={{ background: 'linear-gradient(90deg, transparent, #B4E035, transparent)', opacity: tier.featured ? 0.5 : 0.15 }}
               />
 
               <div className="flex flex-col gap-2.5 p-4">
@@ -173,37 +173,37 @@ export function CommandsTab() {
                 <div className="flex items-center gap-2.5">
                   <div className={cn(
                     'grid h-9 w-9 shrink-0 place-items-center rounded-xl border',
-                    tier.featured ? 'border-neon-500/25 bg-neon-500/10' : 'border-white/8 bg-white/4',
+                    tier.featured ? 'border-[#B4E035]/25 bg-[#B4E035]/10' : 'border-[#D8D1C0] bg-[#F0EBE0]',
                   )}>
                     <Icon
                       name={cmd.icon}
                       size={17}
-                      className={cn(tier.featured ? 'text-neon-300' : 'text-text-dim')}
-                      style={tier.glow ? { filter: 'drop-shadow(0 0 6px var(--color-neon-400))' } : undefined}
+                      className={cn(tier.featured ? 'text-[#748F1C]' : 'text-[#6B7F5A]')}
+                      style={tier.glow ? { filter: 'drop-shadow(0 0 6px #B4E035)' } : undefined}
                     />
                   </div>
                   <div className="min-w-0">
-                    <p className={cn('font-mono text-xs font-bold truncate', tier.featured ? 'text-text-bright' : 'text-text-muted')}>
+                    <p className={cn('font-mono text-xs font-bold truncate', tier.featured ? 'text-[#1A2E1A]' : 'text-[#4A5E3E]')}>
                       {cmd.command}
                     </p>
-                    <p className="text-[0.65rem] text-text-dim">{cmd.name}</p>
+                    <p className="text-[0.65rem] text-[#6B7F5A]">{cmd.name}</p>
                   </div>
                 </div>
 
-                <p className={cn('line-clamp-2 text-[0.7rem] leading-relaxed', tier.featured ? 'text-text-muted' : 'text-text-faint')}>
+                <p className={cn('line-clamp-2 text-[0.7rem] leading-relaxed', tier.featured ? 'text-[#4A5E3E]' : 'text-[#8A9E7A]')}>
                   {cmd.description}
                 </p>
 
                 {cmd.bundleItems && (
                   <div className="flex flex-wrap gap-1">
                     {cmd.bundleItems.map((b) => (
-                      <span key={b} className="rounded-full border border-cyan-500/18 bg-cyan-500/6 px-1.5 py-0.5 text-[0.6rem] text-cyan-300">{b}</span>
+                      <span key={b} className="rounded-full border border-[#6B7F5A]/25 bg-[#6B7F5A]/8 px-1.5 py-0.5 text-[0.6rem] text-[#566947]">{b}</span>
                     ))}
                   </div>
                 )}
 
                 <div className="mt-auto pt-1">
-                  <p className={cn('mb-1.5 font-mono font-bold text-neon-300', tier.priceSize, !tier.featured && 'opacity-75')}>
+                  <p className={cn('mb-1.5 font-mono font-bold text-[#748F1C]', tier.priceSize, !tier.featured && 'opacity-75')}>
                     {formatRupiah(cmd.basePrice)}
                   </p>
                   <Button

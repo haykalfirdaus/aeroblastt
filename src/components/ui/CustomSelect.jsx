@@ -96,7 +96,7 @@ export function CustomSelect({ value, onChange, options = [], placeholder = 'Sel
   return (
     <div ref={containerRef} className={cn('relative w-full', className)}>
       {label && (
-        <span className="mb-1.5 block text-xs font-semibold uppercase tracking-wide text-text-muted">
+        <span className="mb-1.5 block text-xs font-semibold uppercase tracking-wide text-[#4A5E3E]">
           {label}
         </span>
       )}
@@ -112,24 +112,24 @@ export function CustomSelect({ value, onChange, options = [], placeholder = 'Sel
         onClick={() => !disabled && setOpen((v) => !v)}
         onKeyDown={handleTriggerKeyDown}
         className={cn(
-          'flex w-full items-center justify-between gap-2 rounded-xl border border-white/12 bg-white/[0.04] px-4 py-3',
+          'flex w-full items-center justify-between gap-2 rounded-xl border border-[#D8D1C0] bg-[#FAFAF7] px-4 py-3',
           'text-sm outline-none transition-colors',
-          'hover:border-white/25 hover:bg-white/[0.06]',
-          open && 'border-neon-400/60 bg-white/[0.06] ring-2 ring-neon-500/20',
-          !open && 'focus-visible:border-neon-400/60 focus-visible:ring-2 focus-visible:ring-neon-500/20',
+          'hover:border-[#1A2E1A]/25 hover:bg-[#F5F2EA]',
+          open && 'border-[#B4E035]/60 bg-[#F5F2EA] ring-2 ring-[#B4E035]/20',
+          !open && 'focus-visible:border-[#B4E035]/60 focus-visible:ring-2 focus-visible:ring-[#B4E035]/20',
           disabled && 'cursor-not-allowed opacity-40',
           !disabled && 'cursor-pointer'
         )}
       >
-        <span className={cn('truncate', selectedOption ? 'text-text-bright' : 'text-text-faint')}>
+        <span className={cn('truncate', selectedOption ? 'text-[#1A2E1A]' : 'text-[#8A9E7A]')}>
           {selectedOption ? selectedOption.label : placeholder}
         </span>
         <ChevronDown
           size={16}
           strokeWidth={2}
           className={cn(
-            'shrink-0 text-text-dim transition-transform duration-150',
-            open && 'rotate-180 text-neon-400'
+            'shrink-0 text-[#6B7F5A] transition-transform duration-150',
+            open && 'rotate-180 text-[#B4E035]'
           )}
         />
       </button>
@@ -137,7 +137,7 @@ export function CustomSelect({ value, onChange, options = [], placeholder = 'Sel
       {/* Dropdown panel */}
       <div
         className={cn(
-          'absolute left-0 right-0 top-[calc(100%+6px)] z-50 overflow-hidden rounded-xl border border-white/10 bg-surface shadow-[0_12px_40px_-8px_rgba(0,0,0,0.6)]',
+          'absolute left-0 right-0 top-[calc(100%+6px)] z-50 overflow-hidden rounded-xl border border-[#D8D1C0] bg-[#FAFAF7] shadow-[0_12px_40px_-8px_rgba(26,46,26,0.15)]',
           'transition-all duration-150 origin-top',
           open ? 'opacity-100 translate-y-0 scale-y-100 pointer-events-auto' : 'opacity-0 -translate-y-2 scale-y-95 pointer-events-none'
         )}
@@ -146,7 +146,7 @@ export function CustomSelect({ value, onChange, options = [], placeholder = 'Sel
         {/* Neon top-edge accent */}
         <span
           aria-hidden="true"
-          className="block h-px w-full bg-gradient-to-r from-transparent via-neon-400/30 to-transparent"
+          className="block h-px w-full bg-gradient-to-r from-transparent via-[#B4E035]/30 to-transparent"
         />
 
         <ul
@@ -174,20 +174,20 @@ export function CustomSelect({ value, onChange, options = [], placeholder = 'Sel
                 onPointerEnter={() => setFocusedIndex(idx)}
                 className={cn(
                   'flex cursor-pointer items-center gap-3 px-4 py-2.5 text-sm transition-colors',
-                  isFocused && !isSelected && 'bg-white/[0.06] text-text-bright',
-                  isSelected && 'bg-neon-500/10 text-neon-300',
-                  !isFocused && !isSelected && 'text-text-muted'
+                  isFocused && !isSelected && 'bg-[#F0EBE0] text-[#1A2E1A]',
+                  isSelected && 'bg-[#B4E035]/10 text-[#748F1C]',
+                  !isFocused && !isSelected && 'text-[#4A5E3E]'
                 )}
               >
                 {/* Check column — always reserve the space so labels align */}
                 <span className="flex w-4 shrink-0 items-center justify-center">
-                  {isSelected && <Check size={13} strokeWidth={3} className="text-neon-400" />}
+                  {isSelected && <Check size={13} strokeWidth={3} className="text-[#B4E035]" />}
                 </span>
 
                 <span className="flex flex-col gap-0.5 min-w-0">
                   <span className="truncate font-medium leading-snug">{option.label}</span>
                   {option.description && (
-                    <span className="truncate text-[0.7rem] text-text-dim leading-snug">
+                    <span className="truncate text-[0.7rem] text-[#6B7F5A] leading-snug">
                       {option.description}
                     </span>
                   )}
@@ -197,7 +197,7 @@ export function CustomSelect({ value, onChange, options = [], placeholder = 'Sel
           })}
 
           {options.length === 0 && (
-            <li className="px-4 py-3 text-center text-xs text-text-dim">No options available</li>
+            <li className="px-4 py-3 text-center text-xs text-[#6B7F5A]">No options available</li>
           )}
         </ul>
       </div>

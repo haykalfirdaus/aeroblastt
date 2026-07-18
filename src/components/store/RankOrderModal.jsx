@@ -86,7 +86,7 @@ export function RankOrderModal({ rank, open, onClose }) {
             <option value="">-- Pilih Platform --</option>
             {SITE.platforms.map((p) => <option key={p} value={p}>{p}</option>)}
           </SelectField>
-          {isBedrock && <p className="mt-1 text-[11px] text-cyan-400">Terdeteksi Bedrock — platform dikunci otomatis</p>}
+          {isBedrock && <p className="mt-1 text-[11px] text-[#566947]">Terdeteksi Bedrock — platform dikunci otomatis</p>}
         </div>
 
         <div>
@@ -118,12 +118,12 @@ export function RankOrderModal({ rank, open, onClose }) {
                 onClick={() => setDuration(opt.id)}
                 className={cn(
                   'rounded-xl border px-3 py-3 text-center transition-all',
-                  duration === opt.id ? 'border-neon-400/60 bg-neon-500/15' : 'border-white/10 bg-white/4 hover:border-white/18'
+                  duration === opt.id ? 'border-[#B4E035]/60 bg-[#B4E035]/15' : 'border-[#D8D1C0] bg-[#F0EBE0] hover:border-[#B4E035]/30'
                 )}
               >
                 {opt.badge && <span className="mb-1 block text-[0.6rem] font-bold text-warning">{opt.badge}</span>}
-                <span className="block text-sm font-bold text-text-bright">{opt.label}</span>
-                <span className="block text-[0.65rem] text-text-dim">{opt.sub}</span>
+                <span className="block text-sm font-bold text-[#1A2E1A]">{opt.label}</span>
+                <span className="block text-[0.65rem] text-[#6B7F5A]">{opt.sub}</span>
               </button>
             ))}
           </div>
@@ -134,7 +134,7 @@ export function RankOrderModal({ rank, open, onClose }) {
         <PriceSummary basePrice={basePrice} discountPercent={discount} />
 
         <CheckboxField checked={agreed} onChange={setAgreed}>
-          Saya menyetujui <a href="/terms" target="_blank" className="text-neon-300 hover:underline">Syarat &amp; Ketentuan</a> yang berlaku di AeroBlast Network.
+          Saya menyetujui <a href="/terms" target="_blank" className="text-[#748F1C] hover:underline">Syarat &amp; Ketentuan</a> yang berlaku di AeroBlast Network.
         </CheckboxField>
 
         <div className="flex flex-col gap-2">
@@ -147,7 +147,7 @@ export function RankOrderModal({ rank, open, onClose }) {
               type="button"
               onClick={handleWa}
               disabled={waLoading}
-              className="w-full rounded-xl border border-white/12 bg-white/[0.03] py-2.5 text-sm font-semibold text-text-muted transition-all hover:border-white/20 hover:text-text-bright"
+              className="w-full rounded-xl border border-[#D8D1C0] bg-[#F5F2EA] py-2.5 text-sm font-semibold text-[#6B7F5A] transition-all hover:border-[#B4E035]/30 hover:text-[#1A2E1A]"
             >
               Lanjut via WhatsApp (Manual)
             </button>

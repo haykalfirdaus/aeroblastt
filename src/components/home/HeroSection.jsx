@@ -1,6 +1,6 @@
 'use client';
 import { useEffect, useRef } from 'react';
-import { Copy, Check, ChevronRight, MessageCircle, Dot } from 'lucide-react';
+import { Copy, Check, ChevronRight, MessageCircle, Dot, Swords } from 'lucide-react';
 import Link from 'next/link';
 import { gsap } from 'gsap';
 import { Button } from '@/components/ui/Button';
@@ -10,12 +10,141 @@ import { prefersReducedMotion } from '@/lib/motion';
 import { SITE } from '@/data/config';
 import { cn } from '@/lib/cn';
 
-const logo = '/logo.png';
 const TICKER_FEATURES = [
   'Survival Economy', 'Claim Land', 'Key Gacha', 'Custom Rank',
   'Voting Rewards', 'Jobs System', 'Skill RPG', 'PlayerVault',
   'PvP Arena', 'Auction House', 'Daily Quest', 'Warp Publik',
 ];
+
+/* Floating pixel-block decorations for the hero background */
+const PIXEL_BLOCKS = [
+  { w: 20, h: 20, left: '7%',  top: '17%', opacity: 0.12, color: '#B4E035', delay: '0s' },
+  { w: 12, h: 12, left: '83%', top: '11%', opacity: 0.10, color: '#6B7F5A', delay: '-1.5s' },
+  { w: 28, h: 28, left: '70%', top: '33%', opacity: 0.08, color: '#B4E035', delay: '-3.0s' },
+  { w: 16, h: 16, left: '14%', top: '64%', opacity: 0.09, color: '#9A8B72', delay: '-2.0s' },
+  { w: 24, h: 24, left: '58%', top: '68%', opacity: 0.07, color: '#6B7F5A', delay: '-4.5s' },
+  { w: 10, h: 10, left: '88%', top: '56%', opacity: 0.11, color: '#B4E035', delay: '-0.5s' },
+  { w: 18, h: 18, left: '40%', top: '7%',  opacity: 0.08, color: '#9A8B72', delay: '-2.5s' },
+  { w: 14, h: 14, left: '28%', top: '80%', opacity: 0.06, color: '#B4E035', delay: '-3.5s' },
+];
+
+function MinecraftIllustration() {
+  return (
+    <svg
+      viewBox="0 0 280 300"
+      fill="none"
+      xmlns="http://www.w3.org/2000/svg"
+      aria-hidden="true"
+      className="animate-float h-full w-full"
+      style={{ maxWidth: 320 }}
+    >
+      {/* Sky wash */}
+      <rect width="280" height="300" fill="#F4EFE4" rx="16" />
+
+      {/* Sun */}
+      <rect x="226" y="22" width="16" height="16" fill="#F59E0B" />
+      <rect x="230" y="14" width="8"  height="8"  fill="#FDE68A" />
+      <rect x="230" y="38" width="8"  height="8"  fill="#FDE68A" />
+      <rect x="218" y="26" width="8"  height="4"  fill="#FDE68A" />
+      <rect x="242" y="26" width="8"  height="4"  fill="#FDE68A" />
+      <rect x="232" y="24" width="4"  height="8"  fill="#FCD34D" />
+
+      {/* Cloud A */}
+      <rect x="28"  y="38" width="24" height="8"  rx="2" fill="white" fillOpacity="0.75" />
+      <rect x="24"  y="42" width="32" height="8"  rx="2" fill="white" fillOpacity="0.70" />
+      {/* Cloud B */}
+      <rect x="148" y="20" width="18" height="6"  rx="2" fill="white" fillOpacity="0.70" />
+      <rect x="144" y="24" width="26" height="6"  rx="2" fill="white" fillOpacity="0.65" />
+
+      {/* Hill silhouette */}
+      <ellipse cx="140" cy="230" rx="145" ry="80" fill="#6B7F5A" />
+
+      {/* Grass top row */}
+      {Array.from({ length: 14 }).map((_, i) => (
+        <rect key={i} x={i * 20} y={188} width="20" height="10" fill="#7A9368" />
+      ))}
+      {/* Dirt row */}
+      {Array.from({ length: 14 }).map((_, i) => (
+        <rect key={i} x={i * 20} y={198} width="20" height="10" fill="#9A7B5A" />
+      ))}
+
+      {/* Tree trunk (left) */}
+      <rect x="48" y="148" width="16" height="44" fill="#8B5E1A" />
+      <rect x="52" y="152" width="4"  height="12" fill="#7A5218" />
+      {/* Tree canopy */}
+      {[
+        [30,118,56,30],[86,118,56,30],
+        [22,100,72,24],[94,100,72,24],
+        [38,84, 60,22],[90,84, 60,22],
+        [46,70, 64,20],
+      ].map(([x,y,w,h],i) => (
+        <rect key={i} x={x} y={y} width={w} height={h} fill={i%2===0?'#4A7A25':'#5D9E30'} />
+      ))}
+
+      {/* Small flower */}
+      <rect x="67" y="188" width="4" height="6" fill="#6B7F5A" />
+      <rect x="64" y="184" width="10" height="8" rx="4" fill="#B4E035" />
+
+      {/* House walls */}
+      {Array.from({ length: 6 }).map((_, col) =>
+        Array.from({ length: 5 }).map((_, row) => (
+          <rect
+            key={`${col}-${row}`}
+            x={148 + col * 18}
+            y={118 + row * 18}
+            width="17"
+            height="17"
+            fill={col === 2 && row === 2 ? '#D0B896' : '#D4C5A0'}
+            stroke="#C4B590"
+            strokeWidth="0.5"
+          />
+        ))
+      )}
+
+      {/* Window (glass) */}
+      <rect x="174" y="128" width="22" height="18" fill="#A8CCEE" stroke="#8AAFCC" strokeWidth="1" />
+      <line x1="185" y1="128" x2="185" y2="146" stroke="#8AAFCC" strokeWidth="1" />
+      <line x1="174" y1="137" x2="196" y2="137" stroke="#8AAFCC" strokeWidth="1" />
+
+      {/* Door */}
+      <rect x="206" y="154" width="14" height="26" fill="#8B6135" />
+      <rect x="209" y="162" width="4" height="4" fill="#C49A4A" rx="2" />
+
+      {/* Roof — stepped pixel pyramid */}
+      {[
+        [140, 108, 108, 12],
+        [148,  96,  92, 14],
+        [158,  84,  72, 14],
+        [166,  70,  56, 16],
+        [176,  56,  36, 16],
+      ].map(([x,y,w,h],i) => (
+        <rect key={i} x={x} y={y} width={w} height={h} fill={i%2===0?'#7A5A1A':'#8B6B26'} />
+      ))}
+      {/* Roof highlight */}
+      <rect x="148" y="94" width="4" height="14" fill="#C49A4A" opacity="0.4" />
+
+      {/* Fence posts */}
+      <rect x="120" y="178" width="3" height="12" fill="#9A8B72" />
+      <rect x="128" y="178" width="3" height="12" fill="#9A8B72" />
+      <rect x="136" y="178" width="3" height="12" fill="#9A8B72" />
+      <rect x="119" y="180" width="22" height="2"  fill="#9A8B72" />
+      <rect x="119" y="186" width="22" height="2"  fill="#9A8B72" />
+
+      {/* Floating lime blocks around scene */}
+      <rect x="240" y="65"  width="12" height="12" fill="#B4E035" opacity="0.55" rx="1" transform="rotate(8 246 71)"  />
+      <rect x="20"  y="165" width="10" height="10" fill="#B4E035" opacity="0.45" rx="1" transform="rotate(-6 25 170)" />
+      <rect x="110" y="55"  width="8"  height="8"  fill="#9FC82B" opacity="0.50" rx="1" transform="rotate(12 114 59)" />
+
+      {/* Creeper face (tiny, peeking from tree) */}
+      <rect x="56" y="140" width="12" height="14" fill="#5D9E30" />
+      <rect x="58" y="142" width="3" height="3" fill="#1A2E1A" />
+      <rect x="67" y="142" width="3" height="3" fill="#1A2E1A" />
+      <rect x="60" y="147" width="8" height="2" fill="#1A2E1A" />
+      <rect x="60" y="150" width="3" height="3" fill="#1A2E1A" />
+      <rect x="65" y="150" width="3" height="3" fill="#1A2E1A" />
+    </svg>
+  );
+}
 
 export function HeroSection() {
   const [copiedKey, copy] = useClipboard();
@@ -26,7 +155,7 @@ export function HeroSection() {
     if (prefersReducedMotion()) return undefined;
     const ctx = gsap.context(() => {
       const tl = gsap.timeline({ defaults: { ease: 'power3.out', duration: 0.6 } });
-      tl.from('[data-hero]', { opacity: 0, y: 18, stagger: 0.08 })
+      tl.from('[data-hero]', { opacity: 0, y: 18, stagger: 0.09 })
         .from('[data-hero-logo]', { opacity: 0, scale: 0.9, duration: 0.7, ease: 'power2.out' }, '-=0.5');
     }, rootRef);
     return () => ctx.revert();
@@ -36,63 +165,95 @@ export function HeroSection() {
     <section
       ref={rootRef}
       id="home"
-      className="relative flex min-h-[88vh] items-center overflow-hidden px-4 pb-16 pt-24 sm:px-6 lg:px-8"
+      className="relative flex min-h-[90vh] items-center overflow-hidden px-4 pb-16 pt-28 sm:px-6 lg:px-8"
     >
-      {/* Hero-only wallpaper — darkened & mask-faded into the grid shell */}
-      <div className="hero-bg" aria-hidden="true" />
+      {/* Warm cream background + ambient glow */}
+      <div className="hero-bg" aria-hidden="true">
+        {/* Floating pixel blocks */}
+        {PIXEL_BLOCKS.map((b, i) => (
+          <div
+            key={i}
+            aria-hidden="true"
+            className="animate-float absolute"
+            style={{
+              width: b.w,
+              height: b.h,
+              left: b.left,
+              top: b.top,
+              opacity: b.opacity,
+              background: b.color,
+              animationDelay: b.delay,
+              borderRadius: 2,
+            }}
+          />
+        ))}
+      </div>
 
       <div className="relative z-10 mx-auto w-full max-w-6xl">
-        <div className="flex flex-col items-center gap-10 lg:flex-row lg:items-center lg:gap-14">
+        <div className="flex flex-col items-center gap-12 lg:flex-row lg:items-center lg:gap-16">
+
           {/* Left: text */}
-          <div className="flex flex-1 flex-col items-center gap-5 text-center lg:items-start lg:text-left">
-            {/* Status pill */}
+          <div className="flex flex-1 flex-col items-center gap-6 text-center lg:items-start lg:text-left">
+
+            {/* Badge pill */}
+            <div data-hero className="inline-flex items-center gap-2 rounded-full border border-[#B4E035]/50 bg-[#B4E035]/12 px-4 py-1.5 text-[0.7rem] font-bold text-[#748F1C]">
+              <Swords size={12} className="text-[#B4E035]" />
+              Minecraft Server Indonesia
+            </div>
+
+            {/* Server status */}
             <div
               data-hero
               className={cn(
-                'inline-flex items-center gap-2 rounded-full border px-3.5 py-1.5 text-[0.7rem] font-bold backdrop-blur-sm transition-all duration-300',
+                'inline-flex items-center gap-2 rounded-full border px-3.5 py-1.5 text-[0.7rem] font-bold transition-all duration-300',
                 status.state === 'online'
-                  ? 'badge-online text-success-bright'
-                  : 'border-white/10 bg-white/[0.04] text-text-muted'
+                  ? 'badge-online text-success'
+                  : 'border-[#D8D1C0] bg-[#F0EBE0] text-[#6B7F5A]'
               )}
             >
               <span
                 className={cn(
-                  status.state === 'online' ? 'glow-dot-green' : 'h-1.5 w-1.5 rounded-full bg-text-dim'
+                  status.state === 'online'
+                    ? 'glow-dot-green'
+                    : 'h-1.5 w-1.5 rounded-full bg-[#D8D1C0]'
                 )}
               />
               {status.state === 'loading' && 'Mengecek status server...'}
               {status.state === 'online' &&
-                `Server Online · ${status.players?.online ?? 0}/${status.players?.max ?? 0} Players`}
+                `Online · ${status.players?.online ?? 0}/${status.players?.max ?? 0} pemain`}
               {(status.state === 'offline' || status.state === 'error') && 'Server Sedang Offline'}
             </div>
 
             {/* Heading */}
-            <div>
-              <h1 data-hero className="font-impact leading-[0.95] tracking-tight" style={{ fontSize: 'clamp(2.6rem, 8vw, 5rem)' }}>
-                <span className="text-shimmer block">AEROBLAST</span>
-                <span className="block text-text-bright">NETWORK</span>
+            <div data-hero>
+              <h1
+                className="font-display font-extrabold leading-[1.0] tracking-tight text-[#1A2E1A]"
+                style={{ fontSize: 'clamp(2.6rem, 7vw, 4.4rem)' }}
+              >
+                Server Terbaik untuk<br />
+                <span className="text-[#B4E035]">Petualanganmu</span>
               </h1>
-              <p data-hero className="mt-4 max-w-md text-sm leading-relaxed text-text-muted">
+              <p className="mt-5 max-w-md text-sm leading-relaxed text-[#6B7F5A]">
                 Minecraft Server Indonesia dengan fitur lengkap — Survival, Economy, Jobs, Quest, PvP Arena, Gacha, dan masih banyak lagi.
               </p>
             </div>
 
             {/* CTA buttons */}
-            <div data-hero className="flex flex-wrap items-center justify-center gap-3">
+            <div data-hero className="flex flex-wrap items-center justify-center gap-3 lg:justify-start">
               <Link href="/store">
-                <Button size="md">
-                  Buka Store <ChevronRight size={14} />
+                <Button size="lg">
+                  Buka Store <ChevronRight size={16} />
                 </Button>
               </Link>
               <a href={SITE.social.discord} target="_blank" rel="noopener noreferrer">
-                <Button variant="secondary" size="md">
-                  <MessageCircle size={14} /> Discord
+                <Button variant="secondary" size="lg">
+                  <MessageCircle size={16} /> Discord
                 </Button>
               </a>
             </div>
 
             {/* IP copy row */}
-            <div data-hero className="flex flex-wrap items-center justify-center gap-2">
+            <div data-hero className="flex flex-wrap items-center justify-center gap-2 lg:justify-start">
               {[
                 { label: 'IP', value: SITE.server.ip, key: 'ip' },
                 { label: 'Port', value: SITE.server.port, key: 'port' },
@@ -101,54 +262,48 @@ export function HeroSection() {
                   key={item.key}
                   type="button"
                   onClick={() => copy(item.value, item.key)}
-                  className="hw-transition flex items-center gap-2 rounded-full border border-white/14 bg-white/[0.04] px-4 py-2 backdrop-blur-sm transition-all duration-150 hover:border-neon-400/40 hover:bg-neon-500/6 hover:shadow-[0_0_12px_rgba(59,130,246,0.15)]"
+                  className="hw-transition flex items-center gap-2 rounded-full border border-[#D8D1C0] bg-[#FAFAF7] px-4 py-2 transition-all duration-150 hover:border-[#B4E035]/50 hover:bg-[#F0EBE0] hover:shadow-[0_0_12px_rgba(180,224,53,0.15)]"
                 >
-                  <span className="text-[0.6rem] font-black uppercase tracking-widest text-text-dim">{item.label}</span>
-                  <span className="font-mono text-xs font-bold text-text-bright">{item.value}</span>
+                  <span className="text-[0.6rem] font-black uppercase tracking-widest text-[#8A9E7A]">{item.label}</span>
+                  <span className="font-mono text-xs font-bold text-[#1A2E1A]">{item.value}</span>
                   {copiedKey === item.key ? (
-                    <Check size={12} className="text-success-bright" />
+                    <Check size={12} className="text-success" />
                   ) : (
-                    <Copy size={12} className="text-text-dim" />
+                    <Copy size={12} className="text-[#8A9E7A]" />
                   )}
                 </button>
               ))}
             </div>
           </div>
 
-          {/* Scrolling ticker — mobile only */}
+          {/* Mobile ticker */}
           <div className="w-full overflow-hidden lg:hidden" aria-hidden="true">
             <div className="flex w-max items-center gap-0" style={{ animation: 'marquee 22s linear infinite' }}>
               {[...TICKER_FEATURES, ...TICKER_FEATURES].map((feat, i) => (
-                <span key={i} className="inline-flex items-center font-sans text-[0.65rem] font-black uppercase tracking-wider text-neon-300/70">
+                <span key={i} className="inline-flex items-center font-sans text-[0.65rem] font-bold uppercase tracking-wider text-[#748F1C]/70">
                   {feat}
-                  <Dot size={14} className="text-neon-500/35" />
+                  <Dot size={14} className="text-[#B4E035]/50" />
                 </span>
               ))}
             </div>
           </div>
 
-          {/* Right: logo */}
-          <div data-hero-logo className="relative shrink-0">
-            <div className="absolute inset-0 rounded-full bg-neon-500/8 blur-2xl" aria-hidden="true" />
-            <div className="relative h-36 w-36 sm:h-44 sm:w-44 lg:h-52 lg:w-52">
-              <div className="absolute inset-0 rounded-full border border-neon-400/12 bg-gradient-to-br from-neon-700/12 to-cyan-700/6" />
-              <img
-                src={logo}
-                alt="AeroBlast Network"
-                className="animate-float relative z-10 h-full w-full rounded-full object-cover"
-              />
-              <div className="absolute inset-0 rounded-full ring-1 ring-neon-400/15" />
+          {/* Right: Minecraft world illustration */}
+          <div data-hero-logo className="relative shrink-0 w-full max-w-[320px] lg:max-w-[340px]">
+            <div className="absolute -inset-6 rounded-3xl bg-[#B4E035]/5 blur-2xl" aria-hidden="true" />
+            <div className="relative rounded-3xl border border-[#D8D1C0] bg-[#FAFAF7] p-4 shadow-[0_8px_40px_-8px_rgba(26,46,26,0.12)]">
+              <MinecraftIllustration />
             </div>
           </div>
         </div>
 
         {/* Desktop ticker strip */}
-        <div className="mt-12 hidden overflow-hidden border-y border-white/5 py-2.5 lg:block" aria-hidden="true">
+        <div className="mt-14 hidden overflow-hidden border-y border-[#D8D1C0] py-3 lg:block" aria-hidden="true">
           <div className="flex w-max items-center gap-0" style={{ animation: 'marquee 20s linear infinite' }}>
             {[...TICKER_FEATURES, ...TICKER_FEATURES].map((feat, i) => (
-              <span key={i} className="inline-flex items-center font-sans text-[0.65rem] font-black uppercase tracking-wider text-neon-300/65">
+              <span key={i} className="inline-flex items-center font-sans text-[0.65rem] font-bold uppercase tracking-wider text-[#748F1C]/65">
                 {feat}
-                <Dot size={14} className="text-neon-500/35" />
+                <Dot size={14} className="text-[#B4E035]/40" />
               </span>
             ))}
           </div>

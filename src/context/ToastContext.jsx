@@ -9,7 +9,7 @@ const ICONS = { success: CheckCircle2, error: XCircle, info: Info };
 const TONE_CLASSES = {
   success: 'border-success/40 bg-success/10 text-success-bright',
   error: 'border-danger/40 bg-danger/10 text-danger-bright',
-  info: 'border-neon-500/40 bg-neon-500/10 text-neon-300',
+  info: 'border-[#B4E035]/40 bg-[#B4E035]/10 text-[#748F1C]',
 };
 
 let idSeed = 0;
@@ -45,13 +45,13 @@ export function ToastProvider({ children }) {
               role="status"
               className={cn(
                 'pointer-events-auto flex max-w-sm items-start gap-3 rounded-xl border px-4 py-3 shadow-2xl backdrop-blur-xl transition-all duration-400',
-                'bg-panel/90',
+                'bg-[#FAF8F4]/90',
                 TONE_CLASSES[toast.type],
                 toast.leaving ? '-translate-y-3 scale-95 opacity-0' : 'translate-y-0 scale-100 opacity-100'
               )}
             >
               <Icon size={18} className="mt-0.5 shrink-0" />
-              <p className="text-sm font-medium leading-snug text-text-bright">{toast.message}</p>
+              <p className="text-sm font-medium leading-snug text-[#1A2E1A]">{toast.message}</p>
             </div>
           );
         })}

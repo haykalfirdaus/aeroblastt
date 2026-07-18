@@ -101,7 +101,7 @@ export function GallerySlider() {
 function GalleryCard({ slide }) {
   return (
     <article
-      className="group relative shrink-0 overflow-hidden rounded-xl border border-white/8 bg-surface"
+      className="group relative shrink-0 overflow-hidden rounded-xl border border-[#D8D1C0] bg-[#FAFAF7]"
       style={{ width: 260, height: 174 }}
     >
       <img

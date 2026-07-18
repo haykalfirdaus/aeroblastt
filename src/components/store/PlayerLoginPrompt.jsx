@@ -42,22 +42,22 @@ export function PlayerLoginPrompt() {
   if (nick) {
     const bedrock = isBedrock(nick);
     return (
-      <div className="mb-6 flex items-center justify-between gap-4 rounded-2xl border border-neon-500/20 bg-neon-500/[0.06] px-5 py-3">
+      <div className="mb-6 flex items-center justify-between gap-4 rounded-2xl border border-[#B4E035]/25 bg-[#B4E035]/[0.07] px-5 py-3">
         <div className="flex items-center gap-2.5">
-          <div className="flex h-8 w-8 items-center justify-center rounded-lg border border-neon-500/30 bg-neon-500/10">
-            {bedrock ? <Smartphone size={15} className="text-cyan-400" /> : <User size={15} className="text-neon-400" />}
+          <div className="flex h-8 w-8 items-center justify-center rounded-lg border border-[#B4E035]/35 bg-[#B4E035]/15">
+            {bedrock ? <Smartphone size={15} className="text-[#566947]" /> : <User size={15} className="text-[#748F1C]" />}
           </div>
           <div className="leading-tight">
-            <p className="text-[11px] text-text-dim">
+            <p className="text-[11px] text-[#6B7F5A]">
               Login sebagai
-              {bedrock && <span className="ml-1.5 rounded-full bg-cyan-500/15 px-1.5 py-0.5 text-[10px] font-bold text-cyan-300">BEDROCK</span>}
+              {bedrock && <span className="ml-1.5 rounded-full bg-[#6B7F5A]/15 px-1.5 py-0.5 text-[10px] font-bold text-[#566947]">BEDROCK</span>}
             </p>
-            <p className="font-mono text-sm font-bold text-text-bright">{nick}</p>
+            <p className="font-mono text-sm font-bold text-[#1A2E1A]">{nick}</p>
           </div>
         </div>
         <button
           onClick={handleLogout}
-          className="flex items-center gap-1.5 rounded-lg border border-white/10 bg-white/[0.04] px-3 py-1.5 text-xs font-semibold text-text-dim transition-colors hover:border-white/20 hover:text-text-bright"
+          className="flex items-center gap-1.5 rounded-lg border border-[#D8D1C0] bg-[#FAFAF7] px-3 py-1.5 text-xs font-semibold text-[#6B7F5A] transition-colors hover:border-[#B4E035]/30 hover:text-[#1A2E1A]"
         >
           <LogOut size={12} />
           Logout
@@ -68,15 +68,15 @@ export function PlayerLoginPrompt() {
 
   return (
     <div className="mb-6 rounded-2xl border border-warning/20 bg-warning/[0.04] px-5 py-4">
-      <p className="mb-3 text-sm font-semibold text-text-bright">
+      <p className="mb-3 text-sm font-semibold text-[#1A2E1A]">
         Login dengan username Minecraft kamu untuk melakukan order
       </p>
-      <p className="mb-3 text-xs text-text-dim">
+      <p className="mb-3 text-xs text-[#6B7F5A]">
         Username harus sudah pernah join server AeroBlast dan terdaftar di NLogin.
-        {' '}Bedrock: username biasanya mengandung titik (contoh: <span className="font-mono text-text-muted">.NamaKamu</span>).
+        {' '}Bedrock: username biasanya mengandung titik (contoh: <span className="font-mono text-[#4A5E3E]">.NamaKamu</span>).
       </p>
       {hasDot && (
-        <div className="mb-3 flex items-center gap-2 rounded-xl border border-cyan-500/25 bg-cyan-500/8 px-3 py-2 text-xs text-cyan-300">
+        <div className="mb-3 flex items-center gap-2 rounded-xl border border-[#6B7F5A]/30 bg-[#6B7F5A]/8 px-3 py-2 text-xs text-[#566947]">
           <Smartphone size={13} />
           Username mengandung titik — akan dikenali sebagai <strong className="ml-1">Bedrock / PE</strong>
         </div>
@@ -90,17 +90,17 @@ export function PlayerLoginPrompt() {
           maxLength={30}
           disabled={submitting}
           className={cn(
-            'flex-1 rounded-xl border border-white/12 bg-white/[0.04] px-4 py-2.5 text-sm text-text-bright placeholder:text-text-faint outline-none transition-colors',
-            'focus:border-neon-400/60 focus:bg-white/[0.06] disabled:opacity-50',
+            'flex-1 rounded-xl border border-[#D8D1C0] bg-[#FAFAF7] px-4 py-2.5 text-sm text-[#1A2E1A] placeholder:text-[#8A9E7A] outline-none transition-colors',
+            'focus:border-[#B4E035]/70 focus:ring-2 focus:ring-[#B4E035]/20 disabled:opacity-50',
           )}
         />
         <button
           type="submit"
           disabled={submitting || !input.trim()}
-          className="flex items-center gap-1.5 rounded-xl border border-neon-500/40 bg-neon-500/15 px-4 py-2.5 text-sm font-semibold text-neon-300 transition-colors hover:bg-neon-500/25 disabled:cursor-not-allowed disabled:opacity-50"
+          className="flex items-center gap-1.5 rounded-xl border border-[#B4E035]/50 bg-[#B4E035]/15 px-4 py-2.5 text-sm font-semibold text-[#748F1C] transition-colors hover:bg-[#B4E035]/25 disabled:cursor-not-allowed disabled:opacity-50"
         >
           {submitting
-            ? <span className="h-3.5 w-3.5 animate-spin rounded-full border-2 border-neon-400/30 border-t-neon-400" />
+            ? <span className="h-3.5 w-3.5 animate-spin rounded-full border-2 border-[#B4E035]/30 border-t-[#B4E035]" />
             : <LogIn size={14} />}
           Masuk
         </button>

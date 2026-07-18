@@ -1,12 +1,12 @@
 import { cn } from '@/lib/cn';
 
 const TONES = {
-  neon: 'border-neon-500/30 bg-neon-500/10 text-neon-300',
-  cyan: 'border-cyan-500/30 bg-cyan-500/10 text-cyan-300',
-  gold: 'border-warning/30 bg-warning/10 text-warning',
+  neon: 'border-[#B4E035]/40 bg-[#B4E035]/10 text-[#748F1C]',
+  cyan: 'border-[#6B7F5A]/35 bg-[#6B7F5A]/10 text-[#566947]',
+  gold: 'border-warning/30 bg-warning/10 text-[#b45309]',
   danger: 'border-danger/30 bg-danger/10 text-danger-bright',
   success: 'border-success/30 bg-success/10 text-success-bright',
-  dim: 'border-white/10 bg-white/[0.04] text-text-dim',
+  dim: 'border-[#D8D1C0] bg-[#F0EBE0] text-[#6B7F5A]',
 };
 
 export function Badge({ tone = 'neon', className, children }) {

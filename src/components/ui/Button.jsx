@@ -3,14 +3,14 @@ import { cn } from '@/lib/cn';
 
 const VARIANTS = {
   primary:
-    'bg-gradient-to-r from-neon-600 to-neon-500 text-white ' +
-    'shadow-[0_0_0_1px_rgba(59,130,246,0.35),0_4px_16px_-4px_rgba(59,130,246,0.5)] ' +
-    'hover:shadow-[0_0_0_1px_rgba(96,165,250,0.5),0_8px_24px_-6px_rgba(59,130,246,0.65)] ' +
-    'hover:from-neon-500 hover:to-neon-400',
+    'bg-[#B4E035] text-[#1A2E1A] ' +
+    'shadow-[0_2px_8px_rgba(180,224,53,0.35)] ' +
+    'hover:bg-[#C8EF5A] hover:shadow-[0_4px_16px_rgba(180,224,53,0.5)] ' +
+    'active:bg-[#9FC82B]',
   secondary:
-    'border border-white/18 bg-white/[0.05] text-text-bright ' +
-    'hover:border-neon-400/50 hover:bg-neon-500/8 hover:text-neon-300',
-  ghost: 'text-text-muted hover:text-text-bright hover:bg-white/5',
+    'border border-[#1A2E1A]/20 bg-transparent text-[#1A2E1A] ' +
+    'hover:border-[#1A2E1A]/40 hover:bg-[#1A2E1A]/5',
+  ghost: 'text-[#6B7F5A] hover:text-[#1A2E1A] hover:bg-[#1A2E1A]/5',
   danger: 'border border-danger/25 bg-danger/8 text-danger-bright hover:bg-danger/12 hover:border-danger/40',
 };
 

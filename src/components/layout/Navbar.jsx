@@ -50,7 +50,7 @@ export function Navbar() {
       className={cn(
         'fixed inset-x-0 top-0 z-[100] transition-all duration-300',
         scrolled
-          ? 'border-b border-white/6 bg-deep/80 shadow-[0_4px_24px_-8px_rgba(0,0,0,0.6)] backdrop-blur-xl'
+          ? 'border-b border-[#D8D1C0] bg-[#EDE8DA]/92 shadow-[0_2px_16px_-4px_rgba(26,46,26,0.1)] backdrop-blur-xl'
           : 'bg-transparent backdrop-blur-none'
       )}
     >
@@ -65,15 +65,15 @@ export function Navbar() {
             <img
               src={logo}
               alt="AeroBlast logo"
-              className="relative z-[1] h-7 w-7 rounded-lg object-cover shadow-[0_0_10px_rgba(59,130,246,0.25)]"
+              className="relative z-[1] h-7 w-7 rounded-lg object-cover shadow-[0_0_10px_rgba(180,224,53,0.2)]"
             />
           </div>
-          <span className="hidden font-display text-sm font-bold tracking-tight text-text-bright sm:block">
-            Aero<span className="text-neon-400">Blast</span>
+          <span className="hidden font-display text-sm font-bold tracking-tight text-[#1A2E1A] sm:block">
+            Aero<span className="text-[#8AB024]">Blast</span>
           </span>
         </Link>
 
-        {/* Desktop nav — pill-shaped links */}
+        {/* Desktop nav */}
         <div className="hidden items-center gap-1.5 md:flex">
           {NAV_LINKS.map((link) => {
             const isActive = link.exact ? pathname === link.to : pathname.startsWith(link.to);
@@ -91,12 +91,12 @@ export function Navbar() {
           })}
         </div>
 
-        {/* Discord CTA — pill */}
+        {/* Discord CTA */}
         <a
           href="https://discord.gg/rgRRnPS9cp"
           target="_blank"
           rel="noopener noreferrer"
-          className="hidden items-center gap-1.5 rounded-full border border-neon-500/30 bg-neon-500/10 px-4 py-1.5 text-xs font-black text-neon-300 transition-all duration-150 hover:border-neon-400/50 hover:bg-neon-500/18 hover:shadow-[0_0_12px_rgba(59,130,246,0.25)] md:flex"
+          className="hidden items-center gap-1.5 rounded-full border border-[#B4E035]/50 bg-[#B4E035]/10 px-4 py-1.5 text-xs font-bold text-[#748F1C] transition-all duration-150 hover:border-[#B4E035]/70 hover:bg-[#B4E035]/18 hover:shadow-[0_0_12px_rgba(180,224,53,0.2)] md:flex"
         >
           <MessageCircle size={11} />
           Discord
@@ -108,7 +108,7 @@ export function Navbar() {
           aria-label={open ? 'Tutup menu' : 'Buka menu'}
           aria-expanded={open}
           onClick={() => setOpen((v) => !v)}
-          className="grid h-8 w-8 place-items-center rounded-full border border-white/12 text-text-muted transition-all hover:border-white/25 hover:bg-white/5 hover:text-text-bright md:hidden"
+          className="grid h-8 w-8 place-items-center rounded-full border border-[#D8D1C0] text-[#6B7F5A] transition-all hover:border-[#1A2E1A]/25 hover:bg-[#EDE8DA] hover:text-[#1A2E1A] md:hidden"
         >
           {open ? <X size={14} /> : <Menu size={14} />}
         </button>
@@ -118,7 +118,7 @@ export function Navbar() {
       <div
         className={cn(
           'overflow-hidden transition-all duration-250 md:hidden',
-          open ? 'max-h-72 border-b border-white/6 bg-deep/90 backdrop-blur-xl' : 'max-h-0'
+          open ? 'max-h-72 border-b border-[#D8D1C0] bg-[#EDE8DA]/95 backdrop-blur-xl' : 'max-h-0'
         )}
         aria-hidden={!open}
       >
@@ -133,8 +133,8 @@ export function Navbar() {
                 className={cn(
                   'flex items-center gap-2.5 rounded-full px-4 py-2.5 text-xs font-semibold transition-all',
                   isActive
-                    ? 'border border-neon-500/30 bg-neon-500/10 text-neon-300'
-                    : 'border border-transparent text-text-muted hover:border-white/12 hover:bg-white/5 hover:text-text-bright'
+                    ? 'border border-[#B4E035]/50 bg-[#B4E035]/12 text-[#748F1C]'
+                    : 'border border-transparent text-[#6B7F5A] hover:border-[#D8D1C0] hover:bg-[#E8E3D4] hover:text-[#1A2E1A]'
                 )}
               >
                 <link.icon size={13} />
@@ -146,7 +146,7 @@ export function Navbar() {
             href="https://discord.gg/rgRRnPS9cp"
             target="_blank"
             rel="noopener noreferrer"
-            className="mt-1 flex items-center gap-2.5 rounded-full border border-neon-500/30 bg-neon-500/10 px-4 py-2.5 text-xs font-black text-neon-300"
+            className="mt-1 flex items-center gap-2.5 rounded-full border border-[#B4E035]/50 bg-[#B4E035]/10 px-4 py-2.5 text-xs font-bold text-[#748F1C]"
           >
             <MessageCircle size={13} />
             Discord

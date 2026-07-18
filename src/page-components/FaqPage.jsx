@@ -31,18 +31,18 @@ export default function FaqPage() {
   return (
     <PageLayout>
       {/* Header */}
-      <div className="page-header-bg page-header-bg-w2 border-b border-white/8 px-4 py-10 text-center sm:px-6 lg:px-8">
+      <div className="relative border-b border-[#D8D1C0] bg-[#EDE8DA] px-4 py-10 text-center sm:px-6 lg:px-8">
         <div aria-hidden="true" className="pointer-events-none absolute inset-0">
-          <div className="absolute left-1/2 top-0 h-48 w-80 -translate-x-1/2 rounded-full bg-cyan-600/10 blur-3xl" />
+          <div className="absolute left-1/2 top-0 h-48 w-80 -translate-x-1/2 rounded-full bg-[#6B7F5A]/10 blur-3xl" />
         </div>
-        <span className="relative mb-3 inline-flex items-center gap-1.5 rounded-full border border-cyan-500/25 bg-cyan-500/10 px-3 py-1 font-mono text-[0.65rem] font-semibold uppercase tracking-[0.15em] text-cyan-300">
+        <span className="relative mb-3 inline-flex items-center gap-1.5 rounded-full border border-[#6B7F5A]/30 bg-[#6B7F5A]/10 px-3 py-1 font-mono text-[0.65rem] font-semibold uppercase tracking-[0.15em] text-[#566947]">
           <HelpCircle size={11} />
           FAQ
         </span>
-        <h1 className="relative font-display text-2xl font-extrabold text-text-bright sm:text-3xl">
+        <h1 className="relative font-display text-2xl font-extrabold text-[#1A2E1A] sm:text-3xl">
           Pertanyaan yang Sering Ditanyakan
         </h1>
-        <p className="relative mt-1.5 text-xs text-text-muted">
+        <p className="relative mt-1.5 text-xs text-[#6B7F5A]">
           Tidak menemukan jawaban? Hubungi kami di Discord atau WhatsApp.
         </p>
       </div>
@@ -50,13 +50,13 @@ export default function FaqPage() {
       <div className="mx-auto max-w-3xl px-4 py-8 sm:px-6 lg:px-8">
         {/* Search */}
         <div className="relative mb-5">
-          <Search size={14} className="absolute left-3.5 top-1/2 -translate-y-1/2 text-text-dim" />
+          <Search size={14} className="absolute left-3.5 top-1/2 -translate-y-1/2 text-[#8A9E7A]" />
           <input
             type="search"
             value={query}
             onChange={(e) => setQuery(e.target.value)}
             placeholder="Cari pertanyaan…"
-            className="w-full rounded-xl border border-white/10 bg-white/[0.04] py-2.5 pl-10 pr-4 text-sm font-sans text-text-bright placeholder:text-text-faint outline-none transition-colors focus:border-neon-400/50 focus:bg-white/[0.06]"
+            className="w-full rounded-xl border border-[#D8D1C0] bg-[#FAFAF7] py-2.5 pl-10 pr-4 text-sm font-sans text-[#1A2E1A] placeholder:text-[#8A9E7A] outline-none transition-colors focus:border-[#B4E035]/60 focus:ring-2 focus:ring-[#B4E035]/15"
           />
         </div>
 
@@ -65,7 +65,7 @@ export default function FaqPage() {
           <button
             type="button"
             onClick={() => setActiveCategory('all')}
-            className={cn('rounded-full border px-3 py-1 text-xs font-medium transition-all font-sans', activeCategory === 'all' ? 'border-neon-400/40 bg-neon-500/12 text-neon-300' : 'border-white/8 bg-white/3 text-text-muted hover:border-white/16 hover:text-text-bright')}
+            className={cn('rounded-full border px-3 py-1 text-xs font-medium transition-all font-sans', activeCategory === 'all' ? 'border-[#B4E035]/50 bg-[#B4E035]/15 text-[#748F1C]' : 'border-[#D8D1C0] bg-[#F0EBE0] text-[#6B7F5A] hover:border-[#B4E035]/25 hover:text-[#4A5E3E]')}
           >
             Semua
           </button>
@@ -76,7 +76,7 @@ export default function FaqPage() {
                 key={cat.title}
                 type="button"
                 onClick={() => setActiveCategory(cat.title)}
-                className={cn('inline-flex items-center gap-1.5 rounded-full border px-3 py-1 text-xs font-medium transition-all font-sans', activeCategory === cat.title ? 'border-neon-400/40 bg-neon-500/12 text-neon-300' : 'border-white/8 bg-white/3 text-text-muted hover:border-white/16 hover:text-text-bright')}
+                className={cn('inline-flex items-center gap-1.5 rounded-full border px-3 py-1 text-xs font-medium transition-all font-sans', activeCategory === cat.title ? 'border-[#B4E035]/50 bg-[#B4E035]/15 text-[#748F1C]' : 'border-[#D8D1C0] bg-[#F0EBE0] text-[#6B7F5A] hover:border-[#B4E035]/25 hover:text-[#4A5E3E]')}
               >
                 {CatIcon && <CatIcon size={11} />}
                 {cat.title}
@@ -87,25 +87,25 @@ export default function FaqPage() {
 
         {/* Results count */}
         {query && (
-          <p className="mb-4 text-xs text-text-dim font-sans">
-            {totalResults} hasil untuk &ldquo;<span className="text-text-bright">{query}</span>&rdquo;
+          <p className="mb-4 text-xs text-[#6B7F5A] font-sans">
+            {totalResults} hasil untuk &ldquo;<span className="text-[#1A2E1A]">{query}</span>&rdquo;
           </p>
         )}
 
         {totalResults === 0 ? (
-          <div className="rounded-2xl border border-white/8 bg-white/[0.02] py-14 text-center">
-            <Search size={28} className="mx-auto mb-3 text-text-faint" />
-            <p className="text-sm font-semibold text-text-bright font-display">Tidak ada hasil ditemukan</p>
-            <p className="mt-1 text-xs text-text-muted font-sans">Coba kata kunci lain atau hubungi Admin.</p>
+          <div className="rounded-2xl border border-[#D8D1C0] bg-[#F5F2EA] py-14 text-center">
+            <Search size={28} className="mx-auto mb-3 text-[#D8D1C0]" />
+            <p className="text-sm font-semibold text-[#1A2E1A] font-display">Tidak ada hasil ditemukan</p>
+            <p className="mt-1 text-xs text-[#6B7F5A] font-sans">Coba kata kunci lain atau hubungi Admin.</p>
           </div>
         ) : (
           <div className="flex flex-col gap-8">
             {filtered.map((cat) => (
               <section key={cat.title}>
                 <div className="mb-3 flex items-center gap-2">
-                  {CAT_ICONS[cat.icon] && (() => { const CatIcon = CAT_ICONS[cat.icon]; return <CatIcon size={15} className="text-neon-400 shrink-0" />; })()}
-                  <h2 className="font-display text-base font-bold text-text-bright">{cat.title}</h2>
-                  <span className="ml-auto rounded-full border border-white/8 bg-white/3 px-2 py-0.5 font-mono text-[0.65rem] text-text-dim">
+                  {CAT_ICONS[cat.icon] && (() => { const CatIcon = CAT_ICONS[cat.icon]; return <CatIcon size={15} className="text-[#748F1C] shrink-0" />; })()}
+                  <h2 className="font-display text-base font-bold text-[#1A2E1A]">{cat.title}</h2>
+                  <span className="ml-auto rounded-full border border-[#D8D1C0] bg-[#F0EBE0] px-2 py-0.5 font-mono text-[0.65rem] text-[#6B7F5A]">
                     {cat.items.length}
                   </span>
                 </div>
@@ -122,16 +122,16 @@ export default function FaqPage() {
         )}
 
         {/* Footer CTA */}
-        <div className="mt-10 rounded-2xl border border-white/8 bg-white/[0.02] p-5 text-center">
-          <Headphones size={20} className="mx-auto mb-2 text-text-dim" />
-          <p className="font-semibold text-text-bright font-display text-sm">Masih punya pertanyaan?</p>
-          <p className="mt-1 text-xs text-text-muted font-sans">Tim kami siap membantu kamu di Discord dan WhatsApp.</p>
+        <div className="mt-10 rounded-2xl border border-[#D8D1C0] bg-[#F5F2EA] p-5 text-center">
+          <Headphones size={20} className="mx-auto mb-2 text-[#8A9E7A]" />
+          <p className="font-semibold text-[#1A2E1A] font-display text-sm">Masih punya pertanyaan?</p>
+          <p className="mt-1 text-xs text-[#6B7F5A] font-sans">Tim kami siap membantu kamu di Discord dan WhatsApp.</p>
           <div className="mt-4 flex flex-wrap items-center justify-center gap-2">
             <a
               href="https://discord.gg/rgRRnPS9cp"
               target="_blank"
               rel="noopener noreferrer"
-              className="inline-flex items-center gap-1.5 rounded-lg border border-neon-500/25 bg-neon-500/8 px-4 py-2 text-xs font-semibold text-neon-300 transition hover:bg-neon-500/14"
+              className="inline-flex items-center gap-1.5 rounded-lg border border-[#B4E035]/30 bg-[#B4E035]/10 px-4 py-2 text-xs font-semibold text-[#748F1C] transition hover:bg-[#B4E035]/18"
             >
               <MessageCircle size={13} /> Discord
             </a>

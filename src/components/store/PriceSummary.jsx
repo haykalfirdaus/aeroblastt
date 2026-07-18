@@ -7,10 +7,10 @@ export function PriceSummary({ basePrice, discountPercent = 0, className }) {
   const hasDiscount = discountPercent > 0;
 
   return (
-    <div className={cn('rounded-xl border border-white/10 bg-white/[0.03] divide-y divide-white/8', className)}>
+    <div className={cn('rounded-xl border border-[#D8D1C0] bg-[#F5F2EA] divide-y divide-[#D8D1C0]', className)}>
       <div className="flex items-center justify-between px-4 py-3">
-        <span className="text-sm text-text-muted">Harga Normal</span>
-        <span className={cn('font-mono text-sm font-semibold', hasDiscount ? 'text-text-dim line-through' : 'text-text-bright')}>
+        <span className="text-sm text-[#4A5E3E]">Harga Normal</span>
+        <span className={cn('font-mono text-sm font-semibold', hasDiscount ? 'text-[#8A9E7A] line-through' : 'text-[#1A2E1A]')}>
           {formatRupiah(basePrice)}
         </span>
       </div>
@@ -21,8 +21,8 @@ export function PriceSummary({ basePrice, discountPercent = 0, className }) {
         </div>
       )}
       <div className="flex items-center justify-between px-4 py-3">
-        <span className="text-sm font-bold text-text-bright">Total Bayar</span>
-        <span className="font-mono text-lg font-bold text-neon-300">{formatRupiah(finalPrice)}</span>
+        <span className="text-sm font-bold text-[#1A2E1A]">Total Bayar</span>
+        <span className="font-mono text-lg font-bold text-[#748F1C]">{formatRupiah(finalPrice)}</span>
       </div>
     </div>
   );

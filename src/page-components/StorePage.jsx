@@ -38,24 +38,24 @@ export default function StorePage() {
   return (
     <PageLayout>
       {/* Page header */}
-      <div className="page-header-bg border-b border-white/8 bg-gradient-to-b from-panel/60 to-transparent px-4 py-10 text-center sm:px-6 lg:px-8">
+      <div className="relative border-b border-[#D8D1C0] bg-[#EDE8DA] px-4 py-10 text-center sm:px-6 lg:px-8">
         <div aria-hidden="true" className="pointer-events-none absolute inset-0">
-          <div className="absolute left-1/2 top-0 h-48 w-80 -translate-x-1/2 rounded-full bg-neon-600/12 blur-3xl" />
+          <div className="absolute left-1/2 top-0 h-48 w-80 -translate-x-1/2 rounded-full bg-[#B4E035]/10 blur-3xl" />
         </div>
-        <span className="relative mb-3 inline-flex items-center gap-1.5 rounded-full border border-neon-500/25 bg-neon-500/10 px-3 py-1 font-mono text-[0.65rem] font-semibold uppercase tracking-[0.15em] text-neon-300">
-          <span className="h-1.5 w-1.5 animate-pulse-dot rounded-full bg-neon-400" />
+        <span className="relative mb-3 inline-flex items-center gap-1.5 rounded-full border border-[#B4E035]/35 bg-[#B4E035]/10 px-3 py-1 font-mono text-[0.65rem] font-semibold uppercase tracking-[0.15em] text-[#748F1C]">
+          <span className="h-1.5 w-1.5 animate-pulse-dot rounded-full bg-[#B4E035]" />
           AeroBlast Store
         </span>
-        <h1 className="relative font-display text-2xl font-extrabold text-text-bright sm:text-3xl">
+        <h1 className="relative font-display text-2xl font-extrabold text-[#1A2E1A] sm:text-3xl">
           Toko In-Game Resmi
         </h1>
-        <p className="relative mt-1.5 text-xs text-text-muted">
+        <p className="relative mt-1.5 text-xs text-[#6B7F5A]">
           Semua pembelian diproses manual via WhatsApp dalam 1–10 menit.
         </p>
       </div>
 
       {/* Tab bar — desktop: dividers, mobile: horizontal chips */}
-      <div className="sticky top-14 z-40 border-b border-white/8 bg-abyss/90">
+      <div className="sticky top-14 z-40 border-b border-[#D8D1C0] bg-[#EDE8DA]/95 backdrop-blur-sm">
         {/* Mobile: scrollable chips */}
         <div className="no-scrollbar flex overflow-x-auto px-3 py-2 gap-1.5 md:hidden">
           {TABS.map((tab) => {
@@ -68,8 +68,8 @@ export default function StorePage() {
                 className={cn(
                   'inline-flex shrink-0 items-center gap-1.5 rounded-full px-3 py-1.5 text-xs font-medium transition-all',
                   activeTab === tab.id
-                    ? 'bg-neon-500/15 text-neon-300 ring-1 ring-neon-400/30'
-                    : 'bg-white/4 text-text-muted hover:bg-white/8 hover:text-text-bright'
+                    ? 'bg-[#B4E035]/20 text-[#748F1C] ring-1 ring-[#B4E035]/40'
+                    : 'bg-[#D8D1C0]/40 text-[#6B7F5A] hover:bg-[#D8D1C0]/70 hover:text-[#1A2E1A]'
                 )}
               >
                 <TabIcon size={12} />
@@ -86,18 +86,18 @@ export default function StorePage() {
                 const TabIcon = tab.icon;
                 return (
                   <div key={tab.id} className="flex items-center">
-                    {idx > 0 && <div className="h-4 w-px bg-white/10" />}
+                    {idx > 0 && <div className="h-4 w-px bg-[#D8D1C0]" />}
                     <button
                       type="button"
                       onClick={() => setActiveTab(tab.id)}
                       className={cn(
                         'group inline-flex items-center gap-1.5 px-4 py-3 text-xs font-medium transition-all border-b-2',
                         activeTab === tab.id
-                          ? 'border-neon-400 text-neon-300'
-                          : 'border-transparent text-text-muted hover:text-text-bright'
+                          ? 'border-[#B4E035] text-[#748F1C]'
+                          : 'border-transparent text-[#6B7F5A] hover:text-[#1A2E1A]'
                       )}
                     >
-                      <TabIcon size={13} className={activeTab === tab.id ? 'text-neon-400' : 'text-text-dim group-hover:text-text-muted'} />
+                      <TabIcon size={13} className={activeTab === tab.id ? 'text-[#B4E035]' : 'text-[#8A9E7A] group-hover:text-[#6B7F5A]'} />
                       {tab.label}
                     </button>
                   </div>
@@ -113,10 +113,10 @@ export default function StorePage() {
         <PlayerLoginPrompt />
         {current && (
           <div className="mb-6 flex items-center gap-2">
-            <current.icon size={16} className="text-neon-400" />
-            <h2 className="font-display text-lg font-bold text-text-bright">{current.label}</h2>
-            <span className="text-text-dim">·</span>
-            <p className="text-xs text-text-muted">{current.desc}</p>
+            <current.icon size={16} className="text-[#748F1C]" />
+            <h2 className="font-display text-lg font-bold text-[#1A2E1A]">{current.label}</h2>
+            <span className="text-[#6B7F5A]">·</span>
+            <p className="text-xs text-[#6B7F5A]">{current.desc}</p>
           </div>
         )}
         <div key={activeTab}>{TAB_CONTENT[activeTab]}</div>

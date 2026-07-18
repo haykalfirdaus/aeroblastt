@@ -26,16 +26,16 @@ export function FeaturesSection() {
               style={{ transitionDelay: visible ? `${i * 50}ms` : '0ms' }}
             >
               <div className="flex flex-col gap-3 p-5">
-                <div className="flex h-10 w-10 items-center justify-center rounded-xl border border-neon-500/20 bg-neon-500/10 shadow-[0_0_16px_-4px_rgba(59,130,246,0.4)]">
-                  <Icon name={feature.icon} size={18} className="text-neon-300" />
+                <div className="flex h-10 w-10 items-center justify-center rounded-xl border border-[#B4E035]/30 bg-[#B4E035]/10 shadow-[0_0_16px_-4px_rgba(180,224,53,0.3)]">
+                  <Icon name={feature.icon} size={18} className="text-[#748F1C]" />
                 </div>
                 <div>
-                  <h3 className="mb-1 text-sm font-black text-text-bright">{feature.title}</h3>
-                  <p className="text-[0.72rem] leading-relaxed text-text-muted">{feature.description}</p>
+                  <h3 className="mb-1 text-sm font-bold text-[#1A2E1A]">{feature.title}</h3>
+                  <p className="text-[0.72rem] leading-relaxed text-[#6B7F5A]">{feature.description}</p>
                 </div>
                 <div className="flex flex-wrap gap-1.5">
                   {feature.tags.map((tag) => (
-                    <span key={tag} className="badge-pill border border-neon-500/15 bg-neon-500/8 text-neon-400">
+                    <span key={tag} className="badge-pill border border-[#B4E035]/35 bg-[#B4E035]/10 text-[#748F1C]">
                       {tag}
                     </span>
                   ))}

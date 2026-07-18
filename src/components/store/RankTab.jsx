@@ -22,7 +22,7 @@ const TIER_STYLES = {
     ring: 'ring-1 ring-rank-universe/30',
     badge: 'ULTIMATE',
     badgeTone: 'gold',
-    bg: 'bg-white/[0.035]',
+    bg: 'bg-[#F5F2EA]',
     priceClass: 'text-xl',
     featured: true,
   },
@@ -32,7 +32,7 @@ const TIER_STYLES = {
     glow: 'shadow-[0_0_32px_-6px_var(--color-rank-galatics)]',
     ring: 'ring-1 ring-rank-galatics/20',
     badge: null,
-    bg: 'bg-white/[0.03]',
+    bg: 'bg-[#F5F2EA]',
     priceClass: 'text-lg',
     featured: true,
   },
@@ -42,7 +42,7 @@ const TIER_STYLES = {
     glow: 'shadow-[0_0_28px_-6px_var(--color-rank-quantum)]',
     ring: 'ring-1 ring-rank-quantum/20',
     badge: null,
-    bg: 'bg-white/[0.025]',
+    bg: 'bg-[#F7F4EE]',
     priceClass: 'text-base',
     featured: true,
   },
@@ -53,7 +53,7 @@ const TIER_STYLES = {
     ring: 'ring-1 ring-rank-vortex/20',
     badge: 'POPULAR',
     badgeTone: 'neon',
-    bg: 'bg-white/[0.025]',
+    bg: 'bg-[#F7F4EE]',
     priceClass: 'text-base',
     featured: true,
   },
@@ -63,38 +63,38 @@ const TIER_STYLES = {
     glow: 'shadow-[0_0_20px_-6px_var(--color-rank-ravest)]',
     ring: '',
     badge: null,
-    bg: 'bg-white/[0.02]',
+    bg: 'bg-[#F9F6F0]',
     priceClass: 'text-base',
     featured: false,
   },
   // Orbiter
   5: {
-    border: 'border-white/10',
+    border: 'border-[#D8D1C0]',
     glow: '',
     ring: '',
     badge: null,
-    bg: 'bg-white/[0.018]',
+    bg: 'bg-[#FAFAF7]',
     priceClass: 'text-sm',
     featured: false,
   },
   // Voyager
   6: {
-    border: 'border-white/8',
+    border: 'border-[#D8D1C0]/70',
     glow: '',
     ring: '',
     badge: null,
-    bg: 'bg-white/[0.015]',
+    bg: 'bg-[#FAFAF7]',
     priceClass: 'text-sm',
     featured: false,
   },
   // Scout — cheapest, visually de-emphasized
   7: {
-    border: 'border-white/6',
+    border: 'border-[#D8D1C0]/50',
     glow: '',
     ring: '',
     badge: 'STARTER',
     badgeTone: 'dim',
-    bg: 'bg-white/[0.01]',
+    bg: 'bg-[#FAFAF7]',
     priceClass: 'text-sm',
     featured: false,
   },
@@ -107,7 +107,7 @@ export function RankTab() {
   return (
     <>
       {/* Anchoring hint */}
-      <p className="mb-4 text-center text-xs text-text-faint">
+      <p className="mb-4 text-center text-xs text-[#8A9E7A]">
         Tampil dari harga tertinggi — semakin ke bawah semakin terjangkau
       </p>
 
@@ -160,7 +160,7 @@ export function RankTab() {
                 {/* Icon + name */}
                 <div className="mb-3 flex flex-col items-center gap-2 text-center">
                   <div
-                    className="grid h-11 w-11 place-items-center rounded-xl border border-white/8 bg-white/4"
+                    className="grid h-11 w-11 place-items-center rounded-xl border border-[#D8D1C0] bg-[#F0EBE0]"
                     style={{ boxShadow: isFeatured ? `0 0 18px -4px var(--accent)` : undefined }}
                   >
                     <Icon
@@ -172,7 +172,7 @@ export function RankTab() {
                   <div>
                     <h3 className={cn(
                       'font-display text-sm font-bold',
-                      isUltimate ? 'text-gradient' : isFeatured ? 'text-text-bright' : 'text-text-muted',
+                      isUltimate ? 'text-gradient' : isFeatured ? 'text-[#1A2E1A]' : 'text-[#4A5E3E]',
                     )}>
                       {rank.name}
                     </h3>
@@ -190,9 +190,9 @@ export function RankTab() {
                   {rank.features.map((f) => (
                     <li key={f} className={cn(
                       'flex items-start gap-1.5 text-[0.7rem]',
-                      isFeatured ? 'text-text-muted' : 'text-text-faint',
+                      isFeatured ? 'text-[#4A5E3E]' : 'text-[#6B7F5A]',
                     )}>
-                      <Check size={10} className={cn('mt-0.5 shrink-0', isFeatured ? 'text-success-bright' : 'text-text-dim')} />
+                      <Check size={10} className={cn('mt-0.5 shrink-0', isFeatured ? 'text-success-bright' : 'text-[#8A9E7A]')} />
                       <span>{f}</span>
                     </li>
                   ))}
@@ -206,7 +206,7 @@ export function RankTab() {
                   disabled={!nick}
                   title={!nick ? 'Login dulu untuk order' : undefined}
                   className={cn(
-                    isUltimate && nick && 'bg-gradient-to-r from-purple/80 to-neon-600 text-white',
+                    isUltimate && nick && 'bg-gradient-to-r from-purple/80 to-[#748F1C] text-white',
                     !isFeatured && 'opacity-75',
                   )}
                 >

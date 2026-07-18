@@ -28,8 +28,8 @@ export function ParticlesCanvas({ className = 'fixed inset-0 z-0' }) {
         this.size = Math.random() * 2 + 0.5;
         this.vx = (Math.random() - 0.5) * 0.45;
         this.vy = (Math.random() - 0.5) * 0.45;
-        this.opacity = Math.random() * 0.45 + 0.1;
-        this.color = Math.random() > 0.65 ? 'rgba(6,182,212,' : 'rgba(59,130,246,';
+        this.opacity = Math.random() * 0.25 + 0.05;
+        this.color = Math.random() > 0.55 ? 'rgba(180,224,53,' : 'rgba(107,127,90,';
       }
       update() {
         this.x += this.vx;
@@ -89,7 +89,7 @@ export function ParticlesCanvas({ className = 'fixed inset-0 z-0' }) {
             ctx.beginPath();
             ctx.moveTo(particles[i].x, particles[i].y);
             ctx.lineTo(particles[j].x, particles[j].y);
-            ctx.strokeStyle = `rgba(59,130,246,${(1 - dist / 115) * 0.14})`;
+            ctx.strokeStyle = `rgba(26,46,26,${(1 - dist / 115) * 0.08})`;
             ctx.lineWidth = 0.5;
             ctx.stroke();
           }
