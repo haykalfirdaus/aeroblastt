@@ -1,16 +1,14 @@
 import { useEffect, useState } from 'react';
 import { X } from 'lucide-react';
 import { useEscapeKey } from '@/hooks/useEscapeKey';
+import { useLockBodyScroll } from '@/hooks/useLockBodyScroll';
 import { cn } from '@/lib/cn';
 
-/**
- * Optimized modal: removed backdrop-blur-2xl (very heavy), replaced with solid overlay.
- * Animations use only transform & opacity (no blur animations).
- */
 export function Modal({ open, onClose, title, subtitle, icon, badge, size = 'md', children }) {
   const [rendered, setRendered] = useState(open);
   const [entered, setEntered] = useState(false);
 
+  useLockBodyScroll(open);
   useEscapeKey(rendered, onClose);
 
   useEffect(() => {
@@ -29,30 +27,33 @@ export function Modal({ open, onClose, title, subtitle, icon, badge, size = 'md'
   const sizeClass = { sm: 'max-w-md', md: 'max-w-lg', lg: 'max-w-2xl', xl: 'max-w-4xl' }[size];
 
   return (
+    // Overlay: fixed penuh, tidak pernah scroll — gelap selalu nutup seluruh layar
     <div
       className={cn(
-        'fixed inset-0 z-[150] overflow-y-auto bg-[#1A2E1A]/40 backdrop-blur-sm transition-opacity duration-150',
+        'fixed inset-0 z-[150] bg-[#1A2E1A]/40 backdrop-blur-sm transition-opacity duration-150',
         entered ? 'opacity-100' : 'opacity-0'
       )}
+      onClick={onClose}
       role="dialog"
       aria-modal="true"
       aria-labelledby={title ? 'modal-title' : undefined}
-      onClick={onClose}
     >
+      {/* Centering wrapper — fixed, tidak scroll */}
       <div
-        className="flex min-h-full items-center justify-center p-4 py-10"
+        className="fixed inset-0 flex items-center justify-center p-4"
         onClick={(e) => e.stopPropagation()}
       >
+        {/* Card: max-height + overflow-y-auto — hanya card yang scroll */}
         <div
           className={cn(
-            'relative w-full rounded-2xl border border-[#D8D1C0] bg-[#FAF8F4] shadow-[0_20px_60px_-12px_rgba(26,46,26,0.18)] transition-all duration-150',
+            'relative w-full max-h-[calc(100dvh-2rem)] overflow-y-auto rounded-2xl border border-[#D8D1C0] bg-[#FAF8F4] shadow-[0_20px_60px_-12px_rgba(26,46,26,0.18)] transition-all duration-150',
             sizeClass,
             entered ? 'translate-y-0 scale-100 opacity-100' : 'translate-y-2 scale-95 opacity-0'
           )}
         >
           <span
             aria-hidden="true"
-            className="absolute inset-x-0 top-0 h-px rounded-t-2xl bg-gradient-to-r from-transparent via-[#B4E035]/50 to-transparent"
+            className="pointer-events-none sticky top-0 z-10 block h-px w-full bg-gradient-to-r from-transparent via-[#B4E035]/50 to-transparent"
           />
 
           <button
