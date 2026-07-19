@@ -247,8 +247,8 @@ async function handleStatus(request) {
 export async function POST(request) {
   try {
     const action = new URL(request.url).searchParams.get('action');
-    if (action === 'create') { const body = await request.json().catch(() => ({})); return handleCreate(body, request); }
-    if (action === 'notify') return handleNotify(request);
+    if (action === 'create') { const body = await request.json().catch(() => ({})); return await handleCreate(body, request); }
+    if (action === 'notify') return await handleNotify(request);
     return NextResponse.json({ ok: false, error: 'action tidak valid' }, { status: 400 });
   } catch (err) {
     return NextResponse.json({ ok: false, error: err?.message || 'Internal server error' }, { status: 500 });
@@ -258,7 +258,7 @@ export async function POST(request) {
 export async function GET(request) {
   try {
     const action = new URL(request.url).searchParams.get('action');
-    if (action === 'status') return handleStatus(request);
+    if (action === 'status') return await handleStatus(request);
     return NextResponse.json({ ok: false, error: 'action tidak valid' }, { status: 400 });
   } catch (err) {
     return NextResponse.json({ ok: false, error: err?.message || 'Internal server error' }, { status: 500 });
