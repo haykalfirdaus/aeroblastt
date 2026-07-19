@@ -137,14 +137,22 @@ async function handleCreate(body, request) {
 }
 
 async function handleNotify(request) {
-  // Rate limit: 20 req/menit — sebelum baca body
   const ip = getIp(request);
   const rl = rateLimit(ip, { max: 20, windowMs: 60 * 1000 });
   if (!rl.ok) return NextResponse.json({ ok: false, error: 'Terlalu banyak request.' }, { status: 429, headers: { 'Retry-After': String(rl.retryAfter) } });
 
-  // Secret HANYA dari body (bukan query string — query masuk ke server log)
-  let text, secret;
-  try { const b = await request.json(); text = b.text; secret = b.secret; } catch { }
+  // Baca dari query param (MacroDroid) ATAU JSON body
+  const url = new URL(request.url);
+  let text = url.searchParams.get('text');
+  let secret = url.searchParams.get('secret');
+  try {
+    const ct = request.headers.get('content-type') || '';
+    if (ct.includes('application/json')) {
+      const b = await request.json();
+      if (b.secret) secret = b.secret;
+      if (b.text) text = b.text;
+    }
+  } catch { }
 
   if (!NOTIFY_SECRET) return NextResponse.json({ ok: false, error: 'NOTIFY_SECRET tidak dikonfigurasi' }, { status: 500 });
   const secretBuf = Buffer.from(String(secret ?? ''));
@@ -263,6 +271,7 @@ export async function GET(request) {
   try {
     const action = new URL(request.url).searchParams.get('action');
     if (action === 'status') return await handleStatus(request);
+    if (action === 'notify') return await handleNotify(request);
     return NextResponse.json({ ok: false, error: 'action tidak valid' }, { status: 400 });
   } catch (err) {
     return NextResponse.json({ ok: false, error: err?.message || 'Internal server error' }, { status: 500 });
