@@ -40,8 +40,8 @@ async function expireOldOrders() {
     if (invoiceIds.length) await supabase.from('invoices').delete().in('id', invoiceIds);
   }
 
-  await supabase.from('beta_orders').delete().eq('status', 'expired').lt('expires_at', oneHourAgo).catch(() => {});
-  await supabase.from('beta_orders').delete().eq('type', 'donate').eq('status', 'paid').lt('paid_at', oneHourAgo).catch(() => {});
+  await supabase.from('beta_orders').delete().eq('status', 'expired').lt('expires_at', oneHourAgo);
+  await supabase.from('beta_orders').delete().eq('type', 'donate').eq('status', 'paid').lt('paid_at', oneHourAgo);
 }
 
 async function allocateSuffix() {
@@ -192,7 +192,7 @@ async function handleNotify(request) {
       amount,
       message: donorMsg.slice(0, 200),
       paid_at: paidAt,
-    }).catch(() => {});
+    });
 
     const donateFields = [
       { name: 'Donatur', value: donorName, inline: true },
@@ -237,7 +237,7 @@ async function handleStatus(request) {
   if (order.status === 'pending' && new Date(order.expires_at) < new Date()) {
     // Selalu update ke 'expired' (jangan langsung DELETE) supaya polling berikutnya masih dapat status yang benar.
     // Cron cleanup & expireOldOrders akan DELETE setelah cukup lama.
-    await supabase.from('beta_orders').update({ status: 'expired' }).eq('id', orderId).catch(() => {});
+    await supabase.from('beta_orders').update({ status: 'expired' }).eq('id', orderId);
     order.status = 'expired';
   }
 

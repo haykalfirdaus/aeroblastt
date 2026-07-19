@@ -30,7 +30,7 @@ export async function GET(request) {
 
   // DELETE orders expired > 30 menit + donate paid > 30 menit (sudah aman untuk dibersihkan)
   const { error: delBetaErr } = await supabase.from('beta_orders').delete().eq('status', 'expired').lt('expires_at', cutoff);
-  await supabase.from('beta_orders').delete().eq('type', 'donate').eq('status', 'paid').lt('paid_at', cutoff).catch(() => {});
+  await supabase.from('beta_orders').delete().eq('type', 'donate').eq('status', 'paid').lt('paid_at', cutoff);
   const { error: delInvErr } = await supabase.from('invoices').delete().eq('paid', false).lt('expires_at', cutoff);
 
   return NextResponse.json({ ok: true, expiredCount, invoicesDeleted, errors: [expErr, delBetaErr, delInvErr].filter(Boolean).map(e => e.message), ts: now });

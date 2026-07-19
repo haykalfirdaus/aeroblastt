@@ -64,7 +64,7 @@ export async function PATCH(request) {
   else if (data.type === 'key' && data.details?.keyName && data.details?.qty) rconResult = await giveKey(data.nick, data.details.keyName, data.details.qty);
 
   await sendLunasEmbed(data, rconResult);
-  await supabase.from('invoices').delete().eq('id', id).catch(() => {});
+  await supabase.from('invoices').delete().eq('id', id);
   return NextResponse.json({ ok: true, invoice: toClient(data), rcon: rconResult });
 }
 
@@ -73,7 +73,7 @@ export async function DELETE(request) {
   if (!(await isAuthenticated(makeReq(request)))) return NextResponse.json({ ok: false, error: 'Unauthorized' }, { status: 401 });
   const id = new URL(request.url).searchParams.get('id');
   if (!id) return NextResponse.json({ ok: false, error: 'id diperlukan' }, { status: 400 });
-  await supabase.from('invoices').delete().eq('id', id).catch(() => {});
+  await supabase.from('invoices').delete().eq('id', id);
   return NextResponse.json({ ok: true });
 }
 
