@@ -23,8 +23,11 @@ export function RankOrderModal({ rank, open, onClose }) {
   const { nick: playerNick } = usePlayerAuth();
   const { rank: detectedRank, loading: rankLoading } = usePlayerRank();
   const isBedrock = playerNick?.includes('.');
+  const isJava = !!playerNick && !playerNick.includes('.');
+  const platformLocked = isBedrock || isJava;
+  const detectedPlatform = isBedrock ? 'Bedrock / PE' : isJava ? 'Java Edition' : '';
   const [nick, setNick] = useState('');
-  const [platform, setPlatform] = useState(isBedrock ? 'Bedrock / PE' : '');
+  const [platform, setPlatform] = useState(detectedPlatform);
   const [ownedRank, setOwnedRank] = useState('none');
   const [duration, setDuration] = useState('permanent');
   const [discount, setDiscount] = useState(0);
@@ -32,11 +35,12 @@ export function RankOrderModal({ rank, open, onClose }) {
   const [betaOpen, setBetaOpen] = useState(false);
   const [waLoading, setWaLoading] = useState(false);
 
-  // Sinkronisasi ownedRank dari hasil deteksi otomatis
+  // Sinkronisasi platform & ownedRank saat modal dibuka atau playerNick berubah
   useEffect(() => {
     if (!open) return;
+    setPlatform(detectedPlatform || platform);
     setOwnedRank(detectedRank ? detectedRank.toLowerCase() : 'none');
-  }, [open, detectedRank]);
+  }, [open, detectedRank, detectedPlatform]); // eslint-disable-line react-hooks/exhaustive-deps
 
   if (!rank) return null;
 
@@ -91,11 +95,12 @@ export function RankOrderModal({ rank, open, onClose }) {
 
         <div>
           <FieldLabel required>Platform</FieldLabel>
-          <SelectField value={platform} onChange={(e) => !isBedrock && setPlatform(e.target.value)} disabled={isBedrock}>
+          <SelectField value={platform} onChange={(e) => !platformLocked && setPlatform(e.target.value)} disabled={platformLocked}>
             <option value="">-- Pilih Platform --</option>
             {SITE.platforms.map((p) => <option key={p} value={p}>{p}</option>)}
           </SelectField>
           {isBedrock && <p className="mt-1 text-[11px] text-[#566947]">Terdeteksi Bedrock — platform dikunci otomatis</p>}
+          {isJava && <p className="mt-1 text-[11px] text-[#566947]">Terdeteksi Java (nama tanpa titik) — platform dikunci otomatis</p>}
         </div>
 
         <div>
@@ -104,21 +109,25 @@ export function RankOrderModal({ rank, open, onClose }) {
             {rankLoading && <RefreshCw size={11} className="ml-1.5 inline animate-spin text-[#8A9E7A]" />}
             {!rankLoading && playerNick && <span className="ml-1.5 text-[0.6rem] text-[#8A9E7A]">(terdeteksi otomatis)</span>}
           </FieldLabel>
-          <SelectField value={ownedRank} onChange={(e) => setOwnedRank(e.target.value)} disabled={rankLoading}>
+          <SelectField value={ownedRank} onChange={(e) => !detectedRank && setOwnedRank(e.target.value)} disabled={rankLoading || !!detectedRank}>
             <option value="none">Belum punya rank / Member</option>
             {(() => {
               const targetIdx = RANKS.findIndex((r) => r.key === rank.key);
+              const detectedIdx = detectedRank ? RANKS.findIndex((r) => r.key === detectedRank) : -1;
               return RANKS.map((r, idx) => {
                 if (r.key === rank.key) return null;
-                const disabled = idx > targetIdx;
+                const aboveTarget = idx > targetIdx;
+                const belowDetected = detectedRank && idx < detectedIdx;
+                const disabled = aboveTarget || belowDetected;
                 return (
                   <option key={r.key} value={r.key.toLowerCase()} disabled={disabled}>
-                    {r.name} ({formatRupiah(r.price)}){disabled ? ' — tidak tersedia' : ''}
+                    {r.name} ({formatRupiah(r.price)}){aboveTarget ? ' — tidak tersedia' : ''}
                   </option>
                 );
               });
             })()}
           </SelectField>
+          {detectedRank && <p className="mt-1 text-[11px] text-[#566947]">Rank terdeteksi — tidak bisa pilih rank lebih rendah</p>}
         </div>
 
         <div>
