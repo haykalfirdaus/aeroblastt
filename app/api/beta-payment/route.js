@@ -147,18 +147,22 @@ async function handleNotify(request) {
   try { const b = await request.json(); text = b.text; secret = b.secret; } catch { }
 
   if (!NOTIFY_SECRET) return NextResponse.json({ ok: false, error: 'NOTIFY_SECRET tidak dikonfigurasi' }, { status: 500 });
-  // Timing-safe comparison — cegah timing attack
   const secretBuf = Buffer.from(String(secret ?? ''));
   const expectedBuf = Buffer.from(NOTIFY_SECRET);
   const valid = secretBuf.length === expectedBuf.length && crypto.timingSafeEqual(secretBuf, expectedBuf);
-  if (!valid) return NextResponse.json({ ok: false, error: 'Unauthorized' }, { status: 401 });
+  if (!valid) {
+    await sendDiscord({ title: '🔑 Notify: Secret Salah', color: 0xef4444, fields: [{ name: 'Secret Diterima (length)', value: String(secretBuf.length), inline: true }, { name: 'Expected (length)', value: String(expectedBuf.length), inline: true }], footer: { text: 'AeroBlast Network' }, timestamp: new Date().toISOString() });
+    return NextResponse.json({ ok: false, error: 'Unauthorized' }, { status: 401 });
+  }
   if (!text?.trim()) return NextResponse.json({ ok: false, error: 'text diperlukan' }, { status: 400 });
 
+  // Log teks asli dari MacroDroid ke Discord untuk debug
+  await sendDiscord({ title: '📩 Notify Diterima', color: 0x6366f1, fields: [{ name: 'Teks Notifikasi', value: String(text).slice(0, 1000), inline: false }], footer: { text: 'AeroBlast Network' }, timestamp: new Date().toISOString() });
+
+  // Hapus titik (pemisah ribuan Indonesia: "10.500" → "10500"), lalu ambil semua angka
   const matches = String(text).replace(/\./g, '').match(/\d+/g);
   if (!matches) return NextResponse.json({ ok: false, error: 'Tidak ada angka di teks' }, { status: 400 });
 
-  // Coba semua angka dari notifikasi (bukan hanya max) supaya nomor ref transaksi
-  // tidak mengalahkan nominal transfer yang kecil
   const candidates = [...new Set(matches.map(Number).filter(n => n >= 1000 && n <= 100_000_999))];
 
   await expireOldOrders();
@@ -172,7 +176,7 @@ async function handleNotify(request) {
 
   if (!order) {
     const tried = candidates.length ? candidates.join(', ') : 'tidak ada';
-    await sendDiscord({ title: '⚠️ Pembayaran Perlu Dicek', color: 0xf59e0b, fields: [{ name: 'Nominal Dicoba', value: tried, inline: true }, { name: 'Status', value: 'Order tidak ditemukan untuk nominal ini', inline: false }], footer: { text: 'AeroBlast Network' }, timestamp: new Date().toISOString() });
+    await sendDiscord({ title: '⚠️ Pembayaran Perlu Dicek', color: 0xf59e0b, fields: [{ name: 'Nominal Dicoba', value: tried, inline: true }, { name: 'Status', value: 'Tidak ada pending order dengan nominal ini', inline: false }], footer: { text: 'AeroBlast Network' }, timestamp: new Date().toISOString() });
     return NextResponse.json({ ok: false, error: 'Order tidak ditemukan' }, { status: 404 });
   }
 
