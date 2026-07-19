@@ -49,7 +49,7 @@ export function Footer() {
                 href={SITE.social.discord}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="inline-flex items-center gap-1.5 rounded-md border-2 border-[#fff8f0]/20 px-3 py-1.5 text-xs text-[#fff8f0]/70 transition-all hover:border-[#BFFF5E] hover:text-[#BFFF5E]"
+                className="inline-flex items-center gap-1.5 rounded-md border border-[#fff8f0]/20 px-3 py-1.5 text-xs text-[#fff8f0]/70 transition-all hover:border-[#BFFF5E] hover:text-[#BFFF5E]"
               >
                 <MessageCircle size={11} /> Discord
               </a>
@@ -57,7 +57,7 @@ export function Footer() {
                 href={SITE.social.whatsapp}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="inline-flex items-center gap-1.5 rounded-md border-2 border-[#fff8f0]/20 px-3 py-1.5 text-xs text-[#fff8f0]/70 transition-all hover:border-success/50 hover:text-success"
+                className="inline-flex items-center gap-1.5 rounded-md border border-[#fff8f0]/20 px-3 py-1.5 text-xs text-[#fff8f0]/70 transition-all hover:border-success/50 hover:text-success"
               >
                 <Phone size={11} /> WhatsApp
               </a>
@@ -103,7 +103,7 @@ export function Footer() {
               ].map((item) => (
                 <div
                   key={item.key}
-                  className="flex items-center justify-between rounded-md border-2 border-[#fff8f0]/15 bg-[#fff8f0]/5 px-3 py-2.5"
+                  className="flex items-center justify-between rounded-md border border-[#fff8f0]/15 bg-[#fff8f0]/5 px-3 py-2.5"
                 >
                   <div>
                     <p className="text-[0.55rem] uppercase tracking-widest text-[#fff8f0]/40">{item.label}</p>

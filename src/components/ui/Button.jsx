@@ -12,8 +12,8 @@ const VARIANTS = {
     'shadow-[2px_2px_0_#1d2b1f] ' +
     'hover:translate-x-[2px] hover:translate-y-[2px] hover:shadow-none ' +
     'active:translate-x-[2px] active:translate-y-[2px] active:shadow-none',
-  ghost: 'text-[#4a5e3a] hover:text-[#1d2b1f] hover:bg-[#1d2b1f]/5 border-2 border-transparent hover:border-[#1d2b1f]/20',
-  danger: 'border-2 border-danger/60 bg-danger/10 text-danger-bright shadow-[2px_2px_0_rgba(239,68,68,0.4)] hover:translate-x-[2px] hover:translate-y-[2px] hover:shadow-none',
+  ghost: 'text-[#4a5e3a] hover:text-[#1d2b1f] hover:bg-[#1d2b1f]/5 border border-transparent hover:border-[#1d2b1f]/20',
+  danger: 'border border-danger/50 bg-danger/8 text-danger-bright hover:bg-danger/15',
 };
 
 const SIZES = {

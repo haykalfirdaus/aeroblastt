@@ -139,8 +139,8 @@ export function RankOrderModal({ rank, open, onClose }) {
                 type="button"
                 onClick={() => setDuration(opt.id)}
                 className={cn(
-                  'rounded-md border-2 px-3 py-3 text-center transition-all',
-                  duration === opt.id ? 'border-[#1d2b1f] bg-[#BFFF5E] text-[#1d2b1f]' : 'border-[#1d2b1f] bg-[#f5ece0] hover:bg-[#BFFF5E]/20'
+                  'rounded-md border border-[#1d2b1f]/40 px-3 py-3 text-center transition-all',
+                  duration === opt.id ? 'border-[#1d2b1f] bg-[#BFFF5E] text-[#1d2b1f]' : 'bg-[#f5ece0] hover:bg-[#BFFF5E]/20'
                 )}
               >
                 {opt.badge && <span className="mb-1 block text-[0.6rem] font-bold text-warning">{opt.badge}</span>}

@@ -50,7 +50,7 @@ export function Modal({ open, onClose, title, subtitle, icon, badge, size = 'md'
       >
         <div
           className={cn(
-            'relative w-full max-h-[calc(100dvh-2rem)] overflow-y-auto rounded-md border-2 border-[#1d2b1f] bg-[#fff8f0] shadow-[4px_4px_0_#1d2b1f] transition-all duration-150',
+            'relative w-full max-h-[calc(100dvh-2rem)] overflow-y-auto rounded-md border border-[#1d2b1f]/30 bg-[#fff8f0] shadow-[0_8px_32px_-8px_rgba(29,43,31,0.18)] transition-all duration-150',
             sizeClass,
             entered ? 'translate-y-0 scale-100 opacity-100' : 'translate-y-2 scale-95 opacity-0'
           )}

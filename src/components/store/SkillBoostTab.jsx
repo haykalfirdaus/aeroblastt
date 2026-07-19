@@ -139,7 +139,9 @@ export function SkillBoostTab() {
                 style.border,
                 style.featured ? 'bg-[#faf3e8]' : 'bg-[#fffdf9] opacity-85',
               )}
-              style={{ animation: 'page-wipe-in 0.5s cubic-bezier(0.22,1,0.36,1) both', animationDelay: `${catIdx * 100}ms` }}
+              data-aos="fade-up"
+              data-aos-delay={catIdx * 60}
+              data-aos-duration="500"
             >
               {/* Category header */}
               <div className={cn(

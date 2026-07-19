@@ -199,7 +199,7 @@ export function SpecialRanksSection() {
             >
               <div className="flex flex-col gap-4 p-5">
                 <div className="flex items-center gap-3">
-                  <div className="grid h-11 w-11 shrink-0 place-items-center rounded-md border border-2 border-[#1d2b1f] bg-[#f5ece0] shadow-[0_0_18px_-4px_rgba(180,224,53,0.25)]">
+                  <div className="grid h-11 w-11 shrink-0 place-items-center rounded-md border border-[#1d2b1f]/20 bg-[#f5ece0]">
                     {(() => { const Icon = RANK_ICONS[rank.icon]; return Icon ? <Icon size={20} className="text-[#1d2b1f]" /> : null; })()}
                   </div>
                   <div>

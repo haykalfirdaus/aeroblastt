@@ -29,7 +29,7 @@ export function FeaturesSection() {
               data-aos-duration="800"
             >
               <div className="flex flex-col gap-3 p-5">
-                <div className="flex h-10 w-10 items-center justify-center rounded-md border border-[#BFFF5E]/30 bg-[#BFFF5E]/10 shadow-[0_0_16px_-4px_rgba(180,224,53,0.3)]">
+                <div className="flex h-10 w-10 items-center justify-center rounded-md border border-[#1d2b1f]/15 bg-[#BFFF5E]/10">
                   <Icon name={feature.icon} size={18} className="text-[#1d2b1f]" />
                 </div>
                 <div>

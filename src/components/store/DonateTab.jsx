@@ -128,7 +128,7 @@ export function DonateTab() {
     return (
       <div
         className="flex flex-col items-center justify-center gap-5 rounded-md border border-[#BFFF5E]/30 bg-[#BFFF5E]/[0.07] px-6 py-16 text-center"
-        style={{ animation: 'page-wipe-in 0.4s cubic-bezier(0.22,1,0.36,1) both' }}
+        data-aos="fade-up" data-aos-duration="400"
       >
         <div className="flex h-16 w-16 items-center justify-center rounded-md border border-[#BFFF5E]/40 bg-[#BFFF5E]/15">
           <CheckCircle size={30} className="text-[#1d2b1f]" />
@@ -146,7 +146,7 @@ export function DonateTab() {
         <button
           type="button"
           onClick={handleReset}
-          className="rounded-lg border border-2 border-[#1d2b1f] bg-[#f5ece0] px-4 py-2 text-xs font-semibold text-[#4a5e3a] transition-colors hover:border-[#BFFF5E]/30 hover:text-[#1d2b1f]"
+          className="rounded-lg border border-[#1d2b1f]/40 bg-[#f5ece0] px-4 py-2 text-xs font-semibold text-[#4a5e3a] transition-colors hover:border-[#BFFF5E]/30 hover:text-[#1d2b1f]"
         >
           Donasi Lagi
         </button>
@@ -158,10 +158,10 @@ export function DonateTab() {
   if (step === 'expired') {
     return (
       <div
-        className="flex flex-col items-center justify-center gap-5 rounded-md border border-2 border-[#1d2b1f] bg-[#fffdf9] px-6 py-14 text-center"
-        style={{ animation: 'page-wipe-in 0.4s cubic-bezier(0.22,1,0.36,1) both' }}
+        className="flex flex-col items-center justify-center gap-5 rounded-md border border-[#1d2b1f]/40 bg-[#fffdf9] px-6 py-14 text-center"
+        data-aos="fade-up" data-aos-duration="400"
       >
-        <div className="flex h-14 w-14 items-center justify-center rounded-md border border-2 border-[#1d2b1f] bg-[#f5ece0]">
+        <div className="flex h-14 w-14 items-center justify-center rounded-md border border-[#1d2b1f]/40 bg-[#f5ece0]">
           <Clock size={24} className="text-[#6b7f5a]" />
         </div>
         <div>
@@ -174,7 +174,7 @@ export function DonateTab() {
         <button
           type="button"
           onClick={handleReset}
-          className="inline-flex items-center gap-1.5 rounded-lg border border-2 border-[#1d2b1f] bg-[#f5ece0] px-4 py-2 text-xs font-semibold text-[#4a5e3a] transition-colors hover:text-[#1d2b1f]"
+          className="inline-flex items-center gap-1.5 rounded-lg border border-[#1d2b1f]/40 bg-[#f5ece0] px-4 py-2 text-xs font-semibold text-[#4a5e3a] transition-colors hover:text-[#1d2b1f]"
         >
           <RefreshCw size={12} />
           Coba Lagi
@@ -191,7 +191,7 @@ export function DonateTab() {
     return (
       <div
         className="mx-auto max-w-sm"
-        style={{ animation: 'page-wipe-in 0.28s cubic-bezier(0.22,1,0.36,1) both' }}
+        data-aos="fade-up" data-aos-duration="400"
       >
         {/* Header */}
         <div className="mb-5 flex flex-col items-center gap-2 text-center">
@@ -204,7 +204,7 @@ export function DonateTab() {
           </div>
         </div>
 
-        <div className="flex flex-col gap-4 rounded-md border border-2 border-[#1d2b1f] bg-[#fffdf9] p-5">
+        <div className="flex flex-col gap-4 rounded-md border border-[#1d2b1f]/40 bg-[#fffdf9] p-5">
           {/* Countdown bar */}
           <div>
             <div className="mb-1.5 flex items-center justify-between">
@@ -256,7 +256,7 @@ export function DonateTab() {
 
           {/* QRIS image */}
           <div className="flex justify-center">
-            <div className="overflow-hidden rounded-md border border-2 border-[#1d2b1f] bg-white p-3 shadow-sm">
+            <div className="overflow-hidden rounded-md border border-[#1d2b1f]/40 bg-white p-3 shadow-sm">
               <img
                 src={SITE.payment.QRIS.imgPath}
                 alt="QRIS AeroBlast"
@@ -283,7 +283,7 @@ export function DonateTab() {
           </ol>
 
           {/* Status: menunggu */}
-          <div className="flex items-center justify-center gap-2 rounded-lg border border-2 border-[#1d2b1f] bg-[#f5ece0] px-4 py-2.5">
+          <div className="flex items-center justify-center gap-2 rounded-lg border border-[#1d2b1f]/40 bg-[#f5ece0] px-4 py-2.5">
             <span className="inline-block h-2 w-2 animate-pulse rounded-md bg-[#BFFF5E]" />
             <span className="text-xs text-[#4a5e3a]">Menunggu pembayaran...</span>
           </div>
@@ -302,7 +302,7 @@ export function DonateTab() {
 
   // ── Form screen ───────────────────────────────────────────────────────────────
   return (
-    <div className="mx-auto max-w-lg" style={{ animation: 'page-wipe-in 0.28s cubic-bezier(0.22,1,0.36,1) both' }}>
+    <div className="mx-auto max-w-lg" data-aos="fade-up" data-aos-duration="400">
       {/* Header */}
       <div className="mb-6 flex flex-col items-center gap-2 text-center">
         <div className="flex h-12 w-12 items-center justify-center rounded-md border border-[#BFFF5E]/35 bg-[#BFFF5E]/10">
@@ -314,7 +314,7 @@ export function DonateTab() {
         </div>
       </div>
 
-      <div className="flex flex-col gap-4 rounded-md border border-2 border-[#1d2b1f] bg-[#fffdf9] p-5">
+      <div className="flex flex-col gap-4 rounded-md border border-[#1d2b1f]/40 bg-[#fffdf9] p-5">
         {/* Nominal cepat */}
         <div>
           <p className="mb-2 text-xs font-semibold text-[#4a5e3a]">Pilih nominal</p>
@@ -327,7 +327,7 @@ export function DonateTab() {
                 className={cn(
                   'rounded-md border border-[#1d2b1f] px-3 py-1.5 text-xs font-semibold transition-all',
                   numAmount === val
-                    ? 'bg-[#BFFF5E] text-[#1d2b1f] shadow-[2px_2px_0_#1d2b1f]'
+                    ? 'bg-[#BFFF5E] text-[#1d2b1f]'
                     : 'bg-[#f5ece0] text-[#4a5e3a] hover:bg-[#BFFF5E]/20 hover:text-[#1d2b1f]'
                 )}
               >
@@ -350,7 +350,7 @@ export function DonateTab() {
               value={amount ? Number(amount).toLocaleString('id-ID') : ''}
               onChange={handleAmountInput}
               placeholder="0"
-              className="w-full rounded-md border border-2 border-[#1d2b1f] bg-white py-2.5 pl-9 pr-4 text-sm font-mono font-semibold text-[#1d2b1f] placeholder:text-[#D8D1C0] outline-none transition-colors focus:border-[#BFFF5E]/70 focus:ring-2 focus:ring-[#BFFF5E]/15"
+              className="w-full rounded-md border border-[#1d2b1f]/40 bg-white py-2.5 pl-9 pr-4 text-sm font-mono font-semibold text-[#1d2b1f] placeholder:text-[#D8D1C0] outline-none transition-colors focus:border-[#BFFF5E]/70 focus:ring-2 focus:ring-[#BFFF5E]/15"
             />
           </div>
           {amount && !isValid && (
@@ -369,7 +369,7 @@ export function DonateTab() {
             onChange={(e) => setName(e.target.value)}
             placeholder="Anonim"
             maxLength={40}
-            className="w-full rounded-md border border-2 border-[#1d2b1f] bg-white px-4 py-2.5 text-sm text-[#1d2b1f] placeholder:text-[#C8C4B8] outline-none transition-colors focus:border-[#BFFF5E]/70 focus:ring-2 focus:ring-[#BFFF5E]/15"
+            className="w-full rounded-md border border-[#1d2b1f]/40 bg-white px-4 py-2.5 text-sm text-[#1d2b1f] placeholder:text-[#C8C4B8] outline-none transition-colors focus:border-[#BFFF5E]/70 focus:ring-2 focus:ring-[#BFFF5E]/15"
           />
         </div>
 
@@ -385,7 +385,7 @@ export function DonateTab() {
             placeholder="Tulis pesanmu untuk tim AeroBlast..."
             maxLength={200}
             rows={3}
-            className="w-full resize-none rounded-md border border-2 border-[#1d2b1f] bg-white px-4 py-2.5 text-sm text-[#1d2b1f] placeholder:text-[#C8C4B8] outline-none transition-colors focus:border-[#BFFF5E]/70 focus:ring-2 focus:ring-[#BFFF5E]/15"
+            className="w-full resize-none rounded-md border border-[#1d2b1f]/40 bg-white px-4 py-2.5 text-sm text-[#1d2b1f] placeholder:text-[#C8C4B8] outline-none transition-colors focus:border-[#BFFF5E]/70 focus:ring-2 focus:ring-[#BFFF5E]/15"
           />
         </div>
 

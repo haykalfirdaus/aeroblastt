@@ -4,12 +4,11 @@ export function GlassCard({ as: Component = 'div', accent, glow = true, interact
   return (
     <Component
       className={cn(
-        'group relative overflow-hidden rounded-md border-2 border-[#1d2b1f] bg-[#fffdf9]',
-        'shadow-[4px_4px_0_#1d2b1f] transition-all duration-150 hw-transition',
+        'group relative overflow-hidden rounded-md border border-[#1d2b1f]/30 bg-[#fffdf9]',
+        'transition-all duration-150 hw-transition',
         interactive && [
           'cursor-default',
-          'hover:translate-x-[2px] hover:translate-y-[2px]',
-          'hover:shadow-[2px_2px_0_#1d2b1f]',
+          'hover:border-[#1d2b1f]/60 hover:bg-[#faf3e8]',
         ],
         className
       )}

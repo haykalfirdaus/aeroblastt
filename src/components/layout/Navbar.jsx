@@ -148,12 +148,12 @@ export function Navbar() {
                 href={link.to}
                 onClick={(e) => handleNavClick(e, link)}
                 className={cn(
-                  'flex items-center gap-2.5 rounded-md border-2 px-4 py-2.5 text-xs font-semibold transition-all',
+                  'flex items-center gap-2.5 rounded-md border px-4 py-2.5 text-xs font-semibold transition-all',
                   isDonate
                     ? 'border-[#1d2b1f] bg-[#BFFF5E] text-[#1d2b1f] font-bold'
                     : isActive
-                    ? 'border-[#1d2b1f] bg-[#BFFF5E]/20 text-[#1d2b1f] font-bold'
-                    : 'border-[#1d2b1f]/25 text-[#4a5e3a] hover:border-[#1d2b1f] hover:bg-[#f5ede0] hover:text-[#1d2b1f]'
+                    ? 'border-[#1d2b1f]/60 bg-[#BFFF5E]/15 text-[#1d2b1f] font-bold'
+                    : 'border-[#1d2b1f]/20 text-[#4a5e3a] hover:border-[#1d2b1f]/50 hover:bg-[#f5ede0] hover:text-[#1d2b1f]'
                 )}
               >
                 <link.icon size={13} />

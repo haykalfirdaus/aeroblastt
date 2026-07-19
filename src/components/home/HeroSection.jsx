@@ -291,14 +291,14 @@ export function HeroSection() {
           {/* Right: Minecraft world illustration */}
           <div data-hero-logo className="relative shrink-0 w-full max-w-[320px] lg:max-w-[340px]">
             <div className="absolute -inset-6 rounded-md bg-[#BFFF5E]/5 blur-2xl" aria-hidden="true" />
-            <div className="relative rounded-md border border-2 border-[#1d2b1f] bg-[#fffdf9] p-4 shadow-[4px_4px_0_#1d2b1f]">
+            <div className="relative rounded-md border border-[#1d2b1f]/30 bg-[#fffdf9] p-4">
               <MinecraftIllustration />
             </div>
           </div>
         </div>
 
         {/* Desktop ticker strip */}
-        <div className="mt-14 hidden overflow-hidden border-y border-2 border-[#1d2b1f] py-3 lg:block" aria-hidden="true">
+        <div className="mt-14 hidden overflow-hidden border-y border-[#1d2b1f]/20 py-3 lg:block" aria-hidden="true">
           <div className="flex w-max items-center gap-0" style={{ animation: 'marquee 20s linear infinite' }}>
             {[...TICKER_FEATURES, ...TICKER_FEATURES].map((feat, i) => (
               <span key={i} className="inline-flex items-center font-sans text-[0.65rem] font-bold uppercase tracking-wider text-[#1d2b1f]/65">

@@ -13,7 +13,7 @@ export function Badge({ tone = 'neon', className, children }) {
   return (
     <span
       className={cn(
-        'inline-flex items-center gap-1 rounded border-2 px-2.5 py-1 font-mono text-[0.65rem] font-bold uppercase tracking-wider',
+        'inline-flex items-center gap-1 rounded border px-2.5 py-1 font-mono text-[0.65rem] font-bold uppercase tracking-wider',
         TONES[tone],
         className
       )}

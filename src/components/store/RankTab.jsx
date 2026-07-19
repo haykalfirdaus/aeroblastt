@@ -19,7 +19,7 @@ const TIER_STYLES = {
   // Universe — most expensive, ultra premium
   0: {
     border: 'border border-[#1d2b1f]',
-    glow: 'shadow-[3px_3px_0_#1d2b1f]',
+    glow: '',
     ring: '',
     badge: 'ULTIMATE',
     badgeTone: 'gold',
@@ -30,7 +30,7 @@ const TIER_STYLES = {
   // Galatics
   1: {
     border: 'border border-[#1d2b1f]',
-    glow: 'shadow-[3px_3px_0_#1d2b1f]',
+    glow: '',
     ring: '',
     badge: null,
     bg: 'bg-[#EEF5D8]',
@@ -40,7 +40,7 @@ const TIER_STYLES = {
   // Quantum
   2: {
     border: 'border border-[#1d2b1f]',
-    glow: 'shadow-[2px_2px_0_#1d2b1f]',
+    glow: '',
     ring: '',
     badge: null,
     bg: 'bg-[#F1F6DC]',
@@ -50,7 +50,7 @@ const TIER_STYLES = {
   // Vortex
   3: {
     border: 'border border-[#1d2b1f]',
-    glow: 'shadow-[2px_2px_0_#1d2b1f]',
+    glow: '',
     ring: '',
     badge: 'POPULAR',
     badgeTone: 'neon',
@@ -137,7 +137,9 @@ export function RankTab() {
                 isLocked && !isOwned ? 'opacity-50' : 'hover:scale-[1.015]',
                 !isLocked && (isFeatured ? 'hover:brightness-110' : 'opacity-90 hover:opacity-100'),
               )}
-              style={{ animation: 'page-wipe-in 0.5s cubic-bezier(0.22,1,0.36,1) both', animationDelay: `${idx * 70}ms` }}
+              data-aos="fade-up"
+              data-aos-delay={idx * 50}
+              data-aos-duration="500"
             >
               {/* Top shimmer — unified lime */}
               <span

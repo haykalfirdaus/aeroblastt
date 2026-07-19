@@ -142,7 +142,7 @@ export function BalanceTab() {
 
   return (
     <>
-      <div className="mx-auto max-w-2xl" style={{ animation: 'page-wipe-in 0.45s cubic-bezier(0.22,1,0.36,1) both' }}>
+      <div className="mx-auto max-w-2xl" data-aos="fade-up" data-aos-duration="500">
         <GlassCard className="p-5 sm:p-6">
           <div className="mb-5 flex items-center gap-3">
             <div className="grid h-10 w-10 place-items-center rounded-md border border-[#BFFF5E]/25 bg-[#BFFF5E]/10">
@@ -170,11 +170,13 @@ export function BalanceTab() {
                   onClick={() => openWith(rupiah)}
                   disabled={!nick}
                   title={!nick ? 'Login dulu untuk order' : undefined}
-                  style={{ animation: 'page-wipe-in 0.45s cubic-bezier(0.22,1,0.36,1) both', animationDelay: `${idx * 55}ms` }}
+                  data-aos="fade-up"
+                  data-aos-delay={idx * 40}
+                  data-aos-duration="400"
                   className={cn(
                     'relative overflow-hidden rounded-md border border-[#1d2b1f] px-4 py-4 text-center transition-all',
                     tier.featured
-                      ? 'bg-[#faf3e8] shadow-[2px_2px_0_#1d2b1f] hover:-translate-y-0.5 hover:brightness-105'
+                      ? 'bg-[#faf3e8] hover:-translate-y-0.5 hover:brightness-105'
                       : 'bg-[#fffdf9] hover:bg-[#faf3e8]',
                     tier.opacity,
                     !nick && 'cursor-not-allowed opacity-50',

@@ -154,11 +154,13 @@ export function CommandsTab() {
               className={cn(
                 'group relative flex flex-col overflow-hidden rounded-md transition-all duration-200',
                 tier.featured
-                  ? 'border border-[#1d2b1f] bg-[#faf3e8] shadow-[2px_2px_0_#1d2b1f] hover:scale-[1.015] hover:brightness-[1.02]'
+                  ? 'border border-[#1d2b1f] bg-[#faf3e8] hover:scale-[1.015] hover:brightness-[1.02]'
                   : 'border border-[#1d2b1f]/60 bg-[#fffdf9] hover:scale-[1.01]',
                 tier.opacity,
               )}
-              style={{ animation: 'page-wipe-in 0.5s cubic-bezier(0.22,1,0.36,1) both', animationDelay: `${idx * 55}ms` }}
+              data-aos="fade-up"
+              data-aos-delay={idx * 40}
+              data-aos-duration="500"
             >
               {/* top shimmer */}
               <span

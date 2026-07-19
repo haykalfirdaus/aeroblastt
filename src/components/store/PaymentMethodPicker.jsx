@@ -21,7 +21,7 @@ export function PaymentMethodPicker({ value, onChange }) {
               className={cn(
                 'rounded-md border border-[#1d2b1f] px-2 py-2.5 text-center transition-all',
                 selected
-                  ? 'bg-[#BFFF5E] text-[#1d2b1f] shadow-[2px_2px_0_#1d2b1f]'
+                  ? 'bg-[#BFFF5E] text-[#1d2b1f]'
                   : 'bg-[#f5ece0] text-[#4a5e3a] hover:bg-[#BFFF5E]/20 hover:text-[#1d2b1f]'
               )}
             >
