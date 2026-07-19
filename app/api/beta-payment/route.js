@@ -31,19 +31,18 @@ async function expireOldOrders() {
   const now = new Date().toISOString();
   const oneHourAgo = new Date(Date.now() - 60 * 60 * 1000).toISOString();
 
-  // Pending orders yang melewati expires_at
-  const { data: expiring } = await supabase.from('beta_orders').select('id, type, invoice_id').eq('status', 'pending').lt('expires_at', now);
+  // Pending orders yang melewati expires_at — semua tipe diset 'expired' (tidak langsung DELETE)
+  // supaya client polling masih bisa detect status dan transisi ke halaman expired.
+  const { data: expiring } = await supabase.from('beta_orders').select('id, invoice_id').eq('status', 'pending').lt('expires_at', now);
   if (expiring?.length) {
-    const donateIds = expiring.filter(r => r.type === 'donate').map(r => r.id);
-    const normalOrders = expiring.filter(r => r.type !== 'donate');
-    const normalIds = normalOrders.map(r => r.id);
-    const invoiceIds = normalOrders.map(r => r.invoice_id).filter(Boolean);
-    if (donateIds.length) await supabase.from('beta_orders').delete().in('id', donateIds);
-    if (normalIds.length) await supabase.from('beta_orders').update({ status: 'expired' }).in('id', normalIds);
+    const ids = expiring.map(r => r.id);
+    const invoiceIds = expiring.map(r => r.invoice_id).filter(Boolean);
+    await supabase.from('beta_orders').update({ status: 'expired' }).in('id', ids);
     if (invoiceIds.length) await supabase.from('invoices').delete().in('id', invoiceIds);
   }
 
-  // Donate orders yang sudah paid lebih dari 1 jam — cleanup
+  // Cleanup orders expired > 1 jam (semua tipe) + donate paid > 1 jam
+  await supabase.from('beta_orders').delete().eq('status', 'expired').lt('expires_at', oneHourAgo).catch(() => {});
   await supabase.from('beta_orders').delete().eq('type', 'donate').eq('status', 'paid').lt('paid_at', oneHourAgo).catch(() => {});
 }
 
@@ -230,16 +229,15 @@ async function handleStatus(request) {
   const orderId = new URL(request.url).searchParams.get('orderId');
   if (!orderId) return NextResponse.json({ ok: false, error: 'orderId diperlukan' }, { status: 400 });
 
-  // type dibutuhkan untuk logika expired donate; nick/details tetap tidak diexpose
-  const { data: order, error } = await supabase.from('beta_orders').select('id, type, status, expires_at, paid_at, invoice_id').eq('id', orderId).single();
-  if (error || !order) return NextResponse.json({ ok: false, error: 'Order tidak ditemukan' }, { status: 404 });
+  const { data: order, error } = await supabase.from('beta_orders').select('id, type, status, expires_at, paid_at').eq('id', orderId).single();
+
+  // Order tidak ditemukan = sudah dihapus (expired/cleaned) — kembalikan expired agar client bisa transisi
+  if (error || !order) return NextResponse.json({ ok: true, status: 'expired' });
 
   if (order.status === 'pending' && new Date(order.expires_at) < new Date()) {
-    if (order.type === 'donate') {
-      await supabase.from('beta_orders').delete().eq('id', orderId);
-    } else {
-      await supabase.from('beta_orders').update({ status: 'expired' }).eq('id', orderId);
-    }
+    // Selalu update ke 'expired' (jangan langsung DELETE) supaya polling berikutnya masih dapat status yang benar.
+    // Cron cleanup & expireOldOrders akan DELETE setelah cukup lama.
+    await supabase.from('beta_orders').update({ status: 'expired' }).eq('id', orderId).catch(() => {});
     order.status = 'expired';
   }
 

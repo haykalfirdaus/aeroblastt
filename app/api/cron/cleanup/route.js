@@ -22,12 +22,15 @@ export async function GET(request) {
   if (!expErr && expiring?.length) {
     const ids = expiring.map(r => r.id);
     const invoiceIds = expiring.map(r => r.invoice_id).filter(Boolean);
+    // Semua tipe diset 'expired' — tidak DELETE langsung supaya client polling masih bisa detect
     await supabase.from('beta_orders').update({ status: 'expired' }).in('id', ids);
     expiredCount = ids.length;
     if (invoiceIds.length) { await supabase.from('invoices').delete().in('id', invoiceIds); invoicesDeleted += invoiceIds.length; }
   }
 
+  // DELETE orders expired > 30 menit + donate paid > 30 menit (sudah aman untuk dibersihkan)
   const { error: delBetaErr } = await supabase.from('beta_orders').delete().eq('status', 'expired').lt('expires_at', cutoff);
+  await supabase.from('beta_orders').delete().eq('type', 'donate').eq('status', 'paid').lt('paid_at', cutoff).catch(() => {});
   const { error: delInvErr } = await supabase.from('invoices').delete().eq('paid', false).lt('expires_at', cutoff);
 
   return NextResponse.json({ ok: true, expiredCount, invoicesDeleted, errors: [expErr, delBetaErr, delInvErr].filter(Boolean).map(e => e.message), ts: now });

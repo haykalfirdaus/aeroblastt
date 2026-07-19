@@ -83,6 +83,13 @@ export async function PATCH(request) {
   const donorNick = order.details?.nick || null;
   const donorMsg = order.details?.message || '';
   const amount = order.total_amount;
+  const paidAt = new Date().toISOString();
+
+  // Tandai paid dulu — client polling handleStatus akan detect ini sebelum kita insert donations
+  const { error: updateErr } = await supabase.from('beta_orders').update({ status: 'paid', paid_at: paidAt }).eq('id', id);
+  if (updateErr) {
+    return NextResponse.json({ ok: false, error: 'Gagal memperbarui status order' }, { status: 500 });
+  }
 
   // Insert ke tabel donations
   const { error: insertErr } = await supabase.from('donations').insert({
@@ -90,7 +97,7 @@ export async function PATCH(request) {
     nick: donorNick ? donorNick.slice(0, 36) : null,
     amount,
     message: donorMsg.slice(0, 200),
-    paid_at: new Date().toISOString(),
+    paid_at: paidAt,
   });
 
   if (insertErr) {
@@ -114,8 +121,8 @@ export async function PATCH(request) {
     timestamp: new Date().toISOString(),
   });
 
-  // Hapus order dari beta_orders setelah semua proses selesai
-  await supabase.from('beta_orders').delete().eq('id', id).catch(() => {});
+  // Jangan langsung DELETE — biarkan client polling detect status 'paid' dulu.
+  // expireOldOrders akan cleanup paid donate orders yang sudah > 1 jam.
 
   return NextResponse.json({ ok: true });
 }
