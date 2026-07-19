@@ -29,19 +29,19 @@ export function Footer() {
   }
 
   return (
-    <footer className="relative border-t border-[#D8D1C0] bg-[#EDE8DA]">
+    <footer className="relative border-t-2 border-[#1d2b1f] bg-[#1d2b1f]">
       <div className="mx-auto w-full max-w-7xl px-4 py-10 sm:px-6 lg:px-8">
         <div className="grid gap-8 md:grid-cols-3">
 
           {/* Brand */}
           <div className="flex flex-col gap-4">
             <Link href="/" className="flex items-center gap-2 w-fit">
-              <img src={logo} alt="AeroBlast" className="h-7 w-7 rounded-lg object-cover shadow-[0_0_8px_rgba(180,224,53,0.2)]" />
-              <span className="font-display text-sm font-bold text-[#1A2E1A]">
-                Aero<span className="text-[#8AB024]">Blast</span>
+              <img src={logo} alt="AeroBlast" className="h-7 w-7 rounded-md object-cover border border-[#BFFF5E]/40" />
+              <span className="font-display text-sm font-bold text-[#fff8f0]">
+                Aero<span className="text-[#BFFF5E]">Blast</span>
               </span>
             </Link>
-            <p className="text-xs leading-relaxed text-[#6B7F5A] max-w-xs">
+            <p className="text-xs leading-relaxed text-[#fff8f0]/60 max-w-xs">
               Server Minecraft Indonesia dengan fitur lengkap dan komunitas aktif.
             </p>
             <div className="flex items-center gap-1.5">
@@ -49,7 +49,7 @@ export function Footer() {
                 href={SITE.social.discord}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="inline-flex items-center gap-1.5 rounded-full border border-[#D8D1C0] bg-[#FAFAF7] px-3 py-1.5 text-xs text-[#6B7F5A] transition-all hover:border-[#B4E035]/40 hover:text-[#748F1C]"
+                className="inline-flex items-center gap-1.5 rounded-md border-2 border-[#fff8f0]/20 px-3 py-1.5 text-xs text-[#fff8f0]/70 transition-all hover:border-[#BFFF5E] hover:text-[#BFFF5E]"
               >
                 <MessageCircle size={11} /> Discord
               </a>
@@ -57,7 +57,7 @@ export function Footer() {
                 href={SITE.social.whatsapp}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="inline-flex items-center gap-1.5 rounded-full border border-[#D8D1C0] bg-[#FAFAF7] px-3 py-1.5 text-xs text-[#6B7F5A] transition-all hover:border-success/30 hover:text-success"
+                className="inline-flex items-center gap-1.5 rounded-md border-2 border-[#fff8f0]/20 px-3 py-1.5 text-xs text-[#fff8f0]/70 transition-all hover:border-success/50 hover:text-success"
               >
                 <Phone size={11} /> WhatsApp
               </a>
@@ -66,7 +66,7 @@ export function Footer() {
 
           {/* Nav Links */}
           <div>
-            <p className="mb-3 text-[0.6rem] font-semibold uppercase tracking-widest text-[#8A9E7A]">Navigasi</p>
+            <p className="mb-3 text-[0.6rem] font-semibold uppercase tracking-widest text-[#BFFF5E]/60">Navigasi</p>
             <ul className="flex flex-col gap-1.5">
               {LINKS.map((l) => {
                 const isDonate = l.to === '/donate';
@@ -78,11 +78,11 @@ export function Footer() {
                       className={cn(
                         'inline-flex items-center gap-1.5 text-xs transition-all',
                         isDonate
-                          ? 'font-bold text-[#748F1C] hover:text-[#5A8A08]'
-                          : 'text-[#6B7F5A] hover:text-[#748F1C]'
+                          ? 'font-bold text-[#BFFF5E] hover:text-[#d4ff80]'
+                          : 'text-[#fff8f0]/65 hover:text-[#BFFF5E]'
                       )}
                     >
-                      <l.icon size={11} className={isDonate ? 'text-[#748F1C]' : 'text-[#8A9E7A]'} />
+                      <l.icon size={11} className={isDonate ? 'text-[#BFFF5E]' : 'text-[#fff8f0]/40'} />
                       {l.label}
                     </Link>
                   </li>
@@ -93,7 +93,7 @@ export function Footer() {
 
           {/* Server Info */}
           <div>
-            <p className="mb-3 text-[0.6rem] font-semibold uppercase tracking-widest text-[#8A9E7A]">
+            <p className="mb-3 text-[0.6rem] font-semibold uppercase tracking-widest text-[#BFFF5E]/60">
               <span className="inline-flex items-center gap-1"><Server size={10} /> Join Server</span>
             </p>
             <div className="flex flex-col gap-2">
@@ -103,18 +103,18 @@ export function Footer() {
               ].map((item) => (
                 <div
                   key={item.key}
-                  className="flex items-center justify-between rounded-xl border border-[#D8D1C0] bg-[#FAFAF7] px-3 py-2.5"
+                  className="flex items-center justify-between rounded-md border-2 border-[#fff8f0]/15 bg-[#fff8f0]/5 px-3 py-2.5"
                 >
                   <div>
-                    <p className="text-[0.55rem] uppercase tracking-widest text-[#8A9E7A]">{item.label}</p>
-                    <p className="font-mono text-xs font-semibold text-[#1A2E1A]">{item.value}</p>
+                    <p className="text-[0.55rem] uppercase tracking-widest text-[#fff8f0]/40">{item.label}</p>
+                    <p className="font-mono text-xs font-semibold text-[#fff8f0]">{item.value}</p>
                   </div>
                   <button
                     onClick={() => copy(item.value, item.key)}
-                    className="grid h-6 w-6 place-items-center rounded-lg text-[#8A9E7A] transition-all hover:bg-[#E8E3D4] hover:text-[#748F1C]"
+                    className="grid h-6 w-6 place-items-center rounded text-[#fff8f0]/40 transition-all hover:bg-[#BFFF5E]/20 hover:text-[#BFFF5E]"
                     aria-label={`Salin ${item.label}`}
                   >
-                    {copiedKey === item.key ? <Check size={11} className="text-success" /> : <Copy size={11} />}
+                    {copiedKey === item.key ? <Check size={11} className="text-[#BFFF5E]" /> : <Copy size={11} />}
                   </button>
                 </div>
               ))}
@@ -122,8 +122,8 @@ export function Footer() {
           </div>
         </div>
 
-        <div className="mt-8 border-t border-[#D8D1C0] pt-5 text-center">
-          <p className="text-[0.6rem] text-[#8A9E7A]">&copy; {new Date().getFullYear()} AeroBlast Network. All rights reserved.</p>
+        <div className="mt-8 border-t border-[#fff8f0]/10 pt-5 text-center">
+          <p className="text-[0.6rem] text-[#fff8f0]/30">&copy; {new Date().getFullYear()} AeroBlast Network. All rights reserved.</p>
         </div>
       </div>
     </footer>

@@ -33,7 +33,19 @@
       "PowerShell(gh auth *)",
       "PowerShell(git config *)",
       "PowerShell(git *)",
-      "Bash(git checkout *)"
+      "Bash(git checkout *)",
+      "Bash(git commit -m ' *)",
+      "Bash(git push *)",
+      "WebFetch(domain:dashboard.dana.id)",
+      "Bash(npx vite *)",
+      "Bash(npx vercel *)",
+      "Bash(git rm *)",
+      "Bash(curl *)",
+      "mcp__ide__getDiagnostics",
+      "Bash(node -e \"const p = require\\('./package.json'\\); console.log\\(Object.keys\\(p.dependencies||{}\\).filter\\(k=>k.includes\\('supabase'\\)\\)\\)\")",
+      "WebFetch(domain:causehouse.co)",
+      "Bash(git commit *)",
+      "Bash(xargs grep -l \"platform\\\\|RankOrder\\\\|nick\\\\|bedrock\\\\|java\" -i)"
     ]
   }
 }

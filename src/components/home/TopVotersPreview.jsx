@@ -8,7 +8,7 @@ import { useTopVoters } from '@/hooks/useTopVoters';
 import { SITE } from '@/data/config';
 import { skinUrl } from '@/data/voterRewards';
 
-const MEDAL_COLORS = ['text-warning', 'text-[#8A9E7A]', 'text-rank-orbiter', 'text-[#6B7F5A]', 'text-[#6B7F5A]'];
+const MEDAL_COLORS = ['text-warning', 'text-[#6b7f5a]', 'text-rank-orbiter', 'text-[#4a5e3a]', 'text-[#4a5e3a]'];
 const MEDAL_LABELS = ['#1', '#2', '#3', '#4', '#5'];
 
 export function TopVotersPreview() {
@@ -27,15 +27,15 @@ export function TopVotersPreview() {
 
         <GlassCard className="mb-5 overflow-hidden" data-aos="fade-up" data-aos-duration="800">
           {status === 'loading' && (
-            <div className="flex items-center justify-center gap-2 py-8 text-xs text-[#6B7F5A]">
+            <div className="flex items-center justify-center gap-2 py-8 text-xs text-[#4a5e3a]">
               <RefreshCw size={14} className="animate-spin" /> Memuat data voter...
             </div>
           )}
 
           {status === 'empty' && (
             <div className="flex flex-col items-center gap-3 py-10 text-center">
-              <Trophy size={28} className="text-[#8A9E7A]" />
-              <p className="text-xs text-[#6B7F5A]">Belum ada voter bulan ini.<br />Jadilah yang pertama!</p>
+              <Trophy size={28} className="text-[#6b7f5a]" />
+              <p className="text-xs text-[#4a5e3a]">Belum ada voter bulan ini.<br />Jadilah yang pertama!</p>
             </div>
           )}
 
@@ -50,11 +50,11 @@ export function TopVotersPreview() {
                     src={skinUrl(voter.nickname, 40)}
                     alt={voter.nickname}
                     loading="lazy"
-                    className="h-7 w-7 shrink-0 rounded-lg border border-[#D8D1C0] object-cover"
+                    className="h-7 w-7 shrink-0 rounded-lg border border-2 border-[#1d2b1f] object-cover"
                     onError={(e) => { e.currentTarget.style.display = 'none'; }}
                   />
-                  <span className="flex-1 font-mono text-xs font-semibold text-[#1A2E1A]">{voter.nickname}</span>
-                  <span className="font-mono text-xs font-bold text-[#748F1C]">{voter.votes} votes</span>
+                  <span className="flex-1 font-mono text-xs font-semibold text-[#1d2b1f]">{voter.nickname}</span>
+                  <span className="font-mono text-xs font-bold text-[#1d2b1f]">{voter.votes} votes</span>
                 </li>
               ))}
             </ul>

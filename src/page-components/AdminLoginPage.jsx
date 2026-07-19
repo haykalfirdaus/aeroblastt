@@ -9,7 +9,7 @@ import { supabase } from '@/lib/supabase';
 import { cn } from '@/lib/cn';
 
 const fieldBase =
-  'w-full rounded-xl border border-[#D8D1C0] bg-[#FAFAF7] px-4 py-3 text-sm text-[#1A2E1A] placeholder:text-[#8A9E7A] outline-none transition-colors focus:border-[#B4E035]/70 focus:ring-2 focus:ring-[#B4E035]/20';
+  'w-full rounded-md border border-2 border-[#1d2b1f] bg-[#fffdf9] px-4 py-3 text-sm text-[#1d2b1f] placeholder:text-[#6b7f5a] outline-none transition-colors focus:border-[#BFFF5E]/70 focus:ring-2 focus:ring-[#BFFF5E]/20';
 
 // ---------------------------------------------------------------------------
 // Decorative element
@@ -19,7 +19,7 @@ function GlowLine() {
     <span
       aria-hidden="true"
       className="absolute inset-x-0 top-0 h-px opacity-60"
-      style={{ background: 'linear-gradient(90deg, transparent, #B4E035, transparent)' }}
+      style={{ background: 'linear-gradient(90deg, transparent, #BFFF5E, transparent)' }}
     />
   );
 }
@@ -56,15 +56,15 @@ function LoginView({ onForgot }) {
   }
 
   return (
-    <div className={cn('relative w-full max-w-sm overflow-hidden rounded-2xl border border-[#D8D1C0] bg-[#FAF8F4] shadow-[0_32px_64px_-16px_rgba(26,46,26,0.15)]', shake && 'animate-shake')}>
+    <div className={cn('relative w-full max-w-sm overflow-hidden rounded-md border border-2 border-[#1d2b1f] bg-[#fff8f0] shadow-[0_32px_64px_-16px_rgba(26,46,26,0.15)]', shake && 'animate-shake')}>
       <GlowLine />
       <form onSubmit={handleSubmit} className="p-7 pt-8">
-        <h2 className="mb-6 font-display text-lg font-semibold text-[#1A2E1A]">
+        <h2 className="mb-6 font-display text-lg font-semibold text-[#1d2b1f]">
           Masuk ke Panel Admin
         </h2>
 
         <div className="mb-4">
-          <label className="mb-1.5 block text-xs font-semibold uppercase tracking-wide text-[#6B7F5A]">Email</label>
+          <label className="mb-1.5 block text-xs font-semibold uppercase tracking-wide text-[#4a5e3a]">Email</label>
           <input
             type="email"
             autoComplete="email"
@@ -79,7 +79,7 @@ function LoginView({ onForgot }) {
         </div>
 
         <div className="mb-6">
-          <label className="mb-1.5 block text-xs font-semibold uppercase tracking-wide text-[#6B7F5A]">Password</label>
+          <label className="mb-1.5 block text-xs font-semibold uppercase tracking-wide text-[#4a5e3a]">Password</label>
           <div className="relative">
             <input
               type={showPassword ? 'text' : 'password'}
@@ -95,7 +95,7 @@ function LoginView({ onForgot }) {
               type="button"
               tabIndex={-1}
               onClick={() => setShowPassword((v) => !v)}
-              className="absolute right-3.5 top-1/2 -translate-y-1/2 text-[#6B7F5A] transition-colors hover:text-[#1A2E1A]"
+              className="absolute right-3.5 top-1/2 -translate-y-1/2 text-[#4a5e3a] transition-colors hover:text-[#1d2b1f]"
               aria-label={showPassword ? 'Sembunyikan password' : 'Tampilkan password'}
             >
               {showPassword ? <EyeOff size={16} /> : <Eye size={16} />}
@@ -105,7 +105,7 @@ function LoginView({ onForgot }) {
 
         <Button type="submit" variant="primary" size="md" fullWidth disabled={submitting || !email.trim() || !password}>
           {submitting ? (
-            <><span className="h-4 w-4 animate-spin rounded-full border-2 border-[#1A2E1A]/30 border-t-[#1A2E1A]" />Memverifikasi…</>
+            <><span className="h-4 w-4 animate-spin rounded-md border-2 border-[#1d2b1f]/30 border-t-[#1d2b1f]" />Memverifikasi…</>
           ) : 'Masuk'}
         </Button>
 
@@ -113,7 +113,7 @@ function LoginView({ onForgot }) {
           <button
             type="button"
             onClick={onForgot}
-            className="text-xs text-[#6B7F5A] transition-colors hover:text-[#748F1C]"
+            className="text-xs text-[#4a5e3a] transition-colors hover:text-[#1d2b1f]"
           >
             Lupa password?
           </button>
@@ -153,38 +153,38 @@ function ForgotView({ onBack }) {
   }
 
   return (
-    <div className="relative w-full max-w-sm overflow-hidden rounded-2xl border border-[#D8D1C0] bg-[#FAF8F4] shadow-[0_32px_64px_-16px_rgba(26,46,26,0.15)]">
+    <div className="relative w-full max-w-sm overflow-hidden rounded-md border border-2 border-[#1d2b1f] bg-[#fff8f0] shadow-[0_32px_64px_-16px_rgba(26,46,26,0.15)]">
       <GlowLine />
       <div className="p-7 pt-8">
         <button
           type="button"
           onClick={onBack}
-          className="mb-5 flex items-center gap-1.5 text-xs text-[#6B7F5A] transition-colors hover:text-[#1A2E1A]"
+          className="mb-5 flex items-center gap-1.5 text-xs text-[#4a5e3a] transition-colors hover:text-[#1d2b1f]"
         >
           <ArrowLeft size={13} /> Kembali ke Login
         </button>
 
-        <div className="mb-5 flex h-11 w-11 items-center justify-center rounded-xl border border-[#B4E035]/35 bg-[#B4E035]/10">
-          <KeyRound size={20} className="text-[#748F1C]" />
+        <div className="mb-5 flex h-11 w-11 items-center justify-center rounded-md border border-[#BFFF5E]/35 bg-[#BFFF5E]/10">
+          <KeyRound size={20} className="text-[#1d2b1f]" />
         </div>
 
         {sent ? (
           <>
-            <h2 className="mb-1 font-display text-lg font-semibold text-[#1A2E1A]">Link Terkirim</h2>
-            <p className="mb-6 text-sm text-[#6B7F5A]">
-              Cek email <span className="font-semibold text-[#1A2E1A]">{email}</span> untuk link reset password. Link berlaku 1 jam.
+            <h2 className="mb-1 font-display text-lg font-semibold text-[#1d2b1f]">Link Terkirim</h2>
+            <p className="mb-6 text-sm text-[#4a5e3a]">
+              Cek email <span className="font-semibold text-[#1d2b1f]">{email}</span> untuk link reset password. Link berlaku 1 jam.
             </p>
             <Button variant="ghost" size="md" fullWidth onClick={onBack}>Kembali ke Login</Button>
           </>
         ) : (
           <>
-            <h2 className="mb-1 font-display text-lg font-semibold text-[#1A2E1A]">Reset Password</h2>
-            <p className="mb-6 text-sm text-[#6B7F5A]">
+            <h2 className="mb-1 font-display text-lg font-semibold text-[#1d2b1f]">Reset Password</h2>
+            <p className="mb-6 text-sm text-[#4a5e3a]">
               Masukkan email admin — link reset akan dikirim ke email tersebut.
             </p>
             <form onSubmit={handleSend} className="flex flex-col gap-4">
               <div>
-                <label className="mb-1.5 block text-xs font-semibold uppercase tracking-wide text-[#6B7F5A]">Email Admin</label>
+                <label className="mb-1.5 block text-xs font-semibold uppercase tracking-wide text-[#4a5e3a]">Email Admin</label>
                 <input
                   type="email"
                   autoFocus
@@ -198,7 +198,7 @@ function ForgotView({ onBack }) {
               </div>
               <Button type="submit" variant="primary" size="md" fullWidth disabled={submitting || !email.trim()}>
                 {submitting ? (
-                  <><span className="h-4 w-4 animate-spin rounded-full border-2 border-[#1A2E1A]/30 border-t-[#1A2E1A]" />Mengirim…</>
+                  <><span className="h-4 w-4 animate-spin rounded-md border-2 border-[#1d2b1f]/30 border-t-[#1d2b1f]" />Mengirim…</>
                 ) : 'Kirim Link Reset'}
               </Button>
             </form>
@@ -239,17 +239,17 @@ function ResetPasswordView({ onDone }) {
   }
 
   return (
-    <div className="relative w-full max-w-sm overflow-hidden rounded-2xl border border-[#D8D1C0] bg-[#FAF8F4] shadow-[0_32px_64px_-16px_rgba(26,46,26,0.15)]">
+    <div className="relative w-full max-w-sm overflow-hidden rounded-md border border-2 border-[#1d2b1f] bg-[#fff8f0] shadow-[0_32px_64px_-16px_rgba(26,46,26,0.15)]">
       <GlowLine />
       <form onSubmit={handleReset} className="p-7 pt-8">
-        <div className="mb-5 flex h-11 w-11 items-center justify-center rounded-xl border border-[#B4E035]/35 bg-[#B4E035]/10">
-          <KeyRound size={20} className="text-[#748F1C]" />
+        <div className="mb-5 flex h-11 w-11 items-center justify-center rounded-md border border-[#BFFF5E]/35 bg-[#BFFF5E]/10">
+          <KeyRound size={20} className="text-[#1d2b1f]" />
         </div>
-        <h2 className="mb-1 font-display text-lg font-semibold text-[#1A2E1A]">Buat Password Baru</h2>
-        <p className="mb-6 text-sm text-[#6B7F5A]">Masukkan password baru untuk akun admin.</p>
+        <h2 className="mb-1 font-display text-lg font-semibold text-[#1d2b1f]">Buat Password Baru</h2>
+        <p className="mb-6 text-sm text-[#4a5e3a]">Masukkan password baru untuk akun admin.</p>
 
         <div className="mb-6">
-          <label className="mb-1.5 block text-xs font-semibold uppercase tracking-wide text-[#6B7F5A]">Password Baru</label>
+          <label className="mb-1.5 block text-xs font-semibold uppercase tracking-wide text-[#4a5e3a]">Password Baru</label>
           <div className="relative">
             <input
               type={showPassword ? 'text' : 'password'}
@@ -266,7 +266,7 @@ function ResetPasswordView({ onDone }) {
               type="button"
               tabIndex={-1}
               onClick={() => setShowPassword((v) => !v)}
-              className="absolute right-3.5 top-1/2 -translate-y-1/2 text-[#6B7F5A] transition-colors hover:text-[#1A2E1A]"
+              className="absolute right-3.5 top-1/2 -translate-y-1/2 text-[#4a5e3a] transition-colors hover:text-[#1d2b1f]"
             >
               {showPassword ? <EyeOff size={16} /> : <Eye size={16} />}
             </button>
@@ -275,7 +275,7 @@ function ResetPasswordView({ onDone }) {
 
         <Button type="submit" variant="primary" size="md" fullWidth disabled={submitting || password.length < 8}>
           {submitting ? (
-            <><span className="h-4 w-4 animate-spin rounded-full border-2 border-[#1A2E1A]/30 border-t-[#1A2E1A]" />Menyimpan…</>
+            <><span className="h-4 w-4 animate-spin rounded-md border-2 border-[#1d2b1f]/30 border-t-[#1d2b1f]" />Menyimpan…</>
           ) : 'Simpan Password Baru'}
         </Button>
       </form>
@@ -308,14 +308,14 @@ export default function AdminLoginPage() {
 
   if (loading) {
     return (
-      <div className="fixed inset-0 flex items-center justify-center bg-[#F4EFE4]">
-        <div className="h-10 w-10 animate-spin rounded-full border-2 border-[#B4E035]/30 border-t-[#B4E035]" />
+      <div className="fixed inset-0 flex items-center justify-center bg-[#fff8f0]">
+        <div className="h-10 w-10 animate-spin rounded-md border-2 border-[#BFFF5E]/30 border-t-[#BFFF5E]" />
       </div>
     );
   }
 
   return (
-    <div className="relative min-h-screen overflow-hidden bg-[#F4EFE4]">
+    <div className="relative min-h-screen overflow-hidden bg-[#fff8f0]">
       <div className="bg-app" aria-hidden="true" />
       <div
         aria-hidden="true"
@@ -325,15 +325,15 @@ export default function AdminLoginPage() {
 
       <main className="relative z-10 flex min-h-screen flex-col items-center justify-center px-4 py-12">
         <div className="mb-8 flex flex-col items-center gap-3">
-          <div className="flex h-16 w-16 items-center justify-center rounded-2xl border border-[#B4E035]/40 bg-[#B4E035]/10 shadow-[0_0_32px_rgba(180,224,53,0.15)]" aria-hidden="true">
-            <Shield size={30} className="text-[#748F1C]" />
+          <div className="flex h-16 w-16 items-center justify-center rounded-md border border-[#BFFF5E]/40 bg-[#BFFF5E]/10 shadow-[0_0_32px_rgba(180,224,53,0.15)]" aria-hidden="true">
+            <Shield size={30} className="text-[#1d2b1f]" />
           </div>
           <div className="text-center">
-            <h1 className="font-display text-2xl font-bold tracking-tight text-[#1A2E1A]">
+            <h1 className="font-display text-2xl font-bold tracking-tight text-[#1d2b1f]">
               AeroBlast
-              <span className="ml-2 text-[#748F1C]">Admin</span>
+              <span className="ml-2 text-[#1d2b1f]">Admin</span>
             </h1>
-            <p className="mt-0.5 text-xs text-[#6B7F5A]">Panel Administrasi · Akses Terbatas</p>
+            <p className="mt-0.5 text-xs text-[#4a5e3a]">Panel Administrasi · Akses Terbatas</p>
           </div>
         </div>
 
@@ -341,7 +341,7 @@ export default function AdminLoginPage() {
         {view === 'forgot' && <ForgotView onBack={() => setView('login')} />}
         {view === 'reset' && <ResetPasswordView onDone={() => setView('login')} />}
 
-        <p className="mt-6 text-xs text-[#8A9E7A]">
+        <p className="mt-6 text-xs text-[#6b7f5a]">
           AeroBlast &copy; {new Date().getFullYear()} &mdash; Hanya untuk staf resmi
         </p>
       </main>

@@ -26,34 +26,34 @@ import { cn } from '@/lib/cn';
 // ---------------------------------------------------------------------------
 
 const fieldBase =
-  'w-full rounded-xl border border-[#D8D1C0] bg-[#FAFAF7] px-4 py-3 text-sm text-[#1A2E1A] placeholder:text-[#8A9E7A] outline-none transition-colors focus:border-[#B4E035]/70 focus:ring-2 focus:ring-[#B4E035]/20 focus:bg-[#F5F2EA] disabled:cursor-not-allowed disabled:opacity-50';
+  'w-full rounded-md border border-2 border-[#1d2b1f] bg-[#fffdf9] px-4 py-3 text-sm text-[#1d2b1f] placeholder:text-[#6b7f5a] outline-none transition-colors focus:border-[#BFFF5E]/70 focus:ring-2 focus:ring-[#BFFF5E]/20 focus:bg-[#faf3e8] disabled:cursor-not-allowed disabled:opacity-50';
 
 function FieldLabel({ children, required }) {
   return (
-    <label className="mb-1.5 block text-xs font-semibold uppercase tracking-wide text-[#4A5E3E]">
+    <label className="mb-1.5 block text-xs font-semibold uppercase tracking-wide text-[#4a5e3a]">
       {children}
-      {required && <span className="text-[#748F1C]"> *</span>}
+      {required && <span className="text-[#1d2b1f]"> *</span>}
     </label>
   );
 }
 
 function SectionCard({ icon: Icon, title, accent = 'neon-400', badge, children }) {
   return (
-    <div className="relative flex flex-col overflow-hidden rounded-2xl border border-[#D8D1C0] bg-[#FAFAF7]">
+    <div className="relative flex flex-col overflow-hidden rounded-md border border-2 border-[#1d2b1f] bg-[#fffdf9]">
       <span
         aria-hidden="true"
         className="absolute inset-x-0 top-0 h-px opacity-60"
         style={{
-          background: `linear-gradient(90deg, transparent, #B4E035, transparent)`,
+          background: `linear-gradient(90deg, transparent, #BFFF5E, transparent)`,
         }}
       />
-      <div className="flex items-center gap-3 border-b border-[#D8D1C0] px-6 py-4">
-        <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl border border-[#D8D1C0] bg-[#F0EBE0] text-[#748F1C]">
+      <div className="flex items-center gap-3 border-b border-2 border-[#1d2b1f] px-6 py-4">
+        <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-md border border-2 border-[#1d2b1f] bg-[#f5ece0] text-[#1d2b1f]">
           <Icon size={18} />
         </div>
-        <h2 className="font-display text-base font-semibold text-[#1A2E1A]">{title}</h2>
+        <h2 className="font-display text-base font-semibold text-[#1d2b1f]">{title}</h2>
         {badge !== undefined && (
-          <span className="ml-auto rounded-full border border-[#D8D1C0] bg-[#F0EBE0] px-2.5 py-0.5 text-xs font-bold text-[#4A5E3E]">
+          <span className="ml-auto rounded-md border border-2 border-[#1d2b1f] bg-[#f5ece0] px-2.5 py-0.5 text-xs font-bold text-[#4a5e3a]">
             {badge}
           </span>
         )}
@@ -180,16 +180,16 @@ function InvoicesSection() {
     >
       {fetching ? (
         <div className="flex justify-center py-10">
-          <span className="h-6 w-6 animate-spin rounded-full border-2 border-[#B4E035]/20 border-t-[#B4E035]" />
+          <span className="h-6 w-6 animate-spin rounded-md border-2 border-[#BFFF5E]/20 border-t-[#BFFF5E]" />
         </div>
       ) : items.length === 0 ? (
         <div className="flex flex-col items-center justify-center gap-2 py-10 text-center">
           <CheckCircle size={32} className="text-success/40" />
-          <p className="text-sm text-[#6B7F5A]">Tidak ada invoice pending.</p>
+          <p className="text-sm text-[#4a5e3a]">Tidak ada invoice pending.</p>
         </div>
       ) : (
         <div className="space-y-2">
-          <p className="mb-2 text-xs font-semibold uppercase tracking-wide text-[#6B7F5A]">
+          <p className="mb-2 text-xs font-semibold uppercase tracking-wide text-[#4a5e3a]">
             Menunggu pembayaran
           </p>
           {items.map((item) => (
@@ -220,9 +220,9 @@ function InvoiceItem({ item, onMark, marking, confirming, onRequestConfirm, onCa
   const details = item.details || {};
 
   return (
-    <div className="rounded-xl border border-warning/30 bg-warning/[0.04] px-4 py-3 transition-colors hover:border-warning/50">
+    <div className="rounded-md border border-warning/30 bg-warning/[0.04] px-4 py-3 transition-colors hover:border-warning/50">
       <div className="mb-2.5 flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-warning">
-        <span className="h-1.5 w-1.5 rounded-full bg-warning animate-pulse" />
+        <span className="h-1.5 w-1.5 rounded-md bg-warning animate-pulse" />
         Menunggu Pembayaran
       </div>
 
@@ -230,48 +230,48 @@ function InvoiceItem({ item, onMark, marking, confirming, onRequestConfirm, onCa
         <span className="mt-0.5 text-lg leading-none">{ORDER_ICONS[item.type] || '📦'}</span>
         <div className="min-w-0 flex-1">
           <div className="flex flex-wrap items-center gap-2">
-            <span className="font-semibold text-sm text-[#1A2E1A]">{item.nick}</span>
-            <span className="text-xs text-[#6B7F5A]">·</span>
-            <span className="text-xs text-[#6B7F5A]">{item.platform}</span>
-            <span className="rounded border border-[#D8D1C0] bg-[#F0EBE0] px-1.5 py-0.5 text-[10px] text-[#6B7F5A]">
+            <span className="font-semibold text-sm text-[#1d2b1f]">{item.nick}</span>
+            <span className="text-xs text-[#4a5e3a]">·</span>
+            <span className="text-xs text-[#4a5e3a]">{item.platform}</span>
+            <span className="rounded border border-2 border-[#1d2b1f] bg-[#f5ece0] px-1.5 py-0.5 text-[10px] text-[#4a5e3a]">
               {ORDER_LABELS[item.type] || item.type}
             </span>
           </div>
 
           {item.type === 'rank' && details.target && (
-            <p className="mt-0.5 text-xs text-[#4A5E3E]">
+            <p className="mt-0.5 text-xs text-[#4a5e3a]">
               Rank: {details.target}
               {details.owned ? ` (dari ${details.owned.toUpperCase()})` : ''}
               {details.duration ? ` · ${details.duration}` : ''}
             </p>
           )}
           {item.type === 'key' && details.keyName && (
-            <p className="mt-0.5 text-xs text-[#4A5E3E]">{details.keyName} × {details.qty}</p>
+            <p className="mt-0.5 text-xs text-[#4a5e3a]">{details.keyName} × {details.qty}</p>
           )}
           {item.type === 'skill' && details.skillName && (
-            <p className="mt-0.5 text-xs text-[#4A5E3E]">{details.skillName} × {details.levels} level</p>
+            <p className="mt-0.5 text-xs text-[#4a5e3a]">{details.skillName} × {details.levels} level</p>
           )}
           {item.type === 'balance' && details.balance && (
-            <p className="mt-0.5 text-xs text-[#4A5E3E]">{Number(details.balance).toLocaleString('id-ID')} balance</p>
+            <p className="mt-0.5 text-xs text-[#4a5e3a]">{Number(details.balance).toLocaleString('id-ID')} balance</p>
           )}
           {item.type === 'command' && details.cmdName && (
-            <p className="mt-0.5 text-xs text-[#4A5E3E]">{details.cmdName} · {details.duration}</p>
+            <p className="mt-0.5 text-xs text-[#4a5e3a]">{details.cmdName} · {details.duration}</p>
           )}
           {item.type === 'cosmetic' && details.prefixText && (
-            <p className="mt-0.5 text-xs text-[#4A5E3E]">[{details.prefixText}]</p>
+            <p className="mt-0.5 text-xs text-[#4a5e3a]">[{details.prefixText}]</p>
           )}
 
           <div className="mt-1.5 flex flex-wrap items-center gap-3">
-            <span className="font-mono text-sm font-bold text-[#748F1C]">
+            <span className="font-mono text-sm font-bold text-[#1d2b1f]">
               {formatRupiah(item.finalAmount)}
             </span>
-            <span className="text-xs text-[#6B7F5A]">{item.paymentMethod}</span>
+            <span className="text-xs text-[#4a5e3a]">{item.paymentMethod}</span>
             {details.discountPct > 0 && (
               <span className="rounded border border-warning/30 bg-warning/10 px-1.5 py-0.5 text-[10px] font-semibold text-warning">
                 -{details.discountPct}%
               </span>
             )}
-            <span className="inline-flex items-center gap-1 text-xs text-[#6B7F5A]">
+            <span className="inline-flex items-center gap-1 text-xs text-[#4a5e3a]">
               <Clock size={10} />
               {remaining}
             </span>
@@ -283,10 +283,10 @@ function InvoiceItem({ item, onMark, marking, confirming, onRequestConfirm, onCa
             onClick={() => onRequestConfirm(item.id)}
             disabled={marking}
             aria-label="Tandai lunas"
-            className="shrink-0 flex items-center gap-1.5 rounded-lg border border-[#B4E035]/50 bg-[#B4E035]/15 px-3 py-1.5 text-xs font-semibold text-[#748F1C] transition-colors hover:bg-[#B4E035]/25 hover:border-[#B4E035]/70 disabled:cursor-not-allowed disabled:opacity-50"
+            className="shrink-0 flex items-center gap-1.5 rounded-lg border border-[#BFFF5E]/50 bg-[#BFFF5E]/15 px-3 py-1.5 text-xs font-semibold text-[#1d2b1f] transition-colors hover:bg-[#BFFF5E]/25 hover:border-[#BFFF5E]/70 disabled:cursor-not-allowed disabled:opacity-50"
           >
             {marking ? (
-              <span className="h-3 w-3 animate-spin rounded-full border border-[#B4E035]/40 border-t-[#B4E035]" />
+              <span className="h-3 w-3 animate-spin rounded-md border border-[#BFFF5E]/40 border-t-[#BFFF5E]" />
             ) : (
               <CheckCircle size={13} />
             )}
@@ -299,7 +299,7 @@ function InvoiceItem({ item, onMark, marking, confirming, onRequestConfirm, onCa
             <div className="flex items-center gap-1.5">
               <button
                 onClick={onCancelConfirm}
-                className="rounded-lg border border-[#D8D1C0] bg-[#FAFAF7] px-2.5 py-1 text-xs font-semibold text-[#6B7F5A] transition-colors hover:border-[#D8D1C0] hover:text-[#1A2E1A]"
+                className="rounded-lg border border-2 border-[#1d2b1f] bg-[#fffdf9] px-2.5 py-1 text-xs font-semibold text-[#4a5e3a] transition-colors hover:border-2 border-[#1d2b1f] hover:text-[#1d2b1f]"
               >
                 Batal
               </button>
@@ -309,7 +309,7 @@ function InvoiceItem({ item, onMark, marking, confirming, onRequestConfirm, onCa
                 className="flex items-center gap-1 rounded-lg border border-success/50 bg-success/15 px-2.5 py-1 text-xs font-semibold text-success transition-colors hover:bg-success/25 disabled:cursor-not-allowed disabled:opacity-50"
               >
                 {marking ? (
-                  <span className="h-3 w-3 animate-spin rounded-full border border-success/40 border-t-success" />
+                  <span className="h-3 w-3 animate-spin rounded-md border border-success/40 border-t-success" />
                 ) : (
                   <CheckCircle size={12} />
                 )}
@@ -409,16 +409,16 @@ function DonateOrdersSection() {
     >
       {fetching ? (
         <div className="flex justify-center py-10">
-          <span className="h-6 w-6 animate-spin rounded-full border-2 border-[#B4E035]/20 border-t-[#B4E035]" />
+          <span className="h-6 w-6 animate-spin rounded-md border-2 border-[#BFFF5E]/20 border-t-[#BFFF5E]" />
         </div>
       ) : items.length === 0 ? (
         <div className="flex flex-col items-center justify-center gap-2 py-10 text-center">
-          <Heart size={32} className="text-[#B4E035]/40" />
-          <p className="text-sm text-[#6B7F5A]">Tidak ada donasi pending.</p>
+          <Heart size={32} className="text-[#BFFF5E]/40" />
+          <p className="text-sm text-[#4a5e3a]">Tidak ada donasi pending.</p>
         </div>
       ) : (
         <div className="space-y-2">
-          <p className="mb-2 text-xs font-semibold uppercase tracking-wide text-[#6B7F5A]">
+          <p className="mb-2 text-xs font-semibold uppercase tracking-wide text-[#4a5e3a]">
             Menunggu konfirmasi pembayaran QRIS
           </p>
           {items.map((item) => (
@@ -449,33 +449,33 @@ function DonateOrderItem({ item, onMark, onDelete, marking, deleting, confirming
   }, [item.expiresAt]);
 
   return (
-    <div className="rounded-xl border border-[#B4E035]/30 bg-[#B4E035]/[0.04] transition-colors hover:border-[#B4E035]/50">
+    <div className="rounded-md border border-[#BFFF5E]/30 bg-[#BFFF5E]/[0.04] transition-colors hover:border-[#BFFF5E]/50">
       {/* ── Info ── */}
       <div className="px-4 pt-3 pb-2.5">
         {/* Row 1: nama + nominal */}
         <div className="flex items-start justify-between gap-3">
           <div className="flex min-w-0 items-center gap-2">
             <span className="text-base leading-none">💚</span>
-            <span className="truncate font-semibold text-sm text-[#1A2E1A]">{item.donorName}</span>
+            <span className="truncate font-semibold text-sm text-[#1d2b1f]">{item.donorName}</span>
             {item.nick
-              ? <span className="shrink-0 rounded border border-[#B4E035]/30 bg-[#B4E035]/10 px-1.5 py-0.5 font-mono text-[10px] text-[#748F1C]">{item.nick}</span>
-              : <span className="shrink-0 rounded border border-[#D8D1C0] bg-[#F0EBE0] px-1.5 py-0.5 text-[10px] text-[#6B7F5A]">Anonim</span>
+              ? <span className="shrink-0 rounded border border-[#BFFF5E]/30 bg-[#BFFF5E]/10 px-1.5 py-0.5 font-mono text-[10px] text-[#1d2b1f]">{item.nick}</span>
+              : <span className="shrink-0 rounded border border-2 border-[#1d2b1f] bg-[#f5ece0] px-1.5 py-0.5 text-[10px] text-[#4a5e3a]">Anonim</span>
             }
           </div>
-          <span className="shrink-0 font-mono text-sm font-bold text-[#748F1C]">
+          <span className="shrink-0 font-mono text-sm font-bold text-[#1d2b1f]">
             {formatRupiah(item.totalAmount)}
           </span>
         </div>
 
         {/* Row 2: pesan (jika ada) */}
         {item.message && (
-          <p className="mt-1.5 line-clamp-2 text-xs italic text-[#4A5E3E]">"{item.message}"</p>
+          <p className="mt-1.5 line-clamp-2 text-xs italic text-[#4a5e3a]">"{item.message}"</p>
         )}
 
         {/* Row 3: meta — suffix + timer */}
-        <div className="mt-1.5 flex flex-wrap items-center gap-2 text-[11px] text-[#6B7F5A]">
+        <div className="mt-1.5 flex flex-wrap items-center gap-2 text-[11px] text-[#4a5e3a]">
           {item.suffix > 0 && (
-            <span className="rounded border border-[#D8D1C0] bg-[#F0EBE0] px-1.5 py-0.5 font-mono text-[10px]">
+            <span className="rounded border border-2 border-[#1d2b1f] bg-[#f5ece0] px-1.5 py-0.5 font-mono text-[10px]">
               +{item.suffix} angka unik
             </span>
           )}
@@ -483,12 +483,12 @@ function DonateOrderItem({ item, onMark, onDelete, marking, deleting, confirming
             <Clock size={10} />
             {remaining}
           </span>
-          <span className="ml-auto text-[10px] font-mono text-[#8A9E7A]">QRIS</span>
+          <span className="ml-auto text-[10px] font-mono text-[#6b7f5a]">QRIS</span>
         </div>
       </div>
 
       {/* ── Actions ── */}
-      <div className="border-t border-[#B4E035]/15 px-3 py-2">
+      <div className="border-t border-[#BFFF5E]/15 px-3 py-2">
         {!confirming ? (
           <div className="flex items-center gap-2">
             <button
@@ -498,36 +498,36 @@ function DonateOrderItem({ item, onMark, onDelete, marking, deleting, confirming
               className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg border border-danger/30 bg-danger/[0.07] text-danger transition-colors hover:bg-danger/15 disabled:cursor-not-allowed disabled:opacity-40"
             >
               {deleting
-                ? <span className="h-3 w-3 animate-spin rounded-full border border-danger/40 border-t-danger" />
+                ? <span className="h-3 w-3 animate-spin rounded-md border border-danger/40 border-t-danger" />
                 : <Trash2 size={13} />}
             </button>
             <button
               onClick={() => onRequestConfirm(item.id)}
               disabled={marking || deleting}
-              className="flex flex-1 items-center justify-center gap-1.5 rounded-lg border border-[#B4E035]/50 bg-[#B4E035]/15 py-1.5 text-xs font-semibold text-[#748F1C] transition-colors hover:bg-[#B4E035]/25 hover:border-[#B4E035]/70 disabled:cursor-not-allowed disabled:opacity-40"
+              className="flex flex-1 items-center justify-center gap-1.5 rounded-lg border border-[#BFFF5E]/50 bg-[#BFFF5E]/15 py-1.5 text-xs font-semibold text-[#1d2b1f] transition-colors hover:bg-[#BFFF5E]/25 hover:border-[#BFFF5E]/70 disabled:cursor-not-allowed disabled:opacity-40"
             >
               {marking
-                ? <span className="h-3 w-3 animate-spin rounded-full border border-[#B4E035]/40 border-t-[#B4E035]" />
+                ? <span className="h-3 w-3 animate-spin rounded-md border border-[#BFFF5E]/40 border-t-[#BFFF5E]" />
                 : <CheckCircle size={13} />}
               Tandai Lunas
             </button>
           </div>
         ) : (
           <div className="flex items-center gap-2">
-            <span className="flex-1 text-xs font-semibold text-[#748F1C]">Konfirmasi donasi ini?</span>
+            <span className="flex-1 text-xs font-semibold text-[#1d2b1f]">Konfirmasi donasi ini?</span>
             <button
               onClick={onCancelConfirm}
-              className="rounded-lg border border-[#D8D1C0] bg-[#F0EBE0] px-3 py-1.5 text-xs font-semibold text-[#6B7F5A] transition-colors hover:text-[#1A2E1A]"
+              className="rounded-lg border border-2 border-[#1d2b1f] bg-[#f5ece0] px-3 py-1.5 text-xs font-semibold text-[#4a5e3a] transition-colors hover:text-[#1d2b1f]"
             >
               Batal
             </button>
             <button
               onClick={() => onMark(item.id)}
               disabled={marking}
-              className="flex items-center gap-1 rounded-lg border border-[#B4E035]/50 bg-[#B4E035]/20 px-3 py-1.5 text-xs font-semibold text-[#748F1C] transition-colors hover:bg-[#B4E035]/30 disabled:cursor-not-allowed disabled:opacity-40"
+              className="flex items-center gap-1 rounded-lg border border-[#BFFF5E]/50 bg-[#BFFF5E]/20 px-3 py-1.5 text-xs font-semibold text-[#1d2b1f] transition-colors hover:bg-[#BFFF5E]/30 disabled:cursor-not-allowed disabled:opacity-40"
             >
               {marking
-                ? <span className="h-3 w-3 animate-spin rounded-full border border-[#B4E035]/40 border-t-[#B4E035]" />
+                ? <span className="h-3 w-3 animate-spin rounded-md border border-[#BFFF5E]/40 border-t-[#BFFF5E]" />
                 : <CheckCircle size={12} />}
               Ya, Konfirmasi
             </button>
@@ -644,7 +644,7 @@ function AnnouncementsSection() {
           className="gap-1.5"
         >
           {submitting ? (
-            <span className="h-3.5 w-3.5 animate-spin rounded-full border-2 border-[#1A2E1A]/30 border-t-[#1A2E1A]" />
+            <span className="h-3.5 w-3.5 animate-spin rounded-md border-2 border-[#1d2b1f]/30 border-t-[#1d2b1f]" />
           ) : (
             <Plus size={14} />
           )}
@@ -653,15 +653,15 @@ function AnnouncementsSection() {
       </form>
 
       <div className="space-y-2">
-        <p className="mb-3 text-xs font-semibold uppercase tracking-wide text-[#6B7F5A]">
+        <p className="mb-3 text-xs font-semibold uppercase tracking-wide text-[#4a5e3a]">
           Aktif sekarang
         </p>
         {fetching ? (
           <div className="flex justify-center py-6">
-            <span className="h-6 w-6 animate-spin rounded-full border-2 border-[#B4E035]/20 border-t-[#B4E035]" />
+            <span className="h-6 w-6 animate-spin rounded-md border-2 border-[#BFFF5E]/20 border-t-[#BFFF5E]" />
           </div>
         ) : activeItems.length === 0 ? (
-          <p className="py-4 text-center text-sm text-[#6B7F5A]">Belum ada pengumuman aktif.</p>
+          <p className="py-4 text-center text-sm text-[#4a5e3a]">Belum ada pengumuman aktif.</p>
         ) : (
           activeItems.map((item) => (
             <AnnouncementItem
@@ -688,11 +688,11 @@ function AnnouncementItem({ item, confirming, onRequestDelete, onCancelDelete, o
   }, [item.expiresAt]);
 
   return (
-    <div className="flex items-start gap-3 rounded-xl border border-[#D8D1C0] bg-[#F5F2EA] px-4 py-3 transition-colors hover:border-[#B4E035]/30">
-      <BellRing size={15} className="mt-0.5 shrink-0 text-[#748F1C]" />
+    <div className="flex items-start gap-3 rounded-md border border-2 border-[#1d2b1f] bg-[#faf3e8] px-4 py-3 transition-colors hover:border-[#BFFF5E]/30">
+      <BellRing size={15} className="mt-0.5 shrink-0 text-[#1d2b1f]" />
       <div className="min-w-0 flex-1">
-        <p className="line-clamp-2 text-sm text-[#1A2E1A]">{item.text}</p>
-        <span className="mt-1 inline-flex items-center gap-1 text-xs text-[#6B7F5A]">
+        <p className="line-clamp-2 text-sm text-[#1d2b1f]">{item.text}</p>
+        <span className="mt-1 inline-flex items-center gap-1 text-xs text-[#4a5e3a]">
           <Clock size={11} />{remaining}
         </span>
       </div>
@@ -700,7 +700,7 @@ function AnnouncementItem({ item, confirming, onRequestDelete, onCancelDelete, o
         <button
           onClick={onRequestDelete}
           aria-label="Hapus pengumuman"
-          className="shrink-0 rounded-lg p-1.5 text-[#6B7F5A] transition-colors hover:bg-danger/10 hover:text-danger-bright"
+          className="shrink-0 rounded-lg p-1.5 text-[#4a5e3a] transition-colors hover:bg-danger/10 hover:text-danger-bright"
         >
           <Trash2 size={14} />
         </button>
@@ -711,7 +711,7 @@ function AnnouncementItem({ item, confirming, onRequestDelete, onCancelDelete, o
           <div className="flex items-center gap-1.5">
             <button
               onClick={onCancelDelete}
-              className="rounded-lg border border-[#D8D1C0] bg-[#FAFAF7] px-2.5 py-1 text-xs font-semibold text-[#6B7F5A] transition-colors hover:border-[#B4E035]/30 hover:text-[#1A2E1A]"
+              className="rounded-lg border border-2 border-[#1d2b1f] bg-[#fffdf9] px-2.5 py-1 text-xs font-semibold text-[#4a5e3a] transition-colors hover:border-[#BFFF5E]/30 hover:text-[#1d2b1f]"
             >
               Batal
             </button>
@@ -863,8 +863,8 @@ function DiscountsSection() {
                   className={cn(
                     'rounded-lg border px-3 py-1.5 text-xs font-semibold transition-colors',
                     active
-                      ? 'border-[#B4E035]/50 bg-[#B4E035]/15 text-[#748F1C]'
-                      : 'border-[#D8D1C0] bg-[#F0EBE0] text-[#6B7F5A] hover:border-[#B4E035]/30 hover:text-[#4A5E3E]'
+                      ? 'border-[#BFFF5E]/50 bg-[#BFFF5E]/15 text-[#1d2b1f]'
+                      : 'border-2 border-[#1d2b1f] bg-[#f5ece0] text-[#4a5e3a] hover:border-[#BFFF5E]/30 hover:text-[#4a5e3a]'
                   )}
                 >
                   {cat}
@@ -900,7 +900,7 @@ function DiscountsSection() {
           className="gap-1.5"
         >
           {submitting ? (
-            <span className="h-3.5 w-3.5 animate-spin rounded-full border-2 border-[#1A2E1A]/30 border-t-[#1A2E1A]" />
+            <span className="h-3.5 w-3.5 animate-spin rounded-md border-2 border-[#1d2b1f]/30 border-t-[#1d2b1f]" />
           ) : (
             <Plus size={14} />
           )}
@@ -911,15 +911,15 @@ function DiscountsSection() {
       <div className="space-y-2">
         {fetching ? (
           <div className="flex justify-center py-6">
-            <span className="h-6 w-6 animate-spin rounded-full border-2 border-[#6B7F5A]/20 border-t-[#6B7F5A]" />
+            <span className="h-6 w-6 animate-spin rounded-md border-2 border-[#4a5e3a]/20 border-t-[#4a5e3a]" />
           </div>
         ) : items.length === 0 ? (
-          <p className="py-4 text-center text-sm text-[#6B7F5A]">Belum ada diskon.</p>
+          <p className="py-4 text-center text-sm text-[#4a5e3a]">Belum ada diskon.</p>
         ) : (
           <>
             {activeItems.length > 0 && (
               <>
-                <p className="mb-2 text-xs font-semibold uppercase tracking-wide text-[#6B7F5A]">
+                <p className="mb-2 text-xs font-semibold uppercase tracking-wide text-[#4a5e3a]">
                   Diskon aktif
                 </p>
                 {activeItems.map((item) => (
@@ -937,8 +937,8 @@ function DiscountsSection() {
             )}
             {expiredItems.length > 0 && (
               <>
-                {activeItems.length > 0 && <div className="my-3 border-t border-[#D8D1C0]" />}
-                <p className="mb-2 text-xs font-semibold uppercase tracking-wide text-[#6B7F5A]/60">
+                {activeItems.length > 0 && <div className="my-3 border-t border-2 border-[#1d2b1f]" />}
+                <p className="mb-2 text-xs font-semibold uppercase tracking-wide text-[#4a5e3a]/60">
                   Sudah expired
                 </p>
                 {expiredItems.map((item) => (
@@ -972,27 +972,27 @@ function DiscountItem({ item, expired, confirming, onRequestDelete, onCancelDele
 
   return (
     <div className={cn(
-      'flex items-start gap-3 rounded-xl border px-4 py-3 transition-colors',
+      'flex items-start gap-3 rounded-md border px-4 py-3 transition-colors',
       expired
-        ? 'border-[#D8D1C0]/40 bg-[#FAFAF7]/60 opacity-60'
-        : 'border-[#D8D1C0] bg-[#F5F2EA] hover:border-[#B4E035]/30'
+        ? 'border-2 border-[#1d2b1f]/40 bg-[#fffdf9]/60 opacity-60'
+        : 'border-2 border-[#1d2b1f] bg-[#faf3e8] hover:border-[#BFFF5E]/30'
     )}>
-      <PercentCircle size={15} className={cn('mt-0.5 shrink-0', expired ? 'text-[#8A9E7A]' : 'text-[#6B7F5A]')} />
+      <PercentCircle size={15} className={cn('mt-0.5 shrink-0', expired ? 'text-[#6b7f5a]' : 'text-[#4a5e3a]')} />
       <div className="min-w-0 flex-1">
         <div className="flex items-center gap-2">
-          <span className={cn('font-mono text-sm font-bold tracking-wider', expired ? 'text-[#6B7F5A]' : 'text-[#1A2E1A]')}>
+          <span className={cn('font-mono text-sm font-bold tracking-wider', expired ? 'text-[#4a5e3a]' : 'text-[#1d2b1f]')}>
             {item.code}
           </span>
           <span className={cn(
             'rounded-md border px-1.5 py-0.5 text-xs font-semibold',
             expired
-              ? 'border-[#D8D1C0] bg-[#F0EBE0] text-[#6B7F5A]'
-              : 'border-[#B4E035]/35 bg-[#B4E035]/10 text-[#748F1C]'
+              ? 'border-2 border-[#1d2b1f] bg-[#f5ece0] text-[#4a5e3a]'
+              : 'border-[#BFFF5E]/35 bg-[#BFFF5E]/10 text-[#1d2b1f]'
           )}>
             -{item.percent}%
           </span>
           {expired && (
-            <span className="rounded border border-[#D8D1C0] bg-[#F0EBE0] px-1.5 py-0.5 text-[10px] font-semibold text-[#8A9E7A]">
+            <span className="rounded border border-2 border-[#1d2b1f] bg-[#f5ece0] px-1.5 py-0.5 text-[10px] font-semibold text-[#6b7f5a]">
               Expired
             </span>
           )}
@@ -1000,15 +1000,15 @@ function DiscountItem({ item, expired, confirming, onRequestDelete, onCancelDele
         {item.categories && item.categories.length > 0 && (
           <div className="mt-1 flex flex-wrap gap-1">
             {item.categories.map((cat) => (
-              <span key={cat} className="rounded border border-[#D8D1C0] bg-[#F0EBE0] px-1.5 py-0.5 text-[10px] text-[#6B7F5A]">
+              <span key={cat} className="rounded border border-2 border-[#1d2b1f] bg-[#f5ece0] px-1.5 py-0.5 text-[10px] text-[#4a5e3a]">
                 {cat}
               </span>
             ))}
           </div>
         )}
-        <span className="mt-1 inline-flex items-center gap-1 text-xs text-[#6B7F5A]">
+        <span className="mt-1 inline-flex items-center gap-1 text-xs text-[#4a5e3a]">
           {expired ? (
-            <span className="text-[#8A9E7A]">Berakhir {new Date(item.expiresAt).toLocaleDateString('id-ID')}</span>
+            <span className="text-[#6b7f5a]">Berakhir {new Date(item.expiresAt).toLocaleDateString('id-ID')}</span>
           ) : (
             <><Clock size={11} />{remaining}</>
           )}
@@ -1018,7 +1018,7 @@ function DiscountItem({ item, expired, confirming, onRequestDelete, onCancelDele
         <button
           onClick={onRequestDelete}
           aria-label="Hapus diskon"
-          className="shrink-0 rounded-lg p-1.5 text-[#6B7F5A] transition-colors hover:bg-danger/10 hover:text-danger-bright"
+          className="shrink-0 rounded-lg p-1.5 text-[#4a5e3a] transition-colors hover:bg-danger/10 hover:text-danger-bright"
         >
           <Trash2 size={14} />
         </button>
@@ -1029,7 +1029,7 @@ function DiscountItem({ item, expired, confirming, onRequestDelete, onCancelDele
           <div className="flex items-center gap-1.5">
             <button
               onClick={onCancelDelete}
-              className="rounded-lg border border-[#D8D1C0] bg-[#FAFAF7] px-2.5 py-1 text-xs font-semibold text-[#6B7F5A] transition-colors hover:border-[#B4E035]/30 hover:text-[#1A2E1A]"
+              className="rounded-lg border border-2 border-[#1d2b1f] bg-[#fffdf9] px-2.5 py-1 text-xs font-semibold text-[#4a5e3a] transition-colors hover:border-[#BFFF5E]/30 hover:text-[#1d2b1f]"
             >
               Batal
             </button>
@@ -1138,8 +1138,8 @@ function RconSection() {
 
   const needsNick = ['rank', 'money', 'key'].includes(action);
 
-  const tabInactive = 'border-[#D8D1C0] bg-[#F0EBE0] text-[#6B7F5A] hover:border-[#B4E035]/30 hover:text-[#4A5E3E]';
-  const tabActive = 'border-[#B4E035]/50 bg-[#B4E035]/15 text-[#748F1C]';
+  const tabInactive = 'border-2 border-[#1d2b1f] bg-[#f5ece0] text-[#4a5e3a] hover:border-[#BFFF5E]/30 hover:text-[#4a5e3a]';
+  const tabActive = 'border-[#BFFF5E]/50 bg-[#BFFF5E]/15 text-[#1d2b1f]';
 
   return (
     <SectionCard icon={Terminal} title="RCON Manual">
@@ -1155,7 +1155,7 @@ function RconSection() {
                 type="button"
                 onClick={() => setAction(id)}
                 className={cn(
-                  'rounded-xl border px-3 py-2 text-xs font-semibold transition-colors',
+                  'rounded-md border px-3 py-2 text-xs font-semibold transition-colors',
                   action === id ? tabActive : tabInactive,
                 )}
               >
@@ -1234,7 +1234,7 @@ function RconSection() {
               <div className="flex gap-2">
                 {[{ id:'give', label:'🎁 Give' }, { id:'cancel', label:'❌ Cancel' }, { id:'list', label:'📋 List' }].map(({ id, label }) => (
                   <button key={id} type="button" onClick={() => setBansosSub(id)} disabled={loading}
-                    className={cn('flex-1 rounded-xl border py-2 text-xs font-semibold transition-colors',
+                    className={cn('flex-1 rounded-md border py-2 text-xs font-semibold transition-colors',
                       bansosSub === id ? tabActive : tabInactive
                     )}>
                     {label}
@@ -1263,9 +1263,9 @@ function RconSection() {
                       placeholder="30s, 5m, 1h (kosong = langsung)" disabled={loading} className={fieldBase} />
                   </div>
                 </div>
-                <p className="text-[11px] text-[#6B7F5A]">
-                  Command: <code className="font-mono text-[#748F1C]">bansos {bansosKeyName} {bansosAmount || '?'}{bansosDuration ? ` ${bansosDuration}` : ''}</code>
-                  {' '}→ <code className="font-mono text-[#4A5E3E]">case key giveall {bansosKeyName} {bansosAmount || '?'}</code>
+                <p className="text-[11px] text-[#4a5e3a]">
+                  Command: <code className="font-mono text-[#1d2b1f]">bansos {bansosKeyName} {bansosAmount || '?'}{bansosDuration ? ` ${bansosDuration}` : ''}</code>
+                  {' '}→ <code className="font-mono text-[#4a5e3a]">case key giveall {bansosKeyName} {bansosAmount || '?'}</code>
                 </p>
               </>
             )}
@@ -1275,14 +1275,14 @@ function RconSection() {
                 <FieldLabel required>ID Bansos</FieldLabel>
                 <input type="text" value={bansosCancelId} onChange={(e) => setBansosCancelId(e.target.value)}
                   placeholder="misal: 1" required disabled={loading} className={fieldBase} />
-                <p className="mt-1 text-[11px] text-[#6B7F5A]">
+                <p className="mt-1 text-[11px] text-[#4a5e3a]">
                   Gunakan <strong>bansos list</strong> dulu untuk lihat ID aktif.
                 </p>
               </div>
             )}
 
             {bansosSub === 'list' && (
-              <p className="rounded-xl border border-[#D8D1C0] bg-[#F5F2EA] px-4 py-3 text-xs text-[#6B7F5A]">
+              <p className="rounded-md border border-2 border-[#1d2b1f] bg-[#faf3e8] px-4 py-3 text-xs text-[#4a5e3a]">
                 Klik <strong>Eksekusi RCON</strong> untuk melihat daftar bansos yang sedang aktif di server.
               </p>
             )}
@@ -1297,7 +1297,7 @@ function RconSection() {
               <div className="flex gap-2">
                 {[{ id:'add', label:'➕ Add' }, { id:'clear', label:'🗑️ Clear' }, { id:'time', label:'⏱️ Time' }].map(({ id, label }) => (
                   <button key={id} type="button" onClick={() => setEventSub(id)} disabled={loading}
-                    className={cn('flex-1 rounded-xl border py-2 text-xs font-semibold transition-colors',
+                    className={cn('flex-1 rounded-md border py-2 text-xs font-semibold transition-colors',
                       eventSub === id ? tabActive : tabInactive
                     )}>
                     {label}
@@ -1343,7 +1343,7 @@ function RconSection() {
                   <div className="flex gap-2">
                     {[{ id:'add', label:'➕ Tambah' }, { id:'reduce', label:'➖ Kurangi' }].map(({ id, label }) => (
                       <button key={id} type="button" onClick={() => setEventTimeAction(id)} disabled={loading}
-                        className={cn('flex-1 rounded-xl border py-2 text-xs font-semibold transition-colors',
+                        className={cn('flex-1 rounded-md border py-2 text-xs font-semibold transition-colors',
                           eventTimeAction === id ? tabActive : tabInactive
                         )}>
                         {label}
@@ -1376,7 +1376,7 @@ function RconSection() {
           className="w-full gap-1.5"
         >
           {loading
-            ? <span className="h-3.5 w-3.5 animate-spin rounded-full border-2 border-[#1A2E1A]/30 border-t-[#1A2E1A]" />
+            ? <span className="h-3.5 w-3.5 animate-spin rounded-md border-2 border-[#1d2b1f]/30 border-t-[#1d2b1f]" />
             : <Zap size={14} />}
           Eksekusi RCON
         </Button>
@@ -1416,8 +1416,8 @@ export default function AdminDashboardPage() {
 
   if (loading) {
     return (
-      <div className="fixed inset-0 flex items-center justify-center bg-[#F4EFE4]">
-        <div className="h-10 w-10 animate-spin rounded-full border-2 border-[#B4E035]/20 border-t-[#B4E035]" />
+      <div className="fixed inset-0 flex items-center justify-center bg-[#fff8f0]">
+        <div className="h-10 w-10 animate-spin rounded-md border-2 border-[#BFFF5E]/20 border-t-[#BFFF5E]" />
       </div>
     );
   }
@@ -1425,26 +1425,26 @@ export default function AdminDashboardPage() {
   if (!isAdmin) return null;
 
   return (
-    <div className="relative min-h-screen bg-[#F4EFE4]">
+    <div className="relative min-h-screen bg-[#fff8f0]">
       <div className="bg-app" aria-hidden="true" />
 
       {/* Header */}
-      <header className="relative z-10 border-b border-[#D8D1C0] bg-[#F4EFE4]/90 backdrop-blur-md">
+      <header className="relative z-10 border-b border-2 border-[#1d2b1f] bg-[#fff8f0]/90 ">
         <div className="mx-auto flex max-w-7xl items-center justify-between gap-4 px-4 py-3 sm:px-6">
           <div className="flex items-center gap-3">
-            <div className="flex h-9 w-9 items-center justify-center rounded-xl border border-[#B4E035]/40 bg-[#B4E035]/10">
-              <Shield size={18} className="text-[#748F1C]" />
+            <div className="flex h-9 w-9 items-center justify-center rounded-md border border-[#BFFF5E]/40 bg-[#BFFF5E]/10">
+              <Shield size={18} className="text-[#1d2b1f]" />
             </div>
             <div className="leading-tight">
-              <p className="font-display text-sm font-bold text-[#1A2E1A]">AeroBlast Admin</p>
-              <p className="text-[10px] text-[#6B7F5A]">Panel Administrasi</p>
+              <p className="font-display text-sm font-bold text-[#1d2b1f]">AeroBlast Admin</p>
+              <p className="text-[10px] text-[#4a5e3a]">Panel Administrasi</p>
             </div>
           </div>
           <Button
             variant="ghost"
             size="sm"
             onClick={handleLogout}
-            className="gap-1.5 text-[#6B7F5A] hover:text-danger-bright"
+            className="gap-1.5 text-[#4a5e3a] hover:text-danger-bright"
           >
             <LogOut size={14} />
             Logout
@@ -1455,10 +1455,10 @@ export default function AdminDashboardPage() {
       {/* Main content */}
       <main className="relative z-10 mx-auto max-w-7xl px-4 py-8 sm:px-6">
         <div className="mb-7">
-          <h1 className="font-display text-2xl font-bold text-[#1A2E1A]">
+          <h1 className="font-display text-2xl font-bold text-[#1d2b1f]">
             Selamat datang, Admin
           </h1>
-          <p className="mt-0.5 text-sm text-[#6B7F5A]">
+          <p className="mt-0.5 text-sm text-[#4a5e3a]">
             Kelola invoice, pengumuman, dan kode diskon dari sini.
           </p>
         </div>

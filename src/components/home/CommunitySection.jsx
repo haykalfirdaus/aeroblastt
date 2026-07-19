@@ -98,12 +98,12 @@ export function CommunitySection() {
           {/* WhatsApp Group */}
           <GlassCard interactive as="a" href={SITE.social.whatsapp} target="_blank" rel="noopener noreferrer" className="p-5" data-aos="fade-right" data-aos-duration="800">
             <div className="flex flex-col gap-3 h-full">
-              <div className="grid h-10 w-10 place-items-center rounded-xl border border-success/25 bg-success/8">
+              <div className="grid h-10 w-10 place-items-center rounded-md border border-success/25 bg-success/8">
                 <MessageCircle size={18} className="text-success" />
               </div>
               <div className="flex-1">
-                <h3 className="font-display text-sm font-bold text-[#1A2E1A] mb-1">Grup WhatsApp</h3>
-                <p className="text-xs text-[#6B7F5A]">Bergabung ke grup WA komunitas AeroBlast untuk update dan diskusi.</p>
+                <h3 className="font-display text-sm font-bold text-[#1d2b1f] mb-1">Grup WhatsApp</h3>
+                <p className="text-xs text-[#4a5e3a]">Bergabung ke grup WA komunitas AeroBlast untuk update dan diskusi.</p>
               </div>
               <span className="inline-flex items-center gap-1 text-xs font-semibold text-success">
                 Bergabung Sekarang <ArrowRight size={11} />
@@ -114,14 +114,14 @@ export function CommunitySection() {
           {/* Discord */}
           <GlassCard interactive as="a" href={SITE.social.discord} target="_blank" rel="noopener noreferrer" className="p-5" data-aos="fade-up" data-aos-delay="100" data-aos-duration="800">
             <div className="flex flex-col gap-3 h-full">
-              <div className="grid h-10 w-10 place-items-center rounded-xl border border-[#B4E035]/35 bg-[#B4E035]/10">
-                <Gamepad2 size={18} className="text-[#748F1C]" />
+              <div className="grid h-10 w-10 place-items-center rounded-md border border-[#BFFF5E]/35 bg-[#BFFF5E]/10">
+                <Gamepad2 size={18} className="text-[#1d2b1f]" />
               </div>
               <div className="flex-1">
-                <h3 className="font-display text-sm font-bold text-[#1A2E1A] mb-1">Server Discord</h3>
-                <p className="text-xs text-[#6B7F5A]">Join Discord untuk support, pengumuman event, dan komunitas aktif.</p>
+                <h3 className="font-display text-sm font-bold text-[#1d2b1f] mb-1">Server Discord</h3>
+                <p className="text-xs text-[#4a5e3a]">Join Discord untuk support, pengumuman event, dan komunitas aktif.</p>
               </div>
-              <span className="inline-flex items-center gap-1 text-xs font-semibold text-[#748F1C]">
+              <span className="inline-flex items-center gap-1 text-xs font-semibold text-[#1d2b1f]">
                 Join Discord <ArrowRight size={11} />
               </span>
             </div>
@@ -130,14 +130,14 @@ export function CommunitySection() {
           {/* Request Feature */}
           <GlassCard interactive className="p-5 cursor-pointer" onClick={() => setRequestOpen(true)} data-aos="fade-left" data-aos-delay="200" data-aos-duration="800">
             <div className="flex flex-col gap-3 h-full">
-              <div className="grid h-10 w-10 place-items-center rounded-xl border border-[#6B7F5A]/30 bg-[#6B7F5A]/10">
-                <Lightbulb size={18} className="text-[#566947]" />
+              <div className="grid h-10 w-10 place-items-center rounded-md border border-[#4a5e3a]/30 bg-[#4a5e3a]/10">
+                <Lightbulb size={18} className="text-[#354530]" />
               </div>
               <div className="flex-1">
-                <h3 className="font-display text-sm font-bold text-[#1A2E1A] mb-1">Request Fitur</h3>
-                <p className="text-xs text-[#6B7F5A]">Punya ide atau saran untuk server? Kirim request ke Admin.</p>
+                <h3 className="font-display text-sm font-bold text-[#1d2b1f] mb-1">Request Fitur</h3>
+                <p className="text-xs text-[#4a5e3a]">Punya ide atau saran untuk server? Kirim request ke Admin.</p>
               </div>
-              <span className="inline-flex items-center gap-1 text-xs font-semibold text-[#566947]">
+              <span className="inline-flex items-center gap-1 text-xs font-semibold text-[#354530]">
                 Kirim Request <ArrowRight size={11} />
               </span>
             </div>
@@ -146,12 +146,12 @@ export function CommunitySection() {
           {/* Report Player */}
           <GlassCard interactive className="p-5 cursor-pointer sm:col-span-2 lg:col-span-3" onClick={() => setReportOpen(true)} data-aos="fade-up" data-aos-delay="300" data-aos-duration="800">
             <div className="flex flex-col sm:flex-row items-center gap-4">
-              <div className="grid h-10 w-10 shrink-0 place-items-center rounded-xl border border-danger/18 bg-danger/8">
+              <div className="grid h-10 w-10 shrink-0 place-items-center rounded-md border border-danger/18 bg-danger/8">
                 <AlertTriangle size={18} className="text-danger-bright" />
               </div>
               <div className="flex-1 text-center sm:text-left">
-                <h3 className="font-display text-sm font-bold text-[#1A2E1A] mb-1">Laporkan Pemain</h3>
-                <p className="text-xs text-[#6B7F5A]">Ada pemain yang cheating, griefing, atau berperilaku toxic? Laporkan ke Admin sekarang.</p>
+                <h3 className="font-display text-sm font-bold text-[#1d2b1f] mb-1">Laporkan Pemain</h3>
+                <p className="text-xs text-[#4a5e3a]">Ada pemain yang cheating, griefing, atau berperilaku toxic? Laporkan ke Admin sekarang.</p>
               </div>
               <Button variant="danger" size="sm" className="shrink-0">
                 <AlertTriangle size={12} /> Lapor Sekarang

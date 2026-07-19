@@ -56,24 +56,24 @@ export default function StorePage() {
   return (
     <PageLayout>
       {/* Page header */}
-      <div className="relative border-b border-[#D8D1C0] bg-[#EDE8DA] px-4 py-10 text-center sm:px-6 lg:px-8">
+      <div className="relative border-b border-2 border-[#1d2b1f] bg-[#f5ede0] px-4 py-10 text-center sm:px-6 lg:px-8">
         <div aria-hidden="true" className="pointer-events-none absolute inset-0">
-          <div className="absolute left-1/2 top-0 h-48 w-80 -translate-x-1/2 rounded-full bg-[#B4E035]/10 blur-3xl" />
+          <div className="absolute left-1/2 top-0 h-48 w-80 -translate-x-1/2 rounded-md bg-[#BFFF5E]/10 " />
         </div>
-        <span data-aos="fade-down" data-aos-duration="600" className="relative mb-3 inline-flex items-center gap-1.5 rounded-full border border-[#B4E035]/35 bg-[#B4E035]/10 px-3 py-1 font-mono text-[0.65rem] font-semibold uppercase tracking-[0.15em] text-[#748F1C]">
-          <span className="h-1.5 w-1.5 animate-pulse-dot rounded-full bg-[#B4E035]" />
+        <span data-aos="fade-down" data-aos-duration="600" className="relative mb-3 inline-flex items-center gap-1.5 rounded-md border border-[#BFFF5E]/35 bg-[#BFFF5E]/10 px-3 py-1 font-mono text-[0.65rem] font-semibold uppercase tracking-[0.15em] text-[#1d2b1f]">
+          <span className="h-1.5 w-1.5 animate-pulse-dot rounded-md bg-[#BFFF5E]" />
           AeroBlast Store
         </span>
-        <h1 data-aos="fade-up" data-aos-delay="100" data-aos-duration="700" className="relative font-display text-2xl font-extrabold text-[#1A2E1A] sm:text-3xl">
+        <h1 data-aos="fade-up" data-aos-delay="100" data-aos-duration="700" className="relative font-display text-2xl font-extrabold text-[#1d2b1f] sm:text-3xl">
           Toko In-Game Resmi
         </h1>
-        <p data-aos="fade-up" data-aos-delay="200" data-aos-duration="700" className="relative mt-1.5 text-xs text-[#6B7F5A]">
+        <p data-aos="fade-up" data-aos-delay="200" data-aos-duration="700" className="relative mt-1.5 text-xs text-[#4a5e3a]">
           Semua pembelian diproses manual via WhatsApp dalam 1–10 menit.
         </p>
       </div>
 
       {/* Tab bar — desktop: dividers, mobile: horizontal chips */}
-      <div className="sticky top-14 z-40 border-b border-[#D8D1C0] bg-[#EDE8DA]/95 backdrop-blur-sm">
+      <div className="sticky top-14 z-40 border-b border-2 border-[#1d2b1f] bg-[#f5ede0]/95 ">
         {/* Mobile: scrollable chips dengan fade indicator */}
         <div className="relative md:hidden">
           <div className="no-scrollbar flex overflow-x-auto px-3 py-2 gap-1.5">
@@ -85,10 +85,10 @@ export default function StorePage() {
                   type="button"
                   onClick={() => setActiveTab(tab.id)}
                   className={cn(
-                    'inline-flex shrink-0 items-center gap-1.5 rounded-full px-3 py-1.5 text-xs font-medium transition-all',
+                    'inline-flex shrink-0 items-center gap-1.5 rounded-md px-3 py-1.5 text-xs font-medium transition-all',
                     activeTab === tab.id
-                      ? 'bg-[#B4E035]/20 text-[#748F1C] ring-1 ring-[#B4E035]/40'
-                      : 'bg-[#D8D1C0]/40 text-[#6B7F5A] hover:bg-[#D8D1C0]/70 hover:text-[#1A2E1A]'
+                      ? 'bg-[#BFFF5E]/20 text-[#1d2b1f] ring-1 ring-[#BFFF5E]/40'
+                      : 'bg-[#D8D1C0]/40 text-[#4a5e3a] hover:bg-[#D8D1C0]/70 hover:text-[#1d2b1f]'
                   )}
                 >
                   <TabIcon size={12} />
@@ -98,7 +98,7 @@ export default function StorePage() {
             })}
           </div>
           {/* Gradient fade kanan — indikator ada konten tersembunyi */}
-          <div className="pointer-events-none absolute right-0 top-0 h-full w-8 bg-gradient-to-l from-[#EDE8DA] to-transparent" />
+          <div className="pointer-events-none absolute right-0 top-0 h-full w-8 bg-gradient-to-l from-[#f5ede0] to-transparent" />
         </div>
         {/* Desktop: divider-separated tabs */}
         <div className="hidden md:block">
@@ -115,11 +115,11 @@ export default function StorePage() {
                       className={cn(
                         'group inline-flex items-center gap-1.5 px-4 py-3 text-xs font-medium transition-all border-b-2',
                         activeTab === tab.id
-                          ? 'border-[#B4E035] text-[#748F1C]'
-                          : 'border-transparent text-[#6B7F5A] hover:text-[#1A2E1A]'
+                          ? 'border-[#BFFF5E] text-[#1d2b1f]'
+                          : 'border-transparent text-[#4a5e3a] hover:text-[#1d2b1f]'
                       )}
                     >
-                      <TabIcon size={13} className={activeTab === tab.id ? 'text-[#B4E035]' : 'text-[#8A9E7A] group-hover:text-[#6B7F5A]'} />
+                      <TabIcon size={13} className={activeTab === tab.id ? 'text-[#BFFF5E]' : 'text-[#6b7f5a] group-hover:text-[#4a5e3a]'} />
                       {tab.label}
                     </button>
                   </div>
@@ -140,10 +140,10 @@ export default function StorePage() {
         <PlayerLoginPrompt />
         {current && (
           <div className="mb-6 flex items-center gap-2">
-            <current.icon size={16} className="text-[#748F1C]" />
-            <h2 className="font-display text-lg font-bold text-[#1A2E1A]">{current.label}</h2>
-            <span className="text-[#6B7F5A]">·</span>
-            <p className="text-xs text-[#6B7F5A]">{current.desc}</p>
+            <current.icon size={16} className="text-[#1d2b1f]" />
+            <h2 className="font-display text-lg font-bold text-[#1d2b1f]">{current.label}</h2>
+            <span className="text-[#4a5e3a]">·</span>
+            <p className="text-xs text-[#4a5e3a]">{current.desc}</p>
           </div>
         )}
         {/* Dot indicator mobile */}
@@ -154,9 +154,9 @@ export default function StorePage() {
               type="button"
               onClick={() => setActiveTab(tab.id)}
               className={cn(
-                'rounded-full transition-all',
+                'rounded-md transition-all',
                 activeTab === tab.id
-                  ? 'h-1.5 w-4 bg-[#B4E035]'
+                  ? 'h-1.5 w-4 bg-[#BFFF5E]'
                   : 'h-1.5 w-1.5 bg-[#D8D1C0]'
               )}
             />

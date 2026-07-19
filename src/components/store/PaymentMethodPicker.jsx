@@ -6,8 +6,8 @@ const PAYMENT_KEYS = Object.keys(SITE.payment);
 export function PaymentMethodPicker({ value, onChange }) {
   return (
     <div>
-      <label className="mb-1.5 block text-xs font-semibold uppercase tracking-wide text-[#4A5E3E]">
-        Metode Pembayaran <span className="text-[#B4E035]">*</span>
+      <label className="mb-1.5 block text-xs font-semibold uppercase tracking-wide text-[#4a5e3a]">
+        Metode Pembayaran <span className="text-[#BFFF5E]">*</span>
       </label>
       <div className="grid grid-cols-3 gap-2">
         {PAYMENT_KEYS.map((key) => {
@@ -19,10 +19,10 @@ export function PaymentMethodPicker({ value, onChange }) {
               type="button"
               onClick={() => onChange(key)}
               className={cn(
-                'rounded-xl border px-2 py-2.5 text-center transition-all',
+                'rounded-md border px-2 py-2.5 text-center transition-all',
                 selected
-                  ? 'border-[#B4E035]/60 bg-[#B4E035]/15 text-[#748F1C]'
-                  : 'border-[#D8D1C0] bg-[#F0EBE0] text-[#4A5E3E] hover:border-[#B4E035]/25 hover:text-[#1A2E1A]'
+                  ? 'border-[#BFFF5E]/60 bg-[#BFFF5E]/15 text-[#1d2b1f]'
+                  : 'border-2 border-[#1d2b1f] bg-[#f5ece0] text-[#4a5e3a] hover:border-[#BFFF5E]/25 hover:text-[#1d2b1f]'
               )}
             >
               <span className="block text-xs font-bold">{method.label}</span>
@@ -32,7 +32,7 @@ export function PaymentMethodPicker({ value, onChange }) {
       </div>
 
       {value && SITE.payment[value]?.imgPath && (
-        <div className="mt-3 flex justify-center rounded-xl border border-[#D8D1C0] bg-[#F5F2EA] p-4">
+        <div className="mt-3 flex justify-center rounded-md border border-2 border-[#1d2b1f] bg-[#faf3e8] p-4">
           <img
             src={SITE.payment[value].imgPath}
             alt={`${SITE.payment[value].label} AeroBlast Network`}

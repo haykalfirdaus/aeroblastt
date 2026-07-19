@@ -127,26 +127,26 @@ export function DonateTab() {
   if (step === 'paid') {
     return (
       <div
-        className="flex flex-col items-center justify-center gap-5 rounded-2xl border border-[#B4E035]/30 bg-[#B4E035]/[0.07] px-6 py-16 text-center"
+        className="flex flex-col items-center justify-center gap-5 rounded-md border border-[#BFFF5E]/30 bg-[#BFFF5E]/[0.07] px-6 py-16 text-center"
         style={{ animation: 'page-wipe-in 0.4s cubic-bezier(0.22,1,0.36,1) both' }}
       >
-        <div className="flex h-16 w-16 items-center justify-center rounded-full border border-[#B4E035]/40 bg-[#B4E035]/15">
-          <CheckCircle size={30} className="text-[#748F1C]" />
+        <div className="flex h-16 w-16 items-center justify-center rounded-md border border-[#BFFF5E]/40 bg-[#BFFF5E]/15">
+          <CheckCircle size={30} className="text-[#1d2b1f]" />
         </div>
         <div>
-          <h3 className="font-display text-xl font-extrabold text-[#1A2E1A]">Donasi Diterima!</h3>
-          <p className="mt-1.5 text-sm text-[#6B7F5A]">
-            Transfer <span className="font-bold text-[#1A2E1A]">{formatRupiah(order?.totalAmount ?? 0)}</span> sudah masuk.
+          <h3 className="font-display text-xl font-extrabold text-[#1d2b1f]">Donasi Diterima!</h3>
+          <p className="mt-1.5 text-sm text-[#4a5e3a]">
+            Transfer <span className="font-bold text-[#1d2b1f]">{formatRupiah(order?.totalAmount ?? 0)}</span> sudah masuk.
           </p>
-          <p className="mt-0.5 text-sm text-[#6B7F5A]">Terima kasih telah mendukung AeroBlast Network! 💚</p>
+          <p className="mt-0.5 text-sm text-[#4a5e3a]">Terima kasih telah mendukung AeroBlast Network! 💚</p>
           {name.trim() && (
-            <p className="mt-1 text-xs text-[#8A9E7A]">— {name.trim()}</p>
+            <p className="mt-1 text-xs text-[#6b7f5a]">— {name.trim()}</p>
           )}
         </div>
         <button
           type="button"
           onClick={handleReset}
-          className="rounded-lg border border-[#D8D1C0] bg-[#F0EBE0] px-4 py-2 text-xs font-semibold text-[#6B7F5A] transition-colors hover:border-[#B4E035]/30 hover:text-[#1A2E1A]"
+          className="rounded-lg border border-2 border-[#1d2b1f] bg-[#f5ece0] px-4 py-2 text-xs font-semibold text-[#4a5e3a] transition-colors hover:border-[#BFFF5E]/30 hover:text-[#1d2b1f]"
         >
           Donasi Lagi
         </button>
@@ -158,15 +158,15 @@ export function DonateTab() {
   if (step === 'expired') {
     return (
       <div
-        className="flex flex-col items-center justify-center gap-5 rounded-2xl border border-[#D8D1C0] bg-[#FAFAF7] px-6 py-14 text-center"
+        className="flex flex-col items-center justify-center gap-5 rounded-md border border-2 border-[#1d2b1f] bg-[#fffdf9] px-6 py-14 text-center"
         style={{ animation: 'page-wipe-in 0.4s cubic-bezier(0.22,1,0.36,1) both' }}
       >
-        <div className="flex h-14 w-14 items-center justify-center rounded-full border border-[#D8D1C0] bg-[#F0EBE0]">
-          <Clock size={24} className="text-[#8A9E7A]" />
+        <div className="flex h-14 w-14 items-center justify-center rounded-md border border-2 border-[#1d2b1f] bg-[#f5ece0]">
+          <Clock size={24} className="text-[#6b7f5a]" />
         </div>
         <div>
-          <h3 className="font-display text-base font-bold text-[#1A2E1A]">Order Kedaluwarsa</h3>
-          <p className="mt-1.5 text-sm text-[#6B7F5A]">
+          <h3 className="font-display text-base font-bold text-[#1d2b1f]">Order Kedaluwarsa</h3>
+          <p className="mt-1.5 text-sm text-[#4a5e3a]">
             Waktu 30 menit habis — transfer tidak terdeteksi.<br />
             Kalau sudah transfer, hubungi Admin.
           </p>
@@ -174,7 +174,7 @@ export function DonateTab() {
         <button
           type="button"
           onClick={handleReset}
-          className="inline-flex items-center gap-1.5 rounded-lg border border-[#D8D1C0] bg-[#F0EBE0] px-4 py-2 text-xs font-semibold text-[#6B7F5A] transition-colors hover:text-[#1A2E1A]"
+          className="inline-flex items-center gap-1.5 rounded-lg border border-2 border-[#1d2b1f] bg-[#f5ece0] px-4 py-2 text-xs font-semibold text-[#4a5e3a] transition-colors hover:text-[#1d2b1f]"
         >
           <RefreshCw size={12} />
           Coba Lagi
@@ -195,35 +195,35 @@ export function DonateTab() {
       >
         {/* Header */}
         <div className="mb-5 flex flex-col items-center gap-2 text-center">
-          <div className="flex h-12 w-12 items-center justify-center rounded-full border border-[#B4E035]/35 bg-[#B4E035]/10">
-            <QrCode size={22} className="text-[#748F1C]" />
+          <div className="flex h-12 w-12 items-center justify-center rounded-md border border-[#BFFF5E]/35 bg-[#BFFF5E]/10">
+            <QrCode size={22} className="text-[#1d2b1f]" />
           </div>
           <div>
-            <h3 className="font-display text-lg font-bold text-[#1A2E1A]">Scan QRIS</h3>
-            <p className="text-xs text-[#6B7F5A]">Bayar dengan e-wallet atau mobile banking apapun</p>
+            <h3 className="font-display text-lg font-bold text-[#1d2b1f]">Scan QRIS</h3>
+            <p className="text-xs text-[#4a5e3a]">Bayar dengan e-wallet atau mobile banking apapun</p>
           </div>
         </div>
 
-        <div className="flex flex-col gap-4 rounded-2xl border border-[#D8D1C0] bg-[#FAFAF7] p-5">
+        <div className="flex flex-col gap-4 rounded-md border border-2 border-[#1d2b1f] bg-[#fffdf9] p-5">
           {/* Countdown bar */}
           <div>
             <div className="mb-1.5 flex items-center justify-between">
-              <span className="flex items-center gap-1 text-[11px] text-[#6B7F5A]">
+              <span className="flex items-center gap-1 text-[11px] text-[#4a5e3a]">
                 <Clock size={11} />
                 Berlaku selama
               </span>
-              <span className={cn('font-mono text-xs font-bold', expUrgent ? 'text-danger' : 'text-[#1A2E1A]')}>{expLabel}</span>
+              <span className={cn('font-mono text-xs font-bold', expUrgent ? 'text-danger' : 'text-[#1d2b1f]')}>{expLabel}</span>
             </div>
-            <div className="h-1.5 w-full overflow-hidden rounded-full bg-[#E6E0D4]">
+            <div className="h-1.5 w-full overflow-hidden rounded-md bg-[#E6E0D4]">
               <div
-                className={cn('h-full rounded-full transition-all duration-1000', expUrgent ? 'bg-danger' : 'bg-[#B4E035]')}
+                className={cn('h-full rounded-md transition-all duration-1000', expUrgent ? 'bg-danger' : 'bg-[#BFFF5E]')}
                 style={{ width: `${expPct}%` }}
               />
             </div>
           </div>
 
           {/* ⚠️ Nominal warning — ini bagian paling penting */}
-          <div className="rounded-xl border border-amber-300/60 bg-amber-50 px-4 py-3">
+          <div className="rounded-md border border-amber-300/60 bg-amber-50 px-4 py-3">
             <div className="flex items-start gap-2">
               <AlertTriangle size={14} className="mt-0.5 shrink-0 text-amber-600" />
               <div>
@@ -235,7 +235,7 @@ export function DonateTab() {
             </div>
             {/* Nominal besar + tombol copy */}
             <div className="mt-3 flex items-center justify-between rounded-lg border border-amber-200 bg-white px-3 py-2">
-              <span className="font-mono text-lg font-extrabold text-[#1A2E1A]">
+              <span className="font-mono text-lg font-extrabold text-[#1d2b1f]">
                 {formatRupiah(order.totalAmount)}
               </span>
               <button
@@ -243,7 +243,7 @@ export function DonateTab() {
                 onClick={handleCopyAmount}
                 className="flex items-center gap-1 rounded-md border border-amber-200 bg-amber-50 px-2.5 py-1.5 text-[11px] font-semibold text-amber-700 transition-all hover:bg-amber-100"
               >
-                {copied ? <Check size={11} className="text-[#748F1C]" /> : <Copy size={11} />}
+                {copied ? <Check size={11} className="text-[#1d2b1f]" /> : <Copy size={11} />}
                 {copied ? 'Disalin!' : 'Salin'}
               </button>
             </div>
@@ -256,7 +256,7 @@ export function DonateTab() {
 
           {/* QRIS image */}
           <div className="flex justify-center">
-            <div className="overflow-hidden rounded-xl border border-[#D8D1C0] bg-white p-3 shadow-sm">
+            <div className="overflow-hidden rounded-md border border-2 border-[#1d2b1f] bg-white p-3 shadow-sm">
               <img
                 src={SITE.payment.QRIS.imgPath}
                 alt="QRIS AeroBlast"
@@ -268,7 +268,7 @@ export function DonateTab() {
           </div>
 
           {/* Cara bayar */}
-          <ol className="flex flex-col gap-1.5 text-xs text-[#6B7F5A]">
+          <ol className="flex flex-col gap-1.5 text-xs text-[#4a5e3a]">
             {[
               'Buka aplikasi e-wallet / bank kamu',
               'Scan kode QRIS di atas',
@@ -276,22 +276,22 @@ export function DonateTab() {
               'Konfirmasi — deteksi otomatis dalam beberapa detik',
             ].map((s, i) => (
               <li key={i} className="flex items-start gap-2">
-                <span className="mt-0.5 flex h-4 w-4 shrink-0 items-center justify-center rounded-full bg-[#B4E035]/20 text-[0.6rem] font-bold text-[#748F1C]">{i + 1}</span>
+                <span className="mt-0.5 flex h-4 w-4 shrink-0 items-center justify-center rounded-md bg-[#BFFF5E]/20 text-[0.6rem] font-bold text-[#1d2b1f]">{i + 1}</span>
                 {s}
               </li>
             ))}
           </ol>
 
           {/* Status: menunggu */}
-          <div className="flex items-center justify-center gap-2 rounded-lg border border-[#D8D1C0] bg-[#F0EBE0] px-4 py-2.5">
-            <span className="inline-block h-2 w-2 animate-pulse rounded-full bg-[#B4E035]" />
-            <span className="text-xs text-[#6B7F5A]">Menunggu pembayaran...</span>
+          <div className="flex items-center justify-center gap-2 rounded-lg border border-2 border-[#1d2b1f] bg-[#f5ece0] px-4 py-2.5">
+            <span className="inline-block h-2 w-2 animate-pulse rounded-md bg-[#BFFF5E]" />
+            <span className="text-xs text-[#4a5e3a]">Menunggu pembayaran...</span>
           </div>
 
           <button
             type="button"
             onClick={handleReset}
-            className="text-center text-[11px] text-[#8A9E7A] hover:text-[#6B7F5A] transition-colors"
+            className="text-center text-[11px] text-[#6b7f5a] hover:text-[#4a5e3a] transition-colors"
           >
             ← Batalkan & kembali
           </button>
@@ -305,19 +305,19 @@ export function DonateTab() {
     <div className="mx-auto max-w-lg" style={{ animation: 'page-wipe-in 0.28s cubic-bezier(0.22,1,0.36,1) both' }}>
       {/* Header */}
       <div className="mb-6 flex flex-col items-center gap-2 text-center">
-        <div className="flex h-12 w-12 items-center justify-center rounded-full border border-[#B4E035]/35 bg-[#B4E035]/10">
-          <Heart size={22} className="text-[#748F1C]" />
+        <div className="flex h-12 w-12 items-center justify-center rounded-md border border-[#BFFF5E]/35 bg-[#BFFF5E]/10">
+          <Heart size={22} className="text-[#1d2b1f]" />
         </div>
         <div>
-          <h3 className="font-display text-lg font-bold text-[#1A2E1A]">Dukung AeroBlast</h3>
-          <p className="text-xs text-[#6B7F5A]">Donasi bebas via QRIS — deteksi otomatis, Discord announce saat masuk</p>
+          <h3 className="font-display text-lg font-bold text-[#1d2b1f]">Dukung AeroBlast</h3>
+          <p className="text-xs text-[#4a5e3a]">Donasi bebas via QRIS — deteksi otomatis, Discord announce saat masuk</p>
         </div>
       </div>
 
-      <div className="flex flex-col gap-4 rounded-2xl border border-[#D8D1C0] bg-[#FAFAF7] p-5">
+      <div className="flex flex-col gap-4 rounded-md border border-2 border-[#1d2b1f] bg-[#fffdf9] p-5">
         {/* Nominal cepat */}
         <div>
-          <p className="mb-2 text-xs font-semibold text-[#6B7F5A]">Pilih nominal</p>
+          <p className="mb-2 text-xs font-semibold text-[#4a5e3a]">Pilih nominal</p>
           <div className="flex flex-wrap gap-2">
             {QUICK_AMOUNTS.map((val) => (
               <button
@@ -325,10 +325,10 @@ export function DonateTab() {
                 type="button"
                 onClick={() => setAmount(String(val))}
                 className={cn(
-                  'rounded-full border px-3 py-1.5 text-xs font-semibold transition-all',
+                  'rounded-md border px-3 py-1.5 text-xs font-semibold transition-all',
                   numAmount === val
-                    ? 'border-[#B4E035]/50 bg-[#B4E035]/20 text-[#748F1C] ring-1 ring-[#B4E035]/40'
-                    : 'border-[#D8D1C0] bg-[#F0EBE0] text-[#6B7F5A] hover:border-[#B4E035]/30 hover:text-[#1A2E1A]'
+                    ? 'border-[#BFFF5E]/50 bg-[#BFFF5E]/20 text-[#1d2b1f] ring-1 ring-[#BFFF5E]/40'
+                    : 'border-2 border-[#1d2b1f] bg-[#f5ece0] text-[#4a5e3a] hover:border-[#BFFF5E]/30 hover:text-[#1d2b1f]'
                 )}
               >
                 {formatRupiah(val)}
@@ -339,18 +339,18 @@ export function DonateTab() {
 
         {/* Input manual */}
         <div>
-          <label className="mb-1.5 block text-xs font-semibold text-[#4A5E3E]">
-            Atau ketik nominal <span className="text-[#8A9E7A] font-normal">(min. Rp 1.000)</span>
+          <label className="mb-1.5 block text-xs font-semibold text-[#4a5e3a]">
+            Atau ketik nominal <span className="text-[#6b7f5a] font-normal">(min. Rp 1.000)</span>
           </label>
           <div className="relative">
-            <span className="absolute left-3.5 top-1/2 -translate-y-1/2 text-xs font-semibold text-[#8A9E7A]">Rp</span>
+            <span className="absolute left-3.5 top-1/2 -translate-y-1/2 text-xs font-semibold text-[#6b7f5a]">Rp</span>
             <input
               type="text"
               inputMode="numeric"
               value={amount ? Number(amount).toLocaleString('id-ID') : ''}
               onChange={handleAmountInput}
               placeholder="0"
-              className="w-full rounded-xl border border-[#D8D1C0] bg-white py-2.5 pl-9 pr-4 text-sm font-mono font-semibold text-[#1A2E1A] placeholder:text-[#D8D1C0] outline-none transition-colors focus:border-[#B4E035]/70 focus:ring-2 focus:ring-[#B4E035]/15"
+              className="w-full rounded-md border border-2 border-[#1d2b1f] bg-white py-2.5 pl-9 pr-4 text-sm font-mono font-semibold text-[#1d2b1f] placeholder:text-[#D8D1C0] outline-none transition-colors focus:border-[#BFFF5E]/70 focus:ring-2 focus:ring-[#BFFF5E]/15"
             />
           </div>
           {amount && !isValid && (
@@ -360,8 +360,8 @@ export function DonateTab() {
 
         {/* Nama */}
         <div>
-          <label className="mb-1.5 block text-xs font-semibold text-[#4A5E3E]">
-            Nama <span className="text-[#8A9E7A] font-normal">(opsional)</span>
+          <label className="mb-1.5 block text-xs font-semibold text-[#4a5e3a]">
+            Nama <span className="text-[#6b7f5a] font-normal">(opsional)</span>
           </label>
           <input
             type="text"
@@ -369,15 +369,15 @@ export function DonateTab() {
             onChange={(e) => setName(e.target.value)}
             placeholder="Anonim"
             maxLength={40}
-            className="w-full rounded-xl border border-[#D8D1C0] bg-white px-4 py-2.5 text-sm text-[#1A2E1A] placeholder:text-[#C8C4B8] outline-none transition-colors focus:border-[#B4E035]/70 focus:ring-2 focus:ring-[#B4E035]/15"
+            className="w-full rounded-md border border-2 border-[#1d2b1f] bg-white px-4 py-2.5 text-sm text-[#1d2b1f] placeholder:text-[#C8C4B8] outline-none transition-colors focus:border-[#BFFF5E]/70 focus:ring-2 focus:ring-[#BFFF5E]/15"
           />
         </div>
 
         {/* Pesan */}
         <div>
-          <label className="mb-1.5 flex items-center justify-between text-xs font-semibold text-[#4A5E3E]">
-            <span>Pesan <span className="text-[#8A9E7A] font-normal">(opsional)</span></span>
-            <span className="font-normal text-[#8A9E7A]">{message.length}/200</span>
+          <label className="mb-1.5 flex items-center justify-between text-xs font-semibold text-[#4a5e3a]">
+            <span>Pesan <span className="text-[#6b7f5a] font-normal">(opsional)</span></span>
+            <span className="font-normal text-[#6b7f5a]">{message.length}/200</span>
           </label>
           <textarea
             value={message}
@@ -385,25 +385,25 @@ export function DonateTab() {
             placeholder="Tulis pesanmu untuk tim AeroBlast..."
             maxLength={200}
             rows={3}
-            className="w-full resize-none rounded-xl border border-[#D8D1C0] bg-white px-4 py-2.5 text-sm text-[#1A2E1A] placeholder:text-[#C8C4B8] outline-none transition-colors focus:border-[#B4E035]/70 focus:ring-2 focus:ring-[#B4E035]/15"
+            className="w-full resize-none rounded-md border border-2 border-[#1d2b1f] bg-white px-4 py-2.5 text-sm text-[#1d2b1f] placeholder:text-[#C8C4B8] outline-none transition-colors focus:border-[#BFFF5E]/70 focus:ring-2 focus:ring-[#BFFF5E]/15"
           />
         </div>
 
         {/* Preview */}
         {isValid && (
-          <div className="rounded-xl border border-[#B4E035]/20 bg-[#B4E035]/[0.06] px-4 py-3">
+          <div className="rounded-md border border-[#BFFF5E]/20 bg-[#BFFF5E]/[0.06] px-4 py-3">
             <div className="flex items-center gap-1.5 mb-1.5">
-              <Sparkles size={11} className="text-[#748F1C]" />
-              <span className="text-[0.65rem] font-semibold uppercase tracking-wide text-[#748F1C]">Ringkasan</span>
+              <Sparkles size={11} className="text-[#1d2b1f]" />
+              <span className="text-[0.65rem] font-semibold uppercase tracking-wide text-[#1d2b1f]">Ringkasan</span>
             </div>
-            <p className="text-xs text-[#4A5E3E]">
-              <span className="font-bold text-[#1A2E1A]">{formatRupiah(numAmount)}</span>
+            <p className="text-xs text-[#4a5e3a]">
+              <span className="font-bold text-[#1d2b1f]">{formatRupiah(numAmount)}</span>
               {' '}dari <span className="font-semibold">{name.trim() || 'Anonim'}</span>
             </p>
             {message.trim() && (
-              <p className="mt-1 text-[11px] italic text-[#6B7F5A]">"{message.trim()}"</p>
+              <p className="mt-1 text-[11px] italic text-[#4a5e3a]">"{message.trim()}"</p>
             )}
-            <p className="mt-2 text-[10px] text-[#8A9E7A]">
+            <p className="mt-2 text-[10px] text-[#6b7f5a]">
               * Nominal transfer akan berbeda sedikit (angka unik) agar terdeteksi otomatis
             </p>
           </div>
@@ -418,7 +418,7 @@ export function DonateTab() {
           {creating ? 'Membuat order...' : isValid ? `Lanjut ke QRIS — ${formatRupiah(numAmount)}` : 'Masukkan nominal dulu'}
         </Button>
 
-        <p className="text-center text-[10px] text-[#8A9E7A]">
+        <p className="text-center text-[10px] text-[#6b7f5a]">
           Donasi via QRIS · Deteksi otomatis · Discord announce saat dana masuk
         </p>
       </div>

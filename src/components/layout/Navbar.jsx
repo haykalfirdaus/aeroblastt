@@ -5,6 +5,7 @@ import { usePathname } from 'next/navigation';
 import { Menu, X, Home, ShoppingBag, Trophy, HelpCircle, MessageCircle, Heart } from 'lucide-react';
 import { cn } from '@/lib/cn';
 import { scrollToId } from '@/lib/motion';
+import { useServerStatus } from '@/hooks/useServerStatus';
 const logo = '/logo.png';
 
 const NAV_LINKS = [
@@ -20,6 +21,7 @@ export function Navbar() {
   const [open, setOpen] = useState(false);
   const pathname = usePathname();
   const menuRef = useRef(null);
+  const status = useServerStatus();
 
   useEffect(() => {
     const onScroll = () => setScrolled(window.scrollY > 20);
@@ -49,10 +51,10 @@ export function Navbar() {
     <header
       ref={menuRef}
       className={cn(
-        'fixed inset-x-0 top-0 z-[100] transition-all duration-300',
+        'fixed inset-x-0 top-0 z-[100] transition-all duration-200',
         scrolled
-          ? 'border-b border-[#D8D1C0] bg-[#EDE8DA]/92 shadow-[0_2px_16px_-4px_rgba(26,46,26,0.1)] backdrop-blur-xl'
-          : 'bg-transparent backdrop-blur-none'
+          ? 'border-b-2 border-[#1d2b1f] bg-[#fff8f0]/95 backdrop-blur-md'
+          : 'bg-transparent'
       )}
     >
       <nav className="mx-auto flex w-full max-w-7xl items-center justify-between px-4 py-3 sm:px-6 lg:px-8">
@@ -66,11 +68,11 @@ export function Navbar() {
             <img
               src={logo}
               alt="AeroBlast logo"
-              className="relative z-[1] h-7 w-7 rounded-lg object-cover shadow-[0_0_10px_rgba(180,224,53,0.2)]"
+              className="relative z-[1] h-7 w-7 rounded-md object-cover border border-[#1d2b1f]"
             />
           </div>
-          <span className="hidden font-display text-sm font-bold tracking-tight text-[#1A2E1A] sm:block">
-            Aero<span className="text-[#8AB024]">Blast</span>
+          <span className="hidden font-display text-sm font-bold tracking-tight text-[#1d2b1f] sm:block">
+            Aero<span className="text-[#5a9e10]">Blast</span>
           </span>
         </Link>
 
@@ -86,7 +88,7 @@ export function Navbar() {
                 onClick={(e) => handleNavClick(e, link)}
                 className={cn(
                   isDonate
-                    ? 'inline-flex items-center gap-1.5 rounded-full border border-[#B4E035]/50 bg-[#B4E035]/15 px-3 py-1.5 text-xs font-bold text-[#748F1C] transition-all duration-150 hover:border-[#B4E035]/70 hover:bg-[#B4E035]/25'
+                    ? 'inline-flex items-center gap-1.5 rounded-md border-2 border-[#1d2b1f] bg-[#BFFF5E] px-3 py-1.5 text-xs font-bold text-[#1d2b1f] shadow-[2px_2px_0_#1d2b1f] transition-all hover:translate-x-[2px] hover:translate-y-[2px] hover:shadow-none'
                     : cn('nav-pill', isActive && 'nav-pill-active')
                 )}
               >
@@ -97,16 +99,24 @@ export function Navbar() {
           })}
         </div>
 
-        {/* Discord CTA */}
-        <a
-          href="https://discord.gg/rgRRnPS9cp"
-          target="_blank"
-          rel="noopener noreferrer"
-          className="hidden items-center gap-1.5 rounded-full border border-[#B4E035]/50 bg-[#B4E035]/10 px-4 py-1.5 text-xs font-bold text-[#748F1C] transition-all duration-150 hover:border-[#B4E035]/70 hover:bg-[#B4E035]/18 hover:shadow-[0_0_12px_rgba(180,224,53,0.2)] md:flex"
-        >
-          <MessageCircle size={11} />
-          Discord
-        </a>
+        {/* Right side: server status + Join Now */}
+        <div className="hidden items-center gap-2 md:flex">
+          {status.online && (
+            <div className="flex items-center gap-1.5 rounded-md border-2 border-[#1d2b1f] bg-[#BFFF5E]/20 px-3 py-1.5 text-xs font-bold text-[#1d2b1f]">
+              <span className="glow-dot-green" />
+              Online: {status.players?.online ?? 0}
+            </div>
+          )}
+          <a
+            href={SITE_DISCORD}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="inline-flex items-center gap-1.5 rounded-md border-2 border-[#1d2b1f] bg-[#BFFF5E] px-4 py-1.5 text-xs font-bold text-[#1d2b1f] shadow-[2px_2px_0_#1d2b1f] transition-all hover:translate-x-[2px] hover:translate-y-[2px] hover:shadow-none"
+          >
+            <MessageCircle size={11} />
+            Join Now
+          </a>
+        </div>
 
         {/* Mobile hamburger */}
         <button
@@ -114,7 +124,7 @@ export function Navbar() {
           aria-label={open ? 'Tutup menu' : 'Buka menu'}
           aria-expanded={open}
           onClick={() => setOpen((v) => !v)}
-          className="grid h-8 w-8 place-items-center rounded-full border border-[#D8D1C0] text-[#6B7F5A] transition-all hover:border-[#1A2E1A]/25 hover:bg-[#EDE8DA] hover:text-[#1A2E1A] md:hidden"
+          className="grid h-8 w-8 place-items-center rounded-md border-2 border-[#1d2b1f] text-[#1d2b1f] transition-all hover:bg-[#BFFF5E] md:hidden"
         >
           {open ? <X size={14} /> : <Menu size={14} />}
         </button>
@@ -124,7 +134,7 @@ export function Navbar() {
       <div
         className={cn(
           'overflow-hidden transition-all duration-250 md:hidden',
-          open ? 'max-h-72 border-b border-[#D8D1C0] bg-[#EDE8DA]/95 backdrop-blur-xl' : 'max-h-0'
+          open ? 'max-h-80 border-b-2 border-[#1d2b1f] bg-[#fff8f0]/98' : 'max-h-0'
         )}
         aria-hidden={!open}
       >
@@ -138,12 +148,12 @@ export function Navbar() {
                 href={link.to}
                 onClick={(e) => handleNavClick(e, link)}
                 className={cn(
-                  'flex items-center gap-2.5 rounded-full px-4 py-2.5 text-xs font-semibold transition-all',
+                  'flex items-center gap-2.5 rounded-md border-2 px-4 py-2.5 text-xs font-semibold transition-all',
                   isDonate
-                    ? 'border border-[#B4E035]/50 bg-[#B4E035]/15 text-[#748F1C] font-bold'
+                    ? 'border-[#1d2b1f] bg-[#BFFF5E] text-[#1d2b1f] font-bold'
                     : isActive
-                    ? 'border border-[#B4E035]/50 bg-[#B4E035]/12 text-[#748F1C]'
-                    : 'border border-transparent text-[#6B7F5A] hover:border-[#D8D1C0] hover:bg-[#E8E3D4] hover:text-[#1A2E1A]'
+                    ? 'border-[#1d2b1f] bg-[#BFFF5E]/20 text-[#1d2b1f] font-bold'
+                    : 'border-[#1d2b1f]/25 text-[#4a5e3a] hover:border-[#1d2b1f] hover:bg-[#f5ede0] hover:text-[#1d2b1f]'
                 )}
               >
                 <link.icon size={13} />
@@ -151,17 +161,25 @@ export function Navbar() {
               </Link>
             );
           })}
+          {status.online && (
+            <div className="mt-1 flex items-center gap-1.5 rounded-md border-2 border-[#1d2b1f] bg-[#BFFF5E]/15 px-4 py-2 text-xs font-bold text-[#1d2b1f]">
+              <span className="glow-dot-green" />
+              Online: {status.players?.online ?? 0} Players
+            </div>
+          )}
           <a
-            href="https://discord.gg/rgRRnPS9cp"
+            href={SITE_DISCORD}
             target="_blank"
             rel="noopener noreferrer"
-            className="mt-1 flex items-center gap-2.5 rounded-full border border-[#B4E035]/50 bg-[#B4E035]/10 px-4 py-2.5 text-xs font-bold text-[#748F1C]"
+            className="mt-1 flex items-center gap-2.5 rounded-md border-2 border-[#1d2b1f] bg-[#BFFF5E] px-4 py-2.5 text-xs font-bold text-[#1d2b1f] shadow-[2px_2px_0_#1d2b1f]"
           >
             <MessageCircle size={13} />
-            Discord
+            Join Now (Discord)
           </a>
         </div>
       </div>
     </header>
   );
 }
+
+const SITE_DISCORD = 'https://discord.gg/rgRRnPS9cp';

@@ -1,48 +1,47 @@
 @import 'tailwindcss';
 
 /* ==========================================================================
-   AEROBLAST — Warm Cream Design System
-   Reference: causehouse.co aesthetic
-   - Warm cream background (#F4EFE4), dark forest-green text (#1A2E1A)
-   - Lime accent (#B4E035) — used sparingly: CTA, badge outline, highlight word
-   - Sage secondary (#6B7F5A) for supporting text
-   - GPU-only motion (transform/opacity), generous whitespace
+   AEROBLAST — Organic Infrastructure Design System
+   - Warm cream background (#fff8f0), dark forest-green text (#1d2b1f)
+   - Lime accent (#BFFF5E) — used for CTA, badges, highlights
+   - Premium Blocky: 2px solid borders, 4px hard-offset shadows (no blur)
+   - Playfair Display headings, Inter body
    ========================================================================== */
 @theme {
   /* ---- Typography -------------------------------------------------- */
-  --font-display: 'Plus Jakarta Sans', 'Space Grotesk', ui-sans-serif, sans-serif;
-  --font-sans: 'Plus Jakarta Sans', 'Inter', ui-sans-serif, system-ui, sans-serif;
+  --font-display: 'Playfair Display', Georgia, 'Times New Roman', serif;
+  --font-sans: 'Inter', ui-sans-serif, system-ui, sans-serif;
   --font-mono: 'JetBrains Mono', ui-monospace, 'SF Mono', monospace;
 
   /* ---- Backgrounds: warm cream scale -------------------------------- */
-  --color-void: #F4EFE4;
-  --color-abyss: #EDE8DA;
-  --color-deep: #E8E3D4;
-  --color-panel: #FAF8F4;
-  --color-surface: #FAFAF7;
-  --color-surface-2: #F5F2EA;
-  --color-surface-3: #F0EBE0;
-  --color-surface-hover: rgba(26, 46, 26, 0.04);
+  --color-void: #fff8f0;
+  --color-abyss: #f5ede0;
+  --color-deep: #f0e8d8;
+  --color-panel: #fffdf9;
+  --color-surface: #fffdf9;
+  --color-surface-2: #faf3e8;
+  --color-surface-3: #f5ece0;
+  --color-surface-hover: rgba(29, 43, 31, 0.04);
 
   /* ---- Lime green (primary accent) ---------------------------------- */
-  --color-neon-300: #C8EF5A;
-  --color-neon-400: #B4E035;
-  --color-neon-500: #9FC82B;
-  --color-neon-600: #8AB024;
-  --color-neon-700: #748F1C;
-  --color-neon-800: #5E7415;
+  --color-neon-300: #d4ff80;
+  --color-neon-400: #BFFF5E;
+  --color-neon-500: #a8f040;
+  --color-neon-600: #7acc1a;
+  --color-neon-700: #5a9e10;
+  --color-neon-800: #3d7208;
 
   /* ---- Sage green (secondary accent) -------------------------------- */
   --color-cyan-300: #8FA86A;
-  --color-cyan-400: #6B7F5A;
-  --color-cyan-500: #566947;
+  --color-cyan-400: #4a5e3a;
+  --color-cyan-500: #354530;
 
   /* ---- Text: dark forest green scale -------------------------------- */
-  --color-text-bright: #1A2E1A;
-  --color-text: #2A3E2A;
-  --color-text-muted: #4A5E3E;
-  --color-text-dim: #6B7F5A;
-  --color-text-faint: #8A9E7A;
+  --color-text-bright: #1d2b1f;
+  --color-text: #2a3a2c;
+  --color-text-muted: #4a5e3a;
+  --color-text-dim: #6b7f5a;
+  --color-text-faint: #8a9e7a;
 
   /* ---- Status (functional — unchanged) ------------------------------ */
   --color-success: #22c55e;
@@ -52,7 +51,7 @@
   --color-danger-bright: #f87171;
   --color-purple: #8b5cf6;
 
-  /* ---- Rank accent spectrum (darkened for cream bg readability) ----- */
+  /* ---- Rank accent spectrum ----------------------------------------- */
   --color-rank-scout: #059669;
   --color-rank-voyager: #2563eb;
   --color-rank-orbiter: #ea580c;
@@ -62,7 +61,7 @@
   --color-rank-galatics: #dc2626;
   --color-rank-universe: #9333ea;
 
-  /* ---- Command accent spectrum (darkened for cream bg) -------------- */
+  /* ---- Command accent spectrum -------------------------------------- */
   --color-cmd-blue: #2563eb;
   --color-cmd-gold: #b45309;
   --color-cmd-green: #059669;
@@ -118,31 +117,27 @@
 }
 
 @keyframes glow-pulse {
-  0%, 100% { box-shadow: 0 0 8px rgba(180, 224, 53, 0.4), 0 0 20px rgba(180, 224, 53, 0.2); }
-  50%       { box-shadow: 0 0 14px rgba(180, 224, 53, 0.7), 0 0 32px rgba(180, 224, 53, 0.35); }
+  0%, 100% { box-shadow: 0 0 8px rgba(191, 255, 94, 0.4), 0 0 20px rgba(191, 255, 94, 0.2); }
+  50%       { box-shadow: 0 0 14px rgba(191, 255, 94, 0.7), 0 0 32px rgba(191, 255, 94, 0.35); }
 }
 
 @keyframes border-glow {
-  0%, 100% { border-color: rgba(180, 224, 53, 0.25); }
-  50%       { border-color: rgba(180, 224, 53, 0.55); }
+  0%, 100% { border-color: rgba(191, 255, 94, 0.25); }
+  50%       { border-color: rgba(191, 255, 94, 0.55); }
 }
 
-/* Page intro — curtain slides up and off */
 @keyframes curtain-rise {
   0%   { transform: translateY(0); }
   100% { transform: translateY(-100%); }
 }
-/* Curtain entry (starts off-screen below, slams in) */
 @keyframes curtain-slam {
   0%   { transform: translateY(100%); }
   100% { transform: translateY(0); }
 }
-/* Wordmark + tagline fade-in */
 @keyframes loader-fade-in {
   0%   { opacity: 0; transform: translateY(12px); }
   100% { opacity: 1; transform: translateY(0); }
 }
-/* Progress bar fill — 2.2s, eases into full then holds */
 @keyframes progress-fill {
   0%   { width: 0%; }
   15%  { width: 18%; }
@@ -152,23 +147,19 @@
   95%  { width: 96%; }
   100% { width: 100%; }
 }
-/* Shimmer sweep on bar */
 @keyframes shimmer-bar {
   0%   { background-position: 200% center; }
   100% { background-position: -200% center; }
 }
-/* Top nav progress bar */
 @keyframes nav-progress {
   0%   { transform: scaleX(0); }
   50%  { transform: scaleX(0.7); }
   100% { transform: scaleX(1); }
 }
-/* Page wipe — slide out left */
 @keyframes page-wipe-out {
   0%   { transform: translateX(0); opacity: 1; }
   100% { transform: translateX(-24px); opacity: 0; }
 }
-/* Page reveal — slide in from right (used for tab content + store cards) */
 @keyframes page-wipe-in {
   0%   { transform: translateX(32px); opacity: 0; }
   100% { transform: translateX(0); opacity: 1; }
@@ -188,12 +179,12 @@
   html, body {
     margin: 0;
     padding: 0;
-    background: #F4EFE4;
+    background: #fff8f0;
   }
 
   body {
     font-family: var(--font-sans);
-    color: #1A2E1A;
+    color: #1d2b1f;
     -webkit-font-smoothing: antialiased;
     text-rendering: optimizeLegibility;
     overflow-x: hidden;
@@ -205,47 +196,46 @@
     font-family: var(--font-display);
     letter-spacing: -0.02em;
     line-height: 1.12;
-    color: #1A2E1A;
+    color: #1d2b1f;
   }
 
   ::selection {
-    background: rgba(180, 224, 53, 0.28);
-    color: #1A2E1A;
+    background: rgba(191, 255, 94, 0.35);
+    color: #1d2b1f;
   }
 
   ::-webkit-scrollbar { width: 6px; height: 6px; }
   ::-webkit-scrollbar-track { background: transparent; }
   ::-webkit-scrollbar-thumb {
-    background: rgba(26, 46, 26, 0.15);
+    background: rgba(29, 43, 31, 0.2);
     border-radius: 999px;
   }
   ::-webkit-scrollbar-thumb:hover {
-    background: rgba(26, 46, 26, 0.28);
+    background: rgba(29, 43, 31, 0.35);
   }
 
   :focus-visible {
-    outline: 2px solid #B4E035;
+    outline: 2px solid #BFFF5E;
     outline-offset: 2px;
     border-radius: 2px;
   }
 
-  /* Native <select> light mode */
   select {
     color-scheme: light;
-    background-color: #FAFAF7;
-    color: #1A2E1A;
+    background-color: #fffdf9;
+    color: #1d2b1f;
   }
   select option {
-    background-color: #FAFAF7;
-    color: #1A2E1A;
+    background-color: #fffdf9;
+    color: #1d2b1f;
   }
   select option:checked,
   select option:hover {
-    background-color: #EDE8DA;
-    color: #1A2E1A;
+    background-color: #f5ede0;
+    color: #1d2b1f;
   }
   select option:disabled {
-    color: #8A9E7A;
+    color: #8a9e7a;
   }
 
   @media (prefers-reduced-motion: reduce) {
@@ -263,31 +253,31 @@
 }
 
 @layer utilities {
-  /* ---- App shell: warm cream flat background (no grid) -------------- */
+  /* ---- App shell ---------------------------------------------------- */
   .bg-app {
     position: fixed;
     inset: 0;
     z-index: -10;
-    background-color: #F4EFE4;
+    background-color: #fff8f0;
     pointer-events: none;
   }
 
-  /* ---- Hero background: cream + floating blocks (no wallpaper) ------ */
+  /* ---- Hero background ---------------------------------------------- */
   .hero-bg {
     position: absolute;
     inset: 0;
     z-index: 0;
     overflow: hidden;
     pointer-events: none;
-    background: radial-gradient(60% 50% at 50% 30%, rgba(180, 224, 53, 0.07) 0%, transparent 70%),
-                radial-gradient(40% 40% at 20% 60%, rgba(107, 127, 90, 0.05) 0%, transparent 60%);
+    background: radial-gradient(60% 50% at 50% 30%, rgba(191, 255, 94, 0.06) 0%, transparent 70%),
+                radial-gradient(40% 40% at 20% 60%, rgba(29, 43, 31, 0.03) 0%, transparent 60%);
   }
 
-  /* ---- Page header (Store, FAQ, Terms, Top Voters) ------------------ */
+  /* ---- Page header --------------------------------------------------- */
   .page-header-bg {
     position: relative;
     overflow: hidden;
-    background: linear-gradient(180deg, #EDE8DA 0%, #F4EFE4 100%);
+    background: linear-gradient(180deg, #f5ede0 0%, #fff8f0 100%);
   }
   .page-header-bg::before {
     content: '';
@@ -298,14 +288,14 @@
     background-position: center 30%;
     background-repeat: no-repeat;
     filter: brightness(0.85) saturate(0.3) sepia(0.2);
-    opacity: 0.12;
+    opacity: 0.08;
     pointer-events: none;
     z-index: 0;
   }
   .page-header-bg-w2::before { background-image: url('/wallpaper2.webp'); }
   .page-header-bg-w3::before { background-image: url('/wallpaper3.webp'); }
 
-  /* ---- Section wallpaper backgrounds (very subtle) ------------------ */
+  /* ---- Section wallpaper backgrounds -------------------------------- */
   .section-bg-w1,
   .section-bg-w2,
   .section-bg-w3 { position: relative; }
@@ -328,7 +318,7 @@
 
   /* ---- Gradient text ----------------------------------------------- */
   .text-gradient {
-    background: linear-gradient(120deg, #1A2E1A 0%, #B4E035 45%, #6B7F5A 100%);
+    background: linear-gradient(120deg, #1d2b1f 0%, #BFFF5E 45%, #4a5e3a 100%);
     -webkit-background-clip: text;
     background-clip: text;
     color: transparent;
@@ -341,9 +331,8 @@
     color: transparent;
   }
 
-  /* ---- Shimmer heading — static gradient on cream (no animation) --- */
   .text-shimmer {
-    background: linear-gradient(120deg, #1A2E1A 0%, #748F1C 40%, #B4E035 60%, #748F1C 80%, #1A2E1A 100%);
+    background: linear-gradient(120deg, #1d2b1f 0%, #5a9e10 40%, #BFFF5E 60%, #5a9e10 80%, #1d2b1f 100%);
     -webkit-background-clip: text;
     background-clip: text;
     color: transparent;
@@ -360,92 +349,113 @@
   .animate-block-float { animation: block-float 8s ease-in-out infinite; }
   .animate-block-float-slow { animation: block-float 12s ease-in-out infinite; }
 
-  /* GPU hint */
   .hw-transition {
     backface-visibility: hidden;
     transform: translateZ(0);
   }
 
-  /* ---- Glass surfaces (warm parchment) ------------------------------ */
+  /* ---- Hard-offset shadow (blocky style) ---------------------------- */
+  .shadow-hard {
+    box-shadow: 4px 4px 0px #1d2b1f;
+  }
+
+  .shadow-hard-sm {
+    box-shadow: 2px 2px 0px #1d2b1f;
+  }
+
+  /* ---- Blocky card base --------------------------------------------- */
+  .card-blocky {
+    border: 2px solid #1d2b1f;
+    border-radius: 8px;
+    background: #fffdf9;
+    box-shadow: 4px 4px 0 #1d2b1f;
+    transition: box-shadow 0.15s ease, transform 0.15s ease;
+  }
+  .card-blocky:hover {
+    transform: translate(2px, 2px);
+    box-shadow: 2px 2px 0 #1d2b1f;
+  }
+
+  /* ---- Glass surfaces (minimal — fallback for non-blocky areas) ----- */
   .glass-minimal {
-    background: rgba(250, 250, 247, 0.80);
-    border: 1px solid rgba(216, 209, 192, 0.7);
+    background: rgba(255, 253, 249, 0.90);
+    border: 1px solid rgba(29, 43, 31, 0.18);
   }
 
   .glass-frosted {
-    background: rgba(250, 250, 247, 0.85);
-    border: 1px solid rgba(216, 209, 192, 0.8);
+    background: rgba(255, 253, 249, 0.92);
+    border: 1px solid rgba(29, 43, 31, 0.20);
     backdrop-filter: blur(12px);
     -webkit-backdrop-filter: blur(12px);
   }
 
-  /* ---- Pill nav links (soil on cream) ------------------------------- */
+  /* ---- Pill nav links ----------------------------------------------- */
   .nav-pill {
     display: inline-flex;
     align-items: center;
     gap: 6px;
     padding: 5px 14px;
-    border-radius: 9999px;
-    border: 1px solid rgba(26, 46, 26, 0.14);
+    border-radius: 6px;
+    border: 1.5px solid rgba(29, 43, 31, 0.18);
     font-size: 0.75rem;
     font-weight: 600;
     font-family: var(--font-sans);
-    color: rgba(26, 46, 26, 0.70);
+    color: rgba(29, 43, 31, 0.65);
     transition: all 0.15s ease;
-    background: rgba(26, 46, 26, 0.04);
+    background: rgba(29, 43, 31, 0.03);
     letter-spacing: 0;
   }
   .nav-pill:hover {
-    border-color: rgba(26, 46, 26, 0.28);
-    background: rgba(26, 46, 26, 0.08);
-    color: #1A2E1A;
+    border-color: rgba(29, 43, 31, 0.35);
+    background: rgba(29, 43, 31, 0.07);
+    color: #1d2b1f;
   }
   .nav-pill-active {
-    border-color: rgba(180, 224, 53, 0.55);
-    background: rgba(180, 224, 53, 0.14);
-    color: #748F1C;
+    border-color: #1d2b1f;
+    background: #BFFF5E;
+    color: #1d2b1f;
+    font-weight: 700;
   }
 
-  /* ---- Online status dot (functional green — unchanged) ------------ */
+  /* ---- Online status dot (functional green) ------------------------- */
   .glow-dot-green {
     width: 8px;
     height: 8px;
     border-radius: 50%;
     background: var(--color-success);
-    box-shadow: 0 0 8px rgba(34, 197, 94, 0.7), 0 0 16px rgba(34, 197, 94, 0.35);
+    box-shadow: 0 0 6px rgba(34, 197, 94, 0.6), 0 0 12px rgba(34, 197, 94, 0.3);
     animation: pulse-dot 1.8s ease-in-out infinite;
   }
 
-  /* ---- Card hover (warm shadow + lime ring) ------------------------- */
+  /* ---- Card hover (blocky press effect) ---------------------------- */
   .card-hover {
-    transition: transform 0.2s ease, box-shadow 0.2s ease, border-color 0.2s ease;
+    transition: transform 0.15s ease, box-shadow 0.15s ease;
   }
   .card-hover:hover {
-    transform: scale(1.02) translateY(-2px);
-    box-shadow: 0 20px 40px -12px rgba(26, 46, 26, 0.12), 0 0 0 1px rgba(180, 224, 53, 0.25);
+    transform: translate(2px, 2px);
+    box-shadow: 2px 2px 0 #1d2b1f;
   }
 
-  /* ---- Online badge (green — functional, unchanged) ---------------- */
+  /* ---- Online badge ------------------------------------------------- */
   .badge-online {
-    border-color: rgba(34, 197, 94, 0.35);
-    background: rgba(34, 197, 94, 0.08);
-    box-shadow: 0 0 12px rgba(34, 197, 94, 0.15), inset 0 0 8px rgba(34, 197, 94, 0.05);
+    border-color: rgba(34, 197, 94, 0.5);
+    background: rgba(34, 197, 94, 0.1);
   }
 
-  /* ---- Pill badge -------------------------------------------------- */
+  /* ---- Pill badge --------------------------------------------------- */
   .badge-pill {
     display: inline-flex;
     align-items: center;
     gap: 4px;
     padding: 4px 12px;
-    border-radius: 9999px;
+    border-radius: 4px;
     font-size: 0.6rem;
     font-weight: 900;
     letter-spacing: 0.08em;
     text-transform: uppercase;
   }
 
-  /* ---- Logo orbit stars (lime) ------------------------------------- */
+  /* ---- Logo orbit stars --------------------------------------------- */
   .logo-orbit-wrapper {
     position: relative;
     display: inline-flex;
@@ -460,8 +470,8 @@
     width: 4px;
     height: 4px;
     border-radius: 50%;
-    background: #B4E035;
-    box-shadow: 0 0 4px #B4E035, 0 0 8px rgba(180, 224, 53, 0.5);
+    background: #BFFF5E;
+    box-shadow: 0 0 4px #BFFF5E, 0 0 8px rgba(191, 255, 94, 0.5);
     animation: orbit 3s linear infinite;
     top: 50%;
     left: 50%;

@@ -24,7 +24,7 @@ const CATS_DESC = [...SKILL_CATEGORIES].sort((a, b) => b.pricePerLevel - a.price
 const CAT_STYLES = [
   { border: 'border-rank-ravest/25', label: 'text-rank-ravest', badge: 'PREMIUM', badgeTone: 'gold', featured: true },
   { border: 'border-rank-vortex/20', label: 'text-rank-vortex', badge: null, featured: true },
-  { border: 'border-[#D8D1C0]',      label: 'text-[#4A5E3E]',  badge: 'STARTER', badgeTone: 'dim', featured: false },
+  { border: 'border-2 border-[#1d2b1f]',      label: 'text-[#4a5e3a]',  badge: 'STARTER', badgeTone: 'dim', featured: false },
 ];
 
 function SkillOrderModal({ skill, cat, open, onClose }) {
@@ -73,34 +73,34 @@ function SkillOrderModal({ skill, cat, open, onClose }) {
             <option value="">-- Pilih Platform --</option>
             {SITE.platforms.map((p) => <option key={p}>{p}</option>)}
           </SelectField>
-          {isBedrock && <p className="mt-1 text-[11px] text-[#566947]">Terdeteksi Bedrock — platform dikunci otomatis</p>}
+          {isBedrock && <p className="mt-1 text-[11px] text-[#354530]">Terdeteksi Bedrock — platform dikunci otomatis</p>}
         </div>
         <div>
           <FieldLabel required>Jumlah Level ({formatRupiah(cat.pricePerLevel)}/level)</FieldLabel>
           <div className="flex items-center gap-3">
-            <button type="button" onClick={() => setLevels((l) => Math.max(1, l - 1))} className="grid h-10 w-10 shrink-0 place-items-center rounded-xl border border-[#D8D1C0] bg-[#F0EBE0] text-[#4A5E3E] hover:border-[#B4E035]/30 hover:bg-[#E8E2D5] transition"><Minus size={16} /></button>
-            <span className="flex-1 text-center font-mono text-2xl font-bold text-[#1A2E1A]">{levels}</span>
-            <button type="button" onClick={() => setLevels((l) => Math.min(SKILL_MAX_LEVEL, l + 1))} className="grid h-10 w-10 shrink-0 place-items-center rounded-xl border border-[#D8D1C0] bg-[#F0EBE0] text-[#4A5E3E] hover:border-[#B4E035]/30 hover:bg-[#E8E2D5] transition"><Plus size={16} /></button>
+            <button type="button" onClick={() => setLevels((l) => Math.max(1, l - 1))} className="grid h-10 w-10 shrink-0 place-items-center rounded-md border border-2 border-[#1d2b1f] bg-[#f5ece0] text-[#4a5e3a] hover:border-[#BFFF5E]/30 hover:bg-[#E8E2D5] transition"><Minus size={16} /></button>
+            <span className="flex-1 text-center font-mono text-2xl font-bold text-[#1d2b1f]">{levels}</span>
+            <button type="button" onClick={() => setLevels((l) => Math.min(SKILL_MAX_LEVEL, l + 1))} className="grid h-10 w-10 shrink-0 place-items-center rounded-md border border-2 border-[#1d2b1f] bg-[#f5ece0] text-[#4a5e3a] hover:border-[#BFFF5E]/30 hover:bg-[#E8E2D5] transition"><Plus size={16} /></button>
           </div>
-          <p className="mt-1.5 text-center text-xs text-[#6B7F5A]">{formatRupiah(cat.pricePerLevel)} × {levels} level = {formatRupiah(basePrice)}</p>
+          <p className="mt-1.5 text-center text-xs text-[#4a5e3a]">{formatRupiah(cat.pricePerLevel)} × {levels} level = {formatRupiah(basePrice)}</p>
           <div className="mt-2">
-            <label className="text-[0.65rem] text-[#6B7F5A] uppercase tracking-wide mb-1 block">Quick Pick</label>
+            <label className="text-[0.65rem] text-[#4a5e3a] uppercase tracking-wide mb-1 block">Quick Pick</label>
             <div className="flex flex-wrap gap-1.5">
               {[5, 10, 20, 50, 100].map((n) => (
-                <button key={n} type="button" onClick={() => setLevels(n)} className={`rounded-lg border px-3 py-1 text-xs font-mono transition ${levels === n ? 'border-[#B4E035]/60 bg-[#B4E035]/15 text-[#748F1C]' : 'border-[#D8D1C0] bg-[#F0EBE0] text-[#6B7F5A] hover:border-[#B4E035]/30'}`}>{n}</button>
+                <button key={n} type="button" onClick={() => setLevels(n)} className={`rounded-lg border px-3 py-1 text-xs font-mono transition ${levels === n ? 'border-[#BFFF5E]/60 bg-[#BFFF5E]/15 text-[#1d2b1f]' : 'border-2 border-[#1d2b1f] bg-[#f5ece0] text-[#4a5e3a] hover:border-[#BFFF5E]/30'}`}>{n}</button>
               ))}
             </div>
           </div>
         </div>
         <DiscountCodeInput onApply={setDiscount} category="Skill Boost" />
         <PriceSummary basePrice={basePrice} discountPercent={discount} />
-        <CheckboxField checked={agreed} onChange={setAgreed}>Saya menyetujui <a href="/terms" target="_blank" className="text-[#748F1C] hover:underline">Syarat &amp; Ketentuan</a> yang berlaku.</CheckboxField>
+        <CheckboxField checked={agreed} onChange={setAgreed}>Saya menyetujui <a href="/terms" target="_blank" className="text-[#1d2b1f] hover:underline">Syarat &amp; Ketentuan</a> yang berlaku.</CheckboxField>
         <div className="flex flex-col gap-2">
           <Button fullWidth size="sm" onClick={handleQris} disabled={!playerNick} title={!playerNick ? 'Login dulu untuk melakukan order' : undefined}>
             {playerNick ? '⚡ Bayar via QRIS Otomatis' : '🔒 Login dulu untuk order'}
           </Button>
           {playerNick && (
-            <button type="button" onClick={handleWa} disabled={waLoading} className="w-full rounded-xl border border-[#D8D1C0] bg-[#F5F2EA] py-2.5 text-sm font-semibold text-[#6B7F5A] transition-all hover:border-[#B4E035]/30 hover:text-[#1A2E1A]">
+            <button type="button" onClick={handleWa} disabled={waLoading} className="w-full rounded-md border border-2 border-[#1d2b1f] bg-[#faf3e8] py-2.5 text-sm font-semibold text-[#4a5e3a] transition-all hover:border-[#BFFF5E]/30 hover:text-[#1d2b1f]">
               Lanjut via WhatsApp (Manual)
             </button>
           )}
@@ -123,7 +123,7 @@ export function SkillBoostTab() {
 
   return (
     <>
-      <p className="mb-5 text-center text-xs text-[#8A9E7A]">
+      <p className="mb-5 text-center text-xs text-[#6b7f5a]">
         Tampil dari harga tertinggi per level — semakin ke bawah semakin terjangkau
       </p>
 
@@ -135,24 +135,24 @@ export function SkillBoostTab() {
             <div
               key={cat.id}
               className={cn(
-                'overflow-hidden rounded-xl border',
+                'overflow-hidden rounded-md border',
                 style.border,
-                style.featured ? 'bg-[#F5F2EA]' : 'bg-[#FAFAF7] opacity-85',
+                style.featured ? 'bg-[#faf3e8]' : 'bg-[#fffdf9] opacity-85',
               )}
               style={{ animation: 'page-wipe-in 0.5s cubic-bezier(0.22,1,0.36,1) both', animationDelay: `${catIdx * 100}ms` }}
             >
               {/* Category header */}
               <div className={cn(
                 'flex items-center justify-between px-4 py-3 border-b',
-                style.featured ? 'border-[#D8D1C0] bg-[#EDE8DA]' : 'border-[#D8D1C0]/50',
+                style.featured ? 'border-2 border-[#1d2b1f] bg-[#f5ede0]' : 'border-2 border-[#1d2b1f]/50',
               )}>
                 <div className="flex items-center gap-2">
                   {style.badge && (
                     <span className={cn(
-                      'rounded-full border px-2 py-0.5 font-mono text-[0.6rem] font-bold uppercase tracking-wider',
+                      'rounded-md border px-2 py-0.5 font-mono text-[0.6rem] font-bold uppercase tracking-wider',
                       style.badgeTone === 'gold'
                         ? 'border-warning/30 bg-warning/10 text-warning'
-                        : 'border-[#D8D1C0] bg-[#F0EBE0] text-[#6B7F5A]',
+                        : 'border-2 border-[#1d2b1f] bg-[#f5ece0] text-[#4a5e3a]',
                     )}>
                       {style.badge}
                     </span>
@@ -161,7 +161,7 @@ export function SkillBoostTab() {
                     {cat.label}
                   </h3>
                 </div>
-                <span className={cn('font-mono text-xs font-semibold', style.featured ? 'text-[#748F1C]' : 'text-[#6B7F5A] opacity-70')}>
+                <span className={cn('font-mono text-xs font-semibold', style.featured ? 'text-[#1d2b1f]' : 'text-[#4a5e3a] opacity-70')}>
                   {formatRupiah(cat.pricePerLevel)}/level
                 </span>
               </div>
@@ -172,14 +172,14 @@ export function SkillBoostTab() {
                   <div
                     key={skill.name}
                     className={cn(
-                      'rounded-xl border p-4 transition-all duration-200',
+                      'rounded-md border p-4 transition-all duration-200',
                       style.featured
-                        ? 'border-[#D8D1C0] bg-[#FAFAF7] hover:scale-[1.015] hover:brightness-[1.02]'
-                        : 'border-[#D8D1C0]/60 bg-[#FAF8F4] hover:scale-[1.01]',
+                        ? 'border-2 border-[#1d2b1f] bg-[#fffdf9] hover:scale-[1.015] hover:brightness-[1.02]'
+                        : 'border-2 border-[#1d2b1f]/60 bg-[#fff8f0] hover:scale-[1.01]',
                     )}
                   >
                     <div className="mb-3">
-                      <h4 className={cn('font-bold text-sm', style.featured ? 'text-[#1A2E1A]' : 'text-[#4A5E3E]')}>
+                      <h4 className={cn('font-bold text-sm', style.featured ? 'text-[#1d2b1f]' : 'text-[#4a5e3a]')}>
                         {skill.name}
                       </h4>
                     </div>
@@ -188,10 +188,10 @@ export function SkillBoostTab() {
                         <span
                           key={a}
                           className={cn(
-                            'rounded-full border px-2 py-0.5 text-[0.65rem]',
+                            'rounded-md border px-2 py-0.5 text-[0.65rem]',
                             style.featured
-                              ? 'border-[#D8D1C0] bg-[#F0EBE0] text-[#6B7F5A]'
-                              : 'border-[#D8D1C0]/60 bg-[#F5F2EA] text-[#8A9E7A]',
+                              ? 'border-2 border-[#1d2b1f] bg-[#f5ece0] text-[#4a5e3a]'
+                              : 'border-2 border-[#1d2b1f]/60 bg-[#faf3e8] text-[#6b7f5a]',
                           )}
                         >
                           {a}

@@ -99,15 +99,15 @@ export function RankOrderModal({ rank, open, onClose }) {
             <option value="">-- Pilih Platform --</option>
             {SITE.platforms.map((p) => <option key={p} value={p}>{p}</option>)}
           </SelectField>
-          {isBedrock && <p className="mt-1 text-[11px] text-[#566947]">Terdeteksi Bedrock — platform dikunci otomatis</p>}
-          {isJava && <p className="mt-1 text-[11px] text-[#566947]">Terdeteksi Java (nama tanpa titik) — platform dikunci otomatis</p>}
+          {isBedrock && <p className="mt-1 text-[11px] text-[#354530]">Terdeteksi Bedrock — platform dikunci otomatis</p>}
+          {isJava && <p className="mt-1 text-[11px] text-[#354530]">Terdeteksi Java (nama tanpa titik) — platform dikunci otomatis</p>}
         </div>
 
         <div>
           <FieldLabel>
             Rank Saat Ini
-            {rankLoading && <RefreshCw size={11} className="ml-1.5 inline animate-spin text-[#8A9E7A]" />}
-            {!rankLoading && playerNick && <span className="ml-1.5 text-[0.6rem] text-[#8A9E7A]">(terdeteksi otomatis)</span>}
+            {rankLoading && <RefreshCw size={11} className="ml-1.5 inline animate-spin text-[#6b7f5a]" />}
+            {!rankLoading && playerNick && <span className="ml-1.5 text-[0.6rem] text-[#6b7f5a]">(terdeteksi otomatis)</span>}
           </FieldLabel>
           <SelectField value={ownedRank} onChange={(e) => !detectedRank && setOwnedRank(e.target.value)} disabled={rankLoading || !!detectedRank}>
             <option value="none">Belum punya rank / Member</option>
@@ -127,7 +127,7 @@ export function RankOrderModal({ rank, open, onClose }) {
               });
             })()}
           </SelectField>
-          {detectedRank && <p className="mt-1 text-[11px] text-[#566947]">Rank terdeteksi — tidak bisa pilih rank lebih rendah</p>}
+          {detectedRank && <p className="mt-1 text-[11px] text-[#354530]">Rank terdeteksi — tidak bisa pilih rank lebih rendah</p>}
         </div>
 
         <div>
@@ -139,13 +139,13 @@ export function RankOrderModal({ rank, open, onClose }) {
                 type="button"
                 onClick={() => setDuration(opt.id)}
                 className={cn(
-                  'rounded-xl border px-3 py-3 text-center transition-all',
-                  duration === opt.id ? 'border-[#B4E035]/60 bg-[#B4E035]/15' : 'border-[#D8D1C0] bg-[#F0EBE0] hover:border-[#B4E035]/30'
+                  'rounded-md border-2 px-3 py-3 text-center transition-all',
+                  duration === opt.id ? 'border-[#1d2b1f] bg-[#BFFF5E] text-[#1d2b1f]' : 'border-[#1d2b1f] bg-[#f5ece0] hover:bg-[#BFFF5E]/20'
                 )}
               >
                 {opt.badge && <span className="mb-1 block text-[0.6rem] font-bold text-warning">{opt.badge}</span>}
-                <span className="block text-sm font-bold text-[#1A2E1A]">{opt.label}</span>
-                <span className="block text-[0.65rem] text-[#6B7F5A]">{opt.sub}</span>
+                <span className="block text-sm font-bold text-[#1d2b1f]">{opt.label}</span>
+                <span className="block text-[0.65rem] text-[#4a5e3a]">{opt.sub}</span>
               </button>
             ))}
           </div>
@@ -156,7 +156,7 @@ export function RankOrderModal({ rank, open, onClose }) {
         <PriceSummary basePrice={basePrice} discountPercent={discount} />
 
         <CheckboxField checked={agreed} onChange={setAgreed}>
-          Saya menyetujui <a href="/terms" target="_blank" className="text-[#748F1C] hover:underline">Syarat &amp; Ketentuan</a> yang berlaku di AeroBlast Network.
+          Saya menyetujui <a href="/terms" target="_blank" className="text-[#1d2b1f] hover:underline">Syarat &amp; Ketentuan</a> yang berlaku di AeroBlast Network.
         </CheckboxField>
 
         <div className="flex flex-col gap-2">
@@ -169,7 +169,7 @@ export function RankOrderModal({ rank, open, onClose }) {
               type="button"
               onClick={handleWa}
               disabled={waLoading}
-              className="w-full rounded-xl border border-[#D8D1C0] bg-[#F5F2EA] py-2.5 text-sm font-semibold text-[#6B7F5A] transition-all hover:border-[#B4E035]/30 hover:text-[#1A2E1A]"
+              className="w-full rounded-md border border-2 border-[#1d2b1f] bg-[#faf3e8] py-2.5 text-sm font-semibold text-[#4a5e3a] transition-all hover:border-[#BFFF5E]/30 hover:text-[#1d2b1f]"
             >
               Lanjut via WhatsApp (Manual)
             </button>

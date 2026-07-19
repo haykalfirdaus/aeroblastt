@@ -87,26 +87,26 @@ function KeyOrderModal({ keyData, open, onClose }) {
             <option value="">-- Pilih Platform --</option>
             {SITE.platforms.map((p) => <option key={p}>{p}</option>)}
           </SelectField>
-          {isBedrock && <p className="mt-1 text-[11px] text-[#566947]">Terdeteksi Bedrock — platform dikunci otomatis</p>}
+          {isBedrock && <p className="mt-1 text-[11px] text-[#354530]">Terdeteksi Bedrock — platform dikunci otomatis</p>}
         </div>
         <div>
           <FieldLabel required>Jumlah Key</FieldLabel>
           <div className="flex items-center gap-3">
-            <button type="button" onClick={() => setQty((q) => Math.max(1, q - 1))} className="grid h-10 w-10 shrink-0 place-items-center rounded-xl border border-[#D8D1C0] bg-[#F0EBE0] text-[#6B7F5A] transition hover:border-[#B4E035]/30 hover:bg-[#E8E2D5]"><Minus size={16} /></button>
-            <span className="flex-1 text-center font-mono text-2xl font-bold text-[#1A2E1A]">{qty}x</span>
-            <button type="button" onClick={() => setQty((q) => Math.min(999, q + 1))} className="grid h-10 w-10 shrink-0 place-items-center rounded-xl border border-[#D8D1C0] bg-[#F0EBE0] text-[#6B7F5A] transition hover:border-[#B4E035]/30 hover:bg-[#E8E2D5]"><Plus size={16} /></button>
+            <button type="button" onClick={() => setQty((q) => Math.max(1, q - 1))} className="grid h-10 w-10 shrink-0 place-items-center rounded-md border border-2 border-[#1d2b1f] bg-[#f5ece0] text-[#4a5e3a] transition hover:border-[#BFFF5E]/30 hover:bg-[#E8E2D5]"><Minus size={16} /></button>
+            <span className="flex-1 text-center font-mono text-2xl font-bold text-[#1d2b1f]">{qty}x</span>
+            <button type="button" onClick={() => setQty((q) => Math.min(999, q + 1))} className="grid h-10 w-10 shrink-0 place-items-center rounded-md border border-2 border-[#1d2b1f] bg-[#f5ece0] text-[#4a5e3a] transition hover:border-[#BFFF5E]/30 hover:bg-[#E8E2D5]"><Plus size={16} /></button>
           </div>
-          <p className="mt-1.5 text-center text-xs text-[#6B7F5A]">{formatRupiah(keyData.price)} × {qty} = {formatRupiah(basePrice)}</p>
+          <p className="mt-1.5 text-center text-xs text-[#4a5e3a]">{formatRupiah(keyData.price)} × {qty} = {formatRupiah(basePrice)}</p>
         </div>
         <DiscountCodeInput onApply={setDiscount} category="Gacha Key" />
         <PriceSummary basePrice={basePrice} discountPercent={discount} />
-        <CheckboxField checked={agreed} onChange={setAgreed}>Saya menyetujui <a href="/terms" target="_blank" className="text-[#748F1C] hover:underline">Syarat &amp; Ketentuan</a> yang berlaku.</CheckboxField>
+        <CheckboxField checked={agreed} onChange={setAgreed}>Saya menyetujui <a href="/terms" target="_blank" className="text-[#1d2b1f] hover:underline">Syarat &amp; Ketentuan</a> yang berlaku.</CheckboxField>
         <div className="flex flex-col gap-2">
           <Button fullWidth size="sm" onClick={handleQris} disabled={!playerNick} title={!playerNick ? 'Login dulu untuk melakukan order' : undefined}>
             {playerNick ? '⚡ Bayar via QRIS Otomatis' : '🔒 Login dulu untuk order'}
           </Button>
           {playerNick && (
-            <button type="button" onClick={handleWa} disabled={waLoading} className="w-full rounded-xl border border-[#D8D1C0] bg-[#F5F2EA] py-2.5 text-sm font-semibold text-[#6B7F5A] transition-all hover:border-[#B4E035]/30 hover:text-[#1A2E1A]">
+            <button type="button" onClick={handleWa} disabled={waLoading} className="w-full rounded-md border border-2 border-[#1d2b1f] bg-[#faf3e8] py-2.5 text-sm font-semibold text-[#4a5e3a] transition-all hover:border-[#BFFF5E]/30 hover:text-[#1d2b1f]">
               Lanjut via WhatsApp (Manual)
             </button>
           )}
@@ -129,7 +129,7 @@ export function GachaKeysTab() {
 
   return (
     <>
-      <p className="mb-4 text-center text-xs text-[#8A9E7A]">
+      <p className="mb-4 text-center text-xs text-[#6b7f5a]">
         Tampil dari harga tertinggi — semakin ke bawah semakin terjangkau
       </p>
       <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
@@ -141,10 +141,10 @@ export function GachaKeysTab() {
             <div
               key={k.key}
               className={cn(
-                'group relative flex flex-col overflow-hidden rounded-xl border transition-all duration-200',
+                'group relative flex flex-col overflow-hidden rounded-md border transition-all duration-200',
                 tier.featured
-                  ? 'border-[#D8D1C0] bg-[#F5F2EA] hover:scale-[1.015] hover:brightness-105'
-                  : 'border-[#D8D1C0]/60 bg-[#FAFAF7] hover:scale-[1.01]',
+                  ? 'border-2 border-[#1d2b1f] bg-[#faf3e8] hover:scale-[1.015] hover:brightness-105'
+                  : 'border-2 border-[#1d2b1f]/60 bg-[#fffdf9] hover:scale-[1.01]',
                 tier.opacity,
               )}
               style={{ '--accent': `var(--color-${tone})`, animation: 'page-wipe-in 0.5s cubic-bezier(0.22,1,0.36,1) both', animationDelay: `${idx * 80}ms` }}
@@ -162,22 +162,22 @@ export function GachaKeysTab() {
                 )}
 
                 <div
-                  className="grid h-12 w-12 place-items-center rounded-xl border border-[#D8D1C0] bg-[#F0EBE0]"
+                  className="grid h-12 w-12 place-items-center rounded-md border border-2 border-[#1d2b1f] bg-[#f5ece0]"
                   style={{ boxShadow: tier.glow ? `0 0 20px -4px var(--accent)` : undefined }}
                 >
                   <Icon name={k.icon} size={22} className={cn('text-[var(--accent)]', !tier.featured && 'opacity-70')} />
                 </div>
 
                 <div>
-                  <h3 className={cn('font-display text-sm font-bold', tier.featured ? 'text-[#1A2E1A]' : 'text-[#4A5E3E]')}>
+                  <h3 className={cn('font-display text-sm font-bold', tier.featured ? 'text-[#1d2b1f]' : 'text-[#4a5e3a]')}>
                     {k.name}
                   </h3>
-                  <p className={cn('font-mono font-bold text-[#748F1C]', tier.priceSize, !tier.featured && 'opacity-70')}>
-                    {formatRupiah(k.price)}<span className="text-xs text-[#6B7F5A] font-normal"> / key</span>
+                  <p className={cn('font-mono font-bold text-[#1d2b1f]', tier.priceSize, !tier.featured && 'opacity-70')}>
+                    {formatRupiah(k.price)}<span className="text-xs text-[#4a5e3a] font-normal"> / key</span>
                   </p>
                 </div>
 
-                <p className={cn('text-xs', tier.featured ? 'text-[#4A5E3E]' : 'text-[#6B7F5A]')}>
+                <p className={cn('text-xs', tier.featured ? 'text-[#4a5e3a]' : 'text-[#4a5e3a]')}>
                   {k.description}
                 </p>
 

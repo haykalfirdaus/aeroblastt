@@ -87,7 +87,7 @@ function CommandOrderModal({ cmd, open, onClose }) {
             <option value="">-- Pilih Platform --</option>
             {SITE.platforms.map((p) => <option key={p}>{p}</option>)}
           </SelectField>
-          {isBedrock && <p className="mt-1 text-[11px] text-[#566947]">Terdeteksi Bedrock — platform dikunci otomatis</p>}
+          {isBedrock && <p className="mt-1 text-[11px] text-[#354530]">Terdeteksi Bedrock — platform dikunci otomatis</p>}
         </div>
         <div>
           <FieldLabel required>Durasi</FieldLabel>
@@ -97,12 +97,12 @@ function CommandOrderModal({ cmd, open, onClose }) {
                 key={opt.id}
                 type="button"
                 onClick={() => setDuration(opt.id)}
-                className={cn('rounded-xl border px-3 py-2.5 text-center transition-all', duration === opt.id ? 'border-[#B4E035]/60 bg-[#B4E035]/15' : 'border-[#D8D1C0] bg-[#F0EBE0] hover:border-[#B4E035]/25')}
+                className={cn('rounded-md border px-3 py-2.5 text-center transition-all', duration === opt.id ? 'border-[#BFFF5E]/60 bg-[#BFFF5E]/15' : 'border-2 border-[#1d2b1f] bg-[#f5ece0] hover:border-[#BFFF5E]/25')}
               >
                 {opt.badge && <span className="mb-1 block text-[0.6rem] font-bold text-warning">{opt.badge}</span>}
-                <span className="block text-xs font-bold text-[#1A2E1A]">{opt.label}</span>
-                <span className="block text-[0.6rem] text-[#6B7F5A]">{opt.sub}</span>
-                <span className="mt-1 block font-mono text-xs font-semibold text-[#748F1C]">{formatRupiah(Math.round(cmd.basePrice * opt.percentOfBase / 100))}</span>
+                <span className="block text-xs font-bold text-[#1d2b1f]">{opt.label}</span>
+                <span className="block text-[0.6rem] text-[#4a5e3a]">{opt.sub}</span>
+                <span className="mt-1 block font-mono text-xs font-semibold text-[#1d2b1f]">{formatRupiah(Math.round(cmd.basePrice * opt.percentOfBase / 100))}</span>
               </button>
             ))}
           </div>
@@ -110,14 +110,14 @@ function CommandOrderModal({ cmd, open, onClose }) {
         <DiscountCodeInput onApply={setDiscount} />
         <PriceSummary basePrice={basePrice} discountPercent={discount} />
         <CheckboxField checked={agreed} onChange={setAgreed}>
-          Saya menyetujui <a href="/terms" target="_blank" className="text-[#748F1C] hover:underline">Syarat &amp; Ketentuan</a> yang berlaku.
+          Saya menyetujui <a href="/terms" target="_blank" className="text-[#1d2b1f] hover:underline">Syarat &amp; Ketentuan</a> yang berlaku.
         </CheckboxField>
         <div className="flex flex-col gap-2">
           <Button fullWidth size="sm" onClick={handleQris} disabled={!playerNick} title={!playerNick ? 'Login dulu untuk melakukan order' : undefined}>
             {playerNick ? '⚡ Bayar via QRIS Otomatis' : '🔒 Login dulu untuk order'}
           </Button>
           {playerNick && (
-            <button type="button" onClick={handleWa} disabled={waLoading} className="w-full rounded-xl border border-[#D8D1C0] bg-[#F5F2EA] py-2.5 text-sm font-semibold text-[#6B7F5A] transition-all hover:border-[#B4E035]/30 hover:text-[#1A2E1A]">
+            <button type="button" onClick={handleWa} disabled={waLoading} className="w-full rounded-md border border-2 border-[#1d2b1f] bg-[#faf3e8] py-2.5 text-sm font-semibold text-[#4a5e3a] transition-all hover:border-[#BFFF5E]/30 hover:text-[#1d2b1f]">
               Lanjut via WhatsApp (Manual)
             </button>
           )}
@@ -141,7 +141,7 @@ export function CommandsTab() {
 
   return (
     <>
-      <p className="mb-4 text-center text-xs text-[#8A9E7A]">
+      <p className="mb-4 text-center text-xs text-[#6b7f5a]">
         Tampil dari harga tertinggi — semakin ke bawah semakin terjangkau
       </p>
       <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-4">
@@ -152,10 +152,10 @@ export function CommandsTab() {
             <div
               key={cmd.key}
               className={cn(
-                'group relative flex flex-col overflow-hidden rounded-xl border transition-all duration-200',
+                'group relative flex flex-col overflow-hidden rounded-md border transition-all duration-200',
                 tier.featured
-                  ? 'border-[#D8D1C0] bg-[#F5F2EA] hover:scale-[1.015] hover:brightness-[1.02]'
-                  : 'border-[#D8D1C0]/60 bg-[#FAFAF7] hover:scale-[1.01]',
+                  ? 'border-2 border-[#1d2b1f] bg-[#faf3e8] hover:scale-[1.015] hover:brightness-[1.02]'
+                  : 'border-2 border-[#1d2b1f]/60 bg-[#fffdf9] hover:scale-[1.01]',
                 tier.opacity,
               )}
               style={{ animation: 'page-wipe-in 0.5s cubic-bezier(0.22,1,0.36,1) both', animationDelay: `${idx * 55}ms` }}
@@ -164,7 +164,7 @@ export function CommandsTab() {
               <span
                 aria-hidden="true"
                 className="absolute inset-x-0 top-0 h-px"
-                style={{ background: 'linear-gradient(90deg, transparent, #B4E035, transparent)', opacity: tier.featured ? 0.5 : 0.15 }}
+                style={{ background: 'linear-gradient(90deg, transparent, #BFFF5E, transparent)', opacity: tier.featured ? 0.5 : 0.15 }}
               />
 
               <div className="flex flex-col gap-2.5 p-4">
@@ -173,38 +173,38 @@ export function CommandsTab() {
 
                 <div className="flex items-center gap-2.5">
                   <div className={cn(
-                    'grid h-9 w-9 shrink-0 place-items-center rounded-xl border',
-                    tier.featured ? 'border-[#B4E035]/25 bg-[#B4E035]/10' : 'border-[#D8D1C0] bg-[#F0EBE0]',
+                    'grid h-9 w-9 shrink-0 place-items-center rounded-md border',
+                    tier.featured ? 'border-[#BFFF5E]/25 bg-[#BFFF5E]/10' : 'border-2 border-[#1d2b1f] bg-[#f5ece0]',
                   )}>
                     <Icon
                       name={cmd.icon}
                       size={17}
-                      className={cn(tier.featured ? 'text-[#748F1C]' : 'text-[#6B7F5A]')}
-                      style={tier.glow ? { filter: 'drop-shadow(0 0 6px #B4E035)' } : undefined}
+                      className={cn(tier.featured ? 'text-[#1d2b1f]' : 'text-[#4a5e3a]')}
+                      style={tier.glow ? { filter: 'drop-shadow(0 0 6px #BFFF5E)' } : undefined}
                     />
                   </div>
                   <div className="min-w-0">
-                    <p className={cn('font-mono text-xs font-bold truncate', tier.featured ? 'text-[#1A2E1A]' : 'text-[#4A5E3E]')}>
+                    <p className={cn('font-mono text-xs font-bold truncate', tier.featured ? 'text-[#1d2b1f]' : 'text-[#4a5e3a]')}>
                       {cmd.command}
                     </p>
-                    <p className="text-[0.65rem] text-[#6B7F5A]">{cmd.name}</p>
+                    <p className="text-[0.65rem] text-[#4a5e3a]">{cmd.name}</p>
                   </div>
                 </div>
 
-                <p className={cn('line-clamp-2 text-[0.7rem] leading-relaxed', tier.featured ? 'text-[#4A5E3E]' : 'text-[#8A9E7A]')}>
+                <p className={cn('line-clamp-2 text-[0.7rem] leading-relaxed', tier.featured ? 'text-[#4a5e3a]' : 'text-[#6b7f5a]')}>
                   {cmd.description}
                 </p>
 
                 {cmd.bundleItems && (
                   <div className="flex flex-wrap gap-1">
                     {cmd.bundleItems.map((b) => (
-                      <span key={b} className="rounded-full border border-[#6B7F5A]/25 bg-[#6B7F5A]/8 px-1.5 py-0.5 text-[0.6rem] text-[#566947]">{b}</span>
+                      <span key={b} className="rounded-md border border-[#4a5e3a]/25 bg-[#4a5e3a]/8 px-1.5 py-0.5 text-[0.6rem] text-[#354530]">{b}</span>
                     ))}
                   </div>
                 )}
 
                 <div className="mt-auto pt-1">
-                  <p className={cn('mb-1.5 font-mono font-bold text-[#748F1C]', tier.priceSize, !tier.featured && 'opacity-75')}>
+                  <p className={cn('mb-1.5 font-mono font-bold text-[#1d2b1f]', tier.priceSize, !tier.featured && 'opacity-75')}>
                     {formatRupiah(cmd.basePrice)}
                   </p>
                   <Button

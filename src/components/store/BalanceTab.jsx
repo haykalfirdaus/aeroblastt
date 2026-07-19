@@ -62,9 +62,9 @@ function BalanceOrderModal({ open, onClose, initialRupiah = 0 }) {
     <Modal open={open} onClose={onClose} title="Top-Up Balance" badge="IN-GAME BALANCE">
       <div className="mt-6 flex flex-col gap-4">
         <CountdownBanner open={open} />
-        <div className="rounded-xl border border-[#B4E035]/20 bg-[#B4E035]/8 p-4 text-center">
-          <p className="text-xs text-[#6B7F5A] mb-1">Kurs: Rp 1 = {BALANCE_RATE} Balance</p>
-          <p className="font-mono text-2xl font-bold text-[#748F1C]">{formatNumber(balance)} <span className="text-sm font-normal text-[#6B7F5A]">Balance</span></p>
+        <div className="rounded-md border border-[#BFFF5E]/20 bg-[#BFFF5E]/8 p-4 text-center">
+          <p className="text-xs text-[#4a5e3a] mb-1">Kurs: Rp 1 = {BALANCE_RATE} Balance</p>
+          <p className="font-mono text-2xl font-bold text-[#1d2b1f]">{formatNumber(balance)} <span className="text-sm font-normal text-[#4a5e3a]">Balance</span></p>
         </div>
         <div><FieldLabel required>Nickname</FieldLabel><TextField value={playerNick || nick} onChange={(e) => !playerNick && setNick(e.target.value)} placeholder={playerNick ? '' : 'Username in-game'} readOnly={!!playerNick} /></div>
         <div>
@@ -73,12 +73,12 @@ function BalanceOrderModal({ open, onClose, initialRupiah = 0 }) {
             <option value="">-- Pilih Platform --</option>
             {SITE.platforms.map((p) => <option key={p}>{p}</option>)}
           </SelectField>
-          {isBedrock && <p className="mt-1 text-[11px] text-[#566947]">Terdeteksi Bedrock — platform dikunci otomatis</p>}
+          {isBedrock && <p className="mt-1 text-[11px] text-[#354530]">Terdeteksi Bedrock — platform dikunci otomatis</p>}
         </div>
         <div>
           <FieldLabel required>Jumlah Rupiah</FieldLabel>
           <div className="relative">
-            <span className="absolute left-3.5 top-1/2 -translate-y-1/2 text-sm font-semibold text-[#6B7F5A]">Rp</span>
+            <span className="absolute left-3.5 top-1/2 -translate-y-1/2 text-sm font-semibold text-[#4a5e3a]">Rp</span>
             <input
               type="number"
               min={5000}
@@ -86,19 +86,19 @@ function BalanceOrderModal({ open, onClose, initialRupiah = 0 }) {
               value={rupiahInput}
               onChange={(e) => setRupiahInput(e.target.value)}
               placeholder="5000"
-              className="w-full rounded-xl border border-[#D8D1C0] bg-[#FAFAF7] pl-10 pr-4 py-3 font-mono text-sm text-[#1A2E1A] placeholder:text-[#8A9E7A] outline-none transition-colors focus:border-[#B4E035]/60 focus:ring-2 focus:ring-[#B4E035]/15"
+              className="w-full rounded-md border border-2 border-[#1d2b1f] bg-[#fffdf9] pl-10 pr-4 py-3 font-mono text-sm text-[#1d2b1f] placeholder:text-[#6b7f5a] outline-none transition-colors focus:border-[#BFFF5E]/60 focus:ring-2 focus:ring-[#BFFF5E]/15"
             />
           </div>
         </div>
         <DiscountCodeInput onApply={setDiscount} category="Balance" />
         <PriceSummary basePrice={rupiah} discountPercent={discount} />
-        <CheckboxField checked={agreed} onChange={setAgreed}>Saya menyetujui <a href="/terms" target="_blank" className="text-[#748F1C] hover:underline">Syarat &amp; Ketentuan</a> yang berlaku.</CheckboxField>
+        <CheckboxField checked={agreed} onChange={setAgreed}>Saya menyetujui <a href="/terms" target="_blank" className="text-[#1d2b1f] hover:underline">Syarat &amp; Ketentuan</a> yang berlaku.</CheckboxField>
         <div className="flex flex-col gap-2">
           <Button fullWidth size="sm" onClick={handleQris} disabled={!playerNick} title={!playerNick ? 'Login dulu untuk melakukan order' : undefined}>
             {playerNick ? '⚡ Bayar via QRIS Otomatis' : '🔒 Login dulu untuk order'}
           </Button>
           {playerNick && (
-            <button type="button" onClick={handleWa} disabled={waLoading} className="w-full rounded-xl border border-[#D8D1C0] bg-[#F5F2EA] py-2.5 text-sm font-semibold text-[#6B7F5A] transition-all hover:border-[#B4E035]/30 hover:text-[#1A2E1A]">
+            <button type="button" onClick={handleWa} disabled={waLoading} className="w-full rounded-md border border-2 border-[#1d2b1f] bg-[#faf3e8] py-2.5 text-sm font-semibold text-[#4a5e3a] transition-all hover:border-[#BFFF5E]/30 hover:text-[#1d2b1f]">
               Lanjut via WhatsApp (Manual)
             </button>
           )}
@@ -145,20 +145,20 @@ export function BalanceTab() {
       <div className="mx-auto max-w-2xl" style={{ animation: 'page-wipe-in 0.45s cubic-bezier(0.22,1,0.36,1) both' }}>
         <GlassCard className="p-5 sm:p-6">
           <div className="mb-5 flex items-center gap-3">
-            <div className="grid h-10 w-10 place-items-center rounded-xl border border-[#B4E035]/25 bg-[#B4E035]/10">
-              <Coins size={20} className="text-[#748F1C]" />
+            <div className="grid h-10 w-10 place-items-center rounded-md border border-[#BFFF5E]/25 bg-[#BFFF5E]/10">
+              <Coins size={20} className="text-[#1d2b1f]" />
             </div>
             <div>
-              <h3 className="font-display text-base font-bold text-[#1A2E1A]">Top-Up Balance</h3>
-              <p className="text-xs text-[#6B7F5A]">Kurs: Rp 1 = {BALANCE_RATE} Balance</p>
+              <h3 className="font-display text-base font-bold text-[#1d2b1f]">Top-Up Balance</h3>
+              <p className="text-xs text-[#4a5e3a]">Kurs: Rp 1 = {BALANCE_RATE} Balance</p>
             </div>
           </div>
 
           <div className="mb-1 flex items-center justify-between">
-            <p className="text-[0.65rem] font-semibold uppercase tracking-wider text-[#6B7F5A]">Quick Pick</p>
-            <p className="text-[0.65rem] text-[#8A9E7A]">Tampil dari terbesar</p>
+            <p className="text-[0.65rem] font-semibold uppercase tracking-wider text-[#4a5e3a]">Quick Pick</p>
+            <p className="text-[0.65rem] text-[#6b7f5a]">Tampil dari terbesar</p>
           </div>
-          <p className="mb-3 text-[0.6rem] text-[#8A9E7A]">Semakin ke bawah semakin terjangkau</p>
+          <p className="mb-3 text-[0.6rem] text-[#6b7f5a]">Semakin ke bawah semakin terjangkau</p>
 
           <div className="mb-5 grid grid-cols-2 gap-2.5 sm:grid-cols-3">
             {PICKS_DESC.map(({ rupiah, popular }, idx) => {
@@ -172,28 +172,28 @@ export function BalanceTab() {
                   title={!nick ? 'Login dulu untuk order' : undefined}
                   style={{ animation: 'page-wipe-in 0.45s cubic-bezier(0.22,1,0.36,1) both', animationDelay: `${idx * 55}ms` }}
                   className={cn(
-                    'relative overflow-hidden rounded-xl border px-4 py-4 text-center transition-all',
+                    'relative overflow-hidden rounded-md border px-4 py-4 text-center transition-all',
                     tier.featured
-                      ? 'border-[#B4E035]/30 bg-[#B4E035]/8 hover:-translate-y-0.5 hover:brightness-105'
-                      : 'border-[#D8D1C0]/60 bg-[#FAFAF7] hover:border-[#D8D1C0]',
+                      ? 'border-[#BFFF5E]/30 bg-[#BFFF5E]/8 hover:-translate-y-0.5 hover:brightness-105'
+                      : 'border-2 border-[#1d2b1f]/60 bg-[#fffdf9] hover:border-2 border-[#1d2b1f]',
                     tier.opacity,
                     !nick && 'cursor-not-allowed opacity-50',
                   )}
                 >
                   {popular && (
-                    <span className="absolute right-0 top-0 rounded-bl-lg bg-[#9CC81E] px-2 py-0.5 text-[0.6rem] font-bold text-[#1A2E1A]">
+                    <span className="absolute right-0 top-0 rounded-bl-lg bg-[#9CC81E] px-2 py-0.5 text-[0.6rem] font-bold text-[#1d2b1f]">
                       POPULAR
                     </span>
                   )}
                   {tier.isTop && (
-                    <span className="absolute left-0 top-0 rounded-br-lg bg-warning/80 px-2 py-0.5 text-[0.6rem] font-bold text-[#1A2E1A]">
+                    <span className="absolute left-0 top-0 rounded-br-lg bg-warning/80 px-2 py-0.5 text-[0.6rem] font-bold text-[#1d2b1f]">
                       MAX VALUE
                     </span>
                   )}
-                  <p className={cn('font-mono font-bold', tier.priceSize, tier.featured ? 'text-[#1A2E1A]' : 'text-[#4A5E3E]')}>
+                  <p className={cn('font-mono font-bold', tier.priceSize, tier.featured ? 'text-[#1d2b1f]' : 'text-[#4a5e3a]')}>
                     {formatRupiah(rupiah)}
                   </p>
-                  <p className={cn('text-[0.65rem]', tier.featured ? 'text-[#6B7F5A]' : 'text-[#8A9E7A]')}>
+                  <p className={cn('text-[0.65rem]', tier.featured ? 'text-[#4a5e3a]' : 'text-[#6b7f5a]')}>
                     {formatNumber(rupiah * BALANCE_RATE)} Balance
                   </p>
                 </button>

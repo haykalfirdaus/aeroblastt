@@ -29,16 +29,16 @@ export function FeaturesSection() {
               data-aos-duration="800"
             >
               <div className="flex flex-col gap-3 p-5">
-                <div className="flex h-10 w-10 items-center justify-center rounded-xl border border-[#B4E035]/30 bg-[#B4E035]/10 shadow-[0_0_16px_-4px_rgba(180,224,53,0.3)]">
-                  <Icon name={feature.icon} size={18} className="text-[#748F1C]" />
+                <div className="flex h-10 w-10 items-center justify-center rounded-md border border-[#BFFF5E]/30 bg-[#BFFF5E]/10 shadow-[0_0_16px_-4px_rgba(180,224,53,0.3)]">
+                  <Icon name={feature.icon} size={18} className="text-[#1d2b1f]" />
                 </div>
                 <div>
-                  <h3 className="mb-1 text-sm font-bold text-[#1A2E1A]">{feature.title}</h3>
-                  <p className="text-[0.72rem] leading-relaxed text-[#6B7F5A]">{feature.description}</p>
+                  <h3 className="mb-1 text-sm font-bold text-[#1d2b1f]">{feature.title}</h3>
+                  <p className="text-[0.72rem] leading-relaxed text-[#4a5e3a]">{feature.description}</p>
                 </div>
                 <div className="flex flex-wrap gap-1.5">
                   {feature.tags.map((tag) => (
-                    <span key={tag} className="badge-pill border border-[#B4E035]/35 bg-[#B4E035]/10 text-[#748F1C]">
+                    <span key={tag} className="badge-pill border border-[#BFFF5E]/35 bg-[#BFFF5E]/10 text-[#1d2b1f]">
                       {tag}
                     </span>
                   ))}

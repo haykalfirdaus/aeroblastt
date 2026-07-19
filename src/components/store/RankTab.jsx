@@ -18,9 +18,9 @@ const RANKS_DESC = [...RANKS].reverse();
 const TIER_STYLES = {
   // Universe — most expensive, ultra premium
   0: {
-    border: 'border-[#B4E035]/50',
+    border: 'border-[#BFFF5E]/50',
     glow: 'shadow-[0_0_40px_-6px_rgba(180,224,53,0.35)]',
-    ring: 'ring-1 ring-[#B4E035]/30',
+    ring: 'ring-1 ring-[#BFFF5E]/30',
     badge: 'ULTIMATE',
     badgeTone: 'gold',
     bg: 'bg-[#EEF5D8]',
@@ -29,9 +29,9 @@ const TIER_STYLES = {
   },
   // Galatics
   1: {
-    border: 'border-[#B4E035]/40',
+    border: 'border-[#BFFF5E]/40',
     glow: 'shadow-[0_0_30px_-6px_rgba(180,224,53,0.28)]',
-    ring: 'ring-1 ring-[#B4E035]/20',
+    ring: 'ring-1 ring-[#BFFF5E]/20',
     badge: null,
     bg: 'bg-[#EEF5D8]',
     priceClass: 'text-lg',
@@ -39,9 +39,9 @@ const TIER_STYLES = {
   },
   // Quantum
   2: {
-    border: 'border-[#B4E035]/35',
+    border: 'border-[#BFFF5E]/35',
     glow: 'shadow-[0_0_24px_-6px_rgba(180,224,53,0.22)]',
-    ring: 'ring-1 ring-[#B4E035]/15',
+    ring: 'ring-1 ring-[#BFFF5E]/15',
     badge: null,
     bg: 'bg-[#F1F6DC]',
     priceClass: 'text-base',
@@ -49,9 +49,9 @@ const TIER_STYLES = {
   },
   // Vortex
   3: {
-    border: 'border-[#B4E035]/30',
+    border: 'border-[#BFFF5E]/30',
     glow: 'shadow-[0_0_20px_-6px_rgba(180,224,53,0.18)]',
-    ring: 'ring-1 ring-[#B4E035]/12',
+    ring: 'ring-1 ring-[#BFFF5E]/12',
     badge: 'POPULAR',
     badgeTone: 'neon',
     bg: 'bg-[#F1F6DC]',
@@ -60,7 +60,7 @@ const TIER_STYLES = {
   },
   // Ravest
   4: {
-    border: 'border-[#D8D1C0]',
+    border: 'border-2 border-[#1d2b1f]',
     glow: '',
     ring: '',
     badge: null,
@@ -70,32 +70,32 @@ const TIER_STYLES = {
   },
   // Orbiter
   5: {
-    border: 'border-[#D8D1C0]',
+    border: 'border-2 border-[#1d2b1f]',
     glow: '',
     ring: '',
     badge: null,
-    bg: 'bg-[#FAFAF7]',
+    bg: 'bg-[#fffdf9]',
     priceClass: 'text-sm',
     featured: false,
   },
   // Voyager
   6: {
-    border: 'border-[#D8D1C0]/70',
+    border: 'border-2 border-[#1d2b1f]/70',
     glow: '',
     ring: '',
     badge: null,
-    bg: 'bg-[#FAFAF7]',
+    bg: 'bg-[#fffdf9]',
     priceClass: 'text-sm',
     featured: false,
   },
   // Scout — cheapest
   7: {
-    border: 'border-[#D8D1C0]/50',
+    border: 'border-2 border-[#1d2b1f]/50',
     glow: '',
     ring: '',
     badge: 'STARTER',
     badgeTone: 'dim',
-    bg: 'bg-[#FAFAF7]',
+    bg: 'bg-[#fffdf9]',
     priceClass: 'text-sm',
     featured: false,
   },
@@ -111,7 +111,7 @@ export function RankTab() {
   return (
     <>
       {/* Anchoring hint */}
-      <p className="mb-4 text-center text-xs text-[#8A9E7A]">
+      <p className="mb-4 text-center text-xs text-[#6b7f5a]">
         Tampil dari harga tertinggi — semakin ke bawah semakin terjangkau
       </p>
 
@@ -129,7 +129,7 @@ export function RankTab() {
             <div
               key={rank.key}
               className={cn(
-                'group relative flex flex-col overflow-hidden rounded-xl border transition-all duration-200 hw-transition',
+                'group relative flex flex-col overflow-hidden rounded-md border transition-all duration-200 hw-transition',
                 tier.border,
                 tier.glow,
                 tier.ring,
@@ -144,7 +144,7 @@ export function RankTab() {
                 aria-hidden="true"
                 className="absolute inset-x-0 top-0 h-px"
                 style={{
-                  background: 'linear-gradient(90deg, transparent, #B4E035, transparent)',
+                  background: 'linear-gradient(90deg, transparent, #BFFF5E, transparent)',
                   opacity: isFeatured ? 0.7 : 0.2,
                 }}
               />
@@ -154,7 +154,7 @@ export function RankTab() {
                 <div
                   aria-hidden="true"
                   className="pointer-events-none absolute inset-0 opacity-[0.06]"
-                  style={{ background: 'linear-gradient(135deg, #B4E035, #748F1C)' }}
+                  style={{ background: 'linear-gradient(135deg, #BFFF5E, #1d2b1f)' }}
                 />
               )}
 
@@ -173,24 +173,24 @@ export function RankTab() {
                 {/* Icon + name */}
                 <div className="mb-3 flex flex-col items-center gap-2 text-center">
                   <div
-                    className="grid h-11 w-11 place-items-center rounded-xl border border-[#D8D1C0] bg-[#EEF5D8]"
+                    className="grid h-11 w-11 place-items-center rounded-md border border-2 border-[#1d2b1f] bg-[#EEF5D8]"
                     style={{ boxShadow: isFeatured ? '0 0 18px -4px rgba(180,224,53,0.5)' : undefined }}
                   >
                     <Icon
                       name={rank.icon}
                       size={22}
-                      className={cn(isFeatured ? 'text-[#748F1C]' : 'text-[#8A9E7A]')}
+                      className={cn(isFeatured ? 'text-[#1d2b1f]' : 'text-[#6b7f5a]')}
                     />
                   </div>
                   <div>
                     <h3 className={cn(
                       'font-display text-sm font-bold',
-                      isUltimate ? 'text-gradient' : isFeatured ? 'text-[#1A2E1A]' : 'text-[#4A5E3E]',
+                      isUltimate ? 'text-gradient' : isFeatured ? 'text-[#1d2b1f]' : 'text-[#4a5e3a]',
                     )}>
                       {rank.name}
                     </h3>
                     <p
-                      className={cn('font-mono font-bold', tier.priceClass, isFeatured ? 'text-[#748F1C]' : 'text-[#8A9E7A]')}
+                      className={cn('font-mono font-bold', tier.priceClass, isFeatured ? 'text-[#1d2b1f]' : 'text-[#6b7f5a]')}
                     >
                       {formatRupiah(rank.price)}
                     </p>
@@ -202,9 +202,9 @@ export function RankTab() {
                   {rank.features.map((f) => (
                     <li key={f} className={cn(
                       'flex items-start gap-1.5 text-[0.7rem]',
-                      isFeatured ? 'text-[#4A5E3E]' : 'text-[#6B7F5A]',
+                      isFeatured ? 'text-[#4a5e3a]' : 'text-[#4a5e3a]',
                     )}>
-                      <Check size={10} className={cn('mt-0.5 shrink-0', isFeatured ? 'text-success-bright' : 'text-[#8A9E7A]')} />
+                      <Check size={10} className={cn('mt-0.5 shrink-0', isFeatured ? 'text-success-bright' : 'text-[#6b7f5a]')} />
                       <span>{f}</span>
                     </li>
                   ))}
@@ -239,7 +239,7 @@ export function RankTab() {
                     disabled={!nick}
                     title={!nick ? 'Login dulu untuk order' : undefined}
                     className={cn(
-                      isUltimate && nick && 'ring-2 ring-[#B4E035]/40',
+                      isUltimate && nick && 'ring-2 ring-[#BFFF5E]/40',
                       !isFeatured && 'opacity-75',
                     )}
                   >

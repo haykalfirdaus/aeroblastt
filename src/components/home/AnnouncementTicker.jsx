@@ -47,7 +47,7 @@ export function AnnouncementTicker() {
     <div
       role="marquee"
       aria-label="Ticker pengumuman server"
-      className="overflow-hidden border-y border-[#B4E035]/25 bg-[#B4E035]/[0.05] py-3"
+      className="overflow-hidden border-y border-[#BFFF5E]/25 bg-[#BFFF5E]/[0.05] py-3"
     >
       <div
         className="marquee-track flex w-max items-center gap-0"
@@ -72,11 +72,11 @@ function TickerItem({ ann }) {
     <span className="flex shrink-0 items-center gap-2.5 pr-10">
       <span
         aria-hidden="true"
-        className="flex h-6 w-6 items-center justify-center rounded-full border border-[#B4E035]/40 bg-[#B4E035]/15"
+        className="flex h-6 w-6 items-center justify-center rounded-md border border-[#BFFF5E]/40 bg-[#BFFF5E]/15"
       >
-        <Megaphone size={13} className="text-[#748F1C]" />
+        <Megaphone size={13} className="text-[#1d2b1f]" />
       </span>
-      <span className="text-sm font-medium text-[#1A2E1A]">{text}</span>
+      <span className="text-sm font-medium text-[#1d2b1f]">{text}</span>
     </span>
   );
 }

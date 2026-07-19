@@ -31,18 +31,18 @@ export default function FaqPage() {
   return (
     <PageLayout>
       {/* Header */}
-      <div className="relative border-b border-[#D8D1C0] bg-[#EDE8DA] px-4 py-10 text-center sm:px-6 lg:px-8">
+      <div className="relative border-b border-2 border-[#1d2b1f] bg-[#f5ede0] px-4 py-10 text-center sm:px-6 lg:px-8">
         <div aria-hidden="true" className="pointer-events-none absolute inset-0">
-          <div className="absolute left-1/2 top-0 h-48 w-80 -translate-x-1/2 rounded-full bg-[#6B7F5A]/10 blur-3xl" />
+          <div className="absolute left-1/2 top-0 h-48 w-80 -translate-x-1/2 rounded-md bg-[#4a5e3a]/10 " />
         </div>
-        <span data-aos="fade-down" data-aos-duration="600" className="relative mb-3 inline-flex items-center gap-1.5 rounded-full border border-[#6B7F5A]/30 bg-[#6B7F5A]/10 px-3 py-1 font-mono text-[0.65rem] font-semibold uppercase tracking-[0.15em] text-[#566947]">
+        <span data-aos="fade-down" data-aos-duration="600" className="relative mb-3 inline-flex items-center gap-1.5 rounded-md border border-[#4a5e3a]/30 bg-[#4a5e3a]/10 px-3 py-1 font-mono text-[0.65rem] font-semibold uppercase tracking-[0.15em] text-[#354530]">
           <HelpCircle size={11} />
           FAQ
         </span>
-        <h1 data-aos="fade-up" data-aos-delay="100" data-aos-duration="700" className="relative font-display text-2xl font-extrabold text-[#1A2E1A] sm:text-3xl">
+        <h1 data-aos="fade-up" data-aos-delay="100" data-aos-duration="700" className="relative font-display text-2xl font-extrabold text-[#1d2b1f] sm:text-3xl">
           Pertanyaan yang Sering Ditanyakan
         </h1>
-        <p data-aos="fade-up" data-aos-delay="200" data-aos-duration="700" className="relative mt-1.5 text-xs text-[#6B7F5A]">
+        <p data-aos="fade-up" data-aos-delay="200" data-aos-duration="700" className="relative mt-1.5 text-xs text-[#4a5e3a]">
           Tidak menemukan jawaban? Hubungi kami di Discord atau WhatsApp.
         </p>
       </div>
@@ -50,13 +50,13 @@ export default function FaqPage() {
       <div className="mx-auto max-w-3xl px-4 py-8 sm:px-6 lg:px-8">
         {/* Search */}
         <div data-aos="fade-up" data-aos-duration="600" className="relative mb-5">
-          <Search size={14} className="absolute left-3.5 top-1/2 -translate-y-1/2 text-[#8A9E7A]" />
+          <Search size={14} className="absolute left-3.5 top-1/2 -translate-y-1/2 text-[#6b7f5a]" />
           <input
             type="search"
             value={query}
             onChange={(e) => setQuery(e.target.value)}
             placeholder="Cari pertanyaan…"
-            className="w-full rounded-xl border border-[#D8D1C0] bg-[#FAFAF7] py-2.5 pl-10 pr-4 text-sm font-sans text-[#1A2E1A] placeholder:text-[#8A9E7A] outline-none transition-colors focus:border-[#B4E035]/60 focus:ring-2 focus:ring-[#B4E035]/15"
+            className="w-full rounded-md border border-2 border-[#1d2b1f] bg-[#fffdf9] py-2.5 pl-10 pr-4 text-sm font-sans text-[#1d2b1f] placeholder:text-[#6b7f5a] outline-none transition-colors focus:border-[#BFFF5E]/60 focus:ring-2 focus:ring-[#BFFF5E]/15"
           />
         </div>
 
@@ -65,7 +65,7 @@ export default function FaqPage() {
           <button
             type="button"
             onClick={() => setActiveCategory('all')}
-            className={cn('rounded-full border px-3 py-1 text-xs font-medium transition-all font-sans', activeCategory === 'all' ? 'border-[#B4E035]/50 bg-[#B4E035]/15 text-[#748F1C]' : 'border-[#D8D1C0] bg-[#F0EBE0] text-[#6B7F5A] hover:border-[#B4E035]/25 hover:text-[#4A5E3E]')}
+            className={cn('rounded-md border px-3 py-1 text-xs font-medium transition-all font-sans', activeCategory === 'all' ? 'border-[#BFFF5E]/50 bg-[#BFFF5E]/15 text-[#1d2b1f]' : 'border-2 border-[#1d2b1f] bg-[#f5ece0] text-[#4a5e3a] hover:border-[#BFFF5E]/25 hover:text-[#4a5e3a]')}
           >
             Semua
           </button>
@@ -76,7 +76,7 @@ export default function FaqPage() {
                 key={cat.title}
                 type="button"
                 onClick={() => setActiveCategory(cat.title)}
-                className={cn('inline-flex items-center gap-1.5 rounded-full border px-3 py-1 text-xs font-medium transition-all font-sans', activeCategory === cat.title ? 'border-[#B4E035]/50 bg-[#B4E035]/15 text-[#748F1C]' : 'border-[#D8D1C0] bg-[#F0EBE0] text-[#6B7F5A] hover:border-[#B4E035]/25 hover:text-[#4A5E3E]')}
+                className={cn('inline-flex items-center gap-1.5 rounded-md border px-3 py-1 text-xs font-medium transition-all font-sans', activeCategory === cat.title ? 'border-[#BFFF5E]/50 bg-[#BFFF5E]/15 text-[#1d2b1f]' : 'border-2 border-[#1d2b1f] bg-[#f5ece0] text-[#4a5e3a] hover:border-[#BFFF5E]/25 hover:text-[#4a5e3a]')}
               >
                 {CatIcon && <CatIcon size={11} />}
                 {cat.title}
@@ -87,16 +87,16 @@ export default function FaqPage() {
 
         {/* Results count */}
         {query && (
-          <p className="mb-4 text-xs text-[#6B7F5A] font-sans">
-            {totalResults} hasil untuk &ldquo;<span className="text-[#1A2E1A]">{query}</span>&rdquo;
+          <p className="mb-4 text-xs text-[#4a5e3a] font-sans">
+            {totalResults} hasil untuk &ldquo;<span className="text-[#1d2b1f]">{query}</span>&rdquo;
           </p>
         )}
 
         {totalResults === 0 ? (
-          <div className="rounded-2xl border border-[#D8D1C0] bg-[#F5F2EA] py-14 text-center">
+          <div className="rounded-md border border-2 border-[#1d2b1f] bg-[#faf3e8] py-14 text-center">
             <Search size={28} className="mx-auto mb-3 text-[#D8D1C0]" />
-            <p className="text-sm font-semibold text-[#1A2E1A] font-display">Tidak ada hasil ditemukan</p>
-            <p className="mt-1 text-xs text-[#6B7F5A] font-sans">Coba kata kunci lain atau hubungi Admin.</p>
+            <p className="text-sm font-semibold text-[#1d2b1f] font-display">Tidak ada hasil ditemukan</p>
+            <p className="mt-1 text-xs text-[#4a5e3a] font-sans">Coba kata kunci lain atau hubungi Admin.</p>
           </div>
         ) : (
           <div className="flex flex-col gap-8">
@@ -107,9 +107,9 @@ export default function FaqPage() {
                 data-aos-duration="800"
               >
                 <div className="mb-3 flex items-center gap-2">
-                  {CAT_ICONS[cat.icon] && (() => { const CatIcon = CAT_ICONS[cat.icon]; return <CatIcon size={15} className="text-[#748F1C] shrink-0" />; })()}
-                  <h2 className="font-display text-base font-bold text-[#1A2E1A]">{cat.title}</h2>
-                  <span className="ml-auto rounded-full border border-[#D8D1C0] bg-[#F0EBE0] px-2 py-0.5 font-mono text-[0.65rem] text-[#6B7F5A]">
+                  {CAT_ICONS[cat.icon] && (() => { const CatIcon = CAT_ICONS[cat.icon]; return <CatIcon size={15} className="text-[#1d2b1f] shrink-0" />; })()}
+                  <h2 className="font-display text-base font-bold text-[#1d2b1f]">{cat.title}</h2>
+                  <span className="ml-auto rounded-md border border-2 border-[#1d2b1f] bg-[#f5ece0] px-2 py-0.5 font-mono text-[0.65rem] text-[#4a5e3a]">
                     {cat.items.length}
                   </span>
                 </div>
@@ -126,16 +126,16 @@ export default function FaqPage() {
         )}
 
         {/* Footer CTA */}
-        <div data-aos="fade-up" data-aos-duration="800" className="mt-10 rounded-2xl border border-[#D8D1C0] bg-[#F5F2EA] p-5 text-center">
-          <Headphones size={20} className="mx-auto mb-2 text-[#8A9E7A]" />
-          <p className="font-semibold text-[#1A2E1A] font-display text-sm">Masih punya pertanyaan?</p>
-          <p className="mt-1 text-xs text-[#6B7F5A] font-sans">Tim kami siap membantu kamu di Discord dan WhatsApp.</p>
+        <div data-aos="fade-up" data-aos-duration="800" className="mt-10 rounded-md border border-2 border-[#1d2b1f] bg-[#faf3e8] p-5 text-center">
+          <Headphones size={20} className="mx-auto mb-2 text-[#6b7f5a]" />
+          <p className="font-semibold text-[#1d2b1f] font-display text-sm">Masih punya pertanyaan?</p>
+          <p className="mt-1 text-xs text-[#4a5e3a] font-sans">Tim kami siap membantu kamu di Discord dan WhatsApp.</p>
           <div className="mt-4 flex flex-wrap items-center justify-center gap-2">
             <a
               href="https://discord.gg/rgRRnPS9cp"
               target="_blank"
               rel="noopener noreferrer"
-              className="inline-flex items-center gap-1.5 rounded-lg border border-[#B4E035]/30 bg-[#B4E035]/10 px-4 py-2 text-xs font-semibold text-[#748F1C] transition hover:bg-[#B4E035]/18"
+              className="inline-flex items-center gap-1.5 rounded-lg border border-[#BFFF5E]/30 bg-[#BFFF5E]/10 px-4 py-2 text-xs font-semibold text-[#1d2b1f] transition hover:bg-[#BFFF5E]/18"
             >
               <MessageCircle size={13} /> Discord
             </a>

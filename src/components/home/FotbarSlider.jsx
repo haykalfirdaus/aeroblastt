@@ -83,7 +83,7 @@ export function FotbarSlider() {
   }, [stopDrag]);
 
   return (
-    <section className="border-y border-[#D8D1C0] py-4 select-none bg-[#F5F2EA]">
+    <section className="border-y border-2 border-[#1d2b1f] py-4 select-none bg-[#faf3e8]">
       <div
         ref={containerRef}
         className="flex gap-3 overflow-x-auto no-scrollbar px-4"
@@ -98,7 +98,7 @@ export function FotbarSlider() {
         {items.map((filename, i) => (
           <div
             key={i}
-            className="h-36 w-56 shrink-0 overflow-hidden rounded-xl border border-[#D8D1C0] bg-[#FAFAF7] sm:h-44 sm:w-72"
+            className="h-36 w-56 shrink-0 overflow-hidden rounded-md border border-2 border-[#1d2b1f] bg-[#fffdf9] sm:h-44 sm:w-72"
           >
             <img
               src={`/fotbar/${filename}`}

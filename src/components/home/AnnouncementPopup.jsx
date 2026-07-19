@@ -71,7 +71,7 @@ export function AnnouncementPopup() {
     <div
       className={cn(
         'fixed inset-0 z-[9999] flex items-center justify-center p-4',
-        'bg-[#1A2E1A]/40 backdrop-blur-sm',
+        'bg-[#1d2b1f]/40 ',
         'transition-opacity duration-250',
         closing ? 'opacity-0' : 'opacity-100',
       )}
@@ -79,8 +79,8 @@ export function AnnouncementPopup() {
     >
       <div
         className={cn(
-          'relative w-full max-w-lg overflow-hidden rounded-2xl',
-          'border border-[#B4E035]/30 bg-[#FAF8F4] shadow-[0_32px_64px_-16px_rgba(26,46,26,0.25)]',
+          'relative w-full max-w-lg overflow-hidden rounded-md',
+          'border border-[#BFFF5E]/30 bg-[#fff8f0] shadow-[0_32px_64px_-16px_rgba(26,46,26,0.25)]',
           'transition-transform duration-250',
           closing ? 'scale-95' : 'scale-100',
         )}
@@ -90,22 +90,22 @@ export function AnnouncementPopup() {
         <span
           aria-hidden="true"
           className="absolute inset-x-0 top-0 h-px"
-          style={{ background: 'linear-gradient(90deg, transparent, #B4E035, transparent)' }}
+          style={{ background: 'linear-gradient(90deg, transparent, #BFFF5E, transparent)' }}
         />
 
         {/* Header */}
-        <div className="flex items-center justify-between border-b border-[#D8D1C0] bg-[#B4E035]/[0.06] px-5 py-3.5">
+        <div className="flex items-center justify-between border-b border-2 border-[#1d2b1f] bg-[#BFFF5E]/[0.06] px-5 py-3.5">
           <div className="flex items-center gap-2.5">
-            <span className="flex h-8 w-8 items-center justify-center rounded-lg border border-[#B4E035]/40 bg-[#B4E035]/15">
-              <Megaphone size={15} className="text-[#748F1C]" />
+            <span className="flex h-8 w-8 items-center justify-center rounded-lg border border-[#BFFF5E]/40 bg-[#BFFF5E]/15">
+              <Megaphone size={15} className="text-[#1d2b1f]" />
             </span>
-            <span className="text-sm font-semibold uppercase tracking-widest text-[#748F1C]">Pengumuman</span>
+            <span className="text-sm font-semibold uppercase tracking-widest text-[#1d2b1f]">Pengumuman</span>
           </div>
           <button
             type="button"
             onClick={dismiss}
             aria-label="Tutup pengumuman"
-            className="flex h-8 w-8 items-center justify-center rounded-lg border border-[#D8D1C0] bg-[#FAFAF7] text-[#6B7F5A] transition-colors hover:border-[#B4E035]/40 hover:text-[#1A2E1A]"
+            className="flex h-8 w-8 items-center justify-center rounded-lg border border-2 border-[#1d2b1f] bg-[#fffdf9] text-[#4a5e3a] transition-colors hover:border-[#BFFF5E]/40 hover:text-[#1d2b1f]"
           >
             <X size={14} />
           </button>
@@ -113,23 +113,23 @@ export function AnnouncementPopup() {
 
         {/* Content */}
         <div className="px-6 py-7 text-center">
-          <p className="text-lg font-semibold leading-relaxed text-[#1A2E1A] sm:text-xl">
+          <p className="text-lg font-semibold leading-relaxed text-[#1d2b1f] sm:text-xl">
             {ann.message ?? ann.content ?? ann.text ?? ''}
           </p>
 
           {timeLabel && (
-            <div className="mt-4 inline-flex items-center gap-1.5 rounded-full border border-[#B4E035]/35 bg-[#B4E035]/10 px-4 py-1.5 font-mono text-sm font-medium text-[#748F1C]">
+            <div className="mt-4 inline-flex items-center gap-1.5 rounded-md border border-[#BFFF5E]/35 bg-[#BFFF5E]/10 px-4 py-1.5 font-mono text-sm font-medium text-[#1d2b1f]">
               ⏱ {timeLabel}
             </div>
           )}
         </div>
 
         {/* Footer */}
-        <div className="border-t border-[#D8D1C0] px-6 py-3.5">
+        <div className="border-t border-2 border-[#1d2b1f] px-6 py-3.5">
           <button
             type="button"
             onClick={dismiss}
-            className="w-full rounded-xl bg-[#B4E035] py-2.5 text-sm font-semibold text-[#1A2E1A] transition-colors hover:bg-[#9CC81E]"
+            className="w-full rounded-md bg-[#BFFF5E] py-2.5 text-sm font-semibold text-[#1d2b1f] transition-colors hover:bg-[#9CC81E]"
           >
             Mengerti
           </button>

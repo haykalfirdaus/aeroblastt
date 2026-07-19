@@ -1,4 +1,4 @@
-import { Inter, Space_Grotesk, JetBrains_Mono } from 'next/font/google';
+import { Inter, Playfair_Display, JetBrains_Mono } from 'next/font/google';
 import { ToastProvider } from '@/context/ToastContext';
 import { AuthProvider } from '@/context/AuthContext';
 import { PlayerAuthProvider } from '@/context/PlayerAuthContext';
@@ -6,7 +6,7 @@ import { DevtoolsWarningOverlay } from '@/components/layout/DevtoolsWarningOverl
 import '../src/index.css';
 
 const inter = Inter({ subsets: ['latin'], variable: '--font-inter', display: 'swap' });
-const spaceGrotesk = Space_Grotesk({ subsets: ['latin'], variable: '--font-space', display: 'swap' });
+const playfair = Playfair_Display({ subsets: ['latin'], variable: '--font-playfair', display: 'swap', style: ['normal', 'italic'] });
 const jetbrainsMono = JetBrains_Mono({ subsets: ['latin'], variable: '--font-mono', display: 'swap' });
 
 export const metadata = {
@@ -36,14 +36,14 @@ export const metadata = {
 };
 
 export const viewport = {
-  themeColor: '#F4EFE4',
+  themeColor: '#fff8f0',
   maximumScale: 1,
   userScalable: false,
 };
 
 export default function RootLayout({ children }) {
   return (
-    <html lang="id" className={`${inter.variable} ${spaceGrotesk.variable} ${jetbrainsMono.variable}`}>
+    <html lang="id" className={`${inter.variable} ${playfair.variable} ${jetbrainsMono.variable}`}>
       <head>
         <link rel="preload" href="/wallpaper.webp" as="image" type="image/webp" fetchPriority="high" />
         <link rel="sitemap" type="application/xml" title="Sitemap" href="/sitemap.xml" />

@@ -30,8 +30,8 @@ export function RulesSection() {
               >
                 <div className="p-4">
                   <div className="mb-3 flex items-center gap-2">
-                    <CatIcon size={15} className="text-[#748F1C] shrink-0" />
-                    <h3 className="font-display text-sm font-bold text-[#1A2E1A]">{cat.title}</h3>
+                    <CatIcon size={15} className="text-[#1d2b1f] shrink-0" />
+                    <h3 className="font-display text-sm font-bold text-[#1d2b1f]">{cat.title}</h3>
                   </div>
 
                   <ul className="mb-3 flex flex-col gap-2.5">
@@ -39,8 +39,8 @@ export function RulesSection() {
                       <li key={pt.label} className="flex items-start gap-2">
                         <Ban size={11} className="mt-0.5 shrink-0 text-danger-bright" />
                         <div>
-                          <span className="text-[0.7rem] font-bold text-[#1A2E1A]">{pt.label}: </span>
-                          <span className="text-[0.7rem] text-[#6B7F5A]">{pt.text}</span>
+                          <span className="text-[0.7rem] font-bold text-[#1d2b1f]">{pt.label}: </span>
+                          <span className="text-[0.7rem] text-[#4a5e3a]">{pt.text}</span>
                         </div>
                       </li>
                     ))}
@@ -50,7 +50,7 @@ export function RulesSection() {
                     <p className="inline-flex items-center gap-1 text-[0.65rem] font-semibold text-danger-bright">
                       <Scale size={10} /> Sanksi
                     </p>
-                    <p className="text-[0.65rem] text-[#6B7F5A]">{cat.sanction}</p>
+                    <p className="text-[0.65rem] text-[#4a5e3a]">{cat.sanction}</p>
                   </div>
                 </div>
               </GlassCard>
