@@ -37,6 +37,7 @@ function toClient(row) {
 
 // GET — daftar pending donate orders untuk admin
 export async function GET(request) {
+  if (!supabase) return NextResponse.json({ ok: true, orders: [] });
   if (!(await isAuthenticated(makeReq(request)))) {
     return NextResponse.json({ ok: false, error: 'Unauthorized' }, { status: 401 });
   }

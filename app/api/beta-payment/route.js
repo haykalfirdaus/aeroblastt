@@ -28,11 +28,10 @@ async function sendDiscord(embed) {
 }
 
 async function expireOldOrders() {
+  if (!supabase) return;
   const now = new Date().toISOString();
   const oneHourAgo = new Date(Date.now() - 60 * 60 * 1000).toISOString();
 
-  // Pending orders yang melewati expires_at — semua tipe diset 'expired' (tidak langsung DELETE)
-  // supaya client polling masih bisa detect status dan transisi ke halaman expired.
   const { data: expiring } = await supabase.from('beta_orders').select('id, invoice_id').eq('status', 'pending').lt('expires_at', now);
   if (expiring?.length) {
     const ids = expiring.map(r => r.id);
@@ -41,7 +40,6 @@ async function expireOldOrders() {
     if (invoiceIds.length) await supabase.from('invoices').delete().in('id', invoiceIds);
   }
 
-  // Cleanup orders expired > 1 jam (semua tipe) + donate paid > 1 jam
   await supabase.from('beta_orders').delete().eq('status', 'expired').lt('expires_at', oneHourAgo).catch(() => {});
   await supabase.from('beta_orders').delete().eq('type', 'donate').eq('status', 'paid').lt('paid_at', oneHourAgo).catch(() => {});
 }
@@ -63,6 +61,7 @@ async function executeRcon(order) {
 }
 
 async function handleCreate(body, request) {
+  if (!supabase) return NextResponse.json({ ok: false, error: 'Database tidak terkonfigurasi' }, { status: 503 });
   if (!isValidOrigin(request)) return NextResponse.json({ ok: false, error: 'Forbidden' }, { status: 403 });
   const rl = rateLimit(getIp(request), { max: 5, windowMs: 10 * 60 * 1000 });
   if (!rl.ok) return NextResponse.json({ ok: false, error: `Terlalu banyak request. Coba lagi dalam ${rl.retryAfter} detik.` }, { status: 429, headers: { 'Retry-After': String(rl.retryAfter) } });
@@ -226,6 +225,7 @@ async function handleNotify(request) {
 }
 
 async function handleStatus(request) {
+  if (!supabase) return NextResponse.json({ ok: false, error: 'Database tidak terkonfigurasi' }, { status: 503 });
   const orderId = new URL(request.url).searchParams.get('orderId');
   if (!orderId) return NextResponse.json({ ok: false, error: 'orderId diperlukan' }, { status: 400 });
 
@@ -245,16 +245,24 @@ async function handleStatus(request) {
 }
 
 export async function POST(request) {
-  const action = new URL(request.url).searchParams.get('action');
-  if (action === 'create') { const body = await request.json().catch(() => ({})); return handleCreate(body, request); }
-  if (action === 'notify') return handleNotify(request);
-  return NextResponse.json({ ok: false, error: 'action tidak valid' }, { status: 400 });
+  try {
+    const action = new URL(request.url).searchParams.get('action');
+    if (action === 'create') { const body = await request.json().catch(() => ({})); return handleCreate(body, request); }
+    if (action === 'notify') return handleNotify(request);
+    return NextResponse.json({ ok: false, error: 'action tidak valid' }, { status: 400 });
+  } catch (err) {
+    return NextResponse.json({ ok: false, error: err?.message || 'Internal server error' }, { status: 500 });
+  }
 }
 
 export async function GET(request) {
-  const action = new URL(request.url).searchParams.get('action');
-  if (action === 'status') return handleStatus(request);
-  return NextResponse.json({ ok: false, error: 'action tidak valid' }, { status: 400 });
+  try {
+    const action = new URL(request.url).searchParams.get('action');
+    if (action === 'status') return handleStatus(request);
+    return NextResponse.json({ ok: false, error: 'action tidak valid' }, { status: 400 });
+  } catch (err) {
+    return NextResponse.json({ ok: false, error: err?.message || 'Internal server error' }, { status: 500 });
+  }
 }
 
 export async function OPTIONS() { return new NextResponse(null, { status: 204 }); }
