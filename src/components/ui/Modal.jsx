@@ -29,11 +29,6 @@ export function Modal({ open, onClose, title, subtitle, icon, badge, size = 'md'
   const sizeClass = { sm: 'max-w-md', md: 'max-w-lg', lg: 'max-w-2xl', xl: 'max-w-4xl' }[size];
 
   return (
-    {/*
-      Overlay + scroll container digabung jadi satu elemen fixed inset-0.
-      Background gelap otomatis penuh sepanjang konten — tidak pernah "mentok".
-      Klik backdrop (bukan card) menutup modal.
-    */}
     <div
       className={cn(
         'fixed inset-0 z-[150] overflow-y-auto bg-[#1A2E1A]/40 backdrop-blur-sm transition-opacity duration-150',
