@@ -2,7 +2,7 @@ import { NextResponse } from 'next/server';
 import { isAuthenticated, isValidOrigin } from '@/api/_auth';
 import { supabase } from '@/api/_supabase';
 
-const DISCORD_WEBHOOK_URL = process.env.DISCORD_WEBHOOK_URL;
+const DISCORD_DONATE_WEBHOOK_URL = process.env.DISCORD_DONATE_WEBHOOK_URL || process.env.DISCORD_WEBHOOK_URL;
 
 function formatRp(n) { return `Rp ${Number(n).toLocaleString('id-ID')}`; }
 
@@ -11,9 +11,9 @@ function makeReq(request) {
 }
 
 async function sendDiscord(embed) {
-  if (!DISCORD_WEBHOOK_URL) return;
+  if (!DISCORD_DONATE_WEBHOOK_URL) return;
   try {
-    await fetch(DISCORD_WEBHOOK_URL, {
+    await fetch(DISCORD_DONATE_WEBHOOK_URL, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ embeds: [embed] }),

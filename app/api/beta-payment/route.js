@@ -14,6 +14,7 @@ const DONATE_MIN = 1000;
 const DONATE_MAX = 100_000_000;
 const NOTIFY_SECRET = process.env.NOTIFY_SECRET;
 const DISCORD_WEBHOOK_URL = process.env.DISCORD_WEBHOOK_URL;
+const DISCORD_DONATE_WEBHOOK_URL = process.env.DISCORD_DONATE_WEBHOOK_URL;
 
 function formatRp(n) { return `Rp ${Number(n).toLocaleString('id-ID')}`; }
 const TYPE_LABEL = { rank: '🎖️ Rank', key: '🗝️ Gacha Key', skill: '⚡ Skill Boost', balance: '💰 Balance', command: '⌨️ Command', cosmetic: '✨ Custom Prefix' };
@@ -22,10 +23,14 @@ function getIp(request) {
   return request.headers.get('x-forwarded-for')?.split(',')[0]?.trim() || 'unknown';
 }
 
-async function sendDiscord(embed) {
-  if (!DISCORD_WEBHOOK_URL) return;
-  try { await fetch(DISCORD_WEBHOOK_URL, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ embeds: [embed] }) }); } catch { }
+async function sendDiscord(embed, url) {
+  const target = url || DISCORD_WEBHOOK_URL;
+  if (!target) return;
+  try { await fetch(target, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ embeds: [embed] }) }); } catch { }
 }
+
+function sendInvoiceDiscord(embed) { return sendDiscord(embed, DISCORD_WEBHOOK_URL); }
+function sendDonateDiscord(embed) { return sendDiscord(embed, DISCORD_DONATE_WEBHOOK_URL || DISCORD_WEBHOOK_URL); }
 
 async function expireOldOrders() {
   if (!supabase) return;
@@ -131,7 +136,7 @@ async function handleCreate(body, request) {
   if (details?.qty) productFields.push({ name: 'Jumlah', value: `${details.qty}x`, inline: true });
   if (details?.balance) productFields.push({ name: 'Balance', value: Number(details.balance).toLocaleString('id-ID'), inline: true });
 
-  await sendDiscord({ title: `📋 Order Masuk — ${TYPE_LABEL[type] || type}`, color: 0x3b82f6, fields: [{ name: 'Nickname', value: `\`${nick.trim()}\``, inline: true }, { name: 'Platform', value: platform, inline: true }, ...productFields, { name: '💰 Nominal Pembayaran', value: `**${formatRp(order.total_amount)}**`, inline: false }], footer: { text: 'AeroBlast Network • Berlaku 30 menit' }, timestamp: new Date().toISOString() });
+  await sendInvoiceDiscord({ title: `📋 Order Masuk — ${TYPE_LABEL[type] || type}`, color: 0x3b82f6, fields: [{ name: 'Nickname', value: `\`${nick.trim()}\``, inline: true }, { name: 'Platform', value: platform, inline: true }, ...productFields, { name: '💰 Nominal Pembayaran', value: `**${formatRp(order.total_amount)}**`, inline: false }], footer: { text: 'AeroBlast Network • Berlaku 30 menit' }, timestamp: new Date().toISOString() });
 
   return NextResponse.json({ ok: true, orderId: order.id, suffix: order.suffix, totalAmount: order.total_amount, expiresAt: order.expires_at });
 }
@@ -159,13 +164,13 @@ async function handleNotify(request) {
   const expectedBuf = Buffer.from(NOTIFY_SECRET);
   const valid = secretBuf.length === expectedBuf.length && crypto.timingSafeEqual(secretBuf, expectedBuf);
   if (!valid) {
-    await sendDiscord({ title: '🔑 Notify: Secret Salah', color: 0xef4444, fields: [{ name: 'Secret Diterima (length)', value: String(secretBuf.length), inline: true }, { name: 'Expected (length)', value: String(expectedBuf.length), inline: true }], footer: { text: 'AeroBlast Network' }, timestamp: new Date().toISOString() });
+    await sendInvoiceDiscord({ title: '🔑 Notify: Secret Salah', color: 0xef4444, fields: [{ name: 'Secret Diterima (length)', value: String(secretBuf.length), inline: true }, { name: 'Expected (length)', value: String(expectedBuf.length), inline: true }], footer: { text: 'AeroBlast Network' }, timestamp: new Date().toISOString() });
     return NextResponse.json({ ok: false, error: 'Unauthorized' }, { status: 401 });
   }
   if (!text?.trim()) return NextResponse.json({ ok: false, error: 'text diperlukan' }, { status: 400 });
 
   // Log teks asli dari MacroDroid ke Discord untuk debug
-  await sendDiscord({ title: '📩 Notify Diterima', color: 0x6366f1, fields: [{ name: 'Teks Notifikasi', value: String(text).slice(0, 1000), inline: false }], footer: { text: 'AeroBlast Network' }, timestamp: new Date().toISOString() });
+  await sendInvoiceDiscord({ title: '📩 Notify Diterima', color: 0x6366f1, fields: [{ name: 'Teks Notifikasi', value: String(text).slice(0, 1000), inline: false }], footer: { text: 'AeroBlast Network' }, timestamp: new Date().toISOString() });
 
   // Hapus titik (pemisah ribuan Indonesia: "10.500" → "10500"), lalu ambil semua angka
   const matches = String(text).replace(/\./g, '').match(/\d+/g);
@@ -184,7 +189,7 @@ async function handleNotify(request) {
 
   if (!order) {
     const tried = candidates.length ? candidates.join(', ') : 'tidak ada';
-    await sendDiscord({ title: '⚠️ Pembayaran Perlu Dicek', color: 0xf59e0b, fields: [{ name: 'Nominal Dicoba', value: tried, inline: true }, { name: 'Status', value: 'Tidak ada pending order dengan nominal ini', inline: false }], footer: { text: 'AeroBlast Network' }, timestamp: new Date().toISOString() });
+    await sendDonateDiscord({ title: '💸 Transfer Masuk — Tidak Ada Order', color: 0xf59e0b, fields: [{ name: 'Nominal Dicoba', value: tried, inline: true }, { name: 'Keterangan', value: 'Tidak ada pending order dengan nominal ini. Bisa jadi transfer random — cek mutasi dan masukkan ke donasi manual jika perlu.', inline: false }], footer: { text: 'AeroBlast Network' }, timestamp: new Date().toISOString() });
     return NextResponse.json({ ok: false, error: 'Order tidak ditemukan' }, { status: 404 });
   }
 
@@ -212,7 +217,7 @@ async function handleNotify(request) {
     ];
     if (donorNick) donateFields.push({ name: 'Minecraft Nick', value: `\`${donorNick}\``, inline: true });
     if (donorMsg) donateFields.push({ name: 'Pesan', value: `"${donorMsg}"`, inline: false });
-    await sendDiscord({ title: '💚 Donasi Diterima!', color: 0x84cc16, fields: donateFields, footer: { text: 'AeroBlast Network • Donasi via QRIS' }, timestamp: new Date().toISOString() });
+    await sendDonateDiscord({ title: '💚 Donasi Diterima!', color: 0x84cc16, fields: donateFields, footer: { text: 'AeroBlast Network • Donasi via QRIS' }, timestamp: new Date().toISOString() });
 
     return NextResponse.json({ ok: true, type: 'donate' });
   }
@@ -231,7 +236,7 @@ async function handleNotify(request) {
   if (order.details?.qty) productFields.push({ name: 'Jumlah', value: `${order.details.qty}x`, inline: true });
   if (order.details?.balance) productFields.push({ name: 'Balance', value: Number(order.details.balance).toLocaleString('id-ID'), inline: true });
 
-  await sendDiscord({ title: rconOk ? '✅ Pembayaran Berhasil' : '✅ Pembayaran Berhasil — ⚠️ Perlu Cek RCON', color: rconOk ? 0x22c55e : 0xf59e0b, fields: [{ name: 'Nickname', value: `\`${order.nick}\``, inline: true }, { name: 'Platform', value: order.platform, inline: true }, { name: 'Tipe', value: TYPE_LABEL[order.type] || order.type, inline: true }, { name: 'Total Dibayar', value: formatRp(amount), inline: true }, ...productFields, rconOk ? { name: 'Item', value: rconResult.response || 'Diberikan', inline: false } : { name: '⚠️ Item Belum Diberikan', value: rconResult.error || 'Silakan cek dan berikan manual', inline: false }], footer: { text: 'AeroBlast Network' }, timestamp: new Date().toISOString() });
+  await sendInvoiceDiscord({ title: rconOk ? '✅ Pembayaran Berhasil' : '✅ Pembayaran Berhasil — ⚠️ Perlu Cek RCON', color: rconOk ? 0x22c55e : 0xf59e0b, fields: [{ name: 'Nickname', value: `\`${order.nick}\``, inline: true }, { name: 'Platform', value: order.platform, inline: true }, { name: 'Tipe', value: TYPE_LABEL[order.type] || order.type, inline: true }, { name: 'Total Dibayar', value: formatRp(amount), inline: true }, ...productFields, rconOk ? { name: 'Item', value: rconResult.response || 'Diberikan', inline: false } : { name: '⚠️ Item Belum Diberikan', value: rconResult.error || 'Silakan cek dan berikan manual', inline: false }], footer: { text: 'AeroBlast Network' }, timestamp: new Date().toISOString() });
 
   return NextResponse.json({ ok: true });
 }
