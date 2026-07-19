@@ -1,6 +1,5 @@
 import { useEffect, useState } from 'react';
 import { X } from 'lucide-react';
-import { useLockBodyScroll } from '@/hooks/useLockBodyScroll';
 import { useEscapeKey } from '@/hooks/useEscapeKey';
 import { cn } from '@/lib/cn';
 
@@ -12,7 +11,6 @@ export function Modal({ open, onClose, title, subtitle, icon, badge, size = 'md'
   const [rendered, setRendered] = useState(open);
   const [entered, setEntered] = useState(false);
 
-  useLockBodyScroll(open);
   useEscapeKey(rendered, onClose);
 
   useEffect(() => {
