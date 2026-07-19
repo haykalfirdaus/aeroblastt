@@ -36,7 +36,7 @@ export function Footer() {
           {/* Brand */}
           <div className="flex flex-col gap-4">
             <Link href="/" className="flex items-center gap-2 w-fit">
-              <img src={logo} alt="AeroBlast" className="h-7 w-7 rounded-md object-cover border border-[#BFFF5E]/40" />
+              <img src={logo} alt="AeroBlast" className="h-7 w-7 rounded-md object-cover border border-[#fff8f0]/20" />
               <span className="font-display text-sm font-bold text-[#fff8f0]">
                 Aero<span className="text-[#BFFF5E]">Blast</span>
               </span>

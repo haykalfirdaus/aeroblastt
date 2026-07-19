@@ -72,7 +72,7 @@ export function Modal({ open, onClose, title, subtitle, icon, badge, size = 'md'
           {(title || icon) && (
             <div className="flex flex-col items-center gap-1.5 px-6 pb-2 pt-7 text-center sm:px-8">
               {badge && (
-                <span className="mb-1 inline-flex items-center gap-1.5 rounded border-2 border-[#1d2b1f] bg-[#BFFF5E] px-2.5 py-0.5 font-mono text-[0.6rem] font-semibold uppercase tracking-wider text-[#1d2b1f]">
+                <span className="mb-1 inline-flex items-center gap-1.5 rounded border border-[#1d2b1f]/40 bg-[#BFFF5E]/30 px-2.5 py-0.5 font-mono text-[0.6rem] font-semibold uppercase tracking-wider text-[#1d2b1f]">
                   <span className="h-1.5 w-1.5 animate-pulse-dot rounded-full bg-[#1d2b1f]" />
                   {badge}
                 </span>

@@ -21,7 +21,7 @@ export function AccordionItem({ id, title, icon, children, className }) {
   const isOpen = ctx.openId === id;
 
   return (
-    <div className={cn('overflow-hidden rounded-xl border border-[#D8D1C0] bg-[#FAFAF7] transition-colors', isOpen && 'border-[#B4E035]/25 bg-[#F5F2EA]', className)}>
+    <div className={cn('overflow-hidden rounded-md border border-[#1d2b1f]/20 bg-[#fffdf9] transition-colors', isOpen && 'border-[#1d2b1f]/50 bg-[#faf3e8]', className)}>
       <button
         type="button"
         onClick={() => ctx.toggle(id)}
@@ -29,8 +29,8 @@ export function AccordionItem({ id, title, icon, children, className }) {
         className="flex w-full items-center gap-3 px-4 py-3 text-left sm:px-5"
       >
         {icon && <span className="text-lg shrink-0">{icon}</span>}
-        <span className="flex-1 font-semibold text-[#1A2E1A] text-sm font-sans">{title}</span>
-        <ChevronDown size={18} className={cn('shrink-0 text-[#6B7F5A] transition-transform duration-300', isOpen && 'rotate-180 text-[#B4E035]')} />
+        <span className="flex-1 font-semibold text-[#1d2b1f] text-sm">{title}</span>
+        <ChevronDown size={18} className={cn('shrink-0 text-[#4a5e3a] transition-transform duration-300', isOpen && 'rotate-180 text-[#1d2b1f]')} />
       </button>
       <div className={cn('grid transition-all duration-300 ease-in-out', isOpen ? 'grid-rows-[1fr] opacity-100' : 'grid-rows-[0fr] opacity-0')}>
         <div className="overflow-hidden">

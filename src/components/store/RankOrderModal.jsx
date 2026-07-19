@@ -169,7 +169,7 @@ export function RankOrderModal({ rank, open, onClose }) {
               type="button"
               onClick={handleWa}
               disabled={waLoading}
-              className="w-full rounded-md border border-2 border-[#1d2b1f] bg-[#faf3e8] py-2.5 text-sm font-semibold text-[#4a5e3a] transition-all hover:border-[#BFFF5E]/30 hover:text-[#1d2b1f]"
+              className="w-full rounded-md border border-[#1d2b1f]/40 bg-[#faf3e8] py-2.5 text-sm font-semibold text-[#4a5e3a] transition-all hover:border-[#1d2b1f] hover:bg-[#f5ede0] hover:text-[#1d2b1f]"
             >
               Lanjut via WhatsApp (Manual)
             </button>

@@ -22,9 +22,9 @@ const CATS_DESC = [...SKILL_CATEGORIES].sort((a, b) => b.pricePerLevel - a.price
 
 // Category accent colors by index in sorted order
 const CAT_STYLES = [
-  { border: 'border-rank-ravest/25', label: 'text-rank-ravest', badge: 'PREMIUM', badgeTone: 'gold', featured: true },
-  { border: 'border-rank-vortex/20', label: 'text-rank-vortex', badge: null, featured: true },
-  { border: 'border-2 border-[#1d2b1f]',      label: 'text-[#4a5e3a]',  badge: 'STARTER', badgeTone: 'dim', featured: false },
+  { border: 'border border-[#1d2b1f]', label: 'text-rank-ravest', badge: 'PREMIUM', badgeTone: 'gold', featured: true },
+  { border: 'border border-[#1d2b1f]', label: 'text-rank-vortex', badge: null, featured: true },
+  { border: 'border border-[#1d2b1f]/50', label: 'text-[#4a5e3a]',  badge: 'STARTER', badgeTone: 'dim', featured: false },
 ];
 
 function SkillOrderModal({ skill, cat, open, onClose }) {
@@ -144,7 +144,7 @@ export function SkillBoostTab() {
               {/* Category header */}
               <div className={cn(
                 'flex items-center justify-between px-4 py-3 border-b',
-                style.featured ? 'border-2 border-[#1d2b1f] bg-[#f5ede0]' : 'border-2 border-[#1d2b1f]/50',
+                style.featured ? 'border-[#1d2b1f]/30 bg-[#f5ede0]' : 'border-[#1d2b1f]/20',
               )}>
                 <div className="flex items-center gap-2">
                   {style.badge && (
@@ -152,7 +152,7 @@ export function SkillBoostTab() {
                       'rounded-md border px-2 py-0.5 font-mono text-[0.6rem] font-bold uppercase tracking-wider',
                       style.badgeTone === 'gold'
                         ? 'border-warning/30 bg-warning/10 text-warning'
-                        : 'border-2 border-[#1d2b1f] bg-[#f5ece0] text-[#4a5e3a]',
+                        : 'border-[#1d2b1f]/40 bg-[#f5ece0] text-[#4a5e3a]',
                     )}>
                       {style.badge}
                     </span>
@@ -174,8 +174,8 @@ export function SkillBoostTab() {
                     className={cn(
                       'rounded-md border p-4 transition-all duration-200',
                       style.featured
-                        ? 'border-2 border-[#1d2b1f] bg-[#fffdf9] hover:scale-[1.015] hover:brightness-[1.02]'
-                        : 'border-2 border-[#1d2b1f]/60 bg-[#fff8f0] hover:scale-[1.01]',
+                        ? 'border-[#1d2b1f]/30 bg-[#fffdf9] hover:scale-[1.015] hover:brightness-[1.02]'
+                        : 'border-[#1d2b1f]/20 bg-[#fff8f0] hover:scale-[1.01]',
                     )}
                   >
                     <div className="mb-3">
@@ -190,8 +190,8 @@ export function SkillBoostTab() {
                           className={cn(
                             'rounded-md border px-2 py-0.5 text-[0.65rem]',
                             style.featured
-                              ? 'border-2 border-[#1d2b1f] bg-[#f5ece0] text-[#4a5e3a]'
-                              : 'border-2 border-[#1d2b1f]/60 bg-[#faf3e8] text-[#6b7f5a]',
+                              ? 'border-[#1d2b1f]/25 bg-[#f5ece0] text-[#4a5e3a]'
+                              : 'border-[#1d2b1f]/18 bg-[#faf3e8] text-[#6b7f5a]',
                           )}
                         >
                           {a}

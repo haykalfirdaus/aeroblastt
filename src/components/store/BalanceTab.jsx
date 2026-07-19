@@ -172,10 +172,10 @@ export function BalanceTab() {
                   title={!nick ? 'Login dulu untuk order' : undefined}
                   style={{ animation: 'page-wipe-in 0.45s cubic-bezier(0.22,1,0.36,1) both', animationDelay: `${idx * 55}ms` }}
                   className={cn(
-                    'relative overflow-hidden rounded-md border px-4 py-4 text-center transition-all',
+                    'relative overflow-hidden rounded-md border border-[#1d2b1f] px-4 py-4 text-center transition-all',
                     tier.featured
-                      ? 'border-[#BFFF5E]/30 bg-[#BFFF5E]/8 hover:-translate-y-0.5 hover:brightness-105'
-                      : 'border-2 border-[#1d2b1f]/60 bg-[#fffdf9] hover:border-2 border-[#1d2b1f]',
+                      ? 'bg-[#faf3e8] shadow-[2px_2px_0_#1d2b1f] hover:-translate-y-0.5 hover:brightness-105'
+                      : 'bg-[#fffdf9] hover:bg-[#faf3e8]',
                     tier.opacity,
                     !nick && 'cursor-not-allowed opacity-50',
                   )}

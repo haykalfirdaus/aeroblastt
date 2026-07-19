@@ -325,10 +325,10 @@ export function DonateTab() {
                 type="button"
                 onClick={() => setAmount(String(val))}
                 className={cn(
-                  'rounded-md border px-3 py-1.5 text-xs font-semibold transition-all',
+                  'rounded-md border border-[#1d2b1f] px-3 py-1.5 text-xs font-semibold transition-all',
                   numAmount === val
-                    ? 'border-[#BFFF5E]/50 bg-[#BFFF5E]/20 text-[#1d2b1f] ring-1 ring-[#BFFF5E]/40'
-                    : 'border-2 border-[#1d2b1f] bg-[#f5ece0] text-[#4a5e3a] hover:border-[#BFFF5E]/30 hover:text-[#1d2b1f]'
+                    ? 'bg-[#BFFF5E] text-[#1d2b1f] shadow-[2px_2px_0_#1d2b1f]'
+                    : 'bg-[#f5ece0] text-[#4a5e3a] hover:bg-[#BFFF5E]/20 hover:text-[#1d2b1f]'
                 )}
               >
                 {formatRupiah(val)}

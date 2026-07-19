@@ -68,7 +68,7 @@ export function Navbar() {
             <img
               src={logo}
               alt="AeroBlast logo"
-              className="relative z-[1] h-7 w-7 rounded-md object-cover border border-[#1d2b1f]"
+              className="relative z-[1] h-7 w-7 rounded-md object-cover border border-[#1d2b1f]/30"
             />
           </div>
           <span className="hidden font-display text-sm font-bold tracking-tight text-[#1d2b1f] sm:block">

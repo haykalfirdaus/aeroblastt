@@ -205,10 +205,10 @@ export function HeroSection() {
             <div
               data-hero
               className={cn(
-                'inline-flex items-center gap-2 rounded-md border px-3.5 py-1.5 text-[0.7rem] font-bold transition-all duration-300',
+                'inline-flex items-center gap-2 rounded-md border border-[#1d2b1f]/30 px-3.5 py-1.5 text-[0.7rem] font-bold transition-all duration-300',
                 status.state === 'online'
                   ? 'badge-online text-success'
-                  : 'border-2 border-[#1d2b1f] bg-[#f5ece0] text-[#4a5e3a]'
+                  : 'bg-[#f5ece0] text-[#4a5e3a]'
               )}
             >
               <span

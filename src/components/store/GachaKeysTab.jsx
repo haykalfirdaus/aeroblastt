@@ -141,10 +141,10 @@ export function GachaKeysTab() {
             <div
               key={k.key}
               className={cn(
-                'group relative flex flex-col overflow-hidden rounded-md border transition-all duration-200',
+                'group relative flex flex-col overflow-hidden rounded-md transition-all duration-200',
                 tier.featured
-                  ? 'border-2 border-[#1d2b1f] bg-[#faf3e8] hover:scale-[1.015] hover:brightness-105'
-                  : 'border-2 border-[#1d2b1f]/60 bg-[#fffdf9] hover:scale-[1.01]',
+                  ? 'border border-[#1d2b1f] bg-[#faf3e8] shadow-[2px_2px_0_#1d2b1f] hover:scale-[1.015] hover:brightness-105'
+                  : 'border border-[#1d2b1f]/60 bg-[#fffdf9] hover:scale-[1.01]',
                 tier.opacity,
               )}
               style={{ '--accent': `var(--color-${tone})`, animation: 'page-wipe-in 0.5s cubic-bezier(0.22,1,0.36,1) both', animationDelay: `${idx * 80}ms` }}

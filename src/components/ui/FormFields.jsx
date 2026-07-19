@@ -3,7 +3,7 @@ import { Check, ChevronDown } from 'lucide-react';
 import { cn } from '@/lib/cn';
 
 const fieldBase =
-  'w-full rounded-md border-2 border-[#1d2b1f] bg-[#fffdf9] px-4 py-3 text-sm text-[#1d2b1f] placeholder:text-[#8a9e7a] outline-none transition-all focus:border-[#1d2b1f] focus:bg-white focus:ring-2 focus:ring-[#BFFF5E]/40';
+  'w-full rounded-md border border-[#1d2b1f]/40 bg-[#fffdf9] px-4 py-3 text-sm text-[#1d2b1f] placeholder:text-[#8a9e7a] outline-none transition-all focus:border-[#1d2b1f] focus:bg-white focus:ring-2 focus:ring-[#BFFF5E]/40';
 
 export function FieldLabel({ children, required }) {
   return (
@@ -48,8 +48,8 @@ export function CheckboxField({ checked, onChange, children, className }) {
       <input type="checkbox" checked={checked} onChange={(e) => onChange(e.target.checked)} className="sr-only" />
       <span
         className={cn(
-          'mt-0.5 grid h-5 w-5 shrink-0 place-items-center rounded border-2 transition-colors',
-          checked ? 'border-[#1d2b1f] bg-[#BFFF5E]' : 'border-[#1d2b1f] bg-[#fffdf9]'
+          'mt-0.5 grid h-5 w-5 shrink-0 place-items-center rounded border border-[#1d2b1f]/50 transition-colors',
+          checked ? 'border-[#1d2b1f] bg-[#BFFF5E]' : 'bg-[#fffdf9]'
         )}
       >
         {checked && <Check size={13} strokeWidth={3} className="text-[#1d2b1f]" />}

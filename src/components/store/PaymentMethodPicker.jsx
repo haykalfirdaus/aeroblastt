@@ -19,10 +19,10 @@ export function PaymentMethodPicker({ value, onChange }) {
               type="button"
               onClick={() => onChange(key)}
               className={cn(
-                'rounded-md border px-2 py-2.5 text-center transition-all',
+                'rounded-md border border-[#1d2b1f] px-2 py-2.5 text-center transition-all',
                 selected
-                  ? 'border-[#BFFF5E]/60 bg-[#BFFF5E]/15 text-[#1d2b1f]'
-                  : 'border-2 border-[#1d2b1f] bg-[#f5ece0] text-[#4a5e3a] hover:border-[#BFFF5E]/25 hover:text-[#1d2b1f]'
+                  ? 'bg-[#BFFF5E] text-[#1d2b1f] shadow-[2px_2px_0_#1d2b1f]'
+                  : 'bg-[#f5ece0] text-[#4a5e3a] hover:bg-[#BFFF5E]/20 hover:text-[#1d2b1f]'
               )}
             >
               <span className="block text-xs font-bold">{method.label}</span>
@@ -32,7 +32,7 @@ export function PaymentMethodPicker({ value, onChange }) {
       </div>
 
       {value && SITE.payment[value]?.imgPath && (
-        <div className="mt-3 flex justify-center rounded-md border border-2 border-[#1d2b1f] bg-[#faf3e8] p-4">
+        <div className="mt-3 flex justify-center rounded-md border border-[#1d2b1f]/30 bg-[#faf3e8] p-4">
           <img
             src={SITE.payment[value].imgPath}
             alt={`${SITE.payment[value].label} AeroBlast Network`}

@@ -18,9 +18,9 @@ const RANKS_DESC = [...RANKS].reverse();
 const TIER_STYLES = {
   // Universe — most expensive, ultra premium
   0: {
-    border: 'border-[#BFFF5E]/50',
-    glow: 'shadow-[0_0_40px_-6px_rgba(180,224,53,0.35)]',
-    ring: 'ring-1 ring-[#BFFF5E]/30',
+    border: 'border border-[#1d2b1f]',
+    glow: 'shadow-[3px_3px_0_#1d2b1f]',
+    ring: '',
     badge: 'ULTIMATE',
     badgeTone: 'gold',
     bg: 'bg-[#EEF5D8]',
@@ -29,9 +29,9 @@ const TIER_STYLES = {
   },
   // Galatics
   1: {
-    border: 'border-[#BFFF5E]/40',
-    glow: 'shadow-[0_0_30px_-6px_rgba(180,224,53,0.28)]',
-    ring: 'ring-1 ring-[#BFFF5E]/20',
+    border: 'border border-[#1d2b1f]',
+    glow: 'shadow-[3px_3px_0_#1d2b1f]',
+    ring: '',
     badge: null,
     bg: 'bg-[#EEF5D8]',
     priceClass: 'text-lg',
@@ -39,9 +39,9 @@ const TIER_STYLES = {
   },
   // Quantum
   2: {
-    border: 'border-[#BFFF5E]/35',
-    glow: 'shadow-[0_0_24px_-6px_rgba(180,224,53,0.22)]',
-    ring: 'ring-1 ring-[#BFFF5E]/15',
+    border: 'border border-[#1d2b1f]',
+    glow: 'shadow-[2px_2px_0_#1d2b1f]',
+    ring: '',
     badge: null,
     bg: 'bg-[#F1F6DC]',
     priceClass: 'text-base',
@@ -49,9 +49,9 @@ const TIER_STYLES = {
   },
   // Vortex
   3: {
-    border: 'border-[#BFFF5E]/30',
-    glow: 'shadow-[0_0_20px_-6px_rgba(180,224,53,0.18)]',
-    ring: 'ring-1 ring-[#BFFF5E]/12',
+    border: 'border border-[#1d2b1f]',
+    glow: 'shadow-[2px_2px_0_#1d2b1f]',
+    ring: '',
     badge: 'POPULAR',
     badgeTone: 'neon',
     bg: 'bg-[#F1F6DC]',
@@ -60,7 +60,7 @@ const TIER_STYLES = {
   },
   // Ravest
   4: {
-    border: 'border-2 border-[#1d2b1f]',
+    border: 'border border-[#1d2b1f]',
     glow: '',
     ring: '',
     badge: null,
@@ -70,7 +70,7 @@ const TIER_STYLES = {
   },
   // Orbiter
   5: {
-    border: 'border-2 border-[#1d2b1f]',
+    border: 'border border-[#1d2b1f]',
     glow: '',
     ring: '',
     badge: null,
@@ -80,7 +80,7 @@ const TIER_STYLES = {
   },
   // Voyager
   6: {
-    border: 'border-2 border-[#1d2b1f]/70',
+    border: 'border border-[#1d2b1f]/60',
     glow: '',
     ring: '',
     badge: null,
@@ -90,7 +90,7 @@ const TIER_STYLES = {
   },
   // Scout — cheapest
   7: {
-    border: 'border-2 border-[#1d2b1f]/50',
+    border: 'border border-[#1d2b1f]/40',
     glow: '',
     ring: '',
     badge: 'STARTER',

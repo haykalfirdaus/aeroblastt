@@ -152,10 +152,10 @@ export function CommandsTab() {
             <div
               key={cmd.key}
               className={cn(
-                'group relative flex flex-col overflow-hidden rounded-md border transition-all duration-200',
+                'group relative flex flex-col overflow-hidden rounded-md transition-all duration-200',
                 tier.featured
-                  ? 'border-2 border-[#1d2b1f] bg-[#faf3e8] hover:scale-[1.015] hover:brightness-[1.02]'
-                  : 'border-2 border-[#1d2b1f]/60 bg-[#fffdf9] hover:scale-[1.01]',
+                  ? 'border border-[#1d2b1f] bg-[#faf3e8] shadow-[2px_2px_0_#1d2b1f] hover:scale-[1.015] hover:brightness-[1.02]'
+                  : 'border border-[#1d2b1f]/60 bg-[#fffdf9] hover:scale-[1.01]',
                 tier.opacity,
               )}
               style={{ animation: 'page-wipe-in 0.5s cubic-bezier(0.22,1,0.36,1) both', animationDelay: `${idx * 55}ms` }}
@@ -174,7 +174,7 @@ export function CommandsTab() {
                 <div className="flex items-center gap-2.5">
                   <div className={cn(
                     'grid h-9 w-9 shrink-0 place-items-center rounded-md border',
-                    tier.featured ? 'border-[#BFFF5E]/25 bg-[#BFFF5E]/10' : 'border-2 border-[#1d2b1f] bg-[#f5ece0]',
+                    tier.featured ? 'border-[#BFFF5E]/30 bg-[#BFFF5E]/10' : 'border-[#1d2b1f]/40 bg-[#f5ece0]',
                   )}>
                     <Icon
                       name={cmd.icon}
