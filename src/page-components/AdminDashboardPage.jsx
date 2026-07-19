@@ -449,105 +449,90 @@ function DonateOrderItem({ item, onMark, onDelete, marking, deleting, confirming
   }, [item.expiresAt]);
 
   return (
-    <div className="rounded-xl border border-[#B4E035]/30 bg-[#B4E035]/[0.04] px-4 py-3 transition-colors hover:border-[#B4E035]/50">
-      <div className="mb-2.5 flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-[#748F1C]">
-        <Heart size={10} className="fill-current" />
-        Donasi Masuk
+    <div className="rounded-xl border border-[#B4E035]/30 bg-[#B4E035]/[0.04] transition-colors hover:border-[#B4E035]/50">
+      {/* ── Info ── */}
+      <div className="px-4 pt-3 pb-2.5">
+        {/* Row 1: nama + nominal */}
+        <div className="flex items-start justify-between gap-3">
+          <div className="flex min-w-0 items-center gap-2">
+            <span className="text-base leading-none">💚</span>
+            <span className="truncate font-semibold text-sm text-[#1A2E1A]">{item.donorName}</span>
+            {item.nick
+              ? <span className="shrink-0 rounded border border-[#B4E035]/30 bg-[#B4E035]/10 px-1.5 py-0.5 font-mono text-[10px] text-[#748F1C]">{item.nick}</span>
+              : <span className="shrink-0 rounded border border-[#D8D1C0] bg-[#F0EBE0] px-1.5 py-0.5 text-[10px] text-[#6B7F5A]">Anonim</span>
+            }
+          </div>
+          <span className="shrink-0 font-mono text-sm font-bold text-[#748F1C]">
+            {formatRupiah(item.totalAmount)}
+          </span>
+        </div>
+
+        {/* Row 2: pesan (jika ada) */}
+        {item.message && (
+          <p className="mt-1.5 line-clamp-2 text-xs italic text-[#4A5E3E]">"{item.message}"</p>
+        )}
+
+        {/* Row 3: meta — suffix + timer */}
+        <div className="mt-1.5 flex flex-wrap items-center gap-2 text-[11px] text-[#6B7F5A]">
+          {item.suffix > 0 && (
+            <span className="rounded border border-[#D8D1C0] bg-[#F0EBE0] px-1.5 py-0.5 font-mono text-[10px]">
+              +{item.suffix} angka unik
+            </span>
+          )}
+          <span className="inline-flex items-center gap-1">
+            <Clock size={10} />
+            {remaining}
+          </span>
+          <span className="ml-auto text-[10px] font-mono text-[#8A9E7A]">QRIS</span>
+        </div>
       </div>
 
-      <div className="flex items-start gap-3">
-        <span className="mt-0.5 text-lg leading-none">💚</span>
-        <div className="min-w-0 flex-1">
-          <div className="flex flex-wrap items-center gap-2">
-            <span className="font-semibold text-sm text-[#1A2E1A]">{item.donorName}</span>
-            {item.nick && (
-              <>
-                <span className="text-xs text-[#6B7F5A]">·</span>
-                <span className="font-mono text-xs text-[#4A5E3E]">{item.nick}</span>
-              </>
-            )}
-            {!item.nick && (
-              <span className="rounded border border-[#D8D1C0] bg-[#F0EBE0] px-1.5 py-0.5 text-[10px] text-[#6B7F5A]">
-                Anonim
-              </span>
-            )}
+      {/* ── Actions ── */}
+      <div className="border-t border-[#B4E035]/15 px-3 py-2">
+        {!confirming ? (
+          <div className="flex items-center gap-2">
+            <button
+              onClick={() => onDelete(item.id)}
+              disabled={deleting || marking}
+              aria-label="Batalkan order"
+              className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg border border-danger/30 bg-danger/[0.07] text-danger transition-colors hover:bg-danger/15 disabled:cursor-not-allowed disabled:opacity-40"
+            >
+              {deleting
+                ? <span className="h-3 w-3 animate-spin rounded-full border border-danger/40 border-t-danger" />
+                : <Trash2 size={13} />}
+            </button>
+            <button
+              onClick={() => onRequestConfirm(item.id)}
+              disabled={marking || deleting}
+              className="flex flex-1 items-center justify-center gap-1.5 rounded-lg border border-[#B4E035]/50 bg-[#B4E035]/15 py-1.5 text-xs font-semibold text-[#748F1C] transition-colors hover:bg-[#B4E035]/25 hover:border-[#B4E035]/70 disabled:cursor-not-allowed disabled:opacity-40"
+            >
+              {marking
+                ? <span className="h-3 w-3 animate-spin rounded-full border border-[#B4E035]/40 border-t-[#B4E035]" />
+                : <CheckCircle size={13} />}
+              Tandai Lunas
+            </button>
           </div>
-
-          {item.message && (
-            <p className="mt-0.5 text-xs italic text-[#4A5E3E]">"{item.message}"</p>
-          )}
-
-          <div className="mt-1.5 flex flex-wrap items-center gap-3">
-            <span className="font-mono text-sm font-bold text-[#748F1C]">
-              {formatRupiah(item.totalAmount)}
-            </span>
-            <span className="text-xs text-[#6B7F5A]">QRIS</span>
-            <span className="rounded border border-[#D8D1C0] bg-[#F0EBE0] px-1.5 py-0.5 text-[10px] text-[#6B7F5A]">
-              nominal tepat: {formatRupiah(item.totalAmount)}
-            </span>
-            <span className="inline-flex items-center gap-1 text-xs text-[#6B7F5A]">
-              <Clock size={10} />
-              {remaining}
-            </span>
+        ) : (
+          <div className="flex items-center gap-2">
+            <span className="flex-1 text-xs font-semibold text-[#748F1C]">Konfirmasi donasi ini?</span>
+            <button
+              onClick={onCancelConfirm}
+              className="rounded-lg border border-[#D8D1C0] bg-[#F0EBE0] px-3 py-1.5 text-xs font-semibold text-[#6B7F5A] transition-colors hover:text-[#1A2E1A]"
+            >
+              Batal
+            </button>
+            <button
+              onClick={() => onMark(item.id)}
+              disabled={marking}
+              className="flex items-center gap-1 rounded-lg border border-[#B4E035]/50 bg-[#B4E035]/20 px-3 py-1.5 text-xs font-semibold text-[#748F1C] transition-colors hover:bg-[#B4E035]/30 disabled:cursor-not-allowed disabled:opacity-40"
+            >
+              {marking
+                ? <span className="h-3 w-3 animate-spin rounded-full border border-[#B4E035]/40 border-t-[#B4E035]" />
+                : <CheckCircle size={12} />}
+              Ya, Konfirmasi
+            </button>
           </div>
-        </div>
-
-        <div className="shrink-0 flex flex-col items-end gap-1.5">
-          {!confirming && (
-            <div className="flex items-center gap-1.5">
-              <button
-                onClick={() => onDelete(item.id)}
-                disabled={deleting || marking}
-                aria-label="Hapus order"
-                className="flex items-center gap-1 rounded-lg border border-danger/30 bg-danger/10 px-2.5 py-1.5 text-xs font-semibold text-danger transition-colors hover:bg-danger/20 disabled:cursor-not-allowed disabled:opacity-50"
-              >
-                {deleting ? (
-                  <span className="h-3 w-3 animate-spin rounded-full border border-danger/40 border-t-danger" />
-                ) : (
-                  <Trash2 size={12} />
-                )}
-              </button>
-              <button
-                onClick={() => onRequestConfirm(item.id)}
-                disabled={marking || deleting}
-                aria-label="Tandai lunas"
-                className="flex items-center gap-1.5 rounded-lg border border-[#B4E035]/50 bg-[#B4E035]/15 px-3 py-1.5 text-xs font-semibold text-[#748F1C] transition-colors hover:bg-[#B4E035]/25 hover:border-[#B4E035]/70 disabled:cursor-not-allowed disabled:opacity-50"
-              >
-                {marking ? (
-                  <span className="h-3 w-3 animate-spin rounded-full border border-[#B4E035]/40 border-t-[#B4E035]" />
-                ) : (
-                  <CheckCircle size={13} />
-                )}
-                Tandai Lunas
-              </button>
-            </div>
-          )}
-          {confirming && (
-            <>
-              <span className="text-[10px] font-semibold text-[#748F1C]">Konfirmasi donasi?</span>
-              <div className="flex items-center gap-1.5">
-                <button
-                  onClick={onCancelConfirm}
-                  className="rounded-lg border border-[#D8D1C0] bg-[#FAFAF7] px-2.5 py-1 text-xs font-semibold text-[#6B7F5A] transition-colors hover:text-[#1A2E1A]"
-                >
-                  Batal
-                </button>
-                <button
-                  onClick={() => onMark(item.id)}
-                  disabled={marking}
-                  className="flex items-center gap-1 rounded-lg border border-[#B4E035]/50 bg-[#B4E035]/15 px-2.5 py-1 text-xs font-semibold text-[#748F1C] transition-colors hover:bg-[#B4E035]/25 disabled:cursor-not-allowed disabled:opacity-50"
-                >
-                  {marking ? (
-                    <span className="h-3 w-3 animate-spin rounded-full border border-[#B4E035]/40 border-t-[#B4E035]" />
-                  ) : (
-                    <CheckCircle size={12} />
-                  )}
-                  Ya, Konfirmasi
-                </button>
-              </div>
-            </>
-          )}
-        </div>
+        )}
       </div>
     </div>
   );
