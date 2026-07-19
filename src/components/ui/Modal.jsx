@@ -1,4 +1,6 @@
+'use client';
 import { useEffect, useState } from 'react';
+import { createPortal } from 'react-dom';
 import { X } from 'lucide-react';
 import { useEscapeKey } from '@/hooks/useEscapeKey';
 import { useLockBodyScroll } from '@/hooks/useLockBodyScroll';
@@ -7,6 +9,10 @@ import { cn } from '@/lib/cn';
 export function Modal({ open, onClose, title, subtitle, icon, badge, size = 'md', children }) {
   const [rendered, setRendered] = useState(open);
   const [entered, setEntered] = useState(false);
+  const [mounted, setMounted] = useState(false);
+
+  // Portal hanya tersedia di browser
+  useEffect(() => setMounted(true), []);
 
   useLockBodyScroll(open);
   useEscapeKey(rendered, onClose);
@@ -22,15 +28,15 @@ export function Modal({ open, onClose, title, subtitle, icon, badge, size = 'md'
     return () => clearTimeout(timeout);
   }, [open]);
 
-  if (!rendered) return null;
+  if (!mounted || !rendered) return null;
 
   const sizeClass = { sm: 'max-w-md', md: 'max-w-lg', lg: 'max-w-2xl', xl: 'max-w-4xl' }[size];
 
-  return (
-    // Overlay: fixed penuh, tidak pernah scroll — gelap selalu nutup seluruh layar
+  return createPortal(
+    // Overlay: portal ke document.body — dijamin di atas navbar/footer/apapun
     <div
       className={cn(
-        'fixed inset-0 z-[150] bg-[#1A2E1A]/40 backdrop-blur-sm transition-opacity duration-150',
+        'fixed inset-0 z-[9999] bg-[#1A2E1A]/60 backdrop-blur-sm transition-opacity duration-150',
         entered ? 'opacity-100' : 'opacity-0'
       )}
       onClick={onClose}
@@ -38,15 +44,15 @@ export function Modal({ open, onClose, title, subtitle, icon, badge, size = 'md'
       aria-modal="true"
       aria-labelledby={title ? 'modal-title' : undefined}
     >
-      {/* Centering wrapper — fixed, tidak scroll */}
+      {/* Centering + klik backdrop: stopPropagation agar klik card tidak tutup modal */}
       <div
         className="fixed inset-0 flex items-center justify-center p-4"
         onClick={(e) => e.stopPropagation()}
       >
-        {/* Card: max-height + overflow-y-auto — hanya card yang scroll */}
+        {/* Card: satu-satunya yang punya scrollbar */}
         <div
           className={cn(
-            'relative w-full max-h-[calc(100dvh-2rem)] overflow-y-auto rounded-2xl border border-[#D8D1C0] bg-[#FAF8F4] shadow-[0_20px_60px_-12px_rgba(26,46,26,0.18)] transition-all duration-150',
+            'relative w-full max-h-[calc(100dvh-2rem)] overflow-y-auto rounded-2xl border border-[#D8D1C0] bg-[#FAF8F4] shadow-[0_20px_60px_-12px_rgba(26,46,26,0.25)] transition-all duration-150',
             sizeClass,
             entered ? 'translate-y-0 scale-100 opacity-100' : 'translate-y-2 scale-95 opacity-0'
           )}
@@ -85,6 +91,7 @@ export function Modal({ open, onClose, title, subtitle, icon, badge, size = 'md'
           <div className="px-6 pb-6 sm:px-8 sm:pb-8">{children}</div>
         </div>
       </div>
-    </div>
+    </div>,
+    document.body
   );
 }
