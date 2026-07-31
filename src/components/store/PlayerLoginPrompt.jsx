@@ -1,14 +1,25 @@
 import { useState } from 'react';
-import { LogIn, LogOut, RefreshCw, Smartphone, User } from 'lucide-react';
+import { LogIn, LogOut, RefreshCw, Smartphone, User, AlertTriangle } from 'lucide-react';
 import { usePlayerAuth } from '@/context/PlayerAuthContext';
 import { usePlayerRank } from '@/hooks/usePlayerRank';
 import { RANKS } from '@/data/ranks';
 import { useToast } from '@/context/ToastContext';
 import { cn } from '@/lib/cn';
 
-// Nick dengan titik = Bedrock (format NLogin: .NamaBedrock)
+// Deteksi platform: nick dengan awalan titik = Bedrock (format NLogin: .NamaBedrock),
+// tanpa awalan titik = Java.
 function isBedrock(nick) {
-  return nick.includes('.');
+  return nick.trim().startsWith('.');
+}
+
+// Pesan error tegas untuk username salah / tidak ditemukan. Sengaja menegaskan
+// aturan awalan titik agar pemain Bedrock langsung tahu penyebab umum kegagalan.
+const INVALID_USERNAME_MSG =
+  'Username salah atau tidak ditemukan. Pastikan Anda menggunakan awalan titik (.) di awal nama jika Anda adalah pemain Bedrock.';
+
+// Error yang berasal dari infrastruktur (bukan salah ketik nick) tetap ditampilkan apa adanya.
+function isInfraError(message) {
+  return /terlalu banyak|database|terhubung|coba lagi/i.test(message || '');
 }
 
 export function PlayerLoginPrompt() {
@@ -18,19 +29,29 @@ export function PlayerLoginPrompt() {
   const showToast = useToast();
   const [input, setInput] = useState('');
   const [submitting, setSubmitting] = useState(false);
+  const [error, setError] = useState('');
 
-  const hasDot = input.includes('.');
+  const trimmed = input.trim();
+  const bedrockInput = isBedrock(input);
+
+  function handleChange(e) {
+    setInput(e.target.value);
+    if (error) setError('');
+  }
 
   async function handleLogin(e) {
     e.preventDefault();
-    if (!input.trim() || submitting) return;
+    if (!trimmed || submitting) return;
     setSubmitting(true);
+    setError('');
     try {
-      const logged = await login(input.trim());
+      const logged = await login(trimmed);
       showToast(`Berhasil login sebagai ${logged}`, 'success');
       setInput('');
     } catch (err) {
-      showToast(err.message, 'error');
+      const msg = isInfraError(err.message) ? err.message : INVALID_USERNAME_MSG;
+      setError(msg);
+      showToast(msg, 'error');
     } finally {
       setSubmitting(false);
     }
@@ -91,36 +112,73 @@ export function PlayerLoginPrompt() {
   }
 
   return (
-    <div className="mb-6 rounded-md border border-warning/20 bg-warning/[0.04] px-5 py-4">
+    <div className="mb-6 rounded-md border border-2 border-[#1d2b1f] bg-[#faf3e8] px-5 py-4">
       <p className="mb-3 text-sm font-semibold text-[#1d2b1f]">
         Login dengan username Minecraft kamu untuk melakukan order
       </p>
-      <p className="mb-3 text-xs text-[#4a5e3a]">
-        Username harus sudah pernah join server AeroBlast dan terdaftar di NLogin.
-        {' '}Bedrock: username biasanya mengandung titik (contoh: <span className="font-mono text-[#4a5e3a]">.NamaKamu</span>).
-      </p>
-      {hasDot && (
-        <div className="mb-3 flex items-center gap-2 rounded-md border border-[#4a5e3a]/30 bg-[#4a5e3a]/8 px-3 py-2 text-xs text-[#354530]">
-          <Smartphone size={13} />
-          Username mengandung titik — akan dikenali sebagai <strong className="ml-1">Bedrock / PE</strong>
+
+      {/* Instruksi platform — TAMPIL sejak awal, sebelum user mengetik apa pun */}
+      <div className="mb-3 grid gap-2 rounded-md border border-[#1d2b1f]/20 bg-[#fffdf9] px-3.5 py-3 sm:grid-cols-2">
+        <div className="flex items-start gap-2">
+          <span className="mt-0.5 flex h-6 w-6 shrink-0 items-center justify-center rounded-md border border-[#1d2b1f]/20 bg-[#BFFF5E]/12">
+            <User size={13} className="text-[#1d2b1f]" />
+          </span>
+          <p className="text-[0.72rem] leading-relaxed text-[#4a5e3a]">
+            <strong className="font-bold text-[#1d2b1f]">Java Edition</strong> — tulis username{' '}
+            <span className="font-semibold">tanpa awalan titik</span>.
+            <br />
+            Contoh: <span className="font-mono text-[#1d2b1f]">NamaKamu</span>
+          </p>
+        </div>
+        <div className="flex items-start gap-2 sm:border-l sm:border-[#1d2b1f]/12 sm:pl-3">
+          <span className="mt-0.5 flex h-6 w-6 shrink-0 items-center justify-center rounded-md border border-[#1d2b1f]/20 bg-[#4a5e3a]/12">
+            <Smartphone size={13} className="text-[#354530]" />
+          </span>
+          <p className="text-[0.72rem] leading-relaxed text-[#4a5e3a]">
+            <strong className="font-bold text-[#1d2b1f]">Bedrock / PE</strong> — WAJIB pakai{' '}
+            <span className="font-semibold">awalan titik (.)</span> di depan nama.
+            <br />
+            Contoh: <span className="font-mono text-[#1d2b1f]">.NamaKamu</span>
+          </p>
+        </div>
+      </div>
+
+      {/* Indikator platform live — mengikuti apa yang diketik user */}
+      {trimmed && (
+        <div
+          className={cn(
+            'mb-3 inline-flex items-center gap-2 rounded-md border px-3 py-1.5 text-xs font-medium',
+            bedrockInput
+              ? 'border-[#4a5e3a]/35 bg-[#4a5e3a]/10 text-[#354530]'
+              : 'border-[#BFFF5E]/45 bg-[#BFFF5E]/12 text-[#1d2b1f]'
+          )}
+        >
+          {bedrockInput ? <Smartphone size={13} /> : <User size={13} />}
+          Terdeteksi sebagai{' '}
+          <strong className="font-bold">{bedrockInput ? 'Bedrock / PE' : 'Java Edition'}</strong>
         </div>
       )}
+
       <form onSubmit={handleLogin} className="flex gap-2">
         <input
           type="text"
           value={input}
-          onChange={(e) => setInput(e.target.value)}
+          onChange={handleChange}
           placeholder="Username Minecraft kamu…"
           maxLength={30}
           disabled={submitting}
+          aria-invalid={!!error}
           className={cn(
-            'flex-1 rounded-md border border-2 border-[#1d2b1f] bg-[#fffdf9] px-4 py-2.5 text-sm text-[#1d2b1f] placeholder:text-[#6b7f5a] outline-none transition-colors',
-            'focus:border-[#BFFF5E]/70 focus:ring-2 focus:ring-[#BFFF5E]/20 disabled:opacity-50',
+            'flex-1 rounded-md border border-2 bg-[#fffdf9] px-4 py-2.5 text-sm text-[#1d2b1f] placeholder:text-[#6b7f5a] outline-none transition-colors',
+            'focus:ring-2 disabled:opacity-50',
+            error
+              ? 'border-danger focus:border-danger focus:ring-danger/20'
+              : 'border-[#1d2b1f] focus:border-[#BFFF5E]/70 focus:ring-[#BFFF5E]/20'
           )}
         />
         <button
           type="submit"
-          disabled={submitting || !input.trim()}
+          disabled={submitting || !trimmed}
           className="flex items-center gap-1.5 rounded-md border border-[#BFFF5E]/50 bg-[#BFFF5E]/15 px-4 py-2.5 text-sm font-semibold text-[#1d2b1f] transition-colors hover:bg-[#BFFF5E]/25 disabled:cursor-not-allowed disabled:opacity-50"
         >
           {submitting
@@ -129,6 +187,23 @@ export function PlayerLoginPrompt() {
           Masuk
         </button>
       </form>
+
+      {/* Pesan error tegas saat username salah / tidak ditemukan */}
+      {error && (
+        <div
+          role="alert"
+          className="mt-3 flex items-start gap-2 rounded-md border border-danger/45 bg-danger/[0.08] px-3.5 py-2.5 text-xs font-medium leading-relaxed text-[#a3271f]"
+        >
+          <AlertTriangle size={14} className="mt-0.5 shrink-0 text-danger" />
+          <span>{error}</span>
+        </div>
+      )}
+
+      {/* Helper text di bawah form */}
+      <p className="mt-3 text-[0.72rem] leading-relaxed text-[#6b7f5a]">
+        Username harus sudah pernah join server AeroBlast dan terdaftar di NLogin. Pemain Bedrock
+        wajib menambahkan awalan titik (.) di awal nama — tanpa titik, akun tidak akan ditemukan.
+      </p>
     </div>
   );
 }
