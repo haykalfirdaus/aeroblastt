@@ -5,6 +5,7 @@ import { PageLayout } from '@/components/layout/PageLayout';
 import { Accordion, AccordionItem } from '@/components/ui/Accordion';
 import { FaqAnswer } from '@/components/faq/FaqAnswer';
 import { FAQ_CATEGORIES } from '@/data/faqData';
+import { substituteServerVars, useServerConfig } from '@/context/ServerConfigContext';
 import { cn } from '@/lib/cn';
 
 const CAT_ICONS = { Wifi, Gamepad2, Coins, Medal };
@@ -12,6 +13,7 @@ const CAT_ICONS = { Wifi, Gamepad2, Coins, Medal };
 export default function FaqPage() {
   const [query, setQuery] = useState('');
   const [activeCategory, setActiveCategory] = useState('all');
+  const server = useServerConfig();
 
   const filtered = useMemo(() => {
     const q = query.toLowerCase().trim();
@@ -21,10 +23,12 @@ export default function FaqPage() {
         (item) =>
           !q ||
           item.question.toLowerCase().includes(q) ||
-          JSON.stringify(item.answer).toLowerCase().includes(q)
+          // Substitusi dulu supaya pencarian "25543" / "aeroblast.my.id" tetap
+          // menemukan jawaban yang kini menyimpannya sebagai {{ip}}/{{port}}.
+          substituteServerVars(JSON.stringify(item.answer), server).toLowerCase().includes(q)
       ),
     })).filter((cat) => (activeCategory === 'all' || cat.title === activeCategory) && cat.items.length > 0);
-  }, [query, activeCategory]);
+  }, [query, activeCategory, server]);
 
   const totalResults = filtered.reduce((s, c) => s + c.items.length, 0);
 

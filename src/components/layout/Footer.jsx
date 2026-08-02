@@ -3,6 +3,7 @@ import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { Copy, Check, Home, ShoppingBag, Trophy, HelpCircle, FileText, MessageCircle, Phone, Server, Heart } from 'lucide-react';
 import { SITE } from '@/data/config';
+import { useServerConfig } from '@/context/ServerConfigContext';
 import { useClipboard } from '@/hooks/useClipboard';
 import { scrollToId } from '@/lib/motion';
 import { cn } from '@/lib/cn';
@@ -19,6 +20,7 @@ const LINKS = [
 
 export function Footer() {
   const [copiedKey, copy] = useClipboard();
+  const server = useServerConfig();
   const pathname = usePathname();
 
   function handleLinkClick(e, link) {
@@ -98,8 +100,8 @@ export function Footer() {
             </p>
             <div className="flex flex-col gap-2">
               {[
-                { label: 'IP', value: SITE.server.ip, key: 'ip' },
-                { label: 'Port', value: SITE.server.port, key: 'port' },
+                { label: 'IP', value: server.ip, key: 'ip' },
+                { label: 'Port', value: server.port, key: 'port' },
               ].map((item) => (
                 <div
                   key={item.key}

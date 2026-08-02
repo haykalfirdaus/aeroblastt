@@ -61,7 +61,8 @@ src/components/
 
 | Hook | Purpose |
 |---|---|
-| `useServerStatus` | Polls `mcsrvstat.us` for Minecraft server status |
+| `useServerStatus` | Polls `mcsrvstat.us` for Minecraft server status (target dari `useServerConfig()`) |
+| `useServerConfig` | Alamat server aktif `{ ip, port }` dari `ServerConfigContext` |
 | `useTopVoters` | Fetches `/api/voters`, refreshes every 5 min |
 | `useActiveAnnouncements` | Fetches `/api/admin/announcements`, 5-min module cache |
 | `useActiveDiscounts` | Fetches `/api/admin/discounts`, 5-min module cache |
@@ -74,6 +75,7 @@ src/components/
 ### Utility Libraries
 
 - `src/lib/cn.js` — minimal `clsx` substitute (filter falsy + join)
+- `src/lib/serverConfig.js` — **server-only**: `getServerConfig()` (baca `server_config` dari Supabase, di-cache dengan tag `server-config`, fallback ke `SITE.server`). Jangan diimpor dari client component.
 - `src/lib/motion.js` — GSAP + AOS helpers: `initAOS()`, `scrollToId(id)`, `scrollToTop()`, `prefersReducedMotion()`
 - `src/utils/currency.js` — `formatRupiah()`, `formatNumber()` for Indonesian locale
 - `src/utils/discount.js` — `fetchActiveDiscounts()`, `checkDiscountCode()` with 1-min in-memory cache
@@ -81,7 +83,13 @@ src/components/
 
 ### Static Product Data (`src/data/`)
 
-All store inventory is static JS modules — no backend CMS. Central site config lives in `src/data/config.js` (server IP, WhatsApp number, payment methods, social links). Products: `ranks.js`, `keys.js`, `skills.js`, `balance.js`, `commands.js`.
+All store inventory is static JS modules — no backend CMS. Central site config lives in `src/data/config.js` (WhatsApp number, payment methods, social links). Products: `ranks.js`, `keys.js`, `skills.js`, `balance.js`, `commands.js`.
+
+**Alamat server (IP/port) BUKAN lagi dari `config.js`.** Nilai live disimpan di tabel Supabase `server_config` dan diubah dari panel admin — berlaku langsung tanpa redeploy. `SITE.server` di `config.js` hanya fallback saat Supabase gagal dibaca.
+
+Alurnya: `app/layout.jsx` (satu-satunya server component) memanggil `getServerConfig()` → membungkus tree dengan `<ServerConfigProvider>` → komponen client memakai `useServerConfig()`. Karena dibaca di server, nilainya sudah benar di HTML render pertama (tidak ada flash).
+
+Di `src/data/faqData.js`, tulis `{{ip}}` / `{{port}}` — bukan nilai literal. `FaqAnswer` mensubstitusinya saat render, dan `FaqPage` melakukan substitusi sebelum filter pencarian agar mencari "25543" tetap menemukan hasil.
 
 ### Serverless API (`api/`)
 
@@ -93,8 +101,9 @@ Vercel-compatible Node.js handlers. Announcements dan discounts disimpan di **Su
 | `POST /api/admin/login` | Public — sets `aeroblast_admin_session` HttpOnly cookie (7-day HMAC-SHA256 token) |
 | `GET/POST/DELETE /api/admin/announcements` | GET public; mutations require admin session cookie |
 | `GET/POST/DELETE /api/admin/discounts` | GET public; mutations require admin session cookie |
+| `GET/POST /api/admin/server-config` | GET public (fallback ke `SITE.server` kalau DB gagal); POST perlu admin session, lalu `revalidateTag('server-config')` |
 
-**Database**: Supabase project `rkbnmrsglhmuchganiaq`. Tabel: `announcements`, `discounts`. Shared helper `api/_supabase.js` (service role client). Schema SQL ada di `supabase-migration.sql`.
+**Database**: Supabase project `rkbnmrsglhmuchganiaq`. Tabel: `announcements`, `discounts`, `invoices`, `donations`, `server_config`. Shared helper `api/_supabase.js` (service role client). Schema SQL ada di `supabase-migration.sql` — jalankan lewat Supabase Dashboard → SQL Editor.
 
 Admin auth is a custom HMAC-SHA256 token scheme (no third-party JWT library). The signing key is the `ADMIN_SECRET` env var (fallback hardcoded — must be set in production).
 

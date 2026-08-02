@@ -12,10 +12,14 @@ export const SITE = {
   domain: 'aeroblast.my.id',
   baseUrl: process.env.NEXT_PUBLIC_SITE_URL || 'https://store.aeroblast.my.id',
 
+  // FALLBACK saja — nilai live disimpan di tabel Supabase `server_config` dan
+  // diubah dari panel admin (lihat src/lib/serverConfig.js). Komponen membaca
+  // useServerConfig() dari @/context/ServerConfigContext, bukan nilai di sini.
+  // Ini hanya dipakai kalau Supabase belum dikonfigurasi atau gagal dibaca.
+  // URL status mcsrvstat diturunkan dari ip:port lewat buildStatusApi().
   server: {
     ip: 'aeroblast.my.id',
     port: '25543',
-    statusApi: 'https://api.mcsrvstat.us/2/aeroblast.my.id:25543',
   },
 
   waNumber: '628123731343',

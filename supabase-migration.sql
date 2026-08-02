@@ -103,3 +103,29 @@ create or replace view public.donation_leaderboard as
   where nick is not null
   group by nick
   order by total_amount desc;
+
+-- ============================================================
+-- Tabel server_config — alamat server Minecraft (IP + port)
+-- Single-row: diubah dari panel admin, langsung aktif tanpa redeploy.
+-- ============================================================
+
+create table if not exists public.server_config (
+  id          boolean     primary key default true check (id),  -- kunci single-row
+  ip          text        not null check (char_length(ip) between 1 and 253),
+  port        text        not null,
+  updated_at  timestamptz not null default now()
+);
+
+alter table public.server_config enable row level security;
+
+-- Policy: publik boleh SELECT — IP server memang informasi publik
+create policy "public read server config"
+  on public.server_config for select
+  using (true);
+
+-- service_role (admin API) bypass RLS otomatis — upsert dari route handler
+
+-- Seed baris awal; on conflict supaya migrasi aman dijalankan ulang
+insert into public.server_config (id, ip, port)
+  values (true, 'aeroblast.my.id', '25543')
+  on conflict (id) do nothing;
