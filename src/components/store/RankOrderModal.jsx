@@ -42,6 +42,10 @@ export function RankOrderModal({ rank, open, onClose }) {
     setOwnedRank(detectedRank ? detectedRank.toLowerCase() : 'none');
   }, [open, detectedRank, detectedPlatform]); // eslint-disable-line react-hooks/exhaustive-deps
 
+  // Rank dikunci untuk semua player yang login — termasuk yang belum punya rank
+  // (detectedRank null = Member), supaya tidak bisa mengaku punya rank palsu.
+  const rankLocked = !!playerNick && !rankLoading;
+
   if (!rank) return null;
 
   const durOpt = RANK_DURATION_OPTIONS.find((d) => d.id === duration);
@@ -109,7 +113,7 @@ export function RankOrderModal({ rank, open, onClose }) {
             {rankLoading && <RefreshCw size={11} className="ml-1.5 inline animate-spin text-[#6b7f5a]" />}
             {!rankLoading && playerNick && <span className="ml-1.5 text-[0.6rem] text-[#6b7f5a]">(terdeteksi otomatis)</span>}
           </FieldLabel>
-          <SelectField value={ownedRank} onChange={(e) => !detectedRank && setOwnedRank(e.target.value)} disabled={rankLoading || !!detectedRank}>
+          <SelectField value={ownedRank} onChange={(e) => !rankLocked && setOwnedRank(e.target.value)} disabled={rankLoading || rankLocked}>
             <option value="none">Belum punya rank / Member</option>
             {(() => {
               const targetIdx = RANKS.findIndex((r) => r.key === rank.key);
@@ -127,7 +131,11 @@ export function RankOrderModal({ rank, open, onClose }) {
               });
             })()}
           </SelectField>
-          {detectedRank && <p className="mt-1 text-[11px] text-[#354530]">Rank terdeteksi — tidak bisa pilih rank lebih rendah</p>}
+          {rankLocked && (
+            <p className="mt-1 text-[11px] text-[#354530]">
+              {detectedRank ? 'Rank terdeteksi otomatis — tidak bisa diubah manual' : 'Kamu belum punya rank — terdeteksi otomatis'}
+            </p>
+          )}
         </div>
 
         <div>
