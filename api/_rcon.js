@@ -8,7 +8,7 @@ const RCON_PASSWORD = process.env.RCON_PASSWORD;
 const SAFE_NICK    = /^[a-zA-Z0-9_.]{1,36}$/;
 const SAFE_LABEL   = /^[a-zA-Z0-9_\-. ]{1,64}$/;
 const SAFE_DIGITS  = /^\d{1,19}$/;
-const SAFE_DATETIME = /^\d{2}\/\d{2}\/\d{2} \d{2}:\d{2}$/;
+const SAFE_DURATION = /^\d{1,4}[dhmwy]$/;
 const SAFE_SUBACT  = /^(add|reduce)$/;
 
 function guard(value, re, label) {
@@ -63,13 +63,11 @@ export async function grantRank(nick, rankKey, duration) {
 
   const days = { monthly: 30, quarterly: 90 }[duration];
   if (days) {
-    const exp = new Date(Date.now() + days * 24 * 60 * 60 * 1000);
-    const pad = (n) => String(n).padStart(2, '0');
-    const expStr = `${pad(exp.getDate())}/${pad(exp.getMonth() + 1)}/${String(exp.getFullYear()).slice(2)} ${pad(exp.getHours())}:${pad(exp.getMinutes())}`;
-    try { guard(expStr, SAFE_DATETIME, 'expStr'); } catch (e) { return { ok: false, error: e.message }; }
-    return rconSend(`lp user ${nick} parent addtemp ${group} ${expStr} replace`);
+    const dur = `${days}d`;
+    try { guard(dur, SAFE_DURATION, 'duration'); } catch (e) { return { ok: false, error: e.message }; }
+    return rconSend(`lp user ${nick} parent addtemp ${group} ${dur} replace`);
   }
-  return rconSend(`lp user ${nick} parent set ${group}`);
+  return rconSend(`lp user ${nick} parent add ${group}`);
 }
 
 // nlogin verify <nick> — returns { ok, registered, response }

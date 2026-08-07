@@ -114,7 +114,7 @@ export function isCommandOwnedByRank(cmd, playerRank) {
 
 /** Duration options for command purchases: 30 hari, 3 bulan (2x), permanen (3x). */
 export const COMMAND_DURATION_OPTIONS = [
-  { id: 'monthly', label: '30 Hari', sub: 'Sementara', percentOfBase: 100, isDefault: false },
-  { id: 'quarterly', label: '3 Bulan', sub: 'Sementara', percentOfBase: 200, isDefault: false },
+  { id: 'monthly', label: '30 Hari', sub: 'Akses Sementara', percentOfBase: 100, isDefault: false },
+  { id: 'quarterly', label: '3 Bulan', sub: 'Akses Sementara', percentOfBase: 200, isDefault: false },
   { id: 'permanent', label: 'Permanen', sub: 'Aktif Selamanya', badge: 'BEST DEAL', percentOfBase: 300, isDefault: true },
 ];
