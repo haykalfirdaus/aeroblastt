@@ -3,6 +3,8 @@
  * duration option costs 200% of it (pay double, own it forever) — the
  * inverse decoy structure from the rank tiers, preserved from the original.
  */
+import { RANK_ORDER } from './ranks';
+
 export const COMMANDS = [
   {
     key: 'FLY',
@@ -13,6 +15,7 @@ export const COMMANDS = [
     basePrice: 30000,
     description: 'Terbang bebas di seluruh server tanpa batas!',
     orderLabel: '/fly — FLY',
+    includedInRank: 'QUANTUM',
   },
   {
     key: 'GOD',
@@ -24,6 +27,7 @@ export const COMMANDS = [
     badge: 'BEST',
     description: 'Kebal dari segala damage! Tidak bisa mati selama aktif.',
     orderLabel: '/god — GOD MODE',
+    includedInRank: 'UNIVERSE',
   },
   {
     key: 'FEED',
@@ -34,6 +38,7 @@ export const COMMANDS = [
     basePrice: 10000,
     description: 'Isi penuh hunger bar setiap saat kapan pun kamu mau.',
     orderLabel: '/feed — FEED',
+    includedInRank: 'RAVEST',
   },
   {
     key: 'HEAL',
@@ -44,6 +49,7 @@ export const COMMANDS = [
     basePrice: 10000,
     description: 'Pulihkan HP penuh kapan saja kamu butuhkan.',
     orderLabel: '/heal — HEAL',
+    includedInRank: 'QUANTUM',
   },
   {
     key: 'TP',
@@ -64,6 +70,7 @@ export const COMMANDS = [
     basePrice: 10000,
     description: 'Repair item yang kamu pegang secara instan tanpa anvil.',
     orderLabel: '/repair — REPAIR',
+    includedInRank: 'RAVEST',
   },
   {
     key: 'INVSEE',
@@ -74,6 +81,7 @@ export const COMMANDS = [
     basePrice: 25000,
     description: 'Lihat inventory player lain kapan saja.',
     orderLabel: '/invsee — INVSEE',
+    includedInRank: 'GALATICS',
   },
   {
     key: 'UTILITY',
@@ -87,8 +95,22 @@ export const COMMANDS = [
     description: 'Akses Anvil, Ender Chest, dan Workbench portabel kapan saja!',
     bundleItems: ['/anvil', '/ec', '/wb'],
     orderLabel: '/anvil + /ec + /wb — UTILITY PACK',
+    // /wb dari Scout, /ec dari Voyager, /anvil dari Ravest — lengkap di Ravest
+    includedInRank: 'RAVEST',
   },
 ];
+
+/**
+ * True kalau command sudah termasuk benefit `playerRank`.
+ * Rank bersifat kumulatif: tier di atas ikut mewarisi fitur tier bawahnya,
+ * jadi cukup bandingkan posisinya di RANK_ORDER.
+ */
+export function isCommandOwnedByRank(cmd, playerRank) {
+  if (!playerRank || !cmd?.includedInRank) return false;
+  const owned = RANK_ORDER.indexOf(playerRank);
+  const needed = RANK_ORDER.indexOf(cmd.includedInRank);
+  return owned > 0 && needed > 0 && owned >= needed;
+}
 
 /** Duration options for command purchases: cheap-looking 30-day vs. 2x-price permanent. */
 export const COMMAND_DURATION_OPTIONS = [

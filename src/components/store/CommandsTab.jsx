@@ -11,7 +11,8 @@ import { CountdownBanner } from './CountdownBanner';
 import { DiscountCodeInput } from './DiscountCodeInput';
 import { PriceSummary } from './PriceSummary';
 import { BetaPaymentModal } from './BetaPaymentModal';
-import { COMMANDS, COMMAND_DURATION_OPTIONS } from '@/data/commands';
+import { COMMANDS, COMMAND_DURATION_OPTIONS, isCommandOwnedByRank } from '@/data/commands';
+import { usePlayerRank } from '@/hooks/usePlayerRank';
 import { SITE } from '@/data/config';
 import { buildCommandOrderMessage, openWhatsApp } from '@/utils/whatsapp';
 import { sendInvoice } from '@/utils/invoice';
@@ -136,6 +137,7 @@ function CommandOrderModal({ cmd, open, onClose }) {
 
 export function CommandsTab() {
   const { nick } = usePlayerAuth();
+  const { rank: playerRank } = usePlayerRank();
   const [selected, setSelected] = useState(null);
   const total = COMMANDS_DESC.length;
 
@@ -147,6 +149,7 @@ export function CommandsTab() {
       <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-4">
         {COMMANDS_DESC.map((cmd, idx) => {
           const tier = getTier(idx, total);
+          const ownedByRank = isCommandOwnedByRank(cmd, playerRank);
 
           return (
             <div
@@ -156,7 +159,7 @@ export function CommandsTab() {
                 tier.featured
                   ? 'border border-[#1d2b1f] bg-[#faf3e8] hover:scale-[1.015] hover:brightness-[1.02]'
                   : 'border border-[#1d2b1f]/60 bg-[#fffdf9] hover:scale-[1.01]',
-                tier.opacity,
+                ownedByRank ? 'opacity-60 grayscale' : tier.opacity,
               )}
               data-aos="fade-up"
               data-aos-delay={idx * 40}
@@ -170,6 +173,7 @@ export function CommandsTab() {
               />
 
               <div className="flex flex-col gap-2.5 p-4">
+                {ownedByRank && <Badge tone="neon">SUDAH DIMILIKI</Badge>}
                 {cmd.bundleTag && <Badge tone="cyan">{cmd.bundleTag}</Badge>}
                 {cmd.badge && <Badge tone={tier.isTop ? 'gold' : 'neon'}>{cmd.badge}</Badge>}
 
@@ -213,13 +217,24 @@ export function CommandsTab() {
                     fullWidth
                     variant={tier.featured ? 'primary' : 'secondary'}
                     size="sm"
-                    onClick={() => nick && setSelected(cmd)}
-                    disabled={!nick}
-                    title={!nick ? 'Login dulu untuk order' : undefined}
+                    onClick={() => nick && !ownedByRank && setSelected(cmd)}
+                    disabled={!nick || ownedByRank}
+                    title={
+                      ownedByRank
+                        ? `Sudah termasuk benefit rank ${cmd.includedInRank}`
+                        : !nick ? 'Login dulu untuk order' : undefined
+                    }
                     className={!tier.featured ? 'opacity-75' : ''}
                   >
-                    {nick ? 'Order' : <><Lock size={12} className="inline mr-1" />Login dulu</>}
+                    {ownedByRank
+                      ? <><Lock size={12} className="inline mr-1" />Termasuk rank kamu</>
+                      : nick ? 'Order' : <><Lock size={12} className="inline mr-1" />Login dulu</>}
                   </Button>
+                  {ownedByRank && (
+                    <p className="mt-1.5 text-center text-[0.6rem] text-[#4a5e3a]">
+                      Sudah kamu dapat dari rank {cmd.includedInRank}
+                    </p>
+                  )}
                 </div>
               </div>
             </div>

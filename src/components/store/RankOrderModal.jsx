@@ -18,10 +18,17 @@ import { usePlayerAuth } from '@/context/PlayerAuthContext';
 import { usePlayerRank } from '@/hooks/usePlayerRank';
 import { cn } from '@/lib/cn';
 
+// Unix timestamp (detik) → "12 Sep 2026"
+function formatExpiry(unixSeconds) {
+  return new Date(unixSeconds * 1000).toLocaleDateString('id-ID', {
+    day: 'numeric', month: 'short', year: 'numeric',
+  });
+}
+
 export function RankOrderModal({ rank, open, onClose }) {
   const showToast = useToast();
   const { nick: playerNick } = usePlayerAuth();
-  const { rank: detectedRank, loading: rankLoading } = usePlayerRank();
+  const { rank: detectedRank, permanent: rankPermanent, expiry: rankExpiry, loading: rankLoading } = usePlayerRank();
   const isBedrock = playerNick?.includes('.');
   const isJava = !!playerNick && !playerNick.includes('.');
   const platformLocked = isBedrock || isJava;
@@ -133,7 +140,11 @@ export function RankOrderModal({ rank, open, onClose }) {
           </SelectField>
           {rankLocked && (
             <p className="mt-1 text-[11px] text-[#354530]">
-              {detectedRank ? 'Rank terdeteksi otomatis — tidak bisa diubah manual' : 'Kamu belum punya rank — terdeteksi otomatis'}
+              {!detectedRank
+                ? 'Kamu belum punya rank — terdeteksi otomatis'
+                : rankPermanent
+                  ? 'Rank permanen terdeteksi otomatis — tidak bisa diubah manual'
+                  : `Rank bulanan terdeteksi otomatis${rankExpiry ? ` — berlaku sampai ${formatExpiry(rankExpiry)}` : ''}`}
             </p>
           )}
         </div>

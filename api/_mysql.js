@@ -72,17 +72,23 @@ export async function getPlayerRankFromLP(nick) {
   const uuid = lpRows[0].uuid;
 
   const [rows] = await db.execute(
-    `SELECT permission FROM luckperms_user_permissions
+    `SELECT permission, expiry FROM luckperms_user_permissions
      WHERE uuid = ?
        AND permission LIKE 'group.%'
        AND (expiry = 0 OR expiry > UNIX_TIMESTAMP())`,
     [uuid]
   );
 
-  const groups = rows.map((r) => r.permission.replace('group.', '').toLowerCase());
+  // expiry 0 = permanen; > 0 = unix timestamp kadaluarsa (rank bulanan)
+  const groups = new Map(
+    rows.map((r) => [r.permission.replace('group.', '').toLowerCase(), Number(r.expiry) || 0])
+  );
 
   for (const rank of PURCHASABLE_RANKS_DESC) {
-    if (groups.includes(rank)) return rank.toUpperCase();
+    if (groups.has(rank)) {
+      const expiry = groups.get(rank);
+      return { rank: rank.toUpperCase(), permanent: expiry === 0, expiry: expiry || null };
+    }
   }
   return null;
 }

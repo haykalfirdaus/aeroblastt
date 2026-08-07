@@ -103,10 +103,15 @@ import { getPlayerRankFromLP } from './_mysql.js';
 export async function getPlayerRank(nick) {
   try { guard(nick, SAFE_NICK, 'nick'); } catch (e) { return { ok: false, rank: null, error: e.message }; }
   try {
-    const rank = await getPlayerRankFromLP(nick);
-    return { ok: true, rank };
+    const info = await getPlayerRankFromLP(nick);
+    return {
+      ok: true,
+      rank: info?.rank ?? null,
+      permanent: info?.permanent ?? null,
+      expiry: info?.expiry ?? null,
+    };
   } catch (err) {
-    return { ok: false, rank: null, error: err.message };
+    return { ok: false, rank: null, permanent: null, expiry: null, error: err.message };
   }
 }
 
