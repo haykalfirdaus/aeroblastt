@@ -1318,7 +1318,8 @@ function RconSection() {
               <FieldLabel required>Durasi</FieldLabel>
               <select value={rankDuration} onChange={(e) => setRankDuration(e.target.value)} disabled={loading} className={fieldBase}>
                 <option value="permanent">Permanent</option>
-                <option value="monthly">Monthly (30 hari)</option>
+                <option value="quarterly">3 Bulan (90 hari)</option>
+                <option value="monthly">1 Bulan (30 hari)</option>
               </select>
             </div>
           </div>

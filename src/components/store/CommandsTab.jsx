@@ -92,7 +92,7 @@ function CommandOrderModal({ cmd, open, onClose }) {
         </div>
         <div>
           <FieldLabel required>Durasi</FieldLabel>
-          <div className="grid grid-cols-2 gap-2">
+          <div className="grid grid-cols-3 gap-2">
             {COMMAND_DURATION_OPTIONS.map((opt) => (
               <button
                 key={opt.id}

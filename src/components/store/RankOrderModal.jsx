@@ -151,7 +151,7 @@ export function RankOrderModal({ rank, open, onClose }) {
 
         <div>
           <FieldLabel required>Durasi</FieldLabel>
-          <div className="grid grid-cols-2 gap-2">
+          <div className="grid grid-cols-3 gap-2">
             {RANK_DURATION_OPTIONS.map((opt) => (
               <button
                 key={opt.id}

@@ -78,8 +78,9 @@ export const RANK_PRICES = { NONE: 0, ...Object.fromEntries(RANKS.map((r) => [r.
 /** Ascending tier order incl. NONE, used to grey out same/lower tiers in the "owned rank" dropdown. */
 export const RANK_ORDER = ['NONE', ...RANKS.map((r) => r.key)];
 
-/** Duration options for rank purchases: a 1-month "decoy" vs. permanent best value. */
+/** Duration options for rank purchases: dua opsi berdurasi vs. permanent best value. */
 export const RANK_DURATION_OPTIONS = [
-  { id: 'monthly', label: '1 Bulan', sub: 'Rugi Jangka Panjang', percentOfBase: 80, isDefault: false },
+  { id: 'monthly', label: '1 Bulan', sub: 'Coba Dulu', percentOfBase: 50, isDefault: false },
+  { id: 'quarterly', label: '3 Bulan', sub: 'Rugi Jangka Panjang', percentOfBase: 80, isDefault: false },
   { id: 'permanent', label: 'Permanen', sub: 'Aktif Selamanya', badge: 'BEST VALUE', percentOfBase: 100, isDefault: true },
 ];

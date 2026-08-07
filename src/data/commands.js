@@ -112,8 +112,9 @@ export function isCommandOwnedByRank(cmd, playerRank) {
   return owned > 0 && needed > 0 && owned >= needed;
 }
 
-/** Duration options for command purchases: cheap-looking 30-day vs. 2x-price permanent. */
+/** Duration options for command purchases: 30 hari, 3 bulan (2x), permanen (3x). */
 export const COMMAND_DURATION_OPTIONS = [
   { id: 'monthly', label: '30 Hari', sub: 'Sementara', percentOfBase: 100, isDefault: false },
-  { id: 'permanent', label: 'Permanen', sub: 'Aktif Selamanya', badge: 'BEST DEAL', percentOfBase: 200, isDefault: true },
+  { id: 'quarterly', label: '3 Bulan', sub: 'Sementara', percentOfBase: 200, isDefault: false },
+  { id: 'permanent', label: 'Permanen', sub: 'Aktif Selamanya', badge: 'BEST DEAL', percentOfBase: 300, isDefault: true },
 ];

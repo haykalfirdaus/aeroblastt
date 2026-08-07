@@ -61,8 +61,9 @@ export async function grantRank(nick, rankKey, duration) {
   const group = RANK_GROUP[rankKey?.toUpperCase()];
   if (!group) return { ok: false, error: `Rank key tidak dikenal: ${rankKey}` };
 
-  if (duration === 'monthly') {
-    const exp = new Date(Date.now() + 30 * 24 * 60 * 60 * 1000);
+  const days = { monthly: 30, quarterly: 90 }[duration];
+  if (days) {
+    const exp = new Date(Date.now() + days * 24 * 60 * 60 * 1000);
     const pad = (n) => String(n).padStart(2, '0');
     const expStr = `${pad(exp.getDate())}/${pad(exp.getMonth() + 1)}/${String(exp.getFullYear()).slice(2)} ${pad(exp.getHours())}:${pad(exp.getMinutes())}`;
     try { guard(expStr, SAFE_DATETIME, 'expStr'); } catch (e) { return { ok: false, error: e.message }; }
