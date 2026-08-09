@@ -9,7 +9,7 @@ import {
 import { PageLayout } from '@/components/layout/PageLayout';
 import { Button } from '@/components/ui/Button';
 import { formatRupiah } from '@/utils/currency';
-import { SITE } from '@/data/config';
+import { QrisDisplay } from '@/components/store/QrisDisplay';
 import { usePlayerAuth } from '@/context/PlayerAuthContext';
 import { cn } from '@/lib/cn';
 
@@ -344,12 +344,8 @@ export default function DonatePage() {
                     )}
                   </div>
 
-                  {/* QR */}
-                  <div className="flex justify-center">
-                    <div className="overflow-hidden rounded-md border border-2 border-[#1d2b1f] bg-white p-3 shadow-sm">
-                      <img src={SITE.payment.QRIS.imgPath} alt="QRIS AeroBlast" width={240} height={240} className="block" />
-                    </div>
-                  </div>
+                  {/* QR dinamis — nominal sudah tertanam, bisa di-download */}
+                  <QrisDisplay payload={order.qris} amount={order.totalAmount} label="Donasi" />
 
                   <ol className="flex flex-col gap-1.5 text-xs text-[#4a5e3a]">
                     {['Buka aplikasi e-wallet / bank kamu', 'Scan kode QRIS di atas', `Transfer TEPAT ${formatRupiah(order.totalAmount)}`, 'Konfirmasi — deteksi otomatis dalam beberapa detik'].map((s, i) => (

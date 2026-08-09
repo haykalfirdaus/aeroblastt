@@ -49,9 +49,9 @@ export function QrisDisplay({ payload, amount, label }) {
     <div className="flex w-full flex-col items-center gap-3">
       <div className="rounded-md border border-2 border-[#1d2b1f] bg-white p-3 shadow-lg">
         {useStatic ? (
-          <img src={STATIC_QRIS_IMG} alt="QRIS AeroBlast" className="h-64 w-64 object-contain" />
+          <img src={STATIC_QRIS_IMG} alt="QRIS AeroBlast" className="h-40 w-40 object-contain sm:h-48 sm:w-48" />
         ) : (
-          <canvas ref={canvasRef} className="h-64 w-64" aria-label={`QRIS ${label || ''} ${formatRupiah(amount)}`} />
+          <canvas ref={canvasRef} className="h-40 w-40 sm:h-48 sm:w-48" aria-label={`QRIS ${label || ''} ${formatRupiah(amount)}`} />
         )}
       </div>
 
