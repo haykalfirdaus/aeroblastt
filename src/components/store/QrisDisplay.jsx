@@ -46,36 +46,46 @@ export function QrisDisplay({ payload, amount, label }) {
   const fileName = `qris-aeroblast-${amount}.png`;
 
   return (
-    <div className="flex w-full flex-col items-center gap-3">
-      <div className="rounded-md border border-2 border-[#1d2b1f] bg-white p-3 shadow-lg">
+    <div className="flex w-full flex-col items-center gap-2">
+      {/* Ukuran QR mengikuti lebar container (dibatasi 8rem–11rem) supaya tetap
+          muat di layar pendek tanpa mendorong tombol keluar dari modal. */}
+      <div className="rounded-md border border-2 border-[#1d2b1f] bg-white p-2 shadow-lg">
         {useStatic ? (
-          <img src={STATIC_QRIS_IMG} alt="QRIS AeroBlast" className="h-40 w-40 object-contain sm:h-48 sm:w-48" />
+          <img
+            src={STATIC_QRIS_IMG}
+            alt="QRIS AeroBlast"
+            className="block aspect-square w-[min(44vw,9rem)] object-contain sm:w-44"
+          />
         ) : (
-          <canvas ref={canvasRef} className="h-40 w-40 sm:h-48 sm:w-48" aria-label={`QRIS ${label || ''} ${formatRupiah(amount)}`} />
+          <canvas
+            ref={canvasRef}
+            className="block aspect-square w-[min(44vw,9rem)] sm:w-44"
+            aria-label={`QRIS ${label || ''} ${formatRupiah(amount)}`}
+          />
         )}
       </div>
 
       {useStatic ? (
-        <p className="text-center text-xs text-[#4a5e3a]">
+        <p className="text-center text-[11px] leading-snug text-[#4a5e3a]">
           Masukkan nominal <span className="font-semibold text-[#1d2b1f]">{formatRupiah(amount)}</span> secara manual saat membayar.
         </p>
       ) : (
         <>
-          <p className="text-center text-xs text-[#4a5e3a]">
-            Nominal sudah otomatis terisi <span className="font-semibold text-[#1d2b1f]">{formatRupiah(amount)}</span> saat di-scan.
+          <p className="text-center text-[11px] leading-snug text-[#4a5e3a]">
+            Nominal terisi otomatis saat di-scan.
           </p>
           {downloadUrl && (
             <a
               href={downloadUrl}
               download={fileName}
-              className="flex w-full items-center justify-center gap-2 rounded-md border border-2 border-[#1d2b1f] bg-[#faf3e8] py-2.5 text-sm font-semibold text-[#1d2b1f] transition-all hover:bg-[#BFFF5E]"
+              className="flex w-full items-center justify-center gap-2 rounded-md border border-2 border-[#1d2b1f] bg-[#faf3e8] py-2 text-xs font-semibold text-[#1d2b1f] transition-all hover:bg-[#BFFF5E]"
             >
-              <Download size={15} />
+              <Download size={14} />
               Download QRIS
             </a>
           )}
-          <p className="text-center text-[11px] text-[#6b7f5a]">
-            Bayar dari HP yang sama? Download QR-nya, lalu scan dari galeri di aplikasi e-wallet.
+          <p className="text-center text-[10px] leading-snug text-[#6b7f5a]">
+            Bayar dari HP yang sama? Download QR-nya, lalu scan dari galeri.
           </p>
         </>
       )}

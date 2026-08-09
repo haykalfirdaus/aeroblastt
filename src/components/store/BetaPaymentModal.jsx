@@ -123,12 +123,12 @@ export function BetaPaymentModal({ open, onClose, orderPayload, productLabel }) 
 
         {/* WAITING */}
         {status === 'waiting' && order && (
-          <div className="flex flex-col items-center gap-5">
+          <div className="flex flex-col items-center gap-3">
             {/* Nominal */}
-            <div className="w-full rounded-md border border-[#BFFF5E]/25 bg-[#BFFF5E]/8 px-4 py-3 text-center">
-              <p className="text-xs text-[#4a5e3a] mb-1">Transfer TEPAT sebesar</p>
-              <p className="text-3xl font-bold tracking-tight text-[#1d2b1f]">{formatRupiah(order.totalAmount)}</p>
-              <p className="mt-1.5 text-xs text-[#4a5e3a]">
+            <div className="w-full rounded-md border border-[#BFFF5E]/25 bg-[#BFFF5E]/8 px-4 py-2.5 text-center">
+              <p className="text-[11px] text-[#4a5e3a]">Transfer TEPAT sebesar</p>
+              <p className="text-2xl font-bold tracking-tight text-[#1d2b1f]">{formatRupiah(order.totalAmount)}</p>
+              <p className="mt-0.5 text-[11px] text-[#4a5e3a]">
                 Sisa waktu: <CountdownTimer expiresAt={order.expiresAt} />
               </p>
             </div>
@@ -136,17 +136,13 @@ export function BetaPaymentModal({ open, onClose, orderPayload, productLabel }) 
             {/* QRIS */}
             <QrisDisplay payload={order.qris} amount={order.totalAmount} label={productLabel} />
 
-            <p className="text-center text-xs text-[#4a5e3a] leading-relaxed">
-              Bisa scan pakai GoPay, OVO, ShopeePay, DANA, atau m-banking apapun.
-            </p>
-
             {/* Polling indicator */}
-            <div className="flex w-full items-center justify-center gap-2 rounded-lg border border-2 border-[#1d2b1f] bg-[#faf3e8] py-2.5">
+            <div className="flex w-full items-center justify-center gap-2 rounded-md border border-2 border-[#1d2b1f] bg-[#faf3e8] py-2">
               <span className="relative flex h-2 w-2">
                 <span className="absolute inline-flex h-full w-full animate-ping rounded-md bg-[#BFFF5E] opacity-60" />
                 <span className="relative inline-flex h-2 w-2 rounded-md bg-[#BFFF5E]" />
               </span>
-              <p className="text-xs text-[#4a5e3a]">Menunggu konfirmasi pembayaran...</p>
+              <p className="text-[11px] text-[#4a5e3a]">Menunggu konfirmasi pembayaran...</p>
             </div>
           </div>
         )}
