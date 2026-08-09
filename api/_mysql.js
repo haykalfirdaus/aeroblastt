@@ -56,6 +56,68 @@ export async function isRegisteredInAuthme(nick) {
 // LuckPerms rank purchasable, urutan tertinggi dulu
 const PURCHASABLE_RANKS_DESC = ['universe', 'galatics', 'quantum', 'vortex', 'ravest', 'orbiter', 'voyager', 'scout'];
 
+/**
+ * Permission node LuckPerms → command yang dijual di store.
+ * Dipakai halaman /account untuk menampilkan command yang benar-benar aktif
+ * di server (bukan sekadar riwayat pembelian).
+ */
+const COMMAND_NODES = {
+  FLY: ['essentials.fly'],
+  GOD: ['essentials.god'],
+  FEED: ['essentials.feed'],
+  HEAL: ['essentials.heal'],
+  TP: ['essentials.tp'],
+  REPAIR: ['essentials.repair'],
+  INVSEE: ['essentials.invsee'],
+  UTILITY: ['essentials.anvil', 'essentials.enderchest', 'essentials.workbench'],
+};
+
+/** UUID LuckPerms dari username, atau null kalau player belum pernah join. */
+async function getLpUuid(db, nick) {
+  const [rows] = await db.execute(
+    'SELECT uuid FROM luckperms_players WHERE username = ? LIMIT 1',
+    [nick]
+  );
+  return rows.length ? rows[0].uuid : null;
+}
+
+/**
+ * Command store yang aktif untuk `nick`, langsung dari LuckPerms.
+ * Mengembalikan [{ key, permanent, expiry }]. Rank yang sudah memberi command
+ * secara implisit tidak ikut terdeteksi di sini — node harus ter-set di user.
+ */
+export async function getPlayerCommandsFromLP(nick) {
+  if (!process.env.MYSQL_LP_HOST) return [];
+
+  const db = getLpPool();
+  const uuid = await getLpUuid(db, nick);
+  if (!uuid) return [];
+
+  const [rows] = await db.execute(
+    `SELECT permission, expiry FROM luckperms_user_permissions
+     WHERE uuid = ?
+       AND permission NOT LIKE 'group.%'
+       AND (expiry = 0 OR expiry > UNIX_TIMESTAMP())`,
+    [uuid]
+  );
+
+  const held = new Map(
+    rows.map((r) => [String(r.permission).toLowerCase(), Number(r.expiry) || 0])
+  );
+
+  const out = [];
+  for (const [key, nodes] of Object.entries(COMMAND_NODES)) {
+    // Bundle dianggap aktif kalau salah satu node-nya ada; ambil expiry terpendek.
+    const matched = nodes.filter((n) => held.has(n));
+    if (!matched.length) continue;
+    const expiries = matched.map((n) => held.get(n));
+    const permanent = expiries.some((e) => e === 0);
+    const expiry = permanent ? null : Math.min(...expiries);
+    out.push({ key, permanent, expiry });
+  }
+  return out;
+}
+
 // Query rank purchasable tertinggi milik player dari DB LuckPerms
 export async function getPlayerRankFromLP(nick) {
   if (!process.env.MYSQL_LP_HOST) return null; // LP DB belum dikonfigurasi
@@ -72,17 +134,23 @@ export async function getPlayerRankFromLP(nick) {
   const uuid = lpRows[0].uuid;
 
   const [rows] = await db.execute(
-    `SELECT permission FROM luckperms_user_permissions
+    `SELECT permission, expiry FROM luckperms_user_permissions
      WHERE uuid = ?
        AND permission LIKE 'group.%'
        AND (expiry = 0 OR expiry > UNIX_TIMESTAMP())`,
     [uuid]
   );
 
-  const groups = rows.map((r) => r.permission.replace('group.', '').toLowerCase());
+  // expiry 0 = permanen; > 0 = unix timestamp kadaluarsa (rank bulanan)
+  const groups = new Map(
+    rows.map((r) => [r.permission.replace('group.', '').toLowerCase(), Number(r.expiry) || 0])
+  );
 
   for (const rank of PURCHASABLE_RANKS_DESC) {
-    if (groups.includes(rank)) return rank.toUpperCase();
+    if (groups.has(rank)) {
+      const expiry = groups.get(rank);
+      return { rank: rank.toUpperCase(), permanent: expiry === 0, expiry: expiry || null };
+    }
   }
   return null;
 }

@@ -10,18 +10,23 @@ import { PriceSummary } from './PriceSummary';
 import { BetaPaymentModal } from './BetaPaymentModal';
 import { RANKS, RANK_DURATION_OPTIONS, RANK_ORDER, RANK_PRICES } from '@/data/ranks';
 import { SITE } from '@/data/config';
-import { buildRankOrderMessage, openWhatsApp } from '@/utils/whatsapp';
-import { sendInvoice } from '@/utils/invoice';
 import { formatRupiah } from '@/utils/currency';
 import { useToast } from '@/context/ToastContext';
 import { usePlayerAuth } from '@/context/PlayerAuthContext';
 import { usePlayerRank } from '@/hooks/usePlayerRank';
 import { cn } from '@/lib/cn';
 
+// Unix timestamp (detik) → "12 Sep 2026"
+function formatExpiry(unixSeconds) {
+  return new Date(unixSeconds * 1000).toLocaleDateString('id-ID', {
+    day: 'numeric', month: 'short', year: 'numeric',
+  });
+}
+
 export function RankOrderModal({ rank, open, onClose }) {
   const showToast = useToast();
   const { nick: playerNick } = usePlayerAuth();
-  const { rank: detectedRank, loading: rankLoading } = usePlayerRank();
+  const { rank: detectedRank, permanent: rankPermanent, expiry: rankExpiry, loading: rankLoading } = usePlayerRank();
   const isBedrock = playerNick?.includes('.');
   const isJava = !!playerNick && !playerNick.includes('.');
   const platformLocked = isBedrock || isJava;
@@ -33,7 +38,6 @@ export function RankOrderModal({ rank, open, onClose }) {
   const [discount, setDiscount] = useState(0);
   const [agreed, setAgreed] = useState(false);
   const [betaOpen, setBetaOpen] = useState(false);
-  const [waLoading, setWaLoading] = useState(false);
 
   // Sinkronisasi platform & ownedRank saat modal dibuka atau playerNick berubah
   useEffect(() => {
@@ -41,6 +45,10 @@ export function RankOrderModal({ rank, open, onClose }) {
     setPlatform(detectedPlatform || platform);
     setOwnedRank(detectedRank ? detectedRank.toLowerCase() : 'none');
   }, [open, detectedRank, detectedPlatform]); // eslint-disable-line react-hooks/exhaustive-deps
+
+  // Rank dikunci untuk semua player yang login — termasuk yang belum punya rank
+  // (detectedRank null = Member), supaya tidak bisa mengaku punya rank palsu.
+  const rankLocked = !!playerNick && !rankLoading;
 
   if (!rank) return null;
 
@@ -58,28 +66,6 @@ export function RankOrderModal({ rank, open, onClose }) {
     if (!platform) return showToast('Pilih platform!', 'error');
     if (!agreed) return showToast('Setujui syarat & ketentuan terlebih dahulu!', 'error');
     setBetaOpen(true);
-  }
-
-  function handleWa() {
-    if (!(playerNick || nick).trim()) return showToast('Masukkan nickname kamu!', 'error');
-    if (!platform) return showToast('Pilih platform!', 'error');
-    if (!agreed) return showToast('Setujui syarat & ketentuan terlebih dahulu!', 'error');
-
-    const orderNick = (playerNick || nick).trim();
-    const orderData = {
-      nick: orderNick, platform,
-      target: rank.name.toUpperCase(),
-      owned: ownedRank === 'none' ? null : ownedRank,
-      duration: durOpt.label,
-      discountPct: discount,
-      basePrice,
-      finalAmount: finalPrice,
-      paymentMethod: 'Transfer / QRIS',
-    };
-    setWaLoading(true);
-    sendInvoice({ type: 'rank', ...orderData });
-    openWhatsApp(buildRankOrderMessage(orderData));
-    setWaLoading(false);
   }
 
   return (
@@ -109,7 +95,7 @@ export function RankOrderModal({ rank, open, onClose }) {
             {rankLoading && <RefreshCw size={11} className="ml-1.5 inline animate-spin text-[#6b7f5a]" />}
             {!rankLoading && playerNick && <span className="ml-1.5 text-[0.6rem] text-[#6b7f5a]">(terdeteksi otomatis)</span>}
           </FieldLabel>
-          <SelectField value={ownedRank} onChange={(e) => !detectedRank && setOwnedRank(e.target.value)} disabled={rankLoading || !!detectedRank}>
+          <SelectField value={ownedRank} onChange={(e) => !rankLocked && setOwnedRank(e.target.value)} disabled={rankLoading || rankLocked}>
             <option value="none">Belum punya rank / Member</option>
             {(() => {
               const targetIdx = RANKS.findIndex((r) => r.key === rank.key);
@@ -127,12 +113,20 @@ export function RankOrderModal({ rank, open, onClose }) {
               });
             })()}
           </SelectField>
-          {detectedRank && <p className="mt-1 text-[11px] text-[#354530]">Rank terdeteksi — tidak bisa pilih rank lebih rendah</p>}
+          {rankLocked && (
+            <p className="mt-1 text-[11px] text-[#354530]">
+              {!detectedRank
+                ? 'Kamu belum punya rank — terdeteksi otomatis'
+                : rankPermanent
+                  ? 'Rank permanen terdeteksi otomatis — tidak bisa diubah manual'
+                  : `Rank bulanan terdeteksi otomatis${rankExpiry ? ` — berlaku sampai ${formatExpiry(rankExpiry)}` : ''}`}
+            </p>
+          )}
         </div>
 
         <div>
           <FieldLabel required>Durasi</FieldLabel>
-          <div className="grid grid-cols-2 gap-2">
+          <div className="grid grid-cols-3 gap-2">
             {RANK_DURATION_OPTIONS.map((opt) => (
               <button
                 key={opt.id}
@@ -161,19 +155,8 @@ export function RankOrderModal({ rank, open, onClose }) {
 
         <div className="flex flex-col gap-2">
           <Button fullWidth size="sm" onClick={handleQris} disabled={basePrice <= 0 || !playerNick} title={!playerNick ? 'Login dulu untuk melakukan order' : undefined}>
-            {playerNick ? '⚡ Bayar via QRIS Otomatis' : '🔒 Login dulu untuk order'}
+            {playerNick ? 'Mulai Pembayaran' : '🔒 Login dulu untuk order'}
           </Button>
-
-          {playerNick && basePrice > 0 && (
-            <button
-              type="button"
-              onClick={handleWa}
-              disabled={waLoading}
-              className="w-full rounded-md border border-[#1d2b1f]/40 bg-[#faf3e8] py-2.5 text-sm font-semibold text-[#4a5e3a] transition-all hover:border-[#1d2b1f] hover:bg-[#f5ede0] hover:text-[#1d2b1f]"
-            >
-              Lanjut via WhatsApp (Manual)
-            </button>
-          )}
         </div>
       </div>
 
@@ -191,6 +174,7 @@ export function RankOrderModal({ rank, open, onClose }) {
           target: rank.key,
           duration: durOpt.id,
           owned: ownedRank === 'none' ? null : ownedRank,
+          discountPct: discount,
         },
       }}
     />

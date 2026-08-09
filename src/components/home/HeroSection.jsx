@@ -8,6 +8,7 @@ import { useClipboard } from '@/hooks/useClipboard';
 import { useServerStatus } from '@/hooks/useServerStatus';
 import { prefersReducedMotion } from '@/lib/motion';
 import { SITE } from '@/data/config';
+import { useServerConfig } from '@/context/ServerConfigContext';
 import { cn } from '@/lib/cn';
 
 const TICKER_FEATURES = [
@@ -149,6 +150,7 @@ function MinecraftIllustration() {
 export function HeroSection() {
   const [copiedKey, copy] = useClipboard();
   const status = useServerStatus();
+  const server = useServerConfig();
   const rootRef = useRef(null);
 
   useEffect(() => {
@@ -255,8 +257,8 @@ export function HeroSection() {
             {/* IP copy row */}
             <div data-hero className="flex flex-wrap items-center justify-center gap-2 lg:justify-start">
               {[
-                { label: 'IP', value: SITE.server.ip, key: 'ip' },
-                { label: 'Port', value: SITE.server.port, key: 'port' },
+                { label: 'IP', value: server.ip, key: 'ip' },
+                { label: 'Port', value: server.port, key: 'port' },
               ].map((item) => (
                 <button
                   key={item.key}

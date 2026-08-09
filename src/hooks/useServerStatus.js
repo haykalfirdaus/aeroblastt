@@ -1,18 +1,22 @@
 import { useEffect, useState } from 'react';
-import { SITE } from '@/data/config';
+import { buildStatusApi, useServerConfig } from '@/context/ServerConfigContext';
 
 /**
  * Live server status (online/offline/player count) from mcsrvstat.us.
  * Mirrors the legacy inline fetch in script.js, including its three
  * possible states: loading ("..."), online/offline, and network error.
+ *
+ * Alamat servernya datang dari ServerConfigContext, jadi mengganti IP/port
+ * dari panel admin langsung ikut mengubah target polling ini.
  */
 export function useServerStatus() {
+  const { ip, port } = useServerConfig();
   const [status, setStatus] = useState({ state: 'loading', online: false, players: null });
 
   useEffect(() => {
     let cancelled = false;
 
-    fetch(SITE.server.statusApi)
+    fetch(buildStatusApi(ip, port))
       .then((r) => r.json())
       .then((data) => {
         if (cancelled) return;
@@ -29,7 +33,7 @@ export function useServerStatus() {
     return () => {
       cancelled = true;
     };
-  }, []);
+  }, [ip, port]);
 
   return status;
 }

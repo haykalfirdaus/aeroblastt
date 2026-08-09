@@ -15,8 +15,13 @@ export const SKILL_CATEGORY_PRICES = { combat: 3000, semi: 2500, gather: 2000 };
 export const BALANCE_RATE = 20;
 export const BALANCE_MIN_RUPIAH = 5000;
 
-// Command: basePrice 30 hari; permanent = 2x
-export const COMMAND_PRICES = { FLY: 30000, GOD: 30000, FEED: 10000, HEAL: 10000, TP: 20000, REPAIR: 10000, INVSEE: 25000, UTILITY_BUNDLE: 15000 };
+// Command: basePrice 30 hari; 3 bulan = 2x, permanent = 3x
+// Key harus sama dengan `key` di src/data/commands.js (client mengirim cmd.key).
+export const COMMAND_PRICES = { FLY: 30000, GOD: 30000, FEED: 10000, HEAL: 10000, TP: 20000, REPAIR: 10000, INVSEE: 25000, UTILITY: 15000 };
+
+// Pengali durasi — harus sinkron dengan percentOfBase di src/data/{ranks,commands}.js
+export const RANK_DURATION_MULT    = { monthly: 0.5, quarterly: 0.8, permanent: 1 };
+export const COMMAND_DURATION_MULT = { monthly: 1, quarterly: 2, permanent: 3 };
 
 // Cosmetic: prefix base + addon nick color
 export const COSMETIC_BASE = 25000;
@@ -44,8 +49,8 @@ export function getMinBaseAmount(type, details) {
     if (ownedIdx >= rankIdx) return null; // owned >= target — tidak valid
     const base = targetPrice - ownedPrice;
     const duration = String(details?.duration || 'permanent').toLowerCase();
-    // durasi sementara boleh lebih murah (misal 30 hari = 50% dari permanent)
-    const durationMult = duration === 'permanent' ? 1 : 0.5;
+    // 1 bulan = 50%, 3 bulan = 80%, permanen = 100% dari harga base
+    const durationMult = RANK_DURATION_MULT[duration] ?? 0.5;
     return Math.max(1, Math.round(applyDisc(base) * durationMult));
   }
 
@@ -74,10 +79,10 @@ export function getMinBaseAmount(type, details) {
 
   if (type === 'command') {
     const cmdKey  = String(details?.cmdName || '').toUpperCase();
-    const duration = String(details?.duration || '30').toLowerCase();
+    const duration = String(details?.duration || 'monthly').toLowerCase();
     const basePrice = COMMAND_PRICES[cmdKey];
     if (!basePrice) return null;
-    const mult = duration.includes('perm') ? 2 : 1;
+    const mult = COMMAND_DURATION_MULT[duration] ?? 1;
     return applyDisc(basePrice * mult);
   }
 

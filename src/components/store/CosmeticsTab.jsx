@@ -10,8 +10,6 @@ import { DiscountCodeInput } from './DiscountCodeInput';
 import { PriceSummary } from './PriceSummary';
 import { BetaPaymentModal } from './BetaPaymentModal';
 import { SITE } from '@/data/config';
-import { buildCosmeticOrderMessage, openWhatsApp } from '@/utils/whatsapp';
-import { sendInvoice } from '@/utils/invoice';
 import { formatRupiah } from '@/utils/currency';
 import { useToast } from '@/context/ToastContext';
 import { usePlayerAuth } from '@/context/PlayerAuthContext';
@@ -33,7 +31,6 @@ function CosmeticOrderModal({ prefixText, prefixColor, nickColor, open, onClose 
   const [discount, setDiscount] = useState(0);
   const [agreed, setAgreed] = useState(false);
   const [betaOpen, setBetaOpen] = useState(false);
-  const [waLoading, setWaLoading] = useState(false);
 
   const basePrice = BASE_PRICE + (nickColor ? NICK_COLOR_ADDON : 0);
   const finalPrice = Math.round(basePrice * (1 - discount / 100));
@@ -46,17 +43,6 @@ function CosmeticOrderModal({ prefixText, prefixColor, nickColor, open, onClose 
     setBetaOpen(true);
   }
 
-  function handleWa() {
-    if (!(playerNick || nick).trim()) return showToast('Masukkan nickname!', 'error');
-    if (!platform) return showToast('Pilih platform!', 'error');
-    if (!prefixText.trim()) return showToast('Masukkan teks prefix!', 'error');
-    if (!agreed) return showToast('Setujui syarat & ketentuan!', 'error');
-    const orderData = { nick: (playerNick || nick).trim(), platform, prefixText, prefixColor, nickColor: nickColor || null, discountPct: discount, finalAmount: finalPrice, paymentMethod: 'Transfer / QRIS' };
-    setWaLoading(true);
-    sendInvoice({ type: 'cosmetic', ...orderData });
-    openWhatsApp(buildCosmeticOrderMessage(orderData));
-    setWaLoading(false);
-  }
 
   return (
     <>
@@ -89,13 +75,8 @@ function CosmeticOrderModal({ prefixText, prefixColor, nickColor, open, onClose 
         <CheckboxField checked={agreed} onChange={setAgreed}>Saya menyetujui <a href="/terms" target="_blank" className="text-[#1d2b1f] hover:underline">Syarat &amp; Ketentuan</a> yang berlaku.</CheckboxField>
         <div className="flex flex-col gap-2">
           <Button fullWidth size="sm" onClick={handleQris} disabled={!playerNick} title={!playerNick ? 'Login dulu untuk melakukan order' : undefined}>
-            {playerNick ? '⚡ Bayar via QRIS Otomatis' : '🔒 Login dulu untuk order'}
+            {playerNick ? 'Mulai Pembayaran' : '🔒 Login dulu untuk order'}
           </Button>
-          {playerNick && (
-            <button type="button" onClick={handleWa} disabled={waLoading} className="w-full rounded-md border border-2 border-[#1d2b1f] bg-[#faf3e8] py-2.5 text-sm font-semibold text-[#4a5e3a] transition-all hover:border-[#BFFF5E]/30 hover:text-[#1d2b1f]">
-              Lanjut via WhatsApp (Manual)
-            </button>
-          )}
         </div>
       </div>
     </Modal>
@@ -103,7 +84,7 @@ function CosmeticOrderModal({ prefixText, prefixColor, nickColor, open, onClose 
       open={betaOpen}
       onClose={() => setBetaOpen(false)}
       productLabel={`Custom Prefix [${prefixText || 'CUSTOM'}]`}
-      orderPayload={{ type: 'cosmetic', nick: (playerNick || nick).trim(), platform, baseAmount: finalPrice, details: { prefixText, prefixColor, nickColor: nickColor || null } }}
+      orderPayload={{ type: 'cosmetic', nick: (playerNick || nick).trim(), platform, baseAmount: finalPrice, details: { prefixText, prefixColor, nickColor: nickColor || null, discountPct: discount } }}
     />
     </>
   );

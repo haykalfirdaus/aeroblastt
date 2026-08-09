@@ -2,7 +2,9 @@ import { Inter, Playfair_Display, JetBrains_Mono } from 'next/font/google';
 import { ToastProvider } from '@/context/ToastContext';
 import { AuthProvider } from '@/context/AuthContext';
 import { PlayerAuthProvider } from '@/context/PlayerAuthContext';
+import { ServerConfigProvider } from '@/context/ServerConfigContext';
 import { DevtoolsWarningOverlay } from '@/components/layout/DevtoolsWarningOverlay';
+import { getServerConfig } from '@/lib/serverConfig';
 import '../src/index.css';
 
 const inter = Inter({ subsets: ['latin'], variable: '--font-inter', display: 'swap' });
@@ -41,7 +43,11 @@ export const viewport = {
   userScalable: false,
 };
 
-export default function RootLayout({ children }) {
+export default async function RootLayout({ children }) {
+  // Dibaca di server supaya IP/port sudah benar di HTML render pertama —
+  // tidak ada flash nilai lama setelah hydration.
+  const serverConfig = await getServerConfig();
+
   return (
     <html lang="id" className={`${inter.variable} ${playfair.variable} ${jetbrainsMono.variable}`}>
       <head>
@@ -63,14 +69,16 @@ export default function RootLayout({ children }) {
         />
       </head>
       <body>
-        <ToastProvider>
-          <AuthProvider>
-            <PlayerAuthProvider>
-              {children}
-              <DevtoolsWarningOverlay />
-            </PlayerAuthProvider>
-          </AuthProvider>
-        </ToastProvider>
+        <ServerConfigProvider value={serverConfig}>
+          <ToastProvider>
+            <AuthProvider>
+              <PlayerAuthProvider>
+                {children}
+                <DevtoolsWarningOverlay />
+              </PlayerAuthProvider>
+            </AuthProvider>
+          </ToastProvider>
+        </ServerConfigProvider>
       </body>
     </html>
   );

@@ -10,8 +10,6 @@ import { PriceSummary } from './PriceSummary';
 import { BetaPaymentModal } from './BetaPaymentModal';
 import { SKILL_CATEGORIES, SKILL_DEFAULT_LEVELS, SKILL_MAX_LEVEL } from '@/data/skills';
 import { SITE } from '@/data/config';
-import { buildSkillOrderMessage, openWhatsApp } from '@/utils/whatsapp';
-import { sendInvoice } from '@/utils/invoice';
 import { formatRupiah } from '@/utils/currency';
 import { useToast } from '@/context/ToastContext';
 import { usePlayerAuth } from '@/context/PlayerAuthContext';
@@ -37,7 +35,6 @@ function SkillOrderModal({ skill, cat, open, onClose }) {
   const [discount, setDiscount] = useState(0);
   const [agreed, setAgreed] = useState(false);
   const [betaOpen, setBetaOpen] = useState(false);
-  const [waLoading, setWaLoading] = useState(false);
 
   if (!skill || !cat) return null;
   const basePrice = cat.pricePerLevel * levels;
@@ -50,16 +47,6 @@ function SkillOrderModal({ skill, cat, open, onClose }) {
     setBetaOpen(true);
   }
 
-  function handleWa() {
-    if (!(playerNick || nick).trim()) return showToast('Masukkan nickname!', 'error');
-    if (!platform) return showToast('Pilih platform!', 'error');
-    if (!agreed) return showToast('Setujui syarat & ketentuan!', 'error');
-    const orderData = { nick: (playerNick || nick).trim(), platform, skillName: skill.name, levels, discountPct: discount, finalAmount: finalPrice, paymentMethod: 'Transfer / QRIS' };
-    setWaLoading(true);
-    sendInvoice({ type: 'skill', ...orderData });
-    openWhatsApp(buildSkillOrderMessage(orderData));
-    setWaLoading(false);
-  }
 
   return (
     <>
@@ -97,13 +84,8 @@ function SkillOrderModal({ skill, cat, open, onClose }) {
         <CheckboxField checked={agreed} onChange={setAgreed}>Saya menyetujui <a href="/terms" target="_blank" className="text-[#1d2b1f] hover:underline">Syarat &amp; Ketentuan</a> yang berlaku.</CheckboxField>
         <div className="flex flex-col gap-2">
           <Button fullWidth size="sm" onClick={handleQris} disabled={!playerNick} title={!playerNick ? 'Login dulu untuk melakukan order' : undefined}>
-            {playerNick ? '⚡ Bayar via QRIS Otomatis' : '🔒 Login dulu untuk order'}
+            {playerNick ? 'Mulai Pembayaran' : '🔒 Login dulu untuk order'}
           </Button>
-          {playerNick && (
-            <button type="button" onClick={handleWa} disabled={waLoading} className="w-full rounded-md border border-2 border-[#1d2b1f] bg-[#faf3e8] py-2.5 text-sm font-semibold text-[#4a5e3a] transition-all hover:border-[#BFFF5E]/30 hover:text-[#1d2b1f]">
-              Lanjut via WhatsApp (Manual)
-            </button>
-          )}
         </div>
       </div>
     </Modal>
@@ -111,7 +93,7 @@ function SkillOrderModal({ skill, cat, open, onClose }) {
       open={betaOpen}
       onClose={() => setBetaOpen(false)}
       productLabel={`${skill.name} ×${levels} Level`}
-      orderPayload={{ type: 'skill', nick: (playerNick || nick).trim(), platform, baseAmount: finalPrice, details: { skillName: skill.name, levels } }}
+      orderPayload={{ type: 'skill', nick: (playerNick || nick).trim(), platform, baseAmount: finalPrice, details: { skillName: skill.name, skillCategory: cat.id, levels, discountPct: discount } }}
     />
     </>
   );

@@ -1,5 +1,6 @@
 'use client';
 import Link from 'next/link';
+import { substituteServerVars, useServerConfig } from '@/context/ServerConfigContext';
 
 const DOT_COLOR = { blue: 'bg-[#BFFF5E]', green: 'bg-success-bright', yellow: 'bg-warning', red: 'bg-danger-bright', purple: 'bg-purple' };
 
@@ -23,11 +24,15 @@ function renderInline(text) {
 }
 
 export function FaqAnswer({ blocks }) {
+  const server = useServerConfig();
+  // Placeholder {{ip}}/{{port}} di faqData.js diganti dengan alamat server aktif.
+  const sub = (text) => substituteServerVars(text, server);
+
   return (
     <div className="flex flex-col gap-3">
       {blocks.map((block, i) => {
         if (block.type === 'p') {
-          return <p key={i} className="text-sm leading-relaxed text-[#4a5e3a]">{renderInline(block.text)}</p>;
+          return <p key={i} className="text-sm leading-relaxed text-[#4a5e3a]">{renderInline(sub(block.text))}</p>;
         }
         if (block.type === 'reasons') {
           return (
@@ -35,7 +40,7 @@ export function FaqAnswer({ blocks }) {
               {block.items.map((item, j) => (
                 <li key={j} className="flex items-start gap-2.5 text-sm text-[#4a5e3a]">
                   <span className={`mt-1.5 h-2 w-2 shrink-0 rounded-full ${DOT_COLOR[item.color] ?? 'bg-[#BFFF5E]'}`} />
-                  <span>{renderInline(item.text)}</span>
+                  <span>{renderInline(sub(item.text))}</span>
                 </li>
               ))}
             </ul>
@@ -47,7 +52,7 @@ export function FaqAnswer({ blocks }) {
               {block.rows.map((row, j) => (
                 <div key={j} className="flex items-center gap-4 px-4 py-2.5 border-b border-[#1d2b1f]/10 last:border-0">
                   <span className="w-12 shrink-0 text-xs font-bold uppercase tracking-wider text-[#4a5e3a]">{row.label}</span>
-                  <span className="font-mono text-sm font-bold text-[#1d2b1f]">{row.value}</span>
+                  <span className="font-mono text-sm font-bold text-[#1d2b1f]">{sub(row.value)}</span>
                 </div>
               ))}
             </div>

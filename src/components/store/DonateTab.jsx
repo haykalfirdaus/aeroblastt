@@ -3,7 +3,8 @@ import { useState, useEffect, useRef, useCallback } from 'react';
 import { Heart, Sparkles, QrCode, AlertTriangle, CheckCircle, Clock, Copy, Check, RefreshCw } from 'lucide-react';
 import { Button } from '@/components/ui/Button';
 import { formatRupiah } from '@/utils/currency';
-import { SITE } from '@/data/config';
+import { QrisDisplay } from './QrisDisplay';
+import { usePlayerAuth } from '@/context/PlayerAuthContext';
 import { cn } from '@/lib/cn';
 
 const QUICK_AMOUNTS = [5000, 10000, 20000, 50000, 100000];
@@ -31,6 +32,13 @@ export function DonateTab() {
   const [step, setStep] = useState('form');
   const [amount, setAmount] = useState('');
   const [name, setName] = useState('');
+  const { nick: playerNick } = usePlayerAuth();
+  const [donorNick, setDonorNick] = useState('');
+
+  // Isi otomatis begitu sesi player selesai diverifikasi.
+  useEffect(() => {
+    if (playerNick) setDonorNick(playerNick);
+  }, [playerNick]);
   const [message, setMessage] = useState('');
 
   // Order state
@@ -101,7 +109,11 @@ export function DonateTab() {
         body: JSON.stringify({
           type: 'donate',
           baseAmount: numAmount,
-          details: { name: name.trim() || 'Anonim', message: message.trim() },
+          details: {
+            name: name.trim() || 'Anonim',
+            nick: (playerNick || donorNick).trim() || null,
+            message: message.trim(),
+          },
         }),
       });
       const data = await res.json();
@@ -254,18 +266,8 @@ export function DonateTab() {
             )}
           </div>
 
-          {/* QRIS image */}
-          <div className="flex justify-center">
-            <div className="overflow-hidden rounded-md border border-[#1d2b1f]/40 bg-white p-3 shadow-sm">
-              <img
-                src={SITE.payment.QRIS.imgPath}
-                alt="QRIS AeroBlast"
-                width={220}
-                height={220}
-                className="block"
-              />
-            </div>
-          </div>
+          {/* QRIS dinamis — nominal sudah tertanam, bisa di-download */}
+          <QrisDisplay payload={order.qris} amount={order.totalAmount} label="Donasi" />
 
           {/* Cara bayar */}
           <ol className="flex flex-col gap-1.5 text-xs text-[#4a5e3a]">
@@ -371,6 +373,28 @@ export function DonateTab() {
             maxLength={40}
             className="w-full rounded-md border border-[#1d2b1f]/40 bg-white px-4 py-2.5 text-sm text-[#1d2b1f] placeholder:text-[#C8C4B8] outline-none transition-colors focus:border-[#BFFF5E]/70 focus:ring-2 focus:ring-[#BFFF5E]/15"
           />
+        </div>
+
+        {/* Nick Minecraft — dipakai untuk leaderboard & riwayat di halaman Akun.
+            Diisi otomatis kalau sudah login, tapi tetap bisa diketik manual. */}
+        <div>
+          <label className="mb-1.5 block text-xs font-semibold text-[#4a5e3a]">
+            Username Minecraft <span className="text-[#6b7f5a] font-normal">(opsional)</span>
+          </label>
+          <input
+            type="text"
+            value={donorNick}
+            onChange={(e) => setDonorNick(e.target.value)}
+            placeholder={playerNick ? '' : 'Kosongkan untuk donasi anonim'}
+            maxLength={36}
+            readOnly={!!playerNick}
+            className="w-full rounded-md border border-[#1d2b1f]/40 bg-white px-4 py-2.5 text-sm text-[#1d2b1f] placeholder:text-[#C8C4B8] outline-none transition-colors focus:border-[#BFFF5E]/70 focus:ring-2 focus:ring-[#BFFF5E]/15 read-only:bg-[#f5ece0]"
+          />
+          <p className="mt-1 text-[11px] text-[#6b7f5a]">
+            {playerNick
+              ? 'Terisi otomatis dari akun yang sedang login.'
+              : 'Isi agar donasi masuk ke leaderboard dan riwayat akun kamu.'}
+          </p>
         </div>
 
         {/* Pesan */}

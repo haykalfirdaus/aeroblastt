@@ -11,6 +11,8 @@ import {
   Megaphone,
   PercentCircle,
   Plus,
+  Save,
+  Server,
   Shield,
   Terminal,
   Trash2,
@@ -1051,6 +1053,128 @@ function DiscountItem({ item, expired, confirming, onRequestDelete, onCancelDele
 // Section C — RCON Manual
 // ---------------------------------------------------------------------------
 
+// ---------------------------------------------------------------------------
+// Section: Server Config (IP + Port)
+// ---------------------------------------------------------------------------
+
+function ServerConfigSection() {
+  const showToast = useToast();
+  const [ip, setIp] = useState('');
+  const [port, setPort] = useState('');
+  const [saved, setSaved] = useState({ ip: '', port: '' });
+  const [fetching, setFetching] = useState(true);
+  const [submitting, setSubmitting] = useState(false);
+
+  const fetchConfig = useCallback(async () => {
+    try {
+      const res = await fetch('/api/admin/server-config', { credentials: 'include' });
+      if (!res.ok) throw new Error('Gagal memuat konfigurasi server');
+      const data = await res.json();
+      setIp(data.ip ?? '');
+      setPort(data.port ?? '');
+      setSaved({ ip: data.ip ?? '', port: data.port ?? '' });
+    } catch (err) {
+      showToast(err.message, 'error');
+    } finally {
+      setFetching(false);
+    }
+  }, [showToast]);
+
+  useEffect(() => {
+    fetchConfig();
+  }, [fetchConfig]);
+
+  async function handleSubmit(e) {
+    e.preventDefault();
+    if (!ip.trim() || !port.trim()) return;
+    setSubmitting(true);
+    try {
+      const res = await fetch('/api/admin/server-config', {
+        method: 'POST',
+        credentials: 'include',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ ip: ip.trim(), port: port.trim() }),
+      });
+      const data = await res.json().catch(() => ({}));
+      if (!res.ok || !data.ok) throw new Error(data.error || 'Gagal menyimpan konfigurasi');
+
+      setIp(data.config.ip);
+      setPort(data.config.port);
+      setSaved({ ip: data.config.ip, port: data.config.port });
+      showToast('Alamat server diperbarui — langsung aktif di seluruh situs', 'success');
+    } catch (err) {
+      showToast(err.message, 'error');
+    } finally {
+      setSubmitting(false);
+    }
+  }
+
+  const dirty = ip.trim() !== saved.ip || port.trim() !== saved.port;
+
+  return (
+    <SectionCard icon={Server} title="Alamat Server">
+      {fetching ? (
+        <div className="flex justify-center py-6">
+          <span className="h-6 w-6 animate-spin rounded-md border-2 border-[#BFFF5E]/20 border-t-[#BFFF5E]" />
+        </div>
+      ) : (
+        <form onSubmit={handleSubmit} className="space-y-4">
+          <p className="text-xs leading-relaxed text-[#4a5e3a]">
+            Dipakai di Hero, Footer, FAQ, dan pengecekan status server. Perubahan
+            langsung aktif tanpa perlu deploy ulang.
+          </p>
+
+          <div className="grid grid-cols-1 gap-4 sm:grid-cols-[2fr_1fr]">
+            <div>
+              <FieldLabel required>IP / Hostname</FieldLabel>
+              <input
+                type="text"
+                value={ip}
+                onChange={(e) => setIp(e.target.value)}
+                placeholder="misal: aeroblast.my.id"
+                required
+                disabled={submitting}
+                className={cn(fieldBase, 'font-mono')}
+              />
+            </div>
+            <div>
+              <FieldLabel required>Port</FieldLabel>
+              <input
+                type="number"
+                min={1}
+                max={65535}
+                value={port}
+                onChange={(e) => setPort(e.target.value)}
+                placeholder="misal: 25543"
+                required
+                disabled={submitting}
+                className={cn(fieldBase, 'font-mono')}
+              />
+            </div>
+          </div>
+
+          <Button
+            type="submit"
+            variant="primary"
+            size="sm"
+            disabled={submitting || !dirty || !ip.trim() || !port.trim()}
+            className="w-full gap-1.5"
+          >
+            {submitting
+              ? <span className="h-3.5 w-3.5 animate-spin rounded-md border-2 border-[#1d2b1f]/30 border-t-[#1d2b1f]" />
+              : <Save size={14} />}
+            {dirty ? 'Simpan Perubahan' : 'Tersimpan'}
+          </Button>
+        </form>
+      )}
+    </SectionCard>
+  );
+}
+
+// ---------------------------------------------------------------------------
+// Section: RCON
+// ---------------------------------------------------------------------------
+
 const RANK_OPTIONS = ['SCOUT','VOYAGER','ORBITER','RAVEST','VORTEX','QUANTUM','GALATICS','UNIVERSE'];
 const KEY_OPTIONS  = ['basic','vote','vip','legend','aerospace'];
 
@@ -1194,7 +1318,8 @@ function RconSection() {
               <FieldLabel required>Durasi</FieldLabel>
               <select value={rankDuration} onChange={(e) => setRankDuration(e.target.value)} disabled={loading} className={fieldBase}>
                 <option value="permanent">Permanent</option>
-                <option value="monthly">Monthly (30 hari)</option>
+                <option value="quarterly">3 Bulan (90 hari)</option>
+                <option value="monthly">1 Bulan (30 hari)</option>
               </select>
             </div>
           </div>
@@ -1459,7 +1584,7 @@ export default function AdminDashboardPage() {
             Selamat datang, Admin
           </h1>
           <p className="mt-0.5 text-sm text-[#4a5e3a]">
-            Kelola invoice, pengumuman, dan kode diskon dari sini.
+            Kelola invoice, pengumuman, diskon, dan alamat server dari sini.
           </p>
         </div>
 
@@ -1477,6 +1602,11 @@ export default function AdminDashboardPage() {
         <div className="grid grid-cols-1 gap-6 lg:grid-cols-2">
           <AnnouncementsSection />
           <DiscountsSection />
+        </div>
+
+        {/* Server config — full width */}
+        <div className="mt-6">
+          <ServerConfigSection />
         </div>
 
         {/* RCON Manual — full width */}

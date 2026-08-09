@@ -3,6 +3,10 @@
  *  - { type: 'p', text }              paragraph (supports **bold** and [[label|href]] links)
  *  - { type: 'reasons', items }       bulleted list with a colored dot: { color, text }
  *  - { type: 'info', rows }          label/value pairs (IP/Port style): { label, value }
+ *
+ * Placeholder {{ip}} dan {{port}} diganti dengan alamat server yang sedang
+ * aktif (dari Supabase) saat render — lihat substituteServerVars() di
+ * @/context/ServerConfigContext. Jangan tulis IP/port literal di sini.
  */
 export const FAQ_CATEGORIES = [
   {
@@ -13,7 +17,7 @@ export const FAQ_CATEGORIES = [
         question: 'Bagaimana cara join server AeroBlast?',
         answer: [
           { type: 'p', text: 'Buka Minecraft lalu pilih **Multiplayer → Add Server** dan masukkan:' },
-          { type: 'info', rows: [{ label: 'IP', value: 'aeroblast.my.id' }, { label: 'Port', value: '25543' }] },
+          { type: 'info', rows: [{ label: 'IP', value: '{{ip}}' }, { label: 'Port', value: '{{port}}' }] },
           { type: 'p', text: 'Mendukung **Java Edition** (1.20–1.21+) dan **Bedrock / PE**. Untuk Bedrock, masukkan IP dan port secara terpisah di menu External Server.' },
         ],
       },
@@ -30,7 +34,7 @@ export const FAQ_CATEGORIES = [
           {
             type: 'reasons',
             items: [
-              { color: 'blue', text: 'Pastikan IP dan Port sudah benar: **aeroblast.my.id : 25543**' },
+              { color: 'blue', text: 'Pastikan IP dan Port sudah benar: **{{ip}} : {{port}}**' },
               { color: 'blue', text: 'Cek status server di halaman utama — mungkin sedang maintenance.' },
               { color: 'blue', text: 'Pastikan koneksi internet kamu stabil.' },
               { color: 'yellow', text: 'Jika kamu menggunakan VPN, coba matikan dulu.' },

@@ -61,7 +61,8 @@ src/components/
 
 | Hook | Purpose |
 |---|---|
-| `useServerStatus` | Polls `mcsrvstat.us` for Minecraft server status |
+| `useServerStatus` | Polls `mcsrvstat.us` for Minecraft server status (target dari `useServerConfig()`) |
+| `useServerConfig` | Alamat server aktif `{ ip, port }` dari `ServerConfigContext` |
 | `useTopVoters` | Fetches `/api/voters`, refreshes every 5 min |
 | `useActiveAnnouncements` | Fetches `/api/admin/announcements`, 5-min module cache |
 | `useActiveDiscounts` | Fetches `/api/admin/discounts`, 5-min module cache |
@@ -74,6 +75,7 @@ src/components/
 ### Utility Libraries
 
 - `src/lib/cn.js` — minimal `clsx` substitute (filter falsy + join)
+- `src/lib/serverConfig.js` — **server-only**: `getServerConfig()` (baca `server_config` dari Supabase, di-cache dengan tag `server-config`, fallback ke `SITE.server`). Jangan diimpor dari client component.
 - `src/lib/motion.js` — GSAP + AOS helpers: `initAOS()`, `scrollToId(id)`, `scrollToTop()`, `prefersReducedMotion()`
 - `src/utils/currency.js` — `formatRupiah()`, `formatNumber()` for Indonesian locale
 - `src/utils/discount.js` — `fetchActiveDiscounts()`, `checkDiscountCode()` with 1-min in-memory cache
@@ -81,7 +83,13 @@ src/components/
 
 ### Static Product Data (`src/data/`)
 
-All store inventory is static JS modules — no backend CMS. Central site config lives in `src/data/config.js` (server IP, WhatsApp number, payment methods, social links). Products: `ranks.js`, `keys.js`, `skills.js`, `balance.js`, `commands.js`.
+All store inventory is static JS modules — no backend CMS. Central site config lives in `src/data/config.js` (WhatsApp number, payment methods, social links). Products: `ranks.js`, `keys.js`, `skills.js`, `balance.js`, `commands.js`.
+
+**Alamat server (IP/port) BUKAN lagi dari `config.js`.** Nilai live disimpan di tabel Supabase `server_config` dan diubah dari panel admin — berlaku langsung tanpa redeploy. `SITE.server` di `config.js` hanya fallback saat Supabase gagal dibaca.
+
+Alurnya: `app/layout.jsx` (satu-satunya server component) memanggil `getServerConfig()` → membungkus tree dengan `<ServerConfigProvider>` → komponen client memakai `useServerConfig()`. Karena dibaca di server, nilainya sudah benar di HTML render pertama (tidak ada flash).
+
+Di `src/data/faqData.js`, tulis `{{ip}}` / `{{port}}` — bukan nilai literal. `FaqAnswer` mensubstitusinya saat render, dan `FaqPage` melakukan substitusi sebelum filter pencarian agar mencari "25543" tetap menemukan hasil.
 
 ### Serverless API (`api/`)
 
@@ -93,8 +101,28 @@ Vercel-compatible Node.js handlers. Announcements dan discounts disimpan di **Su
 | `POST /api/admin/login` | Public — sets `aeroblast_admin_session` HttpOnly cookie (7-day HMAC-SHA256 token) |
 | `GET/POST/DELETE /api/admin/announcements` | GET public; mutations require admin session cookie |
 | `GET/POST/DELETE /api/admin/discounts` | GET public; mutations require admin session cookie |
+| `GET/POST /api/admin/server-config` | GET public (fallback ke `SITE.server` kalau DB gagal); POST perlu admin session, lalu `revalidateTag('server-config')` |
+| `GET /api/account` | Perlu cookie `aeroblast_player_session`. Ringkasan akun player: order, donasi, rank & command aktif. Nick diambil dari cookie — **jangan** pernah terima nick dari query/body, supaya data player lain tidak bisa diintip. |
 
-**Database**: Supabase project `rkbnmrsglhmuchganiaq`. Tabel: `announcements`, `discounts`. Shared helper `api/_supabase.js` (service role client). Schema SQL ada di `supabase-migration.sql`.
+### Pembayaran QRIS (statis → dinamis)
+
+QRIS statis tidak membawa nominal, jadi player harus mengetik sendiri dan sering salah.
+`api/_qris.js` mengubahnya jadi **QRIS dinamis** (EMVCo TLV): tag `01` diset `12`, tag `54`
+diisi nominal, lalu CRC16-CCITT tag `63` dihitung ulang.
+
+Nominal yang ditanam adalah `beta_orders.total_amount` (harga + suffix unik), jadi
+pencocokan pembayaran lewat `action=notify` tetap bekerja seperti sebelumnya.
+
+`POST /api/beta-payment?action=create` mengembalikan field `qris` berisi payload dinamis.
+Kalau `QRIS_STATIC_PAYLOAD` belum diset atau CRC-nya tidak valid, `qris` bernilai `null`
+dan `QrisDisplay` otomatis fallback ke gambar QRIS statis (`/payment/qris.png`) —
+order tetap jalan, player mengetik nominal manual. **Fail-soft, bukan fail-closed.**
+
+`src/components/store/QrisDisplay.jsx` merender QR dari payload dengan `qrcode`
+(canvas 640px, ditampilkan 256px agar tajam) plus tombol download PNG 1024px —
+untuk player yang bayar dari HP yang sama dan perlu scan dari galeri.
+
+**Database**: Supabase project `rkbnmrsglhmuchganiaq`. Tabel: `announcements`, `discounts`, `invoices`, `donations`, `server_config`. Shared helper `api/_supabase.js` (service role client). Schema SQL ada di `supabase-migration.sql` — jalankan lewat Supabase Dashboard → SQL Editor.
 
 Admin auth is a custom HMAC-SHA256 token scheme (no third-party JWT library). The signing key is the `ADMIN_SECRET` env var (fallback hardcoded — must be set in production).
 
@@ -123,6 +151,7 @@ Key utility classes defined in `@layer utilities`: `.bg-app`, `.hero-bg`, `.text
 | `SUPABASE_URL` | `api/_supabase.js` | Supabase project URL; required (no fallback) |
 | `SUPABASE_SERVICE_ROLE_KEY` | `api/_supabase.js` | Service role key — server-side only, required (no fallback), never expose to client |
 | `DISCORD_WEBHOOK_URL` | `api/invoice.js` | Discord webhook URL untuk notif order; required (no fallback) |
+| `QRIS_STATIC_PAYLOAD` | `api/_qris.js` | String EMVCo QRIS statis (hasil decode `qris.png`, diawali `000201…`). Opsional — kalau kosong/CRC salah, sistem fallback ke QRIS statis. |
 
 Create `.env.local` for local development (never commit — it is gitignored). Use your own rotated secrets:
 ```

@@ -57,6 +57,8 @@ export async function POST(request) {
     try {
       registered = await isRegisteredInAuthme(nick);
     } catch (err) {
+      // Log detail ke runtime log (bukan ke client) supaya penyebab 503 bisa didiagnosis.
+      console.error('[player/login] MySQL error:', err.code, err.errno, err.message);
       return NextResponse.json({ ok: false, error: 'Tidak bisa terhubung ke database. Coba lagi nanti.' }, { status: 503 });
     }
 
