@@ -9,7 +9,7 @@ export function PlayerAuthProvider({ children }) {
 
   const verify = useCallback(async () => {
     try {
-      const res = await fetch('/api/player', { credentials: 'include' });
+      const res = await fetch('/api/player', { credentials: 'include', cache: 'no-store' });
       const data = await res.json();
       setNick(data.ok ? data.nick : null);
     } catch {

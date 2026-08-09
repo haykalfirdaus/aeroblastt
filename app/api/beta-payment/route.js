@@ -164,14 +164,15 @@ async function handleNotify(request) {
   const secretBuf = Buffer.from(String(secret ?? ''));
   const expectedBuf = Buffer.from(NOTIFY_SECRET);
   const valid = secretBuf.length === expectedBuf.length && crypto.timingSafeEqual(secretBuf, expectedBuf);
+  // Diagnosis lewat runtime log Vercel, bukan Discord — channel Discord hanya
+  // untuk invoice & donasi. Lihat: Vercel → Deployment → Runtime Logs.
   if (!valid) {
-    await sendInvoiceDiscord({ title: '🔑 Notify: Secret Salah', color: 0xef4444, fields: [{ name: 'Secret Diterima (length)', value: String(secretBuf.length), inline: true }, { name: 'Expected (length)', value: String(expectedBuf.length), inline: true }], footer: { text: 'AeroBlast Network' }, timestamp: new Date().toISOString() });
+    console.warn('[notify] secret salah — panjang diterima:', secretBuf.length, 'diharapkan:', expectedBuf.length);
     return NextResponse.json({ ok: false, error: 'Unauthorized' }, { status: 401 });
   }
   if (!text?.trim()) return NextResponse.json({ ok: false, error: 'text diperlukan' }, { status: 400 });
 
-  // Log teks asli dari MacroDroid ke Discord untuk debug
-  await sendInvoiceDiscord({ title: '📩 Notify Diterima', color: 0x6366f1, fields: [{ name: 'Teks Notifikasi', value: String(text).slice(0, 1000), inline: false }], footer: { text: 'AeroBlast Network' }, timestamp: new Date().toISOString() });
+  console.log('[notify] teks diterima:', String(text).slice(0, 300));
 
   // Hapus titik (pemisah ribuan Indonesia: "10.500" → "10500"), lalu ambil semua angka
   const matches = String(text).replace(/\./g, '').match(/\d+/g);
@@ -189,8 +190,10 @@ async function handleNotify(request) {
   }
 
   if (!order) {
-    const tried = candidates.length ? candidates.join(', ') : 'tidak ada';
-    await sendDonateDiscord({ title: '💸 Transfer Masuk — Tidak Ada Order', color: 0xf59e0b, fields: [{ name: 'Nominal Dicoba', value: tried, inline: true }, { name: 'Keterangan', value: 'Tidak ada pending order dengan nominal ini. Bisa jadi transfer random — cek mutasi dan masukkan ke donasi manual jika perlu.', inline: false }], footer: { text: 'AeroBlast Network' }, timestamp: new Date().toISOString() });
+    // Sengaja TIDAK announce ke Discord: notifikasi HP sering berisi transaksi
+    // yang tidak ada hubungannya dengan store, jadi channel jadi penuh noise.
+    // Discord hanya untuk invoice (order) dan donasi yang benar-benar cocok.
+    console.warn('[notify] tidak ada pending order untuk nominal:', candidates.join(', ') || '(tidak ada)');
     return NextResponse.json({ ok: false, error: 'Order tidak ditemukan' }, { status: 404 });
   }
 

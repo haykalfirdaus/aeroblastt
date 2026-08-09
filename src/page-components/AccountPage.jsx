@@ -91,7 +91,9 @@ export default function AccountPage() {
     setLoading(true);
     setError('');
     try {
-      const res = await fetch('/api/account', { credentials: 'include' });
+      // cache: 'no-store' — jangan pernah pakai respons lama; kalau halaman
+      // sempat dibuka sebelum login, respons 401-nya bisa terpakai ulang.
+      const res = await fetch('/api/account', { credentials: 'include', cache: 'no-store' });
       const json = await res.json();
       if (!json.ok) throw new Error(json.error || 'Gagal memuat data akun');
       setData(json);
@@ -195,7 +197,18 @@ export default function AccountPage() {
             {error && (
               <div role="alert" className="mb-4 flex items-start gap-2 rounded-md border border-danger/45 bg-danger/[0.08] px-4 py-3 text-xs font-medium text-[#a3271f]">
                 <AlertTriangle size={14} className="mt-0.5 shrink-0 text-danger" />
-                {error}
+                <div className="flex-1">
+                  {/* Sesi di navbar sudah valid, jadi "Belum login" dari API itu
+                      membingungkan — hampir selalu berarti responsnya basi. */}
+                  <p>{error === 'Belum login' ? 'Gagal memuat data akun (sesi tidak terbaca server).' : error}</p>
+                  <button
+                    onClick={load}
+                    disabled={loading}
+                    className="mt-1.5 font-bold underline underline-offset-2 disabled:opacity-50"
+                  >
+                    Coba lagi
+                  </button>
+                </div>
               </div>
             )}
 

@@ -20,7 +20,7 @@ export function usePlayerRank() {
     if (!nick) { setInfo(EMPTY); return; }
     let cancelled = false;
     setLoading(true);
-    fetch(`/api/player/rank?nick=${encodeURIComponent(nick)}`, { credentials: 'include' })
+    fetch(`/api/player/rank?nick=${encodeURIComponent(nick)}`, { credentials: 'include', cache: 'no-store' })
       .then((r) => r.json())
       .then((data) => {
         if (cancelled) return;

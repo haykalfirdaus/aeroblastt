@@ -215,7 +215,8 @@ export default function DonatePage() {
       });
       const data = await res.json();
       if (!data.ok) { setCreateError(data.error || 'Gagal membuat order'); return; }
-      setOrder({ orderId: data.orderId, totalAmount: data.totalAmount, suffix: data.suffix, expiresAt: data.expiresAt });
+      // `qris` wajib ikut disalin — tanpa itu QrisDisplay fallback ke QR statis.
+      setOrder({ orderId: data.orderId, totalAmount: data.totalAmount, suffix: data.suffix, expiresAt: data.expiresAt, qris: data.qris });
       setStep('qris');
     } catch (err) { setCreateError(`Koneksi bermasalah: ${err?.message || err}`); }
     finally { setCreating(false); }
