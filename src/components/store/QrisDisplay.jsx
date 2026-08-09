@@ -32,6 +32,16 @@ export function QrisDisplay({ payload, amount, label }) {
 
     if (canvasRef.current) {
       QRCode.toCanvas(canvasRef.current, payload, { ...opts, width: CANVAS_SIZE, margin: 2 })
+        .then(() => {
+          // Library qrcode menulis style.width/height = "640px" langsung ke
+          // elemen. Inline style menang atas class Tailwind, jadi QR melar
+          // memenuhi modal. Hapus supaya ukuran kembali diatur CSS.
+          const el = canvasRef.current;
+          if (!cancelled && el) {
+            el.style.removeProperty('width');
+            el.style.removeProperty('height');
+          }
+        })
         .catch(() => { if (!cancelled) setFailed(true); });
     }
 
