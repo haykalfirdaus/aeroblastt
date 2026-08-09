@@ -3,6 +3,11 @@ import { verifyPlayerToken } from '@/api/_auth';
 import { supabase } from '@/api/_supabase';
 import { getPlayerRankFromLP, getPlayerCommandsFromLP } from '@/api/_mysql';
 
+// Respons bergantung cookie sesi — jangan pernah di-cache/di-prerender.
+export const dynamic = 'force-dynamic';
+
+const NO_STORE = { 'Cache-Control': 'no-store, max-age=0' };
+
 /**
  * Ringkasan akun player: invoice/order berjalan, riwayat donasi, rank aktif,
  * dan command aktif. Identitas diambil dari cookie player — client tidak boleh
@@ -11,7 +16,7 @@ import { getPlayerRankFromLP, getPlayerCommandsFromLP } from '@/api/_mysql';
 export async function GET(request) {
   const cookieHeader = request.headers.get('cookie') || '';
   const nick = verifyPlayerToken({ headers: { cookie: cookieHeader } });
-  if (!nick) return NextResponse.json({ ok: false, error: 'Belum login' }, { status: 401 });
+  if (!nick) return NextResponse.json({ ok: false, error: 'Belum login' }, { status: 401, headers: NO_STORE });
 
   // Rank & command dari LuckPerms — sumber kebenaran live di server.
   const [rankResult, commandsResult] = await Promise.allSettled([
@@ -59,5 +64,5 @@ export async function GET(request) {
     orders,
     donations,
     totalDonated,
-  });
+  }, { headers: NO_STORE });
 }

@@ -113,9 +113,15 @@ diisi nominal, lalu CRC16-CCITT tag `63` dihitung ulang.
 Nominal yang ditanam adalah `beta_orders.total_amount` (harga + suffix unik), jadi
 pencocokan pembayaran lewat `action=notify` tetap bekerja seperti sebelumnya.
 
+Sumber payload statis, berurutan:
+1. env `QRIS_STATIC_PAYLOAD` — override manual, opsional.
+2. **decode otomatis `public/payment/qris.png`** (`sharp` + `jsqr`) — default.
+   Ganti QRIS cukup dengan menimpa file gambarnya, tidak perlu env apa pun.
+   Hasil decode di-cache selama proses hidup (~1 detik sekali, lalu 0 ms).
+
 `POST /api/beta-payment?action=create` mengembalikan field `qris` berisi payload dinamis.
-Kalau `QRIS_STATIC_PAYLOAD` belum diset atau CRC-nya tidak valid, `qris` bernilai `null`
-dan `QrisDisplay` otomatis fallback ke gambar QRIS statis (`/payment/qris.png`) —
+Kalau gambar tidak bisa dibaca atau CRC-nya tidak valid, `qris` bernilai `null`
+dan `QrisDisplay` otomatis fallback ke gambar QRIS statis —
 order tetap jalan, player mengetik nominal manual. **Fail-soft, bukan fail-closed.**
 
 `src/components/store/QrisDisplay.jsx` merender QR dari payload dengan `qrcode`
@@ -151,7 +157,7 @@ Key utility classes defined in `@layer utilities`: `.bg-app`, `.hero-bg`, `.text
 | `SUPABASE_URL` | `api/_supabase.js` | Supabase project URL; required (no fallback) |
 | `SUPABASE_SERVICE_ROLE_KEY` | `api/_supabase.js` | Service role key — server-side only, required (no fallback), never expose to client |
 | `DISCORD_WEBHOOK_URL` | `api/invoice.js` | Discord webhook URL untuk notif order; required (no fallback) |
-| `QRIS_STATIC_PAYLOAD` | `api/_qris.js` | String EMVCo QRIS statis (hasil decode `qris.png`, diawali `000201…`). Opsional — kalau kosong/CRC salah, sistem fallback ke QRIS statis. |
+| `QRIS_STATIC_PAYLOAD` | `api/_qris.js` | **Opsional.** String EMVCo QRIS statis (diawali `000201…`). Kalau tidak diset, payload di-decode otomatis dari `public/payment/qris.png`. Isi hanya kalau perlu override tanpa mengganti gambar. |
 
 Create `.env.local` for local development (never commit — it is gitignored). Use your own rotated secrets:
 ```

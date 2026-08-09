@@ -103,7 +103,7 @@ async function handleCreate(body, request) {
     }).select('id, suffix, total_amount, expires_at').single();
     if (error) return NextResponse.json({ ok: false, error: 'Gagal membuat order' }, { status: 500 });
 
-    return NextResponse.json({ ok: true, orderId: order.id, suffix: order.suffix, totalAmount: order.total_amount, expiresAt: order.expires_at, qris: buildDynamicQris(order.total_amount) });
+    return NextResponse.json({ ok: true, orderId: order.id, suffix: order.suffix, totalAmount: order.total_amount, expiresAt: order.expires_at, qris: await buildDynamicQris(order.total_amount) });
   }
 
   // ── Normal order ──────────────────────────────────────────────────────────────
@@ -139,7 +139,7 @@ async function handleCreate(body, request) {
 
   await sendInvoiceDiscord({ title: `📋 Order Masuk — ${TYPE_LABEL[type] || type}`, color: 0x3b82f6, fields: [{ name: 'Nickname', value: `\`${nick.trim()}\``, inline: true }, { name: 'Platform', value: platform, inline: true }, ...productFields, { name: '💰 Nominal Pembayaran', value: `**${formatRp(order.total_amount)}**`, inline: false }], footer: { text: 'AeroBlast Network • Berlaku 30 menit' }, timestamp: new Date().toISOString() });
 
-  return NextResponse.json({ ok: true, orderId: order.id, suffix: order.suffix, totalAmount: order.total_amount, expiresAt: order.expires_at, qris: buildDynamicQris(order.total_amount) });
+  return NextResponse.json({ ok: true, orderId: order.id, suffix: order.suffix, totalAmount: order.total_amount, expiresAt: order.expires_at, qris: await buildDynamicQris(order.total_amount) });
 }
 
 async function handleNotify(request) {

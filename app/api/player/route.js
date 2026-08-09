@@ -1,6 +1,9 @@
 import { NextResponse } from 'next/server';
-import { signPlayerToken, verifyPlayerToken, parseCookies } from '@/api/_auth';
+import { signPlayerToken, verifyPlayerToken } from '@/api/_auth';
 import { isRegisteredInAuthme } from '@/api/_mysql';
+
+// Respons bergantung cookie sesi — jangan pernah di-cache/di-prerender.
+export const dynamic = 'force-dynamic';
 
 const NICK_RE = /^[a-zA-Z0-9_.]{1,30}$/;
 const isProd = process.env.NODE_ENV !== 'development';
@@ -24,9 +27,12 @@ function getIp(request) {
 
 export async function GET(request) {
   const cookieHeader = request.headers.get('cookie') || '';
-  const cookies = parseCookies(cookieHeader);
   const nick = verifyPlayerToken({ headers: { cookie: cookieHeader } });
-  return NextResponse.json(nick ? { ok: true, nick } : { ok: false });
+  // no-store wajib: tanpa ini CDN/browser bisa menyimpan hasil "belum login",
+  // sehingga setelah login UI tetap menganggap sesi kosong.
+  return NextResponse.json(nick ? { ok: true, nick } : { ok: false }, {
+    headers: { 'Cache-Control': 'no-store, max-age=0' },
+  });
 }
 
 export async function POST(request) {

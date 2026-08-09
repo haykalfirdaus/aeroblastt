@@ -99,9 +99,48 @@ export function getStaticQrisPayload() {
   return payload;
 }
 
-/** Payload dinamis untuk sebuah nominal, atau null kalau env belum siap. */
-export function buildDynamicQris(amount) {
-  const staticPayload = getStaticQrisPayload();
+// Hasil decode PNG di-cache selama proses hidup — decoding QR itu mahal dan
+// gambarnya hanya berubah saat deploy.
+let pngPayloadCache;
+
+/**
+ * Baca payload QRIS langsung dari `public/payment/qris.png`.
+ * Dipakai kalau `QRIS_STATIC_PAYLOAD` tidak diset, supaya ganti QRIS cukup
+ * dengan menimpa file gambarnya — tanpa menyalin string EMVCo manual.
+ * Return null (bukan throw) kalau gambar tidak ada / tidak bisa dibaca.
+ */
+async function readPayloadFromPng() {
+  if (pngPayloadCache !== undefined) return pngPayloadCache;
+
+  try {
+    const [{ default: sharp }, { default: jsQR }, path] = await Promise.all([
+      import('sharp'),
+      import('jsqr'),
+      import('node:path'),
+    ]);
+
+    const file = path.join(process.cwd(), 'public', 'payment', 'qris.png');
+    const { data, info } = await sharp(file).ensureAlpha().raw().toBuffer({ resolveWithObject: true });
+    const decoded = jsQR(new Uint8ClampedArray(data), info.width, info.height);
+
+    const payload = decoded?.data?.trim();
+    pngPayloadCache = payload && isValidQrisPayload(payload) ? payload : null;
+  } catch {
+    pngPayloadCache = null;
+  }
+
+  return pngPayloadCache;
+}
+
+/**
+ * Payload dinamis untuk sebuah nominal, atau null kalau QRIS sumber tidak
+ * bisa dibaca (client akan fallback ke gambar QRIS statis).
+ *
+ * Sumber payload, berurutan: env `QRIS_STATIC_PAYLOAD` (override manual),
+ * lalu hasil decode `public/payment/qris.png`.
+ */
+export async function buildDynamicQris(amount) {
+  const staticPayload = getStaticQrisPayload() || (await readPayloadFromPng());
   if (!staticPayload) return null;
   try {
     return convertToDynamic(staticPayload, amount);
