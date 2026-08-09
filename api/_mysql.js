@@ -69,6 +69,7 @@ const COMMAND_NODES = {
   TP: ['essentials.tp'],
   REPAIR: ['essentials.repair'],
   INVSEE: ['essentials.invsee'],
+  VANISH: ['essentials.vanish'],
   UTILITY: ['essentials.anvil', 'essentials.enderchest', 'essentials.workbench'],
 };
 

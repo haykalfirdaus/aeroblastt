@@ -17,7 +17,7 @@ export const BALANCE_MIN_RUPIAH = 5000;
 
 // Command: basePrice 30 hari; 3 bulan = 2x, permanent = 3x
 // Key harus sama dengan `key` di src/data/commands.js (client mengirim cmd.key).
-export const COMMAND_PRICES = { FLY: 30000, GOD: 30000, FEED: 10000, HEAL: 10000, TP: 20000, REPAIR: 10000, INVSEE: 25000, UTILITY: 15000 };
+export const COMMAND_PRICES = { FLY: 30000, GOD: 30000, FEED: 10000, HEAL: 10000, TP: 20000, REPAIR: 10000, INVSEE: 25000, VANISH: 25000, UTILITY: 15000 };
 
 // Pengali durasi — harus sinkron dengan percentOfBase di src/data/{ranks,commands}.js
 export const RANK_DURATION_MULT    = { monthly: 0.5, quarterly: 0.8, permanent: 1 };

@@ -1,7 +1,7 @@
 import crypto from 'crypto';
 import { NextResponse } from 'next/server';
 import { supabase } from '@/api/_supabase';
-import { grantRank, giveKey, giveMoney } from '@/api/_rcon';
+import { grantRank, giveKey, giveMoney, grantCommand } from '@/api/_rcon';
 import { rateLimit } from '@/api/_ratelimit';
 import { getMinBaseAmount } from '@/api/_prices';
 import { isValidOrigin } from '@/api/_auth';
@@ -62,6 +62,7 @@ async function executeRcon(order) {
   if (type === 'rank') return grantRank(nick, details.target, details.duration);
   if (type === 'key') return giveKey(nick, details.keyName, details.qty ?? 1);
   if (type === 'balance') return giveMoney(nick, details.balance);
+  if (type === 'command') return grantCommand(nick, details.cmdName, details.duration);
   if (type === 'donate') return { ok: true, response: 'Donasi diterima — tidak ada item RCON' };
   return { ok: false, error: `Tipe '${type}' belum di-handle RCON otomatis` };
 }

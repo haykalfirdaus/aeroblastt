@@ -84,6 +84,17 @@ export const COMMANDS = [
     includedInRank: 'GALATICS',
   },
   {
+    key: 'VANISH',
+    name: 'Vanish',
+    command: '/vanish',
+    icon: 'Ghost',
+    accent: 'cmd-purple',
+    basePrice: 25000,
+    description: 'Jadi tak terlihat oleh player lain kapan pun kamu mau.',
+    orderLabel: '/vanish — VANISH',
+    includedInRank: 'UNIVERSE',
+  },
+  {
     key: 'UTILITY',
     name: 'Utility Pack',
     command: '/anvil • /ec • /wb',

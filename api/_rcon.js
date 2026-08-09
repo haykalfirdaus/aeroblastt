@@ -70,6 +70,53 @@ export async function grantRank(nick, rankKey, duration) {
   return rconSend(`lp user ${nick} parent add ${group}`);
 }
 
+// Permission node LuckPerms per command yang dijual di store.
+// Harus sinkron dengan COMMAND_NODES di api/_mysql.js (dipakai halaman akun).
+const COMMAND_PERMS = {
+  FLY: ['essentials.fly'],
+  GOD: ['essentials.god'],
+  FEED: ['essentials.feed'],
+  HEAL: ['essentials.heal'],
+  TP: ['essentials.tp'],
+  REPAIR: ['essentials.repair'],
+  INVSEE: ['essentials.invsee'],
+  VANISH: ['essentials.vanish'],
+  UTILITY: ['essentials.anvil', 'essentials.enderchest', 'essentials.workbench'],
+};
+
+const SAFE_PERM = /^[a-z0-9._-]{1,64}$/;
+
+/**
+ * Beri akses command lewat LuckPerms.
+ * `duration`: 'monthly' | 'quarterly' → permission sementara; selain itu permanen.
+ * Bundle (UTILITY) memberi beberapa node sekaligus — semuanya harus sukses.
+ */
+export async function grantCommand(nick, cmdKey, duration) {
+  try { guard(nick, SAFE_NICK, 'nick'); } catch (e) { return { ok: false, error: e.message }; }
+
+  const perms = COMMAND_PERMS[String(cmdKey || '').toUpperCase()];
+  if (!perms) return { ok: false, error: `Command tidak dikenal: ${cmdKey}` };
+
+  const days = { monthly: 30, quarterly: 90 }[duration];
+  const dur = days ? `${days}d` : null;
+  if (dur) {
+    try { guard(dur, SAFE_DURATION, 'duration'); } catch (e) { return { ok: false, error: e.message }; }
+  }
+
+  const done = [];
+  for (const perm of perms) {
+    try { guard(perm, SAFE_PERM, 'permission'); } catch (e) { return { ok: false, error: e.message }; }
+    const cmd = dur
+      ? `lp user ${nick} permission settemp ${perm} true ${dur} replace`
+      : `lp user ${nick} permission set ${perm} true`;
+    const result = await rconSend(cmd);
+    if (!result.ok) return { ok: false, error: `Gagal set ${perm}: ${result.error}` };
+    done.push(perm);
+  }
+
+  return { ok: true, response: `${done.join(', ')} diberikan${dur ? ` selama ${dur}` : ' permanen'}` };
+}
+
 // nlogin verify <nick> — returns { ok, registered, response }
 export async function verifyPlayer(nick) {
   try { guard(nick, SAFE_NICK, 'nick'); } catch (e) { return { ok: false, registered: false, error: e.message }; }
