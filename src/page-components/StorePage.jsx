@@ -68,7 +68,7 @@ export default function StorePage() {
           Toko In-Game Resmi
         </h1>
         <p data-aos="fade-up" data-aos-delay="200" data-aos-duration="700" className="relative mt-1.5 text-xs text-[#4a5e3a]">
-          Semua pembelian diproses manual via WhatsApp dalam 1–10 menit.
+          Bayar lewat QRIS — item masuk otomatis begitu pembayaran terdeteksi.
         </p>
       </div>
 

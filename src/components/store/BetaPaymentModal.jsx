@@ -4,11 +4,10 @@ import { Modal } from '@/components/ui/Modal';
 import { Button } from '@/components/ui/Button';
 import { createBetaOrder, pollBetaOrderStatus } from '@/utils/betaPayment';
 import { formatRupiah } from '@/utils/currency';
-import { SITE } from '@/data/config';
+import { QrisDisplay } from './QrisDisplay';
 import { cn } from '@/lib/cn';
 
 const POLL_INTERVAL = 5000;
-const QRIS_IMG = SITE.payment.QRIS?.imgPath || '/payment/qris.png';
 
 function CountdownTimer({ expiresAt }) {
   const [remaining, setRemaining] = useState('');
@@ -104,8 +103,8 @@ export function BetaPaymentModal({ open, onClose, orderPayload, productLabel }) 
           <div className="flex flex-col gap-4">
             <div className="rounded-md border border-2 border-[#1d2b1f] bg-[#faf3e8] px-4 py-3">
               <p className="text-sm text-[#4a5e3a] leading-relaxed">
-                Bayar <span className="font-semibold text-[#1d2b1f]">{productLabel}</span> dengan nominal unik yang akan ditampilkan.
-                Scan QRIS dan transfer <span className="font-semibold text-[#1d2b1f]">tepat sesuai nominal</span> — item masuk otomatis setelah pembayaran terdeteksi.
+                Bayar <span className="font-semibold text-[#1d2b1f]">{productLabel}</span> lewat QRIS.
+                Nominalnya <span className="font-semibold text-[#1d2b1f]">sudah otomatis terisi</span> saat di-scan — item masuk otomatis setelah pembayaran terdeteksi.
               </p>
             </div>
             <Button fullWidth onClick={handleCreate} variant="primary">
@@ -135,9 +134,7 @@ export function BetaPaymentModal({ open, onClose, orderPayload, productLabel }) 
             </div>
 
             {/* QRIS */}
-            <div className="rounded-md border border-2 border-[#1d2b1f] bg-white p-3 shadow-lg">
-              <img src={QRIS_IMG} alt="QRIS AeroBlast" className="h-52 w-52 object-contain" />
-            </div>
+            <QrisDisplay payload={order.qris} amount={order.totalAmount} label={productLabel} />
 
             <p className="text-center text-xs text-[#4a5e3a] leading-relaxed">
               Bisa scan pakai GoPay, OVO, ShopeePay, DANA, atau m-banking apapun.

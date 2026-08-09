@@ -2,7 +2,7 @@
 import { useEffect, useRef, useState } from 'react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-import { Menu, X, Home, ShoppingBag, Trophy, HelpCircle, MessageCircle, Heart } from 'lucide-react';
+import { Menu, X, Home, ShoppingBag, Trophy, HelpCircle, MessageCircle, Heart, UserCircle } from 'lucide-react';
 import { cn } from '@/lib/cn';
 import { scrollToId } from '@/lib/motion';
 import { useServerStatus } from '@/hooks/useServerStatus';
@@ -14,6 +14,7 @@ const NAV_LINKS = [
   { to: '/top-voters', label: 'Top Voters',   icon: Trophy,      sectionId: null },
   { to: '/faq', label: 'FAQ',                 icon: HelpCircle,  sectionId: null },
   { to: '/donate', label: 'Donasi',           icon: Heart,       sectionId: null },
+  { to: '/account', label: 'Akun',            icon: UserCircle,  sectionId: null },
 ];
 
 export function Navbar() {

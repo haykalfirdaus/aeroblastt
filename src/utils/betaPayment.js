@@ -12,7 +12,7 @@ export async function createBetaOrder(payload) {
   });
   const data = await safeJson(res);
   if (!res.ok || !data.ok) throw new Error(data.error || 'Gagal membuat order');
-  return data; // { orderId, suffix, totalAmount, expiresAt }
+  return data; // { orderId, suffix, totalAmount, expiresAt, qris }
 }
 
 export async function pollBetaOrderStatus(orderId) {

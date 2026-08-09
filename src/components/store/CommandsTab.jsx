@@ -14,8 +14,6 @@ import { BetaPaymentModal } from './BetaPaymentModal';
 import { COMMANDS, COMMAND_DURATION_OPTIONS, isCommandOwnedByRank } from '@/data/commands';
 import { usePlayerRank } from '@/hooks/usePlayerRank';
 import { SITE } from '@/data/config';
-import { buildCommandOrderMessage, openWhatsApp } from '@/utils/whatsapp';
-import { sendInvoice } from '@/utils/invoice';
 import { formatRupiah } from '@/utils/currency';
 import { useToast } from '@/context/ToastContext';
 import { usePlayerAuth } from '@/context/PlayerAuthContext';
@@ -48,7 +46,6 @@ function CommandOrderModal({ cmd, open, onClose }) {
   const [discount, setDiscount] = useState(0);
   const [agreed, setAgreed] = useState(false);
   const [betaOpen, setBetaOpen] = useState(false);
-  const [waLoading, setWaLoading] = useState(false);
 
   if (!cmd) return null;
   const durOpt = COMMAND_DURATION_OPTIONS.find((d) => d.id === duration);
@@ -62,16 +59,6 @@ function CommandOrderModal({ cmd, open, onClose }) {
     setBetaOpen(true);
   }
 
-  function handleWa() {
-    if (!(playerNick || nick).trim()) return showToast('Masukkan nickname!', 'error');
-    if (!platform) return showToast('Pilih platform!', 'error');
-    if (!agreed) return showToast('Setujui syarat & ketentuan!', 'error');
-    const orderData = { nick: (playerNick || nick).trim(), platform, cmdName: cmd.orderLabel, duration: durOpt.label, discountPct: discount, finalAmount: finalPrice, paymentMethod: 'Transfer / QRIS' };
-    setWaLoading(true);
-    sendInvoice({ type: 'command', ...orderData });
-    openWhatsApp(buildCommandOrderMessage(orderData));
-    setWaLoading(false);
-  }
 
   return (
     <>
@@ -115,13 +102,8 @@ function CommandOrderModal({ cmd, open, onClose }) {
         </CheckboxField>
         <div className="flex flex-col gap-2">
           <Button fullWidth size="sm" onClick={handleQris} disabled={!playerNick} title={!playerNick ? 'Login dulu untuk melakukan order' : undefined}>
-            {playerNick ? '⚡ Bayar via QRIS Otomatis' : '🔒 Login dulu untuk order'}
+            {playerNick ? 'Mulai Pembayaran' : '🔒 Login dulu untuk order'}
           </Button>
-          {playerNick && (
-            <button type="button" onClick={handleWa} disabled={waLoading} className="w-full rounded-md border border-2 border-[#1d2b1f] bg-[#faf3e8] py-2.5 text-sm font-semibold text-[#4a5e3a] transition-all hover:border-[#BFFF5E]/30 hover:text-[#1d2b1f]">
-              Lanjut via WhatsApp (Manual)
-            </button>
-          )}
         </div>
       </div>
     </Modal>
@@ -129,7 +111,7 @@ function CommandOrderModal({ cmd, open, onClose }) {
       open={betaOpen}
       onClose={() => setBetaOpen(false)}
       productLabel={`${cmd.command} (${durOpt.label})`}
-      orderPayload={{ type: 'command', nick: (playerNick || nick).trim(), platform, baseAmount: finalPrice, details: { cmdName: cmd.orderLabel, duration: durOpt.id } }}
+      orderPayload={{ type: 'command', nick: (playerNick || nick).trim(), platform, baseAmount: finalPrice, details: { cmdName: cmd.key, duration: durOpt.id, discountPct: discount } }}
     />
     </>
   );

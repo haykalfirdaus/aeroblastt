@@ -10,8 +10,6 @@ import { PriceSummary } from './PriceSummary';
 import { BetaPaymentModal } from './BetaPaymentModal';
 import { RANKS, RANK_DURATION_OPTIONS, RANK_ORDER, RANK_PRICES } from '@/data/ranks';
 import { SITE } from '@/data/config';
-import { buildRankOrderMessage, openWhatsApp } from '@/utils/whatsapp';
-import { sendInvoice } from '@/utils/invoice';
 import { formatRupiah } from '@/utils/currency';
 import { useToast } from '@/context/ToastContext';
 import { usePlayerAuth } from '@/context/PlayerAuthContext';
@@ -40,7 +38,6 @@ export function RankOrderModal({ rank, open, onClose }) {
   const [discount, setDiscount] = useState(0);
   const [agreed, setAgreed] = useState(false);
   const [betaOpen, setBetaOpen] = useState(false);
-  const [waLoading, setWaLoading] = useState(false);
 
   // Sinkronisasi platform & ownedRank saat modal dibuka atau playerNick berubah
   useEffect(() => {
@@ -69,28 +66,6 @@ export function RankOrderModal({ rank, open, onClose }) {
     if (!platform) return showToast('Pilih platform!', 'error');
     if (!agreed) return showToast('Setujui syarat & ketentuan terlebih dahulu!', 'error');
     setBetaOpen(true);
-  }
-
-  function handleWa() {
-    if (!(playerNick || nick).trim()) return showToast('Masukkan nickname kamu!', 'error');
-    if (!platform) return showToast('Pilih platform!', 'error');
-    if (!agreed) return showToast('Setujui syarat & ketentuan terlebih dahulu!', 'error');
-
-    const orderNick = (playerNick || nick).trim();
-    const orderData = {
-      nick: orderNick, platform,
-      target: rank.name.toUpperCase(),
-      owned: ownedRank === 'none' ? null : ownedRank,
-      duration: durOpt.label,
-      discountPct: discount,
-      basePrice,
-      finalAmount: finalPrice,
-      paymentMethod: 'Transfer / QRIS',
-    };
-    setWaLoading(true);
-    sendInvoice({ type: 'rank', ...orderData });
-    openWhatsApp(buildRankOrderMessage(orderData));
-    setWaLoading(false);
   }
 
   return (
@@ -180,19 +155,8 @@ export function RankOrderModal({ rank, open, onClose }) {
 
         <div className="flex flex-col gap-2">
           <Button fullWidth size="sm" onClick={handleQris} disabled={basePrice <= 0 || !playerNick} title={!playerNick ? 'Login dulu untuk melakukan order' : undefined}>
-            {playerNick ? '⚡ Bayar via QRIS Otomatis' : '🔒 Login dulu untuk order'}
+            {playerNick ? 'Mulai Pembayaran' : '🔒 Login dulu untuk order'}
           </Button>
-
-          {playerNick && basePrice > 0 && (
-            <button
-              type="button"
-              onClick={handleWa}
-              disabled={waLoading}
-              className="w-full rounded-md border border-[#1d2b1f]/40 bg-[#faf3e8] py-2.5 text-sm font-semibold text-[#4a5e3a] transition-all hover:border-[#1d2b1f] hover:bg-[#f5ede0] hover:text-[#1d2b1f]"
-            >
-              Lanjut via WhatsApp (Manual)
-            </button>
-          )}
         </div>
       </div>
 
@@ -210,6 +174,7 @@ export function RankOrderModal({ rank, open, onClose }) {
           target: rank.key,
           duration: durOpt.id,
           owned: ownedRank === 'none' ? null : ownedRank,
+          discountPct: discount,
         },
       }}
     />
