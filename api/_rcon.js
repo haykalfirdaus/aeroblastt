@@ -71,7 +71,6 @@ export async function grantRank(nick, rankKey, duration) {
 }
 
 // Permission node LuckPerms per command yang dijual di store.
-// Harus sinkron dengan COMMAND_NODES di api/_mysql.js (dipakai halaman akun).
 const COMMAND_PERMS = {
   FLY: ['essentials.fly'],
   GOD: ['essentials.god'],

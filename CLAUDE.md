@@ -102,7 +102,6 @@ Vercel-compatible Node.js handlers. Announcements dan discounts disimpan di **Su
 | `GET/POST/DELETE /api/admin/announcements` | GET public; mutations require admin session cookie |
 | `GET/POST/DELETE /api/admin/discounts` | GET public; mutations require admin session cookie |
 | `GET/POST /api/admin/server-config` | GET public (fallback ke `SITE.server` kalau DB gagal); POST perlu admin session, lalu `revalidateTag('server-config')` |
-| `GET /api/account` | Perlu cookie `aeroblast_player_session`. Ringkasan akun player: order, donasi, rank & command aktif. Nick diambil dari cookie — **jangan** pernah terima nick dari query/body, supaya data player lain tidak bisa diintip. |
 
 ### Pembayaran QRIS (statis → dinamis)
 
