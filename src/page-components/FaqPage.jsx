@@ -1,15 +1,27 @@
 'use client';
 import { useMemo, useState } from 'react';
-import { Search, HelpCircle, MessageCircle, Headphones, Wifi, Gamepad2, Coins, Medal } from 'lucide-react';
+import { Search, MessageCircle, Headphones, Wifi, Gamepad2, Coins, Medal } from 'lucide-react';
 import { PageLayout } from '@/components/layout/PageLayout';
+import { PageHeader } from '@/components/layout/PageHeader';
 import { Accordion, AccordionItem } from '@/components/ui/Accordion';
 import { FaqAnswer } from '@/components/faq/FaqAnswer';
 import { FAQ_CATEGORIES } from '@/data/faqData';
 import { substituteServerVars, useServerConfig } from '@/context/ServerConfigContext';
+import { SITE } from '@/data/config';
 import { cn } from '@/lib/cn';
 
 const CAT_ICONS = { Wifi, Gamepad2, Coins, Medal };
 
+/**
+ * FAQ — Soft UI.
+ *
+ * Search + category filter logic is unchanged, including the substituteServerVars
+ * pass that keeps searching for "25543" working now that the data stores
+ * {{ip}}/{{port}} placeholders.
+ *
+ * Social links now read from SITE.social instead of hardcoded URLs that had
+ * drifted out of sync with the config.
+ */
 export default function FaqPage() {
   const [query, setQuery] = useState('');
   const [activeCategory, setActiveCategory] = useState('all');
@@ -23,133 +35,157 @@ export default function FaqPage() {
         (item) =>
           !q ||
           item.question.toLowerCase().includes(q) ||
-          // Substitusi dulu supaya pencarian "25543" / "aeroblast.my.id" tetap
-          // menemukan jawaban yang kini menyimpannya sebagai {{ip}}/{{port}}.
           substituteServerVars(JSON.stringify(item.answer), server).toLowerCase().includes(q)
       ),
-    })).filter((cat) => (activeCategory === 'all' || cat.title === activeCategory) && cat.items.length > 0);
+    })).filter(
+      (cat) => (activeCategory === 'all' || cat.title === activeCategory) && cat.items.length > 0
+    );
   }, [query, activeCategory, server]);
 
   const totalResults = filtered.reduce((s, c) => s + c.items.length, 0);
 
   return (
     <PageLayout>
-      {/* Header */}
-      <div className="relative border-b border-2 border-[#1d2b1f] bg-[#f5ede0] px-4 py-10 text-center sm:px-6 lg:px-8">
-        <div aria-hidden="true" className="pointer-events-none absolute inset-0">
-          <div className="absolute left-1/2 top-0 h-48 w-80 -translate-x-1/2 rounded-md bg-[#4a5e3a]/10 " />
-        </div>
-        <span data-aos="fade-down" data-aos-duration="600" className="relative mb-3 inline-flex items-center gap-1.5 rounded-md border border-[#4a5e3a]/30 bg-[#4a5e3a]/10 px-3 py-1 font-mono text-[0.65rem] font-semibold uppercase tracking-[0.15em] text-[#354530]">
-          <HelpCircle size={11} />
-          FAQ
-        </span>
-        <h1 data-aos="fade-up" data-aos-delay="100" data-aos-duration="700" className="relative font-display text-2xl font-extrabold text-[#1d2b1f] sm:text-3xl">
-          Pertanyaan yang Sering Ditanyakan
-        </h1>
-        <p data-aos="fade-up" data-aos-delay="200" data-aos-duration="700" className="relative mt-1.5 text-xs text-[#4a5e3a]">
-          Tidak menemukan jawaban? Hubungi kami di Discord atau WhatsApp.
-        </p>
-      </div>
+      <PageHeader
+        eyebrow="FAQ"
+        title="Pertanyaan yang Sering Ditanyakan"
+        description="Tidak menemukan jawaban? Hubungi kami di Discord atau WhatsApp."
+      />
 
-      <div className="mx-auto max-w-3xl px-4 py-8 sm:px-6 lg:px-8">
-        {/* Search */}
-        <div data-aos="fade-up" data-aos-duration="600" className="relative mb-5">
-          <Search size={14} className="absolute left-3.5 top-1/2 -translate-y-1/2 text-[#6b7f5a]" />
+      <div className="mx-auto w-full max-w-3xl px-4 pb-16 sm:px-6">
+        {/* Search — inset field */}
+        <div className="relative mb-5">
+          <Search
+            size={17}
+            aria-hidden="true"
+            className="pointer-events-none absolute left-4 top-1/2 z-10 -translate-y-1/2 text-[#6b7f5a]"
+          />
+          <label htmlFor="faq-search" className="sr-only">
+            Cari pertanyaan
+          </label>
           <input
+            id="faq-search"
             type="search"
             value={query}
             onChange={(e) => setQuery(e.target.value)}
             placeholder="Cari pertanyaan…"
-            className="w-full rounded-md border border-2 border-[#1d2b1f] bg-[#fffdf9] py-2.5 pl-10 pr-4 text-sm font-sans text-[#1d2b1f] placeholder:text-[#6b7f5a] outline-none transition-colors focus:border-[#BFFF5E]/60 focus:ring-2 focus:ring-[#BFFF5E]/15"
+            className="neu-field pl-11 text-sm"
           />
         </div>
 
-        {/* Category filter pills */}
-        <div className="mb-7 flex flex-wrap gap-1.5">
+        {/* Category filters */}
+        <div className="mb-8 flex flex-wrap gap-2">
           <button
             type="button"
             onClick={() => setActiveCategory('all')}
-            className={cn('rounded-md border px-3 py-1 text-xs font-medium transition-all font-sans', activeCategory === 'all' ? 'border-[#BFFF5E]/50 bg-[#BFFF5E]/15 text-[#1d2b1f]' : 'border-2 border-[#1d2b1f] bg-[#f5ece0] text-[#4a5e3a] hover:border-[#BFFF5E]/25 hover:text-[#4a5e3a]')}
+            aria-pressed={activeCategory === 'all'}
+            className={cn(
+              'inline-flex min-h-[44px] cursor-pointer items-center rounded-full bg-[#fff8f0] px-4 text-xs font-bold',
+              '[transition:transform_150ms_ease,box-shadow_150ms_ease] active:scale-[0.96]',
+              activeCategory === 'all'
+                ? 'text-[#1d2b1f] shadow-[var(--neu-in)]'
+                : 'text-[#4a5e3a] shadow-[var(--neu-out)] hover:-translate-y-[2px]'
+            )}
           >
             Semua
           </button>
           {FAQ_CATEGORIES.map((cat) => {
             const CatIcon = CAT_ICONS[cat.icon];
+            const isActive = activeCategory === cat.title;
             return (
               <button
                 key={cat.title}
                 type="button"
                 onClick={() => setActiveCategory(cat.title)}
-                className={cn('inline-flex items-center gap-1.5 rounded-md border px-3 py-1 text-xs font-medium transition-all font-sans', activeCategory === cat.title ? 'border-[#BFFF5E]/50 bg-[#BFFF5E]/15 text-[#1d2b1f]' : 'border-2 border-[#1d2b1f] bg-[#f5ece0] text-[#4a5e3a] hover:border-[#BFFF5E]/25 hover:text-[#4a5e3a]')}
+                aria-pressed={isActive}
+                className={cn(
+                  'inline-flex min-h-[44px] cursor-pointer items-center gap-1.5 rounded-full bg-[#fff8f0] px-4 text-xs font-bold',
+                  '[transition:transform_150ms_ease,box-shadow_150ms_ease] active:scale-[0.96]',
+                  isActive
+                    ? 'text-[#1d2b1f] shadow-[var(--neu-in)]'
+                    : 'text-[#4a5e3a] shadow-[var(--neu-out)] hover:-translate-y-[2px]'
+                )}
               >
-                {CatIcon && <CatIcon size={11} />}
+                {CatIcon && <CatIcon size={13} aria-hidden="true" />}
                 {cat.title}
               </button>
             );
           })}
         </div>
 
-        {/* Results count */}
         {query && (
-          <p className="mb-4 text-xs text-[#4a5e3a] font-sans">
-            {totalResults} hasil untuk &ldquo;<span className="text-[#1d2b1f]">{query}</span>&rdquo;
+          <p className="mb-4 text-xs text-[#4a5e3a]" role="status" aria-live="polite">
+            {totalResults} hasil untuk &ldquo;<span className="font-bold text-[#1d2b1f]">{query}</span>&rdquo;
           </p>
         )}
 
         {totalResults === 0 ? (
-          <div className="rounded-md border border-2 border-[#1d2b1f] bg-[#faf3e8] py-14 text-center">
-            <Search size={28} className="mx-auto mb-3 text-[#D8D1C0]" />
-            <p className="text-sm font-semibold text-[#1d2b1f] font-display">Tidak ada hasil ditemukan</p>
-            <p className="mt-1 text-xs text-[#4a5e3a] font-sans">Coba kata kunci lain atau hubungi Admin.</p>
+          <div className="rounded-[var(--radius-neu-xl)] bg-[linear-gradient(145deg,var(--neu-hi),var(--neu-lo))] py-16 text-center shadow-[var(--neu-out)]">
+            <span className="neu-icon mx-auto h-14 w-14">
+              <Search size={24} aria-hidden="true" />
+            </span>
+            <p className="mt-4 font-display text-sm font-bold text-[#1d2b1f]">
+              Tidak ada hasil ditemukan
+            </p>
+            <p className="mt-1 text-xs text-[#4a5e3a]">Coba kata kunci lain atau hubungi Admin.</p>
           </div>
         ) : (
-          <div className="flex flex-col gap-8">
-            {filtered.map((cat, catIdx) => (
-              <section
-                key={cat.title}
-                data-aos={catIdx % 2 === 0 ? 'fade-right' : 'fade-left'}
-                data-aos-duration="800"
-              >
-                <div className="mb-3 flex items-center gap-2">
-                  {CAT_ICONS[cat.icon] && (() => { const CatIcon = CAT_ICONS[cat.icon]; return <CatIcon size={15} className="text-[#1d2b1f] shrink-0" />; })()}
-                  <h2 className="font-display text-base font-bold text-[#1d2b1f]">{cat.title}</h2>
-                  <span className="ml-auto rounded-md border border-2 border-[#1d2b1f] bg-[#f5ece0] px-2 py-0.5 font-mono text-[0.65rem] text-[#4a5e3a]">
-                    {cat.items.length}
-                  </span>
-                </div>
-                <Accordion>
-                  {cat.items.map((item, i) => (
-                    <AccordionItem key={i} id={`${cat.title}-${i}`} title={item.question}>
-                      <FaqAnswer blocks={item.answer} />
-                    </AccordionItem>
-                  ))}
-                </Accordion>
-              </section>
-            ))}
+          <div className="flex flex-col gap-9">
+            {filtered.map((cat) => {
+              const CatIcon = CAT_ICONS[cat.icon];
+              return (
+                <section key={cat.title}>
+                  <div className="mb-4 flex items-center gap-3">
+                    {CatIcon && (
+                      <span className="neu-icon h-11 w-11 rounded-[14px]">
+                        <CatIcon size={18} aria-hidden="true" />
+                      </span>
+                    )}
+                    <h2 className="font-display text-base font-extrabold text-[#1d2b1f]">
+                      {cat.title}
+                    </h2>
+                    <span className="neu-tag ml-auto">{cat.items.length}</span>
+                  </div>
+                  <Accordion>
+                    {cat.items.map((item, i) => (
+                      <AccordionItem key={i} id={`${cat.title}-${i}`} title={item.question}>
+                        <FaqAnswer blocks={item.answer} />
+                      </AccordionItem>
+                    ))}
+                  </Accordion>
+                </section>
+              );
+            })}
           </div>
         )}
 
-        {/* Footer CTA */}
-        <div data-aos="fade-up" data-aos-duration="800" className="mt-10 rounded-md border border-2 border-[#1d2b1f] bg-[#faf3e8] p-5 text-center">
-          <Headphones size={20} className="mx-auto mb-2 text-[#6b7f5a]" />
-          <p className="font-semibold text-[#1d2b1f] font-display text-sm">Masih punya pertanyaan?</p>
-          <p className="mt-1 text-xs text-[#4a5e3a] font-sans">Tim kami siap membantu kamu di Discord dan WhatsApp.</p>
-          <div className="mt-4 flex flex-wrap items-center justify-center gap-2">
+        {/* Contact CTA */}
+        <div className="mt-12 rounded-[var(--radius-neu-xl)] bg-[linear-gradient(145deg,var(--neu-hi),var(--neu-lo))] p-8 text-center shadow-[var(--neu-out-lg)]">
+          <span className="neu-icon mx-auto h-14 w-14">
+            <Headphones size={22} aria-hidden="true" />
+          </span>
+          <p className="mt-4 font-display text-base font-extrabold text-[#1d2b1f]">
+            Masih punya pertanyaan?
+          </p>
+          <p className="mt-1.5 text-xs text-[#4a5e3a]">
+            Tim kami siap membantu kamu di Discord dan WhatsApp.
+          </p>
+          <div className="mt-6 flex flex-wrap items-center justify-center gap-3">
             <a
-              href="https://discord.gg/rgRRnPS9cp"
+              href={SITE.social.discord}
               target="_blank"
               rel="noopener noreferrer"
-              className="inline-flex items-center gap-1.5 rounded-lg border border-[#BFFF5E]/30 bg-[#BFFF5E]/10 px-4 py-2 text-xs font-semibold text-[#1d2b1f] transition hover:bg-[#BFFF5E]/18"
+              className="neu-press inline-flex min-h-[48px] items-center gap-2 rounded-full bg-[#fff8f0] px-6 text-xs font-bold text-[#1d2b1f] shadow-[var(--neu-out)]"
             >
-              <MessageCircle size={13} /> Discord
+              <MessageCircle size={15} aria-hidden="true" /> Discord
             </a>
             <a
-              href="https://chat.whatsapp.com/F1d5WMvuuiiGGhpPZdAI36"
+              href={SITE.social.whatsapp}
               target="_blank"
               rel="noopener noreferrer"
-              className="inline-flex items-center gap-1.5 rounded-lg border border-success/25 bg-success/8 px-4 py-2 text-xs font-semibold text-success-bright transition hover:bg-success/14"
+              className="neu-press inline-flex min-h-[48px] items-center gap-2 rounded-full bg-[#fff8f0] px-6 text-xs font-bold text-[#059669] shadow-[var(--neu-out)]"
             >
-              <MessageCircle size={13} /> WhatsApp
+              <MessageCircle size={15} aria-hidden="true" /> WhatsApp
             </a>
           </div>
         </div>

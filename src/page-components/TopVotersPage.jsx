@@ -2,7 +2,7 @@
 import { useEffect, useRef, useState } from 'react';
 import { RefreshCw, Trophy, Vote, Gift, Users } from 'lucide-react';
 import { PageLayout } from '@/components/layout/PageLayout';
-import { GlassCard } from '@/components/ui/GlassCard';
+import { PageHeader } from '@/components/layout/PageHeader';
 import { Button } from '@/components/ui/Button';
 import { useTopVoters } from '@/hooks/useTopVoters';
 import {
@@ -15,7 +15,33 @@ import {
 import { SITE } from '@/data/config';
 import { cn } from '@/lib/cn';
 
+/**
+ * Top Voters — Soft UI.
+ *
+ * All data flow is unchanged: useTopVoters (proxy + auto-refresh + demo
+ * fallback), the separator-row builder, and the reward chip helpers.
+ *
+ * Fixes beyond the reskin:
+ *  - AutoRefreshBar animated `width`, a layout property, once per second for
+ *    the life of the page. It now animates `transform: scaleX()` on the
+ *    compositor, and only while the tab is visible.
+ *  - Avatars get explicit width/height so rows do not shift as skins load.
+ */
+
 const REFRESH_INTERVAL_MS = 5 * 60 * 1000;
+
+const TONE_TEXT = {
+  gold: 'text-[#b45309]',
+  green: 'text-[#059669]',
+  orange: 'text-[#ea580c]',
+  purple: 'text-[#8b5cf6]',
+  blue: 'text-[#2563eb]',
+  vote: 'text-[#2563eb]',
+  legend: 'text-[#ea580c]',
+  aero: 'text-[#059669]',
+  rank: 'text-[#b45309]',
+  fly: 'text-[#0891b2]',
+};
 
 function AutoRefreshBar({ lastUpdated }) {
   const [pct, setPct] = useState(100);
@@ -24,59 +50,73 @@ function AutoRefreshBar({ lastUpdated }) {
   useEffect(() => {
     startRef.current = Date.now();
     setPct(100);
+
     const id = setInterval(() => {
+      // Skip work entirely while the tab is hidden — a background timer that
+      // sets state every second keeps waking the main thread for nothing.
+      if (document.hidden) return;
       const elapsed = Date.now() - startRef.current;
       setPct(Math.max(0, 100 - (elapsed / REFRESH_INTERVAL_MS) * 100));
     }, 1000);
+
     return () => clearInterval(id);
   }, [lastUpdated]);
 
   return (
-    <div className="h-0.5 w-full overflow-hidden rounded-md bg-[#D8D1C0]">
+    <div className="h-1.5 w-full overflow-hidden rounded-full bg-[#fff8f0] shadow-[var(--neu-in)]">
       <div
-        className="h-full rounded-md bg-[#BFFF5E] transition-[width] duration-1000 ease-linear"
-        style={{ width: `${pct}%` }}
+        className="h-full origin-left rounded-full bg-[#a8f040] [transition:transform_1s_linear]"
+        style={{ transform: `scaleX(${pct / 100})` }}
       />
     </div>
   );
 }
 
 function PodiumCard({ voter, rank }) {
-  const sizes  = { 1: 'h-24 w-24', 2: 'h-20 w-20', 3: 'h-20 w-20' };
-  const glows  = { 1: 'rgba(245,158,11,0.5)', 2: 'rgba(107,127,90,0.4)', 3: 'rgba(180,120,60,0.4)' };
-  const rankLabels = { 1: '#1', 2: '#2', 3: '#3' };
+  const sizes = { 1: 'h-24 w-24', 2: 'h-20 w-20', 3: 'h-20 w-20' };
   const orders = { 1: 'order-2', 2: 'order-1', 3: 'order-3' };
+  const rankTone = { 1: 'text-[#b45309]', 2: 'text-[#4a5e3a]', 3: 'text-[#ea580c]' };
   const prizes = getPodiumPrize(rank);
+  const px = rank === 1 ? 96 : 80;
 
   return (
     <div className={cn('flex flex-col items-center gap-3', orders[rank])}>
-      <span className={cn('font-mono text-sm font-bold', rank === 1 ? 'text-warning' : rank === 2 ? 'text-[#4a5e3a]' : 'text-rank-orbiter')}>
-        {rankLabels[rank]}
-      </span>
+      <span className={cn('font-mono text-sm font-bold', rankTone[rank])}>#{rank}</span>
+
       <div className="relative">
-        <img
-          src={voter ? skinUrl(voter.nickname, 96) : 'https://minotar.net/avatar/Steve/96'}
-          alt={voter?.nickname ?? 'Unknown'}
-          className={cn('rounded-md border-2 object-cover', sizes[rank])}
-          style={{ borderColor: glows[rank].replace('0.5', '0.8'), boxShadow: `0 0 30px -5px ${glows[rank]}` }}
-          onError={(e) => { e.currentTarget.src = 'https://minotar.net/avatar/Steve/96'; }}
-        />
-        <span className="absolute -bottom-2 -right-2 rounded-md border border-2 border-[#1d2b1f] bg-[#faf3e8] px-1.5 py-0.5 font-mono text-xs font-bold text-[#1d2b1f]">
+        <span
+          className={cn(
+            'grid place-items-center rounded-full bg-[#fff8f0] p-2 shadow-[var(--neu-out-lg)]',
+            rank === 1 && 'p-2.5'
+          )}
+        >
+          {/* eslint-disable-next-line @next/next/no-img-element */}
+          <img
+            src={voter ? skinUrl(voter.nickname, px) : 'https://minotar.net/avatar/Steve/96'}
+            alt={voter?.nickname ?? 'Unknown'}
+            width={px}
+            height={px}
+            className={cn('rounded-full object-cover', sizes[rank])}
+            onError={(e) => {
+              e.currentTarget.src = 'https://minotar.net/avatar/Steve/96';
+            }}
+          />
+        </span>
+        <span className="absolute -bottom-1 -right-1 rounded-full bg-[#fff8f0] px-2.5 py-1 font-mono text-xs font-bold text-[#1d2b1f] shadow-[var(--neu-out)]">
           #{rank}
         </span>
       </div>
+
       <div className="text-center">
         <p className="font-mono text-sm font-bold text-[#1d2b1f]">{voter?.nickname ?? '—'}</p>
-        <p className="font-mono text-xs text-[#1d2b1f]">{voter?.votes ?? 0} votes</p>
+        <p className="font-mono text-xs text-[#4a5e3a]">{voter?.votes ?? 0} votes</p>
       </div>
-      <div className="flex flex-wrap justify-center gap-1">
+
+      <div className="flex flex-wrap justify-center gap-1.5">
         {prizes.map((p, i) => (
-          <span key={i} className={cn('rounded-md border px-2 py-0.5 text-[0.6rem] font-bold',
-            p.tone === 'gold' ? 'border-warning/30 bg-warning/10 text-warning' :
-            p.tone === 'green' ? 'border-success/30 bg-success/10 text-success-bright' :
-            p.tone === 'orange' ? 'border-orange-400/30 bg-orange-400/10 text-orange-300' :
-            'border-[#BFFF5E]/30 bg-[#BFFF5E]/10 text-[#1d2b1f]'
-          )}>{p.text}</span>
+          <span key={i} className={cn('neu-tag text-[0.6rem]', TONE_TEXT[p.tone])}>
+            {p.text}
+          </span>
         ))}
       </div>
     </div>
@@ -100,76 +140,74 @@ export default function TopVotersPage() {
 
   return (
     <PageLayout>
-      {/* Header */}
-      <div className="relative border-b border-2 border-[#1d2b1f] bg-[#f5ede0] px-4 py-10 text-center sm:px-6 lg:px-8">
-        <div aria-hidden="true" className="pointer-events-none absolute inset-0">
-          <div className="absolute left-1/2 top-0 h-48 w-80 -translate-x-1/2 rounded-md bg-warning/8 " />
-        </div>
-        <span data-aos="fade-down" data-aos-duration="700" className="relative mb-3 inline-flex items-center gap-1.5 rounded-md border border-warning/30 bg-warning/8 px-3 py-1 font-mono text-[0.65rem] font-semibold uppercase tracking-[0.14em] text-warning">
-          <Trophy size={11} /> Top Voters Bulan Ini
-        </span>
-        <h1 data-aos="fade-up" data-aos-delay="100" data-aos-duration="800" className="relative font-display text-2xl font-extrabold text-[#1d2b1f] sm:text-3xl">
-          Leaderboard Voter
-        </h1>
-        <p data-aos="fade-up" data-aos-delay="200" data-aos-duration="800" className="relative mt-1.5 text-xs text-[#4a5e3a]">Vote setiap hari dan menangkan reward eksklusif!</p>
-      </div>
+      <PageHeader
+        eyebrow="Top Voters Bulan Ini"
+        title="Leaderboard Voter"
+        description="Vote setiap hari dan menangkan reward eksklusif!"
+      />
 
-      <div className="mx-auto max-w-5xl px-4 py-8 sm:px-6 lg:px-8">
+      <div className="mx-auto w-full max-w-5xl px-4 pb-16 sm:px-6">
 
-        {/* Reward Tiers */}
-        <section className="mb-10">
-          <h2 data-aos="fade-right" data-aos-duration="800" className="mb-4 inline-flex items-center gap-2 font-display text-base font-bold text-[#1d2b1f]">
-            <Gift size={15} className="text-[#1d2b1f]" /> Hadiah Akhir Bulan
+        {/* Reward tiers */}
+        <section className="mb-12">
+          <h2 className="mb-5 inline-flex items-center gap-2.5 font-display text-base font-extrabold text-[#1d2b1f]">
+            <span className="neu-icon h-11 w-11 rounded-[14px]">
+              <Gift size={18} aria-hidden="true" />
+            </span>
+            Hadiah Akhir Bulan
           </h2>
-          <div className="grid grid-cols-2 gap-3 lg:grid-cols-4">
+
+          <div className="neu-grid neu-grid-3">
             {REWARD_TIERS.map((tier, i) => (
-              <GlassCard
+              <article
                 key={tier.id}
-                className={cn('p-3.5', tier.span === 2 && 'col-span-2')}
-                data-aos={i % 2 === 0 ? 'fade-right' : 'fade-left'}
-                data-aos-duration="800"
+                className="neu-rise rounded-[var(--radius-neu-lg)] bg-[linear-gradient(145deg,var(--neu-hi),var(--neu-lo))] p-5 shadow-[var(--neu-out)]"
+                style={{ '--i': i }}
               >
-                <div className="mb-2.5 flex items-center gap-2">
-                  <span className={cn('rounded-md border px-2 py-0.5 text-[0.62rem] font-bold',
-                    tier.tone === 'gold' ? 'border-warning/30 bg-warning/10 text-warning' :
-                    tier.tone === 'blue' ? 'border-[#BFFF5E]/30 bg-[#BFFF5E]/10 text-[#1d2b1f]' :
-                    tier.tone === 'green' ? 'border-success/30 bg-success/10 text-success-bright' :
-                    'border-purple/30 bg-purple/10 text-purple'
-                  )}>{tier.pill}</span>
-                </div>
-                <p className="mb-1.5 text-xs font-semibold text-[#4a5e3a]">{tier.label}</p>
-                <div className="flex flex-wrap gap-1">
-                  {tier.items.map((item, i) => (
-                    <span key={i} className="flex items-center gap-1 rounded-md border border-2 border-[#1d2b1f] bg-[#f5ece0] px-2 py-0.5 text-[0.6rem] text-[#4a5e3a]">
-                      <span>{item.name}</span> <span className="font-bold text-[#1d2b1f]">{item.tag}</span>
+                <span className={cn('neu-chip text-[0.62rem]', TONE_TEXT[tier.tone])}>
+                  {tier.pill}
+                </span>
+                <p className="mb-3 mt-3 text-xs font-bold text-[#4a5e3a]">{tier.label}</p>
+
+                <div className="flex flex-wrap gap-1.5">
+                  {tier.items.map((item, j) => (
+                    <span key={j} className="neu-tag text-[0.6rem]">
+                      {item.name} <span className="font-bold text-[#1d2b1f]">{item.tag}</span>
                     </span>
                   ))}
                 </div>
+
                 {tier.orLabel && (
                   <>
-                    <p className="my-1.5 text-[0.55rem] font-semibold uppercase tracking-wider text-[#6b7f5a]">{tier.orLabel}</p>
-                    <div className="flex flex-wrap gap-1">
-                      {tier.orItems.map((item, i) => (
-                        <span key={i} className="flex items-center gap-1 rounded-md border border-[#BFFF5E]/20 bg-[#BFFF5E]/8 px-2 py-0.5 text-[0.6rem] text-[#1d2b1f]">
-                          <span>{item.name}</span> <span className="font-bold">{item.tag}</span>
+                    <p className="my-2.5 text-[0.55rem] font-bold uppercase tracking-wider text-[#6b7f5a]">
+                      {tier.orLabel}
+                    </p>
+                    <div className="flex flex-wrap gap-1.5">
+                      {tier.orItems.map((item, j) => (
+                        <span key={j} className="neu-tag text-[0.6rem]">
+                          {item.name} <span className="font-bold text-[#1d2b1f]">{item.tag}</span>
                         </span>
                       ))}
                     </div>
-                    {tier.note && <p className="mt-1.5 text-[0.55rem] leading-relaxed text-[#6b7f5a]">{tier.note}</p>}
+                    {tier.note && (
+                      <p className="mt-2.5 text-[0.58rem] leading-relaxed text-[#6b7f5a]">
+                        {tier.note}
+                      </p>
+                    )}
                   </>
                 )}
-              </GlassCard>
+              </article>
             ))}
           </div>
         </section>
 
         {/* Podium */}
         {status === 'success' && voters.length >= 3 && (
-          <section className="mb-8">
-            <h2 data-aos="fade-up" data-aos-duration="800" className="mb-5 flex items-center justify-center gap-2 font-display text-base font-bold text-[#1d2b1f]">
-              <Trophy size={14} className="text-warning" /> Podium
+          <section className="mb-12">
+            <h2 className="mb-7 flex items-center justify-center gap-2 font-display text-base font-extrabold text-[#1d2b1f]">
+              <Trophy size={17} className="text-[#b45309]" aria-hidden="true" /> Podium
             </h2>
-            <div data-aos="fade-up" data-aos-delay="100" data-aos-duration="750" className="flex items-end justify-center gap-6 sm:gap-10">
+            <div className="flex items-end justify-center gap-6 sm:gap-12">
               <PodiumCard voter={voters[1]} rank={2} />
               <PodiumCard voter={voters[0]} rank={1} />
               <PodiumCard voter={voters[2]} rank={3} />
@@ -177,74 +215,97 @@ export default function TopVotersPage() {
           </section>
         )}
 
-        {/* Full Leaderboard */}
-        <section data-aos="fade-up" data-aos-duration="800">
-          <div className="mb-3 flex items-center justify-between">
-            <h2 className="inline-flex items-center gap-2 font-display text-base font-bold text-[#1d2b1f]">
-              <Users size={14} className="text-[#1d2b1f]" /> Semua Voter
+        {/* Leaderboard */}
+        <section>
+          <div className="mb-4 flex flex-wrap items-center justify-between gap-3">
+            <h2 className="inline-flex items-center gap-2.5 font-display text-base font-extrabold text-[#1d2b1f]">
+              <span className="neu-icon h-11 w-11 rounded-[14px]">
+                <Users size={18} aria-hidden="true" />
+              </span>
+              Semua Voter
             </h2>
             <button
               type="button"
               onClick={refresh}
               disabled={isRefreshing}
-              className="flex items-center gap-1.5 rounded-lg border border-2 border-[#1d2b1f] bg-[#f5ece0] px-3 py-1.5 text-xs text-[#4a5e3a] transition hover:border-[#BFFF5E]/30 hover:text-[#1d2b1f] disabled:opacity-50"
+              className="neu-press inline-flex min-h-[48px] items-center gap-2 rounded-full bg-[#fff8f0] px-5 text-xs font-bold text-[#4a5e3a] shadow-[var(--neu-out)] disabled:opacity-50"
             >
-              <RefreshCw size={12} className={cn(isRefreshing && 'animate-spin')} />
+              <RefreshCw size={14} className={cn(isRefreshing && 'animate-spin')} aria-hidden="true" />
               {isRefreshing ? 'Memuat...' : 'Refresh'}
             </button>
           </div>
 
           {lastUpdated && (
-            <div className="mb-3">
+            <div className="mb-4">
               <AutoRefreshBar lastUpdated={lastUpdated} />
-              <p className="mt-1 text-right text-[0.6rem] text-[#6b7f5a]">
+              <p className="mt-1.5 text-right text-[0.62rem] text-[#6b7f5a]">
                 Diperbarui: {lastUpdated.toLocaleTimeString('id-ID')} · Auto-refresh tiap 5 menit
               </p>
             </div>
           )}
 
-          <GlassCard>
+          <div className="overflow-hidden rounded-[var(--radius-neu-xl)] bg-[linear-gradient(145deg,var(--neu-hi),var(--neu-lo))] shadow-[var(--neu-out)]">
             {status === 'loading' && (
-              <div className="flex items-center justify-center gap-2 py-10 text-xs text-[#4a5e3a]">
-                <RefreshCw size={14} className="animate-spin" /> Memuat leaderboard...
+              <div className="flex items-center justify-center gap-2 py-14 text-xs text-[#4a5e3a]">
+                <RefreshCw size={16} className="animate-spin" aria-hidden="true" /> Memuat leaderboard...
               </div>
             )}
 
             {status === 'success' && voters.length === 0 && (
-              <div className="flex flex-col items-center gap-3 py-10 text-center">
-                <Trophy size={28} className="text-[#D8D1C0]" />
-                <p className="text-xs text-[#4a5e3a]">Belum ada voter bulan ini. Jadilah yang pertama!</p>
+              <div className="flex flex-col items-center gap-3 py-14 text-center">
+                <span className="neu-icon h-14 w-14">
+                  <Trophy size={24} aria-hidden="true" />
+                </span>
+                <p className="text-xs text-[#4a5e3a]">
+                  Belum ada voter bulan ini. Jadilah yang pertama!
+                </p>
               </div>
             )}
 
             {status === 'success' && voters.length > 0 && (
-              <ul className="divide-y divide-[#D8D1C0]/50">
+              <ul className="p-2">
                 {rows.map((row) =>
                   row.type === 'separator' ? (
-                    <li key={row.key} className="bg-[#f5ece0]/60 px-4 py-1.5">
-                      <span className="text-[0.6rem] font-bold uppercase tracking-widest text-[#6b7f5a]">{row.label}</span>
+                    <li key={row.key} className="px-4 pb-1.5 pt-4">
+                      <span className="text-[0.6rem] font-bold uppercase tracking-widest text-[#6b7f5a]">
+                        {row.label}
+                      </span>
                     </li>
                   ) : (
-                    <li key={row.key} className={cn('flex items-center gap-3 px-4 py-2.5 transition-colors hover:bg-[#f5ece0]/40', row.rank <= 3 && 'bg-[#f5ece0]/30')}>
-                      <span className="w-6 shrink-0 text-center font-mono text-xs font-bold text-[#4a5e3a]">#{row.rank}</span>
+                    <li
+                      key={row.key}
+                      className={cn(
+                        'flex items-center gap-3 rounded-[var(--radius-neu)] px-3 py-2.5',
+                        row.rank <= 3 && 'bg-[#fff8f0] shadow-[var(--neu-in)]'
+                      )}
+                    >
+                      <span className="w-7 shrink-0 text-center font-mono text-xs font-bold text-[#4a5e3a]">
+                        #{row.rank}
+                      </span>
+                      {/* eslint-disable-next-line @next/next/no-img-element */}
                       <img
                         src={skinUrl(row.voter.nickname, 40)}
-                        alt={row.voter.nickname}
+                        alt=""
+                        width={36}
+                        height={36}
                         loading="lazy"
-                        className="h-8 w-8 shrink-0 rounded-lg border border-2 border-[#1d2b1f] object-cover"
-                        onError={(e) => { e.currentTarget.style.display = 'none'; }}
+                        decoding="async"
+                        className="h-9 w-9 shrink-0 rounded-full object-cover shadow-[var(--neu-out)]"
+                        onError={(e) => {
+                          e.currentTarget.style.visibility = 'hidden';
+                        }}
                       />
-                      <span className="flex-1 font-mono text-xs font-semibold text-[#1d2b1f]">{row.voter.nickname}</span>
-                      <span className="font-mono text-xs font-bold text-[#1d2b1f]">{row.voter.votes}</span>
-                      <div className="hidden flex-wrap justify-end gap-1 sm:flex">
+                      <span className="min-w-0 flex-1 truncate font-mono text-xs font-bold text-[#1d2b1f]">
+                        {row.voter.nickname}
+                      </span>
+                      <span className="font-mono text-xs font-bold text-[#1d2b1f]">
+                        {row.voter.votes}
+                      </span>
+                      <div className="hidden flex-wrap justify-end gap-1.5 sm:flex">
                         {getChipsForRank(row.rank).map((c, i) => (
-                          <span key={i} className={cn('rounded-md border px-1.5 py-0.5 text-[0.58rem] font-semibold',
-                            c.tone === 'gold' ? 'border-warning/30 bg-warning/10 text-warning' :
-                            c.tone === 'orange' ? 'border-orange-400/30 bg-orange-400/10 text-orange-300' :
-                            c.tone === 'green' ? 'border-success/30 bg-success/10 text-success-bright' :
-                            c.tone === 'purple' ? 'border-purple/30 bg-purple/10 text-purple' :
-                            'border-[#BFFF5E]/30 bg-[#BFFF5E]/10 text-[#1d2b1f]'
-                          )}>{c.text}</span>
+                          <span key={i} className={cn('neu-tag text-[0.58rem]', TONE_TEXT[c.tone])}>
+                            {c.text}
+                          </span>
                         ))}
                       </div>
                     </li>
@@ -252,17 +313,29 @@ export default function TopVotersPage() {
                 )}
               </ul>
             )}
-          </GlassCard>
+          </div>
         </section>
 
         {/* Vote CTA */}
-        <div data-aos="fade-up" data-aos-duration="800" className="mt-8 flex flex-col items-center gap-3 rounded-md border border-[#BFFF5E]/25 bg-[#BFFF5E]/[0.07] px-5 py-7 text-center">
-          <Vote size={22} className="text-[#1d2b1f]" />
-          <p className="font-display text-base font-bold text-[#1d2b1f]">Sudah Vote Hari Ini?</p>
-          <p className="max-w-sm text-xs text-[#4a5e3a]">Vote gratis setiap hari! Dapatkan 15.000 Balance + 5 Basic Key + 1 Vote Key per vote.</p>
-          <a href={SITE.voters.voteUrl} target="_blank" rel="noopener noreferrer">
-            <Button size="sm"><Vote size={13} /> Vote Sekarang</Button>
-          </a>
+        <div className="mt-10 flex flex-col items-center gap-3 rounded-[var(--radius-neu-xl)] bg-[linear-gradient(145deg,var(--neu-hi),var(--neu-lo))] px-6 py-10 text-center shadow-[var(--neu-out-lg)]">
+          <span className="neu-icon h-14 w-14">
+            <Vote size={22} aria-hidden="true" />
+          </span>
+          <p className="mt-1 font-display text-lg font-extrabold text-[#1d2b1f]">
+            Sudah Vote Hari Ini?
+          </p>
+          <p className="max-w-sm text-xs leading-relaxed text-[#4a5e3a]">
+            Vote gratis setiap hari! Dapatkan 15.000 Balance + 5 Basic Key + 1 Vote Key per vote.
+          </p>
+          <Button
+            as="a"
+            href={SITE.voters.voteUrl}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="mt-2"
+          >
+            <Vote size={15} aria-hidden="true" /> Vote Sekarang
+          </Button>
         </div>
       </div>
     </PageLayout>
