@@ -23,7 +23,7 @@ export function FieldLabel({ children, required }) {
     <label className="mb-2 block text-xs font-bold uppercase tracking-wide text-[#4a5e3a]">
       {children}
       {required && (
-        <span className="ml-0.5 text-[#5a9e10]" aria-hidden="true">
+        <span className="ml-0.5 text-[#3d7208]" aria-hidden="true">
           {' '}
           *
         </span>
@@ -85,7 +85,7 @@ export function CheckboxField({ checked, onChange, children, className }) {
         aria-hidden="true"
         className={cn(
           'mt-0.5 grid h-6 w-6 shrink-0 place-items-center rounded-lg [transition:box-shadow_150ms_ease,background_150ms_ease]',
-          'peer-focus-visible:outline peer-focus-visible:outline-2 peer-focus-visible:outline-offset-2 peer-focus-visible:outline-[#5a9e10]',
+          'peer-focus-visible:outline peer-focus-visible:outline-2 peer-focus-visible:outline-offset-2 peer-focus-visible:outline-[#3d7208]',
           checked
             ? 'bg-[linear-gradient(145deg,#d4ff80,#a8f040)] shadow-[var(--neu-out)]'
             : 'bg-[#fff8f0] shadow-[var(--neu-in)]'

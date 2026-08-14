@@ -183,7 +183,7 @@ export default function FaqPage() {
               href={SITE.social.whatsapp}
               target="_blank"
               rel="noopener noreferrer"
-              className="neu-press inline-flex min-h-[48px] items-center gap-2 rounded-full bg-[#fff8f0] px-6 text-xs font-bold text-[#059669] shadow-[var(--neu-out)]"
+              className="neu-press inline-flex min-h-[48px] items-center gap-2 rounded-full bg-[#fff8f0] px-6 text-xs font-bold text-[#046b4d] shadow-[var(--neu-out)]"
             >
               <MessageCircle size={15} aria-hidden="true" /> WhatsApp
             </a>

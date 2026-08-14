@@ -50,7 +50,15 @@ export function Modal({ open, onClose, title, subtitle, icon, badge, size = 'md'
       >
         <div
           className={cn(
-            'relative max-h-[calc(100dvh-2rem)] w-full overflow-y-auto rounded-[var(--radius-neu-xl)] bg-[#fff8f0] shadow-[var(--neu-out-lg)]',
+            /*
+             * No neumorphic shadow here. `--neu-out-lg` paints a 26px white
+             * highlight on the top-left, which against the dark overlay reads
+             * as a glow rimming the whole dialog. Neumorphic depth only works
+             * on a surface of the SAME colour — a modal floats over a scrim,
+             * so it gets a plain soft drop shadow instead.
+             */
+            'relative max-h-[calc(100dvh-2rem)] w-full overflow-y-auto rounded-[var(--radius-neu-xl)] bg-[#fff8f0]',
+            'shadow-[0_18px_50px_-12px_rgba(29,43,31,0.35)]',
             '[transition:transform_150ms_ease,opacity_150ms_ease]',
             sizeClass,
             entered ? 'translate-y-0 scale-100 opacity-100' : 'translate-y-2 scale-95 opacity-0'

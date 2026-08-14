@@ -93,7 +93,7 @@ export function Navbar() {
             />
           </span>
           <span className="hidden font-display text-sm font-extrabold tracking-tight text-[#1d2b1f] sm:block">
-            Aero<span className="text-[#5a9e10]">Blast</span>
+            Aero<span className="text-[#3d7208]">Blast</span>
           </span>
         </Link>
 

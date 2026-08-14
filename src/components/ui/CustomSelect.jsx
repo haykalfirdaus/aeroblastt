@@ -112,11 +112,10 @@ export function CustomSelect({ value, onChange, options = [], placeholder = 'Sel
         onClick={() => !disabled && setOpen((v) => !v)}
         onKeyDown={handleTriggerKeyDown}
         className={cn(
-          'flex w-full items-center justify-between gap-2 rounded-md border border-[#1d2b1f]/30 bg-[#fffdf9] px-4 py-3',
-          'text-sm outline-none transition-colors',
-          'hover:border-[#1d2b1f]/60 hover:bg-[#faf3e8]',
-          open && 'border-[#1d2b1f] bg-[#faf3e8] ring-2 ring-[#BFFF5E]/30',
-          !open && 'focus-visible:border-[#1d2b1f] focus-visible:ring-2 focus-visible:ring-[#BFFF5E]/30',
+          'flex min-h-[48px] w-full items-center justify-between gap-2 rounded-[var(--radius-neu)] bg-[#fff8f0] px-4 py-3',
+          'text-sm outline-none [transition:box-shadow_150ms_ease]',
+          open ? 'shadow-[var(--neu-in-deep)]' : 'shadow-[var(--neu-in)]',
+          !open && 'focus-visible:shadow-[var(--neu-in-deep)]',
           disabled && 'cursor-not-allowed opacity-40',
           !disabled && 'cursor-pointer'
         )}
@@ -127,6 +126,7 @@ export function CustomSelect({ value, onChange, options = [], placeholder = 'Sel
         <ChevronDown
           size={16}
           strokeWidth={2}
+          aria-hidden="true"
           className={cn(
             'shrink-0 text-[#4a5e3a] transition-transform duration-150',
             open && 'rotate-180 text-[#1d2b1f]'
@@ -137,25 +137,19 @@ export function CustomSelect({ value, onChange, options = [], placeholder = 'Sel
       {/* Dropdown panel */}
       <div
         className={cn(
-          'absolute left-0 right-0 top-[calc(100%+6px)] z-50 overflow-hidden rounded-md border border-[#1d2b1f]/30 bg-[#fffdf9] shadow-[2px_4px_16px_-4px_rgba(29,43,31,0.12)]',
+          'absolute left-0 right-0 top-[calc(100%+10px)] z-50 overflow-hidden rounded-[var(--radius-neu-lg)] bg-[linear-gradient(145deg,var(--neu-hi),var(--neu-lo))] shadow-[var(--neu-out-lg)]',
           'transition-all duration-150 origin-top',
           open ? 'opacity-100 translate-y-0 scale-y-100 pointer-events-auto' : 'opacity-0 -translate-y-2 scale-y-95 pointer-events-none'
         )}
         style={{ transformOrigin: 'top' }}
       >
-        {/* Neon top-edge accent */}
-        <span
-          aria-hidden="true"
-          className="block h-px w-full bg-gradient-to-r from-transparent via-[#BFFF5E]/40 to-transparent"
-        />
-
         <ul
           ref={listRef}
           role="listbox"
           aria-label={label ?? placeholder}
           onKeyDown={handleListKeyDown}
           tabIndex={-1}
-          className="max-h-60 overflow-y-auto py-1 focus:outline-none"
+          className="flex max-h-60 flex-col gap-1.5 overflow-y-auto p-2 focus:outline-none"
         >
           {options.map((option, idx) => {
             const isSelected = option.value === value;
@@ -173,15 +167,15 @@ export function CustomSelect({ value, onChange, options = [], placeholder = 'Sel
                 }}
                 onPointerEnter={() => setFocusedIndex(idx)}
                 className={cn(
-                  'flex cursor-pointer items-center gap-3 px-4 py-2.5 text-sm transition-colors',
-                  isFocused && !isSelected && 'bg-[#f5ede0] text-[#1d2b1f]',
-                  isSelected && 'bg-[#BFFF5E]/15 text-[#1d2b1f]',
+                  'flex min-h-[48px] cursor-pointer items-center gap-3 rounded-[var(--radius-neu)] px-4 py-2.5 text-sm [transition:box-shadow_150ms_ease]',
+                  isFocused && !isSelected && 'bg-[#fff8f0] text-[#1d2b1f] shadow-[var(--neu-out)]',
+                  isSelected && 'bg-[#fff8f0] text-[#1d2b1f] shadow-[var(--neu-in)]',
                   !isFocused && !isSelected && 'text-[#4a5e3a]'
                 )}
               >
                 {/* Check column — always reserve the space so labels align */}
                 <span className="flex w-4 shrink-0 items-center justify-center">
-                  {isSelected && <Check size={13} strokeWidth={3} className="text-[#1d2b1f]" />}
+                  {isSelected && <Check size={13} strokeWidth={3} className="text-[#1d2b1f]" aria-hidden="true" />}
                 </span>
 
                 <span className="flex flex-col gap-0.5 min-w-0">

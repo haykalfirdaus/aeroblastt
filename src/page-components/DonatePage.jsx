@@ -246,7 +246,7 @@ export default function DonatePage() {
         </h1>
         <p data-aos="fade-up" data-aos-delay="200" data-aos-duration="700" className="relative mt-1.5 flex items-center justify-center gap-1.5 text-xs text-[#4a5e3a]">
           Bantu server tetap berjalan &amp; masuk leaderboard donatur!
-          <Heart size={12} aria-hidden="true" className="fill-[#5a9e10] text-[#5a9e10]" />
+          <Heart size={12} aria-hidden="true" className="fill-[#3d7208] text-[#3d7208]" />
         </p>
       </div>
 
@@ -266,14 +266,14 @@ export default function DonatePage() {
                 <div>
                   <h2 className="flex items-center justify-center gap-2 font-display text-2xl font-extrabold text-[#1d2b1f]">
                     Donasi Diterima!
-                    <PartyPopper size={22} aria-hidden="true" className="text-[#5a9e10]" />
+                    <PartyPopper size={22} aria-hidden="true" className="text-[#3d7208]" />
                   </h2>
                   <p className="mt-2 text-sm text-[#4a5e3a]">
                     Transfer <span className="font-bold text-[#1d2b1f]">{formatRupiah(order?.totalAmount ?? 0)}</span> sudah masuk.
                   </p>
                   <p className="mt-0.5 flex items-center justify-center gap-1.5 text-sm text-[#4a5e3a]">
                     Terima kasih telah mendukung AeroBlast Network!
-                    <Heart size={14} aria-hidden="true" className="fill-[#5a9e10] text-[#5a9e10]" />
+                    <Heart size={14} aria-hidden="true" className="fill-[#3d7208] text-[#3d7208]" />
                   </p>
                   {loggedNick && (
                     <p className="mt-3 rounded-[var(--radius-neu)] bg-[#fff8f0] px-3 py-2 text-xs text-[#1d2b1f] shadow-[var(--neu-in)]">
@@ -364,7 +364,7 @@ export default function DonatePage() {
                   </ol>
 
                   <div className="flex items-center justify-center gap-2 rounded-[var(--radius-neu)] bg-[#fff8f0] px-4 py-2.5 shadow-[var(--neu-in)]">
-                    <span aria-hidden="true" className="inline-block h-2 w-2 animate-pulse rounded-full bg-[#5a9e10]" />
+                    <span aria-hidden="true" className="inline-block h-2 w-2 animate-pulse rounded-full bg-[#3d7208]" />
                     <span className="text-xs text-[#4a5e3a]">Menunggu pembayaran...</span>
                   </div>
 
@@ -541,7 +541,7 @@ export default function DonatePage() {
                 <div className="flex max-h-[560px] flex-col gap-2 overflow-y-auto rounded-[var(--radius-neu-xl)] bg-[linear-gradient(145deg,var(--neu-hi),var(--neu-lo))] p-4 shadow-[var(--neu-out)]">
                   {lbLoading ? (
                     <div className="flex items-center justify-center py-10">
-                      <span aria-hidden="true" className="inline-block h-2 w-2 animate-pulse rounded-full bg-[#5a9e10]" />
+                      <span aria-hidden="true" className="inline-block h-2 w-2 animate-pulse rounded-full bg-[#3d7208]" />
                     </div>
                   ) : leaderboard.length === 0 ? (
                     <div className="flex flex-col items-center gap-3 py-10 text-center">
@@ -591,7 +591,7 @@ export default function DonatePage() {
                 <div className="flex max-h-[560px] flex-col gap-2 overflow-y-auto rounded-[var(--radius-neu-xl)] bg-[linear-gradient(145deg,var(--neu-hi),var(--neu-lo))] p-4 shadow-[var(--neu-out)]">
                   {recentLoading ? (
                     <div className="flex items-center justify-center py-10">
-                      <span aria-hidden="true" className="inline-block h-2 w-2 animate-pulse rounded-full bg-[#5a9e10]" />
+                      <span aria-hidden="true" className="inline-block h-2 w-2 animate-pulse rounded-full bg-[#3d7208]" />
                     </div>
                   ) : recent.length === 0 ? (
                     <div className="flex flex-col items-center gap-2 py-10 text-center">
@@ -632,7 +632,7 @@ export default function DonatePage() {
                   </p>
                   <p className="mt-0.5 flex items-center gap-1 text-[10px] text-[#4a5e3a]">
                     dari {recent.length} donasi · Terima kasih!
-                    <Heart size={10} aria-hidden="true" className="fill-[#5a9e10] text-[#5a9e10]" />
+                    <Heart size={10} aria-hidden="true" className="fill-[#3d7208] text-[#3d7208]" />
                   </p>
                 </div>
               )}

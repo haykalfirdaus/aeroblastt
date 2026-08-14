@@ -56,7 +56,7 @@ export function Footer() {
                 Aero<span className="text-[#BFFF5E]">Blast</span>
               </span>
             </Link>
-            <p className="max-w-xs text-xs leading-relaxed text-[#fff8f0]/60">
+            <p className="max-w-xs text-xs leading-relaxed text-[#fff8f0]/85">
               Server Minecraft Indonesia dengan fitur lengkap dan komunitas aktif.
             </p>
             <div className="flex flex-wrap items-center gap-2">
@@ -64,7 +64,7 @@ export function Footer() {
                 href={SITE.social.discord}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="neu-dark-out inline-flex min-h-[48px] items-center gap-2 rounded-full px-4 text-xs font-bold text-[#fff8f0]/80 [transition:transform_150ms_ease] hover:text-[#BFFF5E] active:scale-[0.96]"
+                className="neu-dark-out inline-flex min-h-[48px] items-center gap-2 rounded-full px-4 text-xs font-bold text-[#fff8f0]/90 [transition:transform_150ms_ease] hover:text-[#BFFF5E] active:scale-[0.96]"
               >
                 <MessageCircle size={13} aria-hidden="true" /> Discord
               </a>
@@ -72,7 +72,7 @@ export function Footer() {
                 href={SITE.social.whatsapp}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="neu-dark-out inline-flex min-h-[48px] items-center gap-2 rounded-full px-4 text-xs font-bold text-[#fff8f0]/80 [transition:transform_150ms_ease] hover:text-[#BFFF5E] active:scale-[0.96]"
+                className="neu-dark-out inline-flex min-h-[48px] items-center gap-2 rounded-full px-4 text-xs font-bold text-[#fff8f0]/90 [transition:transform_150ms_ease] hover:text-[#BFFF5E] active:scale-[0.96]"
               >
                 <Phone size={13} aria-hidden="true" /> WhatsApp
               </a>
@@ -81,7 +81,7 @@ export function Footer() {
 
           {/* Nav */}
           <nav aria-label="Navigasi footer">
-            <p className="mb-4 text-[0.6rem] font-bold uppercase tracking-[0.14em] text-[#BFFF5E]/70">
+            <p className="mb-4 text-[0.6rem] font-bold uppercase tracking-[0.14em] text-[#BFFF5E]">
               Navigasi
             </p>
             <ul className="flex flex-col gap-0.5">
@@ -97,12 +97,12 @@ export function Footer() {
                         '[transition:transform_150ms_ease,color_150ms_ease] hover:translate-x-1',
                         isDonate
                           ? 'font-bold text-[#BFFF5E] hover:text-[#d4ff80]'
-                          : 'text-[#fff8f0]/65 hover:text-[#BFFF5E]'
+                          : 'text-[#fff8f0]/85 hover:text-[#BFFF5E]'
                       )}
                     >
                       <l.icon
                         size={13}
-                        className={isDonate ? 'text-[#BFFF5E]' : 'text-[#fff8f0]/40'}
+                        className={isDonate ? 'text-[#BFFF5E]' : 'text-[#fff8f0]/75'}
                         aria-hidden="true"
                       />
                       {l.label}
@@ -115,7 +115,7 @@ export function Footer() {
 
           {/* Server info — live values from useServerConfig */}
           <div>
-            <p className="mb-4 text-[0.6rem] font-bold uppercase tracking-[0.14em] text-[#BFFF5E]/70">
+            <p className="mb-4 text-[0.6rem] font-bold uppercase tracking-[0.14em] text-[#BFFF5E]">
               <span className="inline-flex items-center gap-1.5">
                 <Server size={11} aria-hidden="true" /> Join Server
               </span>
@@ -130,7 +130,7 @@ export function Footer() {
                   className="neu-dark-in flex items-center justify-between gap-3 px-4 py-3"
                 >
                   <div className="min-w-0">
-                    <p className="text-[0.55rem] uppercase tracking-[0.16em] text-[#fff8f0]/40">
+                    <p className="text-[0.55rem] uppercase tracking-[0.16em] text-[#fff8f0]/75">
                       {item.label}
                     </p>
                     <p className="truncate font-mono text-xs font-bold text-[#fff8f0]">{item.value}</p>
@@ -138,7 +138,7 @@ export function Footer() {
                   <button
                     type="button"
                     onClick={() => copy(item.value, item.key)}
-                    className="neu-dark-out grid h-12 w-12 shrink-0 place-items-center rounded-full text-[#fff8f0]/60 [transition:transform_150ms_ease] hover:text-[#BFFF5E] active:scale-[0.94]"
+                    className="neu-dark-out grid h-12 w-12 shrink-0 place-items-center rounded-full text-[#fff8f0]/85 [transition:transform_150ms_ease] hover:text-[#BFFF5E] active:scale-[0.94]"
                     aria-label={`Salin ${item.label} server`}
                   >
                     {copiedKey === item.key ? (
@@ -153,13 +153,7 @@ export function Footer() {
           </div>
         </div>
 
-        <div
-          className="mt-10 h-px w-full rounded-full"
-          style={{ background: 'linear-gradient(90deg,transparent,rgba(255,248,240,0.14),transparent)' }}
-          aria-hidden="true"
-        />
-
-        <p className="mt-6 text-center text-[0.65rem] text-[#fff8f0]/35">
+        <p className="mt-12 text-center text-[0.65rem] text-[#fff8f0]/70">
           &copy; {new Date().getFullYear()} AeroBlast Network. All rights reserved.
         </p>
       </div>

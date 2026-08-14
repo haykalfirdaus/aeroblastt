@@ -47,7 +47,7 @@ function KeyOrderModal({ keyData, open, onClose }) {
   const { nick: playerNick } = usePlayerAuth();
   const isBedrock = playerNick?.includes('.');
   const [nick, setNick] = useState('');
-  const [platform, setPlatform] = useState(isBedrock ? 'Bedrock / PE' : '');
+  const platform = isBedrock ? 'Bedrock / PE' : 'Java Edition';
   const [qty, setQty] = useState(1);
   const [discount, setDiscount] = useState(0);
   const [agreed, setAgreed] = useState(false);
@@ -74,11 +74,16 @@ function KeyOrderModal({ keyData, open, onClose }) {
         <div><FieldLabel required>Nickname</FieldLabel><TextField value={playerNick || nick} onChange={(e) => !playerNick && setNick(e.target.value)} placeholder={playerNick ? '' : 'Username in-game'} readOnly={!!playerNick} /></div>
         <div>
           <FieldLabel required>Platform</FieldLabel>
-          <SelectField value={platform} onChange={(e) => !isBedrock && setPlatform(e.target.value)} disabled={isBedrock}>
-            <option value="">-- Pilih Platform --</option>
-            {SITE.platforms.map((p) => <option key={p}>{p}</option>)}
-          </SelectField>
-          {isBedrock && <p className="mt-1 text-[11px] text-[#354530]">Terdeteksi Bedrock — platform dikunci otomatis</p>}
+          {/*
+            Read-only. Platform comes from the logged-in nickname — a dot means
+            Bedrock — so letting the player choose a different one only ever
+            produced a mismatched order. The value still flows into the payload
+            exactly as before.
+          */}
+          <div className="flex min-h-[52px] items-center rounded-[var(--radius-neu)] bg-[#fff8f0] px-4 shadow-[var(--neu-in)]">
+            <span className="text-sm font-semibold text-[#1d2b1f]">{platform}</span>
+          </div>
+          <p className="mt-1.5 text-[11px] text-[#4a5e3a]">Terdeteksi otomatis dari nickname kamu</p>
         </div>
         <div>
           <FieldLabel required>Jumlah Key</FieldLabel>
@@ -137,9 +142,6 @@ export function GachaKeysTab() {
 
   return (
     <>
-      <p className="mb-4 text-center text-xs text-[#5a7048]">
-        Tampil dari harga tertinggi — semakin ke bawah semakin terjangkau
-      </p>
       <div className="neu-grid neu-grid-3">
         {KEYS_DESC.map((k, idx) => {
           const tier = KEY_TIER[idx] ?? KEY_TIER[4];

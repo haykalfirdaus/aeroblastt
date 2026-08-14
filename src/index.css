@@ -37,7 +37,7 @@
   --color-neon-400: #BFFF5E;
   --color-neon-500: #a8f040;
   --color-neon-600: #7acc1a;
-  --color-neon-700: #5a9e10;
+  --color-neon-700: #3d7208;
   --color-neon-800: #3d7208;
 
   /* ---- Sage green (secondary accent) -------------------------------- */
@@ -61,7 +61,7 @@
   --color-purple: #8b5cf6;
 
   /* ---- Rank accent spectrum ----------------------------------------- */
-  --color-rank-scout: #059669;
+  --color-rank-scout: #046b4d;
   --color-rank-voyager: #2563eb;
   --color-rank-orbiter: #ea580c;
   --color-rank-ravest: #7c3aed;
@@ -73,7 +73,7 @@
   /* ---- Command accent spectrum -------------------------------------- */
   --color-cmd-blue: #2563eb;
   --color-cmd-gold: #b45309;
-  --color-cmd-green: #059669;
+  --color-cmd-green: #046b4d;
   --color-cmd-red: #dc2626;
   --color-cmd-purple: #7c3aed;
   --color-cmd-orange: #ea580c;
@@ -341,7 +341,7 @@
   }
 
   .text-shimmer {
-    background: linear-gradient(120deg, #1d2b1f 0%, #5a9e10 40%, #BFFF5E 60%, #5a9e10 80%, #1d2b1f 100%);
+    background: linear-gradient(120deg, #1d2b1f 0%, #3d7208 40%, #BFFF5E 60%, #3d7208 80%, #1d2b1f 100%);
     -webkit-background-clip: text;
     background-clip: text;
     color: transparent;

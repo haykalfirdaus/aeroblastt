@@ -10,11 +10,11 @@ import { cn } from '@/lib/cn';
  * Tone keys are unchanged (neon / cyan / gold / danger / success / dim).
  */
 const TONES = {
-  neon: 'text-[#5a9e10]',
+  neon: 'text-[#3d7208]',
   cyan: 'text-[#0891b2]',
   gold: 'text-[#b45309]',
   danger: 'text-[#dc2626]',
-  success: 'text-[#059669]',
+  success: 'text-[#046b4d]',
   dim: 'text-[#4a5e3a]',
 };
 

@@ -79,7 +79,7 @@ export function GallerySlider() {
         role="region"
         aria-label="Galeri gambar server"
         className={cn(
-          'flex gap-3 overflow-x-auto no-scrollbar px-4 sm:px-6 lg:px-8 pb-2 select-none',
+          'flex gap-3 overflow-x-auto no-scrollbar px-4 sm:px-6 lg:px-8 py-4 select-none',
           isDragging ? 'cursor-grabbing' : 'cursor-grab',
         )}
         onMouseDown={onMouseDown}
@@ -101,7 +101,7 @@ export function GallerySlider() {
 function GalleryCard({ slide }) {
   return (
     <article
-      className="group relative shrink-0 overflow-hidden rounded-md border border-2 border-[#1d2b1f] bg-[#fffdf9]"
+      className="group relative shrink-0 overflow-hidden rounded-[var(--radius-neu-xl)] bg-[#fff8f0] shadow-[var(--neu-out)]"
       style={{ width: 260, height: 174 }}
     >
       <img

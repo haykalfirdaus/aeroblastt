@@ -32,13 +32,13 @@ const REFRESH_INTERVAL_MS = 5 * 60 * 1000;
 
 const TONE_TEXT = {
   gold: 'text-[#b45309]',
-  green: 'text-[#059669]',
+  green: 'text-[#046b4d]',
   orange: 'text-[#ea580c]',
   purple: 'text-[#8b5cf6]',
   blue: 'text-[#2563eb]',
   vote: 'text-[#2563eb]',
   legend: 'text-[#ea580c]',
-  aero: 'text-[#059669]',
+  aero: 'text-[#046b4d]',
   rank: 'text-[#b45309]',
   fly: 'text-[#0891b2]',
 };

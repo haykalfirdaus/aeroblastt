@@ -48,9 +48,9 @@ export function FaqAnswer({ blocks }) {
         }
         if (block.type === 'info') {
           return (
-            <div key={i} className="rounded-md border border-[#1d2b1f]/20 bg-[#faf3e8] overflow-hidden">
+            <div key={i} className="flex flex-col gap-2">
               {block.rows.map((row, j) => (
-                <div key={j} className="flex items-center gap-4 px-4 py-2.5 border-b border-[#1d2b1f]/10 last:border-0">
+                <div key={j} className="flex items-center gap-4 rounded-[var(--radius-neu)] bg-[#fff8f0] px-4 py-3 shadow-[var(--neu-in)]">
                   <span className="w-12 shrink-0 text-xs font-bold uppercase tracking-wider text-[#4a5e3a]">{row.label}</span>
                   <span className="font-mono text-sm font-bold text-[#1d2b1f]">{sub(row.value)}</span>
                 </div>

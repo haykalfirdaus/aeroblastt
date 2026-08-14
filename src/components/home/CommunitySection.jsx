@@ -98,8 +98,8 @@ export function CommunitySection() {
           {/* WhatsApp Group */}
           <GlassCard interactive as="a" href={SITE.social.whatsapp} target="_blank" rel="noopener noreferrer" className="p-5" data-aos="fade-right" data-aos-duration="800">
             <div className="flex flex-col gap-3 h-full">
-              <div className="grid h-10 w-10 place-items-center rounded-md border border-success/25 bg-success/8">
-                <MessageCircle size={18} className="text-success" />
+              <div className="neu-icon h-10 w-10 rounded-[13px]">
+                <MessageCircle size={18} className="text-success" aria-hidden="true" />
               </div>
               <div className="flex-1">
                 <h3 className="font-display text-sm font-bold text-[#1d2b1f] mb-1">Grup WhatsApp</h3>
@@ -114,8 +114,8 @@ export function CommunitySection() {
           {/* Discord */}
           <GlassCard interactive as="a" href={SITE.social.discord} target="_blank" rel="noopener noreferrer" className="p-5" data-aos="fade-up" data-aos-delay="100" data-aos-duration="800">
             <div className="flex flex-col gap-3 h-full">
-              <div className="grid h-10 w-10 place-items-center rounded-md border border-[#BFFF5E]/35 bg-[#BFFF5E]/10">
-                <Gamepad2 size={18} className="text-[#1d2b1f]" />
+              <div className="neu-icon h-10 w-10 rounded-[13px]">
+                <Gamepad2 size={18} className="text-[#1d2b1f]" aria-hidden="true" />
               </div>
               <div className="flex-1">
                 <h3 className="font-display text-sm font-bold text-[#1d2b1f] mb-1">Server Discord</h3>
@@ -130,8 +130,8 @@ export function CommunitySection() {
           {/* Request Feature */}
           <GlassCard interactive className="p-5 cursor-pointer" onClick={() => setRequestOpen(true)} data-aos="fade-left" data-aos-delay="200" data-aos-duration="800">
             <div className="flex flex-col gap-3 h-full">
-              <div className="grid h-10 w-10 place-items-center rounded-md border border-[#4a5e3a]/30 bg-[#4a5e3a]/10">
-                <Lightbulb size={18} className="text-[#354530]" />
+              <div className="neu-icon h-10 w-10 rounded-[13px]">
+                <Lightbulb size={18} className="text-[#354530]" aria-hidden="true" />
               </div>
               <div className="flex-1">
                 <h3 className="font-display text-sm font-bold text-[#1d2b1f] mb-1">Request Fitur</h3>
@@ -146,8 +146,8 @@ export function CommunitySection() {
           {/* Report Player */}
           <GlassCard interactive className="p-5 cursor-pointer sm:col-span-2 lg:col-span-3" onClick={() => setReportOpen(true)} data-aos="fade-up" data-aos-delay="300" data-aos-duration="800">
             <div className="flex flex-col sm:flex-row items-center gap-4">
-              <div className="grid h-10 w-10 shrink-0 place-items-center rounded-md border border-danger/18 bg-danger/8">
-                <AlertTriangle size={18} className="text-danger-bright" />
+              <div className="neu-icon h-10 w-10 rounded-[13px]">
+                <AlertTriangle size={18} className="text-danger-bright" aria-hidden="true" />
               </div>
               <div className="flex-1 text-center sm:text-left">
                 <h3 className="font-display text-sm font-bold text-[#1d2b1f] mb-1">Laporkan Pemain</h3>

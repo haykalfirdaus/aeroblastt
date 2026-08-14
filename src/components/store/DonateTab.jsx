@@ -153,7 +153,7 @@ export function DonateTab() {
           </p>
           <p className="mt-0.5 flex items-center justify-center gap-1.5 text-sm text-[#4a5e3a]">
             Terima kasih telah mendukung AeroBlast Network!
-            <Heart size={14} aria-hidden="true" className="fill-[#5a9e10] text-[#5a9e10]" />
+            <Heart size={14} aria-hidden="true" className="fill-[#3d7208] text-[#3d7208]" />
           </p>
           {name.trim() && (
             <p className="mt-1 text-xs text-[#5a7048]">— {name.trim()}</p>
@@ -290,7 +290,7 @@ export function DonateTab() {
 
           {/* Status: menunggu */}
           <div className="flex items-center justify-center gap-2 rounded-[var(--radius-neu)] bg-[#fff8f0] px-4 py-2.5 shadow-[var(--neu-in)]">
-            <span aria-hidden="true" className="inline-block h-2 w-2 animate-pulse rounded-full bg-[#5a9e10]" />
+            <span aria-hidden="true" className="inline-block h-2 w-2 animate-pulse rounded-full bg-[#3d7208]" />
             <span className="text-xs text-[#4a5e3a]">Menunggu pembayaran...</span>
           </div>
 

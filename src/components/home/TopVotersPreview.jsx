@@ -28,21 +28,21 @@ export function TopVotersPreview() {
         <GlassCard className="mb-5 overflow-hidden" data-aos="fade-up" data-aos-duration="800">
           {status === 'loading' && (
             <div className="flex items-center justify-center gap-2 py-8 text-xs text-[#4a5e3a]">
-              <RefreshCw size={14} className="animate-spin" /> Memuat data voter...
+              <RefreshCw size={14} className="animate-spin" aria-hidden="true" /> Memuat data voter...
             </div>
           )}
 
           {status === 'empty' && (
             <div className="flex flex-col items-center gap-3 py-10 text-center">
-              <Trophy size={28} className="text-[#5a7048]" />
+              <Trophy size={28} className="text-[#5a7048]" aria-hidden="true" />
               <p className="text-xs text-[#4a5e3a]">Belum ada voter bulan ini.<br />Jadilah yang pertama!</p>
             </div>
           )}
 
           {status === 'success' && voters.length > 0 && (
-            <ul className="divide-y divide-[#5a7048]/60">
+            <ul className="flex flex-col gap-2.5 p-3">
               {voters.slice(0, 5).map((voter, i) => (
-                <li key={voter.nickname} className="flex items-center gap-3 px-4 py-3">
+                <li key={voter.nickname} className="flex items-center gap-3 rounded-[var(--radius-neu)] bg-[#fff8f0] px-4 py-3 shadow-[var(--neu-in)]">
                   <span className={`w-6 shrink-0 text-center font-mono text-xs font-bold ${MEDAL_COLORS[i]}`}>
                     {MEDAL_LABELS[i]}
                   </span>
@@ -50,7 +50,7 @@ export function TopVotersPreview() {
                     src={skinUrl(voter.nickname, 40)}
                     alt={voter.nickname}
                     loading="lazy"
-                    className="h-7 w-7 shrink-0 rounded-lg border border-2 border-[#1d2b1f] object-cover"
+                    className="h-8 w-8 shrink-0 rounded-[10px] object-cover shadow-[var(--neu-out)]"
                     onError={(e) => { e.currentTarget.style.display = 'none'; }}
                   />
                   <span className="flex-1 font-mono text-xs font-semibold text-[#1d2b1f]">{voter.nickname}</span>

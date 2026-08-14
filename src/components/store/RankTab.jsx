@@ -46,9 +46,6 @@ export function RankTab() {
 
   return (
     <>
-      <p className="mb-5 text-center text-xs text-[#5a7048]">
-        Tampil dari harga tertinggi — semakin ke bawah semakin terjangkau
-      </p>
 
       <div className="neu-grid neu-grid-3">
         {RANKS_DESC.map((rank, idx) => {
@@ -110,7 +107,7 @@ export function RankTab() {
               <ul className="mb-5 flex flex-1 flex-col gap-2">
                 {rank.features.map((f) => (
                   <li key={f} className="flex items-start gap-2 text-[0.72rem] text-[#4a5e3a]">
-                    <Check size={13} className="mt-0.5 shrink-0 text-[#5a9e10]" aria-hidden="true" />
+                    <Check size={13} className="mt-0.5 shrink-0 text-[#3d7208]" aria-hidden="true" />
                     <span>{f}</span>
                   </li>
                 ))}

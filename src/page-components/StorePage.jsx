@@ -75,8 +75,13 @@ export default function StorePage() {
         description="Bayar lewat QRIS — item masuk otomatis begitu pembayaran terdeteksi."
       />
 
-      {/* Tab bar — one scrollable row on mobile, centred pills on desktop */}
-      <div className="sticky top-[76px] z-40 bg-[#fff8f0]/90 py-3 backdrop-blur-sm">
+      {/*
+        Tab bar — deliberately NOT sticky. Following the scroll made it sit on
+        top of the content the user was trying to read. It also let go of the
+        backdrop-blur, which forces a repaint of everything behind it on every
+        scroll frame.
+      */}
+      <div className="py-3">
         <div
           role="tablist"
           aria-label="Kategori store"

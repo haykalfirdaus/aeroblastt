@@ -24,7 +24,7 @@ function BalanceOrderModal({ open, onClose, initialRupiah = 0 }) {
   const { nick: playerNick } = usePlayerAuth();
   const isBedrock = playerNick?.includes('.');
   const [nick, setNick] = useState('');
-  const [platform, setPlatform] = useState(isBedrock ? 'Bedrock / PE' : '');
+  const platform = isBedrock ? 'Bedrock / PE' : 'Java Edition';
   const [rupiahInput, setRupiahInput] = useState(String(initialRupiah || ''));
   const [discount, setDiscount] = useState(0);
   const [agreed, setAgreed] = useState(false);
@@ -55,16 +55,31 @@ function BalanceOrderModal({ open, onClose, initialRupiah = 0 }) {
         <div><FieldLabel required>Nickname</FieldLabel><TextField value={playerNick || nick} onChange={(e) => !playerNick && setNick(e.target.value)} placeholder={playerNick ? '' : 'Username in-game'} readOnly={!!playerNick} /></div>
         <div>
           <FieldLabel required>Platform</FieldLabel>
-          <SelectField value={platform} onChange={(e) => !isBedrock && setPlatform(e.target.value)} disabled={isBedrock}>
-            <option value="">-- Pilih Platform --</option>
-            {SITE.platforms.map((p) => <option key={p}>{p}</option>)}
-          </SelectField>
-          {isBedrock && <p className="mt-1 text-[11px] text-[#354530]">Terdeteksi Bedrock — platform dikunci otomatis</p>}
+          {/*
+            Read-only. Platform comes from the logged-in nickname — a dot means
+            Bedrock — so letting the player choose a different one only ever
+            produced a mismatched order. The value still flows into the payload
+            exactly as before.
+          */}
+          <div className="flex min-h-[52px] items-center rounded-[var(--radius-neu)] bg-[#fff8f0] px-4 shadow-[var(--neu-in)]">
+            <span className="text-sm font-semibold text-[#1d2b1f]">{platform}</span>
+          </div>
+          <p className="mt-1.5 text-[11px] text-[#4a5e3a]">Terdeteksi otomatis dari nickname kamu</p>
         </div>
         <div>
           <FieldLabel required>Jumlah Rupiah</FieldLabel>
           <div className="relative">
-            <span className="absolute left-3.5 top-1/2 -translate-y-1/2 text-sm font-semibold text-[#4a5e3a]">Rp</span>
+            {/*
+              `pl-10` lost to .neu-field's longhand padding-left, so the "Rp"
+              prefix sat on top of the typed number. .neu-field-icon owns the
+              left inset instead — same fix as the FAQ search field.
+            */}
+            <span
+              aria-hidden="true"
+              className="pointer-events-none absolute left-[1.15rem] top-1/2 z-10 -translate-y-1/2 text-sm font-semibold text-[#4a5e3a]"
+            >
+              Rp
+            </span>
             <input
               type="number"
               min={5000}
@@ -72,7 +87,8 @@ function BalanceOrderModal({ open, onClose, initialRupiah = 0 }) {
               value={rupiahInput}
               onChange={(e) => setRupiahInput(e.target.value)}
               placeholder="5000"
-              className="neu-field w-full pl-10 pr-4 font-mono text-sm"
+              aria-label="Jumlah rupiah"
+              className="neu-field neu-field-icon font-mono text-sm"
             />
           </div>
         </div>
@@ -144,9 +160,7 @@ export function BalanceTab() {
 
           <div className="mb-1 flex items-center justify-between">
             <p className="text-[0.65rem] font-semibold uppercase tracking-wider text-[#4a5e3a]">Quick Pick</p>
-            <p className="text-[0.65rem] text-[#5a7048]">Tampil dari terbesar</p>
           </div>
-          <p className="mb-3 text-[0.6rem] text-[#5a7048]">Semakin ke bawah semakin terjangkau</p>
 
           <div className="mb-5 grid grid-cols-2 gap-3.5 sm:grid-cols-3">
             {PICKS_DESC.map(({ rupiah, popular }, idx) => {
@@ -162,7 +176,7 @@ export function BalanceTab() {
                   data-aos-delay={idx * 40}
                   data-aos-duration="400"
                   className={cn(
-                    'relative min-h-[48px] overflow-hidden rounded-[var(--radius-neu-lg)] px-4 pb-4 pt-6 text-center',
+                    'flex min-h-[48px] flex-col items-center gap-1 rounded-[var(--radius-neu-lg)] px-4 py-4 text-center',
                     'will-change-transform [transition:transform_150ms_ease,box-shadow_150ms_ease]',
                     nick
                       ? cn(
@@ -173,16 +187,23 @@ export function BalanceTab() {
                       : 'cursor-not-allowed bg-[#fff8f0] shadow-[var(--neu-in)]',
                   )}
                 >
-                  {popular && (
-                    <span className="neu-chip absolute right-2 top-2">
-                      POPULAR
-                    </span>
-                  )}
-                  {tier.isTop && (
-                    <span className="neu-chip absolute left-2 top-2">
-                      MAX VALUE
-                    </span>
-                  )}
+                  {/*
+                    Badges sit in normal flow instead of being absolutely
+                    positioned over the card — overlaying them meant they covered
+                    the price on narrow cards. A reserved row keeps every card
+                    the same height whether it has a badge or not.
+                  */}
+                  <span className="flex min-h-[18px] items-center justify-center">
+                    {tier.isTop ? (
+                      <span className="neu-chip px-2 py-0.5 text-[0.55rem] tracking-[0.08em]">
+                        MAX VALUE
+                      </span>
+                    ) : popular ? (
+                      <span className="neu-chip px-2 py-0.5 text-[0.55rem] tracking-[0.08em]">
+                        POPULAR
+                      </span>
+                    ) : null}
+                  </span>
                   <p className={cn('font-mono font-bold text-[#1d2b1f]', tier.priceSize)}>
                     {formatRupiah(rupiah)}
                   </p>

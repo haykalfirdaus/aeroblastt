@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { Megaphone, X } from 'lucide-react';
+import { Clock, Megaphone, X } from 'lucide-react';
 import { cn } from '@/lib/cn';
 
 const LS_KEY = 'aeroblast_popup_seen';
@@ -79,25 +79,18 @@ export function AnnouncementPopup() {
     >
       <div
         className={cn(
-          'relative w-full max-w-lg overflow-hidden rounded-md',
-          'border border-[#BFFF5E]/30 bg-[#fff8f0] shadow-[0_32px_64px_-16px_rgba(26,46,26,0.25)]',
+          'relative w-full max-w-lg rounded-[var(--radius-neu-xl)] p-5',
+          'bg-[linear-gradient(145deg,var(--neu-hi),var(--neu-lo))] shadow-[var(--neu-out-lg)]',
           'transition-transform duration-250',
           closing ? 'scale-95' : 'scale-100',
         )}
         onClick={(e) => e.stopPropagation()}
       >
-        {/* Glow top */}
-        <span
-          aria-hidden="true"
-          className="absolute inset-x-0 top-0 h-px"
-          style={{ background: 'linear-gradient(90deg, transparent, #BFFF5E, transparent)' }}
-        />
-
         {/* Header */}
-        <div className="flex items-center justify-between border-b border-2 border-[#1d2b1f] bg-[#BFFF5E]/[0.06] px-5 py-3.5">
+        <div className="flex items-center justify-between gap-3">
           <div className="flex items-center gap-2.5">
-            <span className="flex h-8 w-8 items-center justify-center rounded-lg border border-[#BFFF5E]/40 bg-[#BFFF5E]/15">
-              <Megaphone size={15} className="text-[#1d2b1f]" />
+            <span className="neu-icon h-10 w-10 rounded-[13px]">
+              <Megaphone size={16} aria-hidden="true" />
             </span>
             <span className="text-sm font-semibold uppercase tracking-widest text-[#1d2b1f]">Pengumuman</span>
           </div>
@@ -105,31 +98,31 @@ export function AnnouncementPopup() {
             type="button"
             onClick={dismiss}
             aria-label="Tutup pengumuman"
-            className="flex h-8 w-8 items-center justify-center rounded-lg border border-2 border-[#1d2b1f] bg-[#fffdf9] text-[#4a5e3a] transition-colors hover:border-[#BFFF5E]/40 hover:text-[#1d2b1f]"
+            className="neu-press grid h-12 w-12 shrink-0 place-items-center rounded-full bg-[linear-gradient(145deg,var(--neu-hi),var(--neu-lo))] text-[#4a5e3a] shadow-[var(--neu-out)]"
           >
-            <X size={14} />
+            <X size={15} aria-hidden="true" />
           </button>
         </div>
 
         {/* Content */}
-        <div className="px-6 py-7 text-center">
+        <div className="mt-5 rounded-[var(--radius-neu-lg)] bg-[#fff8f0] px-6 py-7 text-center shadow-[var(--neu-in)]">
           <p className="text-lg font-semibold leading-relaxed text-[#1d2b1f] sm:text-xl">
             {ann.message ?? ann.content ?? ann.text ?? ''}
           </p>
 
           {timeLabel && (
-            <div className="mt-4 inline-flex items-center gap-1.5 rounded-md border border-[#BFFF5E]/35 bg-[#BFFF5E]/10 px-4 py-1.5 font-mono text-sm font-medium text-[#1d2b1f]">
-              ⏱ {timeLabel}
+            <div className="neu-tag mt-4 inline-flex items-center gap-1.5">
+              <Clock size={13} aria-hidden="true" /> {timeLabel}
             </div>
           )}
         </div>
 
         {/* Footer */}
-        <div className="border-t border-2 border-[#1d2b1f] px-6 py-3.5">
+        <div className="mt-5">
           <button
             type="button"
             onClick={dismiss}
-            className="w-full rounded-md bg-[#BFFF5E] py-2.5 text-sm font-semibold text-[#1d2b1f] transition-colors hover:bg-[#9CC81E]"
+            className="neu-press neu-lime min-h-[48px] w-full rounded-full text-sm font-bold"
           >
             Mengerti
           </button>

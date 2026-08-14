@@ -88,7 +88,7 @@ function ApplicationModal({ rank, open, onClose }) {
             <div className="flex items-center gap-2">
               {isBedrock
                 ? <Smartphone size={14} aria-hidden="true" className="text-[#354530]" />
-                : <div aria-hidden="true" className="h-2 w-2 rounded-full bg-[#5a9e10]" />}
+                : <div aria-hidden="true" className="h-2 w-2 rounded-full bg-[#3d7208]" />}
               <span className="font-mono text-sm font-bold text-[#1d2b1f]">{playerNick}</span>
               {isBedrock && <span className="neu-tag text-[10px] font-bold text-[#354530]">BEDROCK</span>}
             </div>

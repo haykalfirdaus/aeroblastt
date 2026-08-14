@@ -27,7 +27,7 @@ function CosmeticOrderModal({ prefixText, prefixColor, nickColor, open, onClose 
   const { nick: playerNick } = usePlayerAuth();
   const isBedrock = playerNick?.includes('.');
   const [nick, setNick] = useState('');
-  const [platform, setPlatform] = useState(isBedrock ? 'Bedrock / PE' : '');
+  const platform = isBedrock ? 'Bedrock / PE' : 'Java Edition';
   const [discount, setDiscount] = useState(0);
   const [agreed, setAgreed] = useState(false);
   const [betaOpen, setBetaOpen] = useState(false);
@@ -59,11 +59,16 @@ function CosmeticOrderModal({ prefixText, prefixColor, nickColor, open, onClose 
         <div><FieldLabel required>Nickname</FieldLabel><TextField value={playerNick || nick} onChange={(e) => !playerNick && setNick(e.target.value)} placeholder={playerNick ? '' : 'Username in-game'} readOnly={!!playerNick} /></div>
         <div>
           <FieldLabel required>Platform</FieldLabel>
-          <SelectField value={platform} onChange={(e) => !isBedrock && setPlatform(e.target.value)} disabled={isBedrock}>
-            <option value="">-- Pilih Platform --</option>
-            {SITE.platforms.map((p) => <option key={p}>{p}</option>)}
-          </SelectField>
-          {isBedrock && <p className="mt-1 text-[11px] text-[#354530]">Terdeteksi Bedrock — platform dikunci otomatis</p>}
+          {/*
+            Read-only. Platform comes from the logged-in nickname — a dot means
+            Bedrock — so letting the player choose a different one only ever
+            produced a mismatched order. The value still flows into the payload
+            exactly as before.
+          */}
+          <div className="flex min-h-[52px] items-center rounded-[var(--radius-neu)] bg-[#fff8f0] px-4 shadow-[var(--neu-in)]">
+            <span className="text-sm font-semibold text-[#1d2b1f]">{platform}</span>
+          </div>
+          <p className="mt-1.5 text-[11px] text-[#4a5e3a]">Terdeteksi otomatis dari nickname kamu</p>
         </div>
         <div className="rounded-[var(--radius-neu-lg)] bg-[#fff8f0] p-4 text-sm text-[#4a5e3a] space-y-1 shadow-[var(--neu-in)]">
           <p><span className="text-[#1d2b1f] font-semibold">Teks Prefix:</span> [{prefixText || 'CUSTOM'}]</p>

@@ -41,7 +41,7 @@ function CommandOrderModal({ cmd, open, onClose }) {
   const { nick: playerNick } = usePlayerAuth();
   const isBedrock = playerNick?.includes('.');
   const [nick, setNick] = useState('');
-  const [platform, setPlatform] = useState(isBedrock ? 'Bedrock / PE' : '');
+  const platform = isBedrock ? 'Bedrock / PE' : 'Java Edition';
   const [duration, setDuration] = useState('permanent');
   const [discount, setDiscount] = useState(0);
   const [agreed, setAgreed] = useState(false);
@@ -71,11 +71,16 @@ function CommandOrderModal({ cmd, open, onClose }) {
         </div>
         <div>
           <FieldLabel required>Platform</FieldLabel>
-          <SelectField value={platform} onChange={(e) => !isBedrock && setPlatform(e.target.value)} disabled={isBedrock}>
-            <option value="">-- Pilih Platform --</option>
-            {SITE.platforms.map((p) => <option key={p}>{p}</option>)}
-          </SelectField>
-          {isBedrock && <p className="mt-1 text-[11px] text-[#354530]">Terdeteksi Bedrock — platform dikunci otomatis</p>}
+          {/*
+            Read-only. Platform comes from the logged-in nickname — a dot means
+            Bedrock — so letting the player choose a different one only ever
+            produced a mismatched order. The value still flows into the payload
+            exactly as before.
+          */}
+          <div className="flex min-h-[52px] items-center rounded-[var(--radius-neu)] bg-[#fff8f0] px-4 shadow-[var(--neu-in)]">
+            <span className="text-sm font-semibold text-[#1d2b1f]">{platform}</span>
+          </div>
+          <p className="mt-1.5 text-[11px] text-[#4a5e3a]">Terdeteksi otomatis dari nickname kamu</p>
         </div>
         <div>
           <FieldLabel required>Durasi</FieldLabel>
@@ -137,9 +142,6 @@ export function CommandsTab() {
 
   return (
     <>
-      <p className="mb-4 text-center text-xs text-[#5a7048]">
-        Tampil dari harga tertinggi — semakin ke bawah semakin terjangkau
-      </p>
       <div className="neu-grid neu-grid-4">
         {COMMANDS_DESC.map((cmd, idx) => {
           const tier = getTier(idx, total);
@@ -171,10 +173,22 @@ export function CommandsTab() {
                 style={{ background: 'var(--color-neon-400, #BFFF5E)', opacity: ownedByRank ? 0.35 : 0.9 }}
               />
 
-              <div className="flex flex-col gap-2.5 p-5 pt-7">
-                {ownedByRank && <Badge tone="neon">SUDAH DIMILIKI</Badge>}
-                {cmd.bundleTag && <Badge tone="cyan">{cmd.bundleTag}</Badge>}
-                {cmd.badge && <Badge tone={tier.isTop ? 'gold' : 'neon'}>{cmd.badge}</Badge>}
+              {/*
+                `flex-1` is what makes the `mt-auto` further down actually work:
+                the inner column must fill the card's height before it can push
+                the price/CTA to the bottom. Without it, cards carrying a badge
+                or bundle tag put their button at a different height than cards
+                without one.
+
+                The badge row is height-reserved for the same reason — optional
+                content must not shift where the rest of the card begins.
+              */}
+              <div className="flex flex-1 flex-col gap-2.5 p-5 pt-7">
+                <div className="flex min-h-[26px] flex-wrap items-start gap-1.5">
+                  {ownedByRank && <Badge tone="neon">SUDAH DIMILIKI</Badge>}
+                  {cmd.bundleTag && <Badge tone="cyan">{cmd.bundleTag}</Badge>}
+                  {cmd.badge && <Badge tone={tier.isTop ? 'gold' : 'neon'}>{cmd.badge}</Badge>}
+                </div>
 
                 <div className="flex items-center gap-2.5">
                   <span className="neu-icon h-11 w-11 rounded-[14px] shrink-0 text-[#1d2b1f]">
@@ -188,7 +202,8 @@ export function CommandsTab() {
                   </div>
                 </div>
 
-                <p className="line-clamp-2 text-[0.7rem] leading-relaxed text-[#4a5e3a]">
+                {/* Two-line box: a 1-line description must not raise the CTA. */}
+                <p className="line-clamp-2 min-h-[2.4rem] text-[0.7rem] leading-relaxed text-[#4a5e3a]">
                   {cmd.description}
                 </p>
 
