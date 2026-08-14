@@ -67,33 +67,29 @@ export function PlayerLoginPrompt() {
   if (nick) {
     const bedrock = isBedrock(nick);
     return (
-      <div className="mb-6 flex items-center justify-between gap-4 rounded-md border border-[#BFFF5E]/25 bg-[#BFFF5E]/[0.07] px-5 py-3">
-        <div className="flex items-center gap-2.5">
-          <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg border border-[#BFFF5E]/35 bg-[#BFFF5E]/15">
-            {bedrock ? <Smartphone size={15} className="text-[#354530]" /> : <User size={15} className="text-[#1d2b1f]" />}
+      <div className="mb-6 flex items-center justify-between gap-4 rounded-[var(--radius-neu-lg)] bg-[linear-gradient(145deg,var(--neu-hi),var(--neu-lo))] px-5 py-4 shadow-[var(--neu-out)]">
+        <div className="flex items-center gap-3">
+          <div className="neu-icon h-10 w-10 rounded-[13px]">
+            {bedrock ? <Smartphone size={16} aria-hidden="true" className="text-[#354530]" /> : <User size={16} aria-hidden="true" className="text-[#1d2b1f]" />}
           </div>
           <div className="leading-tight">
             <p className="text-[11px] text-[#4a5e3a]">
               Login sebagai
-              {bedrock && <span className="ml-1.5 rounded-md bg-[#4a5e3a]/15 px-1.5 py-0.5 text-[10px] font-bold text-[#354530]">BEDROCK</span>}
+              {bedrock && <span className="ml-1.5 rounded-full bg-[#fff8f0] px-2 py-0.5 text-[10px] font-bold text-[#354530] shadow-[var(--neu-in)]">BEDROCK</span>}
             </p>
             <div className="flex items-center gap-1.5">
               <p className="font-mono text-sm font-bold text-[#1d2b1f]">{nick}</p>
-              {rankLoading && <RefreshCw size={10} className="animate-spin text-[#6b7f5a]" />}
+              {rankLoading && <RefreshCw size={10} aria-hidden="true" className="animate-spin text-[#5a7048]" />}
               {!rankLoading && rankMeta && (
                 <span
-                  className="rounded-md border px-1.5 py-0.5 text-[0.6rem] font-bold"
-                  style={{
-                    borderColor: `color-mix(in srgb, var(--color-${rankMeta.accent}) 40%, transparent)`,
-                    backgroundColor: `color-mix(in srgb, var(--color-${rankMeta.accent}) 12%, transparent)`,
-                    color: `var(--color-${rankMeta.accent})`,
-                  }}
+                  className="rounded-full bg-[#fff8f0] px-2 py-0.5 text-[0.6rem] font-bold shadow-[var(--neu-in)]"
+                  style={{ color: `var(--color-${rankMeta.accent})` }}
                 >
                   {rankMeta.name.toUpperCase()}
                 </span>
               )}
               {!rankLoading && !rankMeta && (
-                <span className="rounded-md border border-2 border-[#1d2b1f] bg-[#f5ece0] px-1.5 py-0.5 text-[0.6rem] font-bold text-[#6b7f5a]">
+                <span className="rounded-full bg-[#fff8f0] px-2 py-0.5 text-[0.6rem] font-bold text-[#5a7048] shadow-[var(--neu-in)]">
                   MEMBER
                 </span>
               )}
@@ -102,9 +98,9 @@ export function PlayerLoginPrompt() {
         </div>
         <button
           onClick={handleLogout}
-          className="flex items-center gap-1.5 rounded-lg border border-2 border-[#1d2b1f] bg-[#fffdf9] px-3 py-1.5 text-xs font-semibold text-[#4a5e3a] transition-colors hover:border-[#BFFF5E]/30 hover:text-[#1d2b1f]"
+          className="neu-press flex min-h-[48px] items-center gap-1.5 rounded-[var(--radius-neu)] bg-[linear-gradient(145deg,var(--neu-hi),var(--neu-lo))] px-4 text-xs font-semibold text-[#4a5e3a] shadow-[var(--neu-out)]"
         >
-          <LogOut size={12} />
+          <LogOut size={12} aria-hidden="true" />
           Logout
         </button>
       </div>
@@ -112,16 +108,16 @@ export function PlayerLoginPrompt() {
   }
 
   return (
-    <div className="mb-6 rounded-md border border-2 border-[#1d2b1f] bg-[#faf3e8] px-5 py-4">
+    <div className="mb-6 rounded-[var(--radius-neu-xl)] bg-[linear-gradient(145deg,var(--neu-hi),var(--neu-lo))] px-5 py-5 shadow-[var(--neu-out-lg)]">
       <p className="mb-3 text-sm font-semibold text-[#1d2b1f]">
         Login dengan username Minecraft kamu untuk melakukan order
       </p>
 
       {/* Instruksi platform — TAMPIL sejak awal, sebelum user mengetik apa pun */}
-      <div className="mb-3 grid gap-2 rounded-md border border-[#1d2b1f]/20 bg-[#fffdf9] px-3.5 py-3 sm:grid-cols-2">
-        <div className="flex items-start gap-2">
-          <span className="mt-0.5 flex h-6 w-6 shrink-0 items-center justify-center rounded-md border border-[#1d2b1f]/20 bg-[#BFFF5E]/12">
-            <User size={13} className="text-[#1d2b1f]" />
+      <div className="mb-3 grid gap-3 rounded-[var(--radius-neu-lg)] bg-[#fff8f0] px-4 py-4 shadow-[var(--neu-in)] sm:grid-cols-2">
+        <div className="flex items-start gap-2.5">
+          <span className="neu-icon mt-0.5 h-8 w-8 rounded-[11px]">
+            <User size={14} aria-hidden="true" className="text-[#1d2b1f]" />
           </span>
           <p className="text-[0.72rem] leading-relaxed text-[#4a5e3a]">
             <strong className="font-bold text-[#1d2b1f]">Java Edition</strong> — tulis username{' '}
@@ -130,9 +126,9 @@ export function PlayerLoginPrompt() {
             Contoh: <span className="font-mono text-[#1d2b1f]">NamaKamu</span>
           </p>
         </div>
-        <div className="flex items-start gap-2 sm:border-l sm:border-[#1d2b1f]/12 sm:pl-3">
-          <span className="mt-0.5 flex h-6 w-6 shrink-0 items-center justify-center rounded-md border border-[#1d2b1f]/20 bg-[#4a5e3a]/12">
-            <Smartphone size={13} className="text-[#354530]" />
+        <div className="flex items-start gap-2.5 sm:pl-3">
+          <span className="neu-icon mt-0.5 h-8 w-8 rounded-[11px]">
+            <Smartphone size={14} aria-hidden="true" className="text-[#354530]" />
           </span>
           <p className="text-[0.72rem] leading-relaxed text-[#4a5e3a]">
             <strong className="font-bold text-[#1d2b1f]">Bedrock / PE</strong> — WAJIB pakai{' '}
@@ -147,13 +143,11 @@ export function PlayerLoginPrompt() {
       {trimmed && (
         <div
           className={cn(
-            'mb-3 inline-flex items-center gap-2 rounded-md border px-3 py-1.5 text-xs font-medium',
-            bedrockInput
-              ? 'border-[#4a5e3a]/35 bg-[#4a5e3a]/10 text-[#354530]'
-              : 'border-[#BFFF5E]/45 bg-[#BFFF5E]/12 text-[#1d2b1f]'
+            'mb-3 inline-flex items-center gap-2 rounded-full bg-[#fff8f0] px-3.5 py-2 text-xs font-medium shadow-[var(--neu-in)]',
+            bedrockInput ? 'text-[#354530]' : 'text-[#1d2b1f]'
           )}
         >
-          {bedrockInput ? <Smartphone size={13} /> : <User size={13} />}
+          {bedrockInput ? <Smartphone size={13} aria-hidden="true" /> : <User size={13} aria-hidden="true" />}
           Terdeteksi sebagai{' '}
           <strong className="font-bold">{bedrockInput ? 'Bedrock / PE' : 'Java Edition'}</strong>
         </div>
@@ -168,22 +162,16 @@ export function PlayerLoginPrompt() {
           maxLength={30}
           disabled={submitting}
           aria-invalid={!!error}
-          className={cn(
-            'flex-1 rounded-md border border-2 bg-[#fffdf9] px-4 py-2.5 text-sm text-[#1d2b1f] placeholder:text-[#6b7f5a] outline-none transition-colors',
-            'focus:ring-2 disabled:opacity-50',
-            error
-              ? 'border-danger focus:border-danger focus:ring-danger/20'
-              : 'border-[#1d2b1f] focus:border-[#BFFF5E]/70 focus:ring-[#BFFF5E]/20'
-          )}
+          className={cn('neu-field flex-1 text-sm disabled:opacity-50', error && 'text-[#a3271f]')}
         />
         <button
           type="submit"
           disabled={submitting || !trimmed}
-          className="flex items-center gap-1.5 rounded-md border border-[#BFFF5E]/50 bg-[#BFFF5E]/15 px-4 py-2.5 text-sm font-semibold text-[#1d2b1f] transition-colors hover:bg-[#BFFF5E]/25 disabled:cursor-not-allowed disabled:opacity-50"
+          className="neu-press flex min-h-[48px] shrink-0 items-center gap-1.5 rounded-[var(--radius-neu)] bg-[linear-gradient(145deg,var(--neu-hi),var(--neu-lo))] px-5 text-sm font-semibold text-[#1d2b1f] shadow-[var(--neu-out)] disabled:cursor-not-allowed disabled:opacity-50"
         >
           {submitting
-            ? <span className="h-3.5 w-3.5 animate-spin rounded-md border-2 border-[#BFFF5E]/30 border-t-[#BFFF5E]" />
-            : <LogIn size={14} />}
+            ? <span className="h-3.5 w-3.5 animate-spin rounded-full border-2 border-[#d8cfc0] border-t-[#4a5e3a]" />
+            : <LogIn size={14} aria-hidden="true" />}
           Masuk
         </button>
       </form>
@@ -192,15 +180,15 @@ export function PlayerLoginPrompt() {
       {error && (
         <div
           role="alert"
-          className="mt-3 flex items-start gap-2 rounded-md border border-danger/45 bg-danger/[0.08] px-3.5 py-2.5 text-xs font-medium leading-relaxed text-[#a3271f]"
+          className="mt-3 flex items-start gap-2 rounded-[var(--radius-neu)] bg-[#fff8f0] px-4 py-3 text-xs font-medium leading-relaxed text-[#a3271f] shadow-[var(--neu-in)]"
         >
-          <AlertTriangle size={14} className="mt-0.5 shrink-0 text-danger" />
+          <AlertTriangle size={14} aria-hidden="true" className="mt-0.5 shrink-0 text-[#a3271f]" />
           <span>{error}</span>
         </div>
       )}
 
       {/* Helper text di bawah form */}
-      <p className="mt-3 text-[0.72rem] leading-relaxed text-[#6b7f5a]">
+      <p className="mt-3 text-[0.72rem] leading-relaxed text-[#5a7048]">
         Username harus sudah pernah join server AeroBlast dan terdaftar di NLogin. Pemain Bedrock
         wajib menambahkan awalan titik (.) di awal nama — tanpa titik, akun tidak akan ditemukan.
       </p>

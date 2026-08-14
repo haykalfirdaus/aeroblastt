@@ -179,7 +179,7 @@ export default function TopVotersPage() {
 
                 {tier.orLabel && (
                   <>
-                    <p className="my-2.5 text-[0.55rem] font-bold uppercase tracking-wider text-[#6b7f5a]">
+                    <p className="my-2.5 text-[0.55rem] font-bold uppercase tracking-wider text-[#5a7048]">
                       {tier.orLabel}
                     </p>
                     <div className="flex flex-wrap gap-1.5">
@@ -190,7 +190,7 @@ export default function TopVotersPage() {
                       ))}
                     </div>
                     {tier.note && (
-                      <p className="mt-2.5 text-[0.58rem] leading-relaxed text-[#6b7f5a]">
+                      <p className="mt-2.5 text-[0.58rem] leading-relaxed text-[#5a7048]">
                         {tier.note}
                       </p>
                     )}
@@ -238,7 +238,7 @@ export default function TopVotersPage() {
           {lastUpdated && (
             <div className="mb-4">
               <AutoRefreshBar lastUpdated={lastUpdated} />
-              <p className="mt-1.5 text-right text-[0.62rem] text-[#6b7f5a]">
+              <p className="mt-1.5 text-right text-[0.62rem] text-[#5a7048]">
                 Diperbarui: {lastUpdated.toLocaleTimeString('id-ID')} · Auto-refresh tiap 5 menit
               </p>
             </div>
@@ -267,7 +267,7 @@ export default function TopVotersPage() {
                 {rows.map((row) =>
                   row.type === 'separator' ? (
                     <li key={row.key} className="px-4 pb-1.5 pt-4">
-                      <span className="text-[0.6rem] font-bold uppercase tracking-widest text-[#6b7f5a]">
+                      <span className="text-[0.6rem] font-bold uppercase tracking-widest text-[#5a7048]">
                         {row.label}
                       </span>
                     </li>

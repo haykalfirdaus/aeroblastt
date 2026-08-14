@@ -116,7 +116,7 @@
     font-weight: 800;
     letter-spacing: 0.12em;
     text-transform: uppercase;
-    color: #6b7f5a;
+    color: #5a7048;
   }
 
   .neu-tag {
@@ -139,10 +139,18 @@
   }
 
   /* Inset form field — inputs read as carved into the surface. */
+  /*
+   * Paddings are longhand on purpose. A `padding` shorthand here sits in the
+   * same cascade layer as Tailwind's `pl-*`, so which one wins depends on
+   * source order — that is how the search icon ended up overlapping the
+   * placeholder. `.neu-field-icon` now owns the left inset explicitly.
+   */
   .neu-field {
     width: 100%;
     min-height: 52px;
-    padding: 0.85rem 1.15rem;
+    padding-block: 0.85rem;
+    padding-left: 1.15rem;
+    padding-right: 1.15rem;
     background: var(--neu-base);
     border: 0;
     border-radius: var(--radius-neu);
@@ -152,8 +160,17 @@
     outline: none;
     transition: box-shadow 150ms ease;
   }
-  .neu-field::placeholder { color: #8a9e7a; font-weight: 400; }
+  .neu-field::placeholder { color: #5a7048; font-weight: 400; }
   .neu-field:focus-visible { box-shadow: var(--neu-in-deep); }
+
+  /* Reserves room for a leading icon. */
+  .neu-field-icon { padding-left: 3.1rem; }
+
+  /* The native search clear button sits over the inset shadow and looks
+     broken on a soft surface. */
+  .neu-field[type='search']::-webkit-search-cancel-button {
+    -webkit-appearance: none;
+  }
 
   /* ---- Dark surface variants (footer) -------------------------------- */
   /*

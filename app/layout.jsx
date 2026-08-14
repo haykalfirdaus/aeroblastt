@@ -3,7 +3,6 @@ import { ToastProvider } from '@/context/ToastContext';
 import { AuthProvider } from '@/context/AuthContext';
 import { PlayerAuthProvider } from '@/context/PlayerAuthContext';
 import { ServerConfigProvider } from '@/context/ServerConfigContext';
-import { DevtoolsWarningOverlay } from '@/components/layout/DevtoolsWarningOverlay';
 import { getServerConfig } from '@/lib/serverConfig';
 import '../src/index.css';
 
@@ -104,10 +103,7 @@ export default async function RootLayout({ children }) {
         <ServerConfigProvider value={serverConfig}>
           <ToastProvider>
             <AuthProvider>
-              <PlayerAuthProvider>
-                {children}
-                <DevtoolsWarningOverlay />
-              </PlayerAuthProvider>
+              <PlayerAuthProvider>{children}</PlayerAuthProvider>
             </AuthProvider>
           </ToastProvider>
         </ServerConfigProvider>

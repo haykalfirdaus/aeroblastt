@@ -59,7 +59,7 @@ export function QrisDisplay({ payload, amount, label }) {
     <div className="flex w-full flex-col items-center gap-2">
       {/* Ukuran QR mengikuti lebar container (dibatasi 8rem–11rem) supaya tetap
           muat di layar pendek tanpa mendorong tombol keluar dari modal. */}
-      <div className="rounded-md border border-2 border-[#1d2b1f] bg-white p-2 shadow-lg">
+      <div className="rounded-[var(--radius-neu-lg)] bg-white p-3 shadow-[var(--neu-out)]">
         {useStatic ? (
           <img
             src={STATIC_QRIS_IMG}
@@ -88,13 +88,13 @@ export function QrisDisplay({ payload, amount, label }) {
             <a
               href={downloadUrl}
               download={fileName}
-              className="flex w-full items-center justify-center gap-2 rounded-md border border-2 border-[#1d2b1f] bg-[#faf3e8] py-2 text-xs font-semibold text-[#1d2b1f] transition-all hover:bg-[#BFFF5E]"
+              className="neu-press flex min-h-[48px] w-full items-center justify-center gap-2 rounded-[var(--radius-neu)] bg-[linear-gradient(145deg,var(--neu-hi),var(--neu-lo))] py-2 text-xs font-semibold text-[#1d2b1f] shadow-[var(--neu-out)]"
             >
-              <Download size={14} />
+              <Download size={14} aria-hidden="true" />
               Download QRIS
             </a>
           )}
-          <p className="text-center text-[10px] leading-snug text-[#6b7f5a]">
+          <p className="text-center text-[10px] leading-snug text-[#5a7048]">
             Bayar dari HP yang sama? Download QR-nya, lalu scan dari galeri.
           </p>
         </>

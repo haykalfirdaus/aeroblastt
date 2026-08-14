@@ -18,11 +18,14 @@ import { cn } from '@/lib/cn';
 // Sort categories highest pricePerLevel first (anchoring)
 const CATS_DESC = [...SKILL_CATEGORIES].sort((a, b) => b.pricePerLevel - a.pricePerLevel);
 
-// Category accent colors by index in sorted order
+/*
+ * Category tiers separate by ELEVATION rather than borders + opacity: a faded
+ * category read as disabled rather than as merely cheaper.
+ */
 const CAT_STYLES = [
-  { border: 'border border-[#1d2b1f]', label: 'text-rank-ravest', badge: 'PREMIUM', badgeTone: 'gold', featured: true },
-  { border: 'border border-[#1d2b1f]', label: 'text-rank-vortex', badge: null, featured: true },
-  { border: 'border border-[#1d2b1f]/50', label: 'text-[#4a5e3a]',  badge: 'STARTER', badgeTone: 'dim', featured: false },
+  { elevation: 'shadow-[var(--neu-out-lg)]', accent: 'var(--color-rank-ravest)', badge: 'PREMIUM', featured: true },
+  { elevation: 'shadow-[var(--neu-out-lg)]', accent: 'var(--color-rank-vortex)', badge: null, featured: true },
+  { elevation: 'shadow-[var(--neu-out)]', accent: 'var(--color-neon-400, #BFFF5E)', badge: 'STARTER', featured: false },
 ];
 
 function SkillOrderModal({ skill, cat, open, onClose }) {
@@ -65,16 +68,43 @@ function SkillOrderModal({ skill, cat, open, onClose }) {
         <div>
           <FieldLabel required>Jumlah Level ({formatRupiah(cat.pricePerLevel)}/level)</FieldLabel>
           <div className="flex items-center gap-3">
-            <button type="button" onClick={() => setLevels((l) => Math.max(1, l - 1))} className="grid h-10 w-10 shrink-0 place-items-center rounded-md border border-2 border-[#1d2b1f] bg-[#f5ece0] text-[#4a5e3a] hover:border-[#BFFF5E]/30 hover:bg-[#E8E2D5] transition"><Minus size={16} /></button>
-            <span className="flex-1 text-center font-mono text-2xl font-bold text-[#1d2b1f]">{levels}</span>
-            <button type="button" onClick={() => setLevels((l) => Math.min(SKILL_MAX_LEVEL, l + 1))} className="grid h-10 w-10 shrink-0 place-items-center rounded-md border border-2 border-[#1d2b1f] bg-[#f5ece0] text-[#4a5e3a] hover:border-[#BFFF5E]/30 hover:bg-[#E8E2D5] transition"><Plus size={16} /></button>
+            <button
+              type="button"
+              onClick={() => setLevels((l) => Math.max(1, l - 1))}
+              aria-label="Kurangi level"
+              className="neu-press grid h-12 w-12 shrink-0 place-items-center rounded-full bg-[#fff8f0] text-[#4a5e3a] shadow-[var(--neu-out)]"
+            >
+              <Minus size={17} aria-hidden="true" />
+            </button>
+            <span className="flex-1 text-center font-mono text-2xl font-bold text-[#1d2b1f]" aria-live="polite">{levels}</span>
+            <button
+              type="button"
+              onClick={() => setLevels((l) => Math.min(SKILL_MAX_LEVEL, l + 1))}
+              aria-label="Tambah level"
+              className="neu-press grid h-12 w-12 shrink-0 place-items-center rounded-full bg-[#fff8f0] text-[#4a5e3a] shadow-[var(--neu-out)]"
+            >
+              <Plus size={17} aria-hidden="true" />
+            </button>
           </div>
           <p className="mt-1.5 text-center text-xs text-[#4a5e3a]">{formatRupiah(cat.pricePerLevel)} × {levels} level = {formatRupiah(basePrice)}</p>
           <div className="mt-2">
             <label className="text-[0.65rem] text-[#4a5e3a] uppercase tracking-wide mb-1 block">Quick Pick</label>
             <div className="flex flex-wrap gap-1.5">
               {[5, 10, 20, 50, 100].map((n) => (
-                <button key={n} type="button" onClick={() => setLevels(n)} className={`rounded-lg border px-3 py-1 text-xs font-mono transition ${levels === n ? 'border-[#BFFF5E]/60 bg-[#BFFF5E]/15 text-[#1d2b1f]' : 'border-2 border-[#1d2b1f] bg-[#f5ece0] text-[#4a5e3a] hover:border-[#BFFF5E]/30'}`}>{n}</button>
+                <button
+                  key={n}
+                  type="button"
+                  onClick={() => setLevels(n)}
+                  className={cn(
+                    'min-h-[48px] min-w-[48px] rounded-[var(--radius-neu)] px-4 font-mono text-xs font-bold text-[#1d2b1f]',
+                    'will-change-transform [transition:transform_150ms_ease,box-shadow_150ms_ease]',
+                    levels === n
+                      ? 'bg-[#fff8f0] shadow-[var(--neu-in)]'
+                      : 'neu-press bg-[linear-gradient(145deg,var(--neu-hi),var(--neu-lo))] shadow-[var(--neu-out)]',
+                  )}
+                >
+                  {n}
+                </button>
               ))}
             </div>
           </div>
@@ -84,7 +114,13 @@ function SkillOrderModal({ skill, cat, open, onClose }) {
         <CheckboxField checked={agreed} onChange={setAgreed}>Saya menyetujui <a href="/terms" target="_blank" className="text-[#1d2b1f] hover:underline">Syarat &amp; Ketentuan</a> yang berlaku.</CheckboxField>
         <div className="flex flex-col gap-2">
           <Button fullWidth size="sm" onClick={handleQris} disabled={!playerNick} title={!playerNick ? 'Login dulu untuk melakukan order' : undefined}>
-            {playerNick ? 'Mulai Pembayaran' : '🔒 Login dulu untuk order'}
+            {playerNick ? (
+              'Mulai Pembayaran'
+            ) : (
+              <>
+                <Lock size={13} aria-hidden="true" /> Login dulu untuk order
+              </>
+            )}
           </Button>
         </div>
       </div>
@@ -105,7 +141,7 @@ export function SkillBoostTab() {
 
   return (
     <>
-      <p className="mb-5 text-center text-xs text-[#6b7f5a]">
+      <p className="mb-5 text-center text-xs text-[#5a7048]">
         Tampil dari harga tertinggi per level — semakin ke bawah semakin terjangkau
       </p>
 
@@ -117,67 +153,56 @@ export function SkillBoostTab() {
             <div
               key={cat.id}
               className={cn(
-                'overflow-hidden rounded-md border',
-                style.border,
-                style.featured ? 'bg-[#faf3e8]' : 'bg-[#fffdf9] opacity-85',
+                'relative rounded-[var(--radius-neu-xl)] p-5 sm:p-6',
+                'bg-[linear-gradient(145deg,var(--neu-hi),var(--neu-lo))]',
+                style.elevation,
               )}
               data-aos="fade-up"
               data-aos-delay={catIdx * 60}
               data-aos-duration="500"
             >
+              {/* Category accent bar */}
+              <span
+                aria-hidden="true"
+                className="absolute left-1/2 top-3.5 h-1 w-11 -translate-x-1/2 rounded-full"
+                style={{ background: style.accent, opacity: 0.9 }}
+              />
+
               {/* Category header */}
-              <div className={cn(
-                'flex items-center justify-between px-4 py-3 border-b',
-                style.featured ? 'border-[#1d2b1f]/30 bg-[#f5ede0]' : 'border-[#1d2b1f]/20',
-              )}>
-                <div className="flex items-center gap-2">
-                  {style.badge && (
-                    <span className={cn(
-                      'rounded-md border px-2 py-0.5 font-mono text-[0.6rem] font-bold uppercase tracking-wider',
-                      style.badgeTone === 'gold'
-                        ? 'border-warning/30 bg-warning/10 text-warning'
-                        : 'border-[#1d2b1f]/40 bg-[#f5ece0] text-[#4a5e3a]',
-                    )}>
-                      {style.badge}
-                    </span>
-                  )}
-                  <h3 className={cn('font-display text-sm font-bold', style.label)}>
+              <div className="flex flex-wrap items-center justify-between gap-3 pt-3">
+                <div className="flex items-center gap-2.5">
+                  {style.badge && <span className="neu-chip">{style.badge}</span>}
+                  <h3 className="font-display text-sm font-bold text-[#1d2b1f]">
                     {cat.label}
                   </h3>
                 </div>
-                <span className={cn('font-mono text-xs font-semibold', style.featured ? 'text-[#1d2b1f]' : 'text-[#4a5e3a] opacity-70')}>
+                <span className="font-mono text-xs font-semibold text-[#1d2b1f]">
                   {formatRupiah(cat.pricePerLevel)}/level
                 </span>
               </div>
 
+              <div className="neu-rule my-5" />
+
               {/* Skills grid */}
-              <div className="grid grid-cols-1 gap-3 p-4 sm:grid-cols-2 lg:grid-cols-3">
+              <div className="neu-grid neu-grid-3">
                 {cat.skills.map((skill) => (
                   <div
                     key={skill.name}
                     className={cn(
-                      'rounded-md border p-4 transition-all duration-200',
-                      style.featured
-                        ? 'border-[#1d2b1f]/30 bg-[#fffdf9] hover:scale-[1.015] hover:brightness-[1.02]'
-                        : 'border-[#1d2b1f]/20 bg-[#fff8f0] hover:scale-[1.01]',
+                      'rounded-[var(--radius-neu-lg)] p-4',
+                      'bg-[linear-gradient(145deg,var(--neu-hi),var(--neu-lo))] shadow-[var(--neu-out)]',
+                      'will-change-transform [transition:transform_150ms_ease,box-shadow_150ms_ease]',
+                      'hover:-translate-y-[3px] hover:shadow-[var(--neu-out-lg)]',
                     )}
                   >
                     <div className="mb-3">
-                      <h4 className={cn('font-bold text-sm', style.featured ? 'text-[#1d2b1f]' : 'text-[#4a5e3a]')}>
+                      <h4 className="text-sm font-bold text-[#1d2b1f]">
                         {skill.name}
                       </h4>
                     </div>
                     <div className="mb-4 flex flex-wrap gap-1.5">
                       {skill.abilities.map((a) => (
-                        <span
-                          key={a}
-                          className={cn(
-                            'rounded-md border px-2 py-0.5 text-[0.65rem]',
-                            style.featured
-                              ? 'border-[#1d2b1f]/25 bg-[#f5ece0] text-[#4a5e3a]'
-                              : 'border-[#1d2b1f]/18 bg-[#faf3e8] text-[#6b7f5a]',
-                          )}
-                        >
+                        <span key={a} className="neu-tag">
                           {a}
                         </span>
                       ))}
@@ -189,9 +214,8 @@ export function SkillBoostTab() {
                       onClick={() => nick && setSelected({ skill, cat })}
                       disabled={!nick}
                       title={!nick ? 'Login dulu untuk order' : undefined}
-                      className={!style.featured ? 'opacity-75' : ''}
                     >
-                      {nick ? <><ChevronRight size={14} /> Boost Skill</> : <><Lock size={12} className="inline mr-1" />Login dulu</>}
+                      {nick ? <><ChevronRight size={14} aria-hidden="true" /> Boost Skill</> : <><Lock size={13} aria-hidden="true" /> Login dulu</>}
                     </Button>
                   </div>
                 ))}

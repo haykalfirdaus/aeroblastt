@@ -1,5 +1,6 @@
 'use client';
 import { useState, useEffect, useRef } from 'react';
+import { AlertTriangle, Check, Clock } from 'lucide-react';
 import { Modal } from '@/components/ui/Modal';
 import { Button } from '@/components/ui/Button';
 import { createBetaOrder, pollBetaOrderStatus } from '@/utils/betaPayment';
@@ -28,7 +29,7 @@ function CountdownTimer({ expiresAt }) {
   const isUrgent = remaining !== 'Expired' && parseInt(remaining) < 5;
 
   return (
-    <span className={cn('font-mono font-bold tabular-nums', isUrgent ? 'text-red-500' : 'text-[#1d2b1f]')}>
+    <span className={cn('font-mono font-bold tabular-nums', isUrgent ? 'text-[#a3271f]' : 'text-[#1d2b1f]')}>
       {remaining}
     </span>
   );
@@ -101,7 +102,7 @@ export function BetaPaymentModal({ open, onClose, orderPayload, productLabel }) 
         {/* IDLE */}
         {status === 'idle' && (
           <div className="flex flex-col gap-4">
-            <div className="rounded-md border border-2 border-[#1d2b1f] bg-[#faf3e8] px-4 py-3">
+            <div className="rounded-[var(--radius-neu-lg)] bg-[#fff8f0] px-4 py-3.5 shadow-[var(--neu-in)]">
               <p className="text-sm text-[#4a5e3a] leading-relaxed">
                 Bayar <span className="font-semibold text-[#1d2b1f]">{productLabel}</span> lewat QRIS.
                 Nominalnya <span className="font-semibold text-[#1d2b1f]">sudah otomatis terisi</span> saat di-scan — item masuk otomatis setelah pembayaran terdeteksi.
@@ -116,7 +117,7 @@ export function BetaPaymentModal({ open, onClose, orderPayload, productLabel }) 
         {/* LOADING */}
         {status === 'loading' && (
           <div className="flex flex-col items-center gap-3 py-8">
-            <div className="h-8 w-8 animate-spin rounded-md border-2 border-[#BFFF5E] border-t-transparent" />
+            <div className="h-8 w-8 animate-spin rounded-full border-2 border-[#d8cfc0] border-t-[#4a5e3a]" />
             <p className="text-sm text-[#4a5e3a]">Menyiapkan pembayaran...</p>
           </div>
         )}
@@ -125,7 +126,7 @@ export function BetaPaymentModal({ open, onClose, orderPayload, productLabel }) 
         {status === 'waiting' && order && (
           <div className="flex flex-col items-center gap-3">
             {/* Nominal */}
-            <div className="w-full rounded-md border border-[#BFFF5E]/25 bg-[#BFFF5E]/8 px-4 py-2.5 text-center">
+            <div className="w-full rounded-[var(--radius-neu-lg)] bg-[#fff8f0] px-4 py-3 text-center shadow-[var(--neu-in)]">
               <p className="text-[11px] text-[#4a5e3a]">Transfer TEPAT sebesar</p>
               <p className="text-2xl font-bold tracking-tight text-[#1d2b1f]">{formatRupiah(order.totalAmount)}</p>
               <p className="mt-0.5 text-[11px] text-[#4a5e3a]">
@@ -137,10 +138,10 @@ export function BetaPaymentModal({ open, onClose, orderPayload, productLabel }) 
             <QrisDisplay payload={order.qris} amount={order.totalAmount} label={productLabel} />
 
             {/* Polling indicator */}
-            <div className="flex w-full items-center justify-center gap-2 rounded-md border border-2 border-[#1d2b1f] bg-[#faf3e8] py-2">
-              <span className="relative flex h-2 w-2">
-                <span className="absolute inline-flex h-full w-full animate-ping rounded-md bg-[#BFFF5E] opacity-60" />
-                <span className="relative inline-flex h-2 w-2 rounded-md bg-[#BFFF5E]" />
+            <div className="flex w-full items-center justify-center gap-2 rounded-[var(--radius-neu)] bg-[#fff8f0] py-2.5 shadow-[var(--neu-in)]">
+              <span className="relative flex h-2 w-2" aria-hidden="true">
+                <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-[#5a7048] opacity-50" />
+                <span className="relative inline-flex h-2 w-2 rounded-full bg-[#5a7048]" />
               </span>
               <p className="text-[11px] text-[#4a5e3a]">Menunggu konfirmasi pembayaran...</p>
             </div>
@@ -150,12 +151,11 @@ export function BetaPaymentModal({ open, onClose, orderPayload, productLabel }) 
         {/* PAID */}
         {status === 'paid' && (
           <div className="flex flex-col items-center gap-5 py-4">
-            <div className="relative flex h-20 w-20 items-center justify-center rounded-md border border-green-500/30 bg-green-500/15">
-              <span className="text-4xl">✅</span>
-              <span className="absolute inset-0 rounded-md animate-ping bg-green-500/10" style={{ animationDuration: '1.5s', animationIterationCount: 2 }} />
+            <div className="neu-icon h-20 w-20 rounded-[24px]">
+              <Check size={34} aria-hidden="true" className="text-[#4a5e3a]" />
             </div>
             <div className="text-center">
-              <p className="text-xl font-bold text-green-600">Pembayaran Berhasil!</p>
+              <p className="text-xl font-bold text-[#1d2b1f]">Pembayaran Berhasil!</p>
               <p className="mt-2 text-sm text-[#4a5e3a] leading-relaxed">
                 <span className="font-semibold text-[#1d2b1f]">{productLabel}</span> sedang diproses ke akun kamu.<br />
                 Masuk ke server — item akan sudah aktif.
@@ -168,11 +168,11 @@ export function BetaPaymentModal({ open, onClose, orderPayload, productLabel }) 
         {/* EXPIRED */}
         {status === 'expired' && (
           <div className="flex flex-col items-center gap-4 py-4">
-            <div className="flex h-16 w-16 items-center justify-center rounded-md border border-red-500/20 bg-red-500/10">
-              <span className="text-3xl">⏰</span>
+            <div className="neu-icon h-16 w-16 rounded-[20px]">
+              <Clock size={28} aria-hidden="true" className="text-[#4a5e3a]" />
             </div>
             <div className="text-center">
-              <p className="text-lg font-bold text-red-500">Waktu Habis</p>
+              <p className="text-lg font-bold text-[#1d2b1f]">Waktu Habis</p>
               <p className="mt-1 text-sm text-[#4a5e3a]">
                 Sesi pembayaran sudah berakhir. Buat order baru untuk melanjutkan.
               </p>
@@ -184,11 +184,11 @@ export function BetaPaymentModal({ open, onClose, orderPayload, productLabel }) 
         {/* FAILED */}
         {status === 'failed' && (
           <div className="flex flex-col items-center gap-4 py-4">
-            <div className="flex h-16 w-16 items-center justify-center rounded-md border border-red-500/20 bg-red-500/10">
-              <span className="text-3xl">⚠️</span>
+            <div className="neu-icon h-16 w-16 rounded-[20px]">
+              <AlertTriangle size={26} aria-hidden="true" className="text-[#a3271f]" />
             </div>
             <div className="text-center">
-              <p className="text-lg font-bold text-red-500">Gagal Memproses</p>
+              <p className="text-lg font-bold text-[#a3271f]">Gagal Memproses</p>
               <p className="mt-1 text-sm text-[#4a5e3a]">{error}</p>
             </div>
             <Button fullWidth onClick={handleCreate}>Coba Lagi</Button>

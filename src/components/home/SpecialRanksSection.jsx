@@ -70,12 +70,12 @@ function ApplicationModal({ rank, open, onClose }) {
   return (
     <Modal open={open} onClose={onClose} title={`Daftar Rank ${rank.name}`} badge="FREE RANK">
       {/* Syarat */}
-      <div className="mt-4 mb-4 rounded-md border border-2 border-[#1d2b1f] bg-[#faf3e8] p-4">
+      <div className="mt-4 mb-4 rounded-[var(--radius-neu-lg)] bg-[#fff8f0] p-4 shadow-[var(--neu-in)]">
         <p className="mb-2 text-xs font-semibold uppercase tracking-wide text-[#4a5e3a]">{rank.rulesTitle}</p>
         <ul className="flex flex-col gap-2">
           {rank.rules.map((r, i) => (
             <li key={i} className="flex items-start gap-2 text-xs text-[#4a5e3a]">
-              <AlertTriangle size={11} className="mt-0.5 shrink-0 text-warning" /> {r}
+              <AlertTriangle size={11} aria-hidden="true" className="mt-0.5 shrink-0 text-warning" /> {r}
             </li>
           ))}
         </ul>
@@ -84,49 +84,55 @@ function ApplicationModal({ rank, open, onClose }) {
       <div className="flex flex-col gap-3">
         {/* Login / Nick */}
         {loading ? null : playerNick ? (
-          <div className="flex items-center justify-between gap-3 rounded-md border border-[#BFFF5E]/30 bg-[#BFFF5E]/[0.07] px-4 py-2.5">
+          <div className="flex items-center justify-between gap-3 rounded-[var(--radius-neu)] bg-[#fff8f0] px-4 py-2.5 shadow-[var(--neu-in)]">
             <div className="flex items-center gap-2">
               {isBedrock
-                ? <Smartphone size={14} className="text-[#354530]" />
-                : <div className="h-2 w-2 rounded-md bg-[#BFFF5E]" />}
+                ? <Smartphone size={14} aria-hidden="true" className="text-[#354530]" />
+                : <div aria-hidden="true" className="h-2 w-2 rounded-full bg-[#5a9e10]" />}
               <span className="font-mono text-sm font-bold text-[#1d2b1f]">{playerNick}</span>
-              {isBedrock && <span className="rounded-md bg-[#4a5e3a]/15 px-1.5 py-0.5 text-[10px] font-bold text-[#354530]">BEDROCK</span>}
+              {isBedrock && <span className="neu-tag text-[10px] font-bold text-[#354530]">BEDROCK</span>}
             </div>
-            <button onClick={() => { logout(); setPlatform(''); }} className="text-[11px] text-[#4a5e3a] hover:text-[#1d2b1f] transition-colors">
+            <button
+              type="button"
+              onClick={() => { logout(); setPlatform(''); }}
+              className="neu-press min-h-[48px] rounded-[var(--radius-neu)] bg-[linear-gradient(145deg,var(--neu-hi),var(--neu-lo))] px-3 text-[11px] font-semibold text-[#4a5e3a] shadow-[var(--neu-out)]"
+            >
               Ganti akun
             </button>
           </div>
         ) : (
           <>
             {hasDot && (
-              <div className="flex items-center gap-2 rounded-md border border-[#4a5e3a]/30 bg-[#4a5e3a]/8 px-3 py-2 text-xs text-[#354530]">
-                <Smartphone size={13} />
+              <div className="flex items-center gap-2 rounded-[var(--radius-neu)] bg-[#fff8f0] px-3 py-2 text-xs text-[#354530] shadow-[var(--neu-in)]">
+                <Smartphone size={13} aria-hidden="true" />
                 Username mengandung titik — akan dikenali sebagai <strong className="ml-1">Bedrock / PE</strong>
               </div>
             )}
             <div>
               <FieldLabel required>Nickname In-Game</FieldLabel>
               <form onSubmit={handleLogin} className="flex gap-2">
-                <input
+                <TextField
                   type="text"
                   value={nickInput}
                   onChange={(e) => setNickInput(e.target.value)}
                   placeholder="Username Minecraft kamu"
+                  aria-label="Nickname In-Game"
                   maxLength={30}
                   disabled={loginSubmitting}
-                  className="flex-1 rounded-md border border-2 border-[#1d2b1f] bg-[#fffdf9] px-4 py-2.5 text-sm text-[#1d2b1f] placeholder:text-[#6b7f5a] outline-none transition-colors focus:border-[#BFFF5E]/70 disabled:opacity-50"
+                  className="flex-1"
                 />
                 <button
                   type="submit"
                   disabled={loginSubmitting || !nickInput.trim()}
-                  className="flex items-center gap-1.5 rounded-md border border-[#BFFF5E]/50 bg-[#BFFF5E]/15 px-3 py-2.5 text-sm font-semibold text-[#1d2b1f] transition-colors hover:bg-[#BFFF5E]/25 disabled:cursor-not-allowed disabled:opacity-50"
+                  aria-label="Login"
+                  className="neu-press grid h-12 w-12 shrink-0 place-items-center rounded-[var(--radius-neu)] bg-[linear-gradient(145deg,#d4ff80,#a8f040)] text-[#22331a] shadow-[var(--neu-out)] disabled:cursor-not-allowed disabled:opacity-60"
                 >
                   {loginSubmitting
-                    ? <span className="h-3.5 w-3.5 animate-spin rounded-md border-2 border-[#BFFF5E]/30 border-t-[#BFFF5E]" />
-                    : <LogIn size={14} />}
+                    ? <span aria-hidden="true" className="h-3.5 w-3.5 animate-spin rounded-full border-2 border-[#22331a]/25 border-t-[#22331a]" />
+                    : <LogIn size={14} aria-hidden="true" />}
                 </button>
               </form>
-              <p className="mt-1 text-[11px] text-[#6b7f5a]">Login dulu untuk verifikasi username kamu terdaftar di server.</p>
+              <p className="mt-1 text-[11px] text-[#5a7048]">Login dulu untuk verifikasi username kamu terdaftar di server.</p>
             </div>
           </>
         )}
@@ -147,21 +153,22 @@ function ApplicationModal({ rank, open, onClose }) {
           <>
             <div>
               <FieldLabel required>Link / Username Akun Media Sosial</FieldLabel>
-              <TextField value={socialLink} onChange={(e) => setSocialLink(e.target.value)} placeholder="https://tiktok.com/@username atau @username" />
+              <TextField value={socialLink} onChange={(e) => setSocialLink(e.target.value)} aria-label="Link / Username Akun Media Sosial" placeholder="https://tiktok.com/@username atau @username" />
             </div>
             <div>
               <FieldLabel required>Jumlah Follower / Subscriber</FieldLabel>
-              <input
+              <TextField
                 type="number"
                 min={MEDIA_MIN_FOLLOWERS}
                 value={followerCount}
                 onChange={(e) => setFollowerCount(e.target.value)}
                 placeholder={`Minimal ${MEDIA_MIN_FOLLOWERS.toLocaleString('id-ID')}`}
-                className="w-full rounded-md border border-2 border-[#1d2b1f] bg-[#fffdf9] px-4 py-2.5 font-mono text-sm text-[#1d2b1f] placeholder:text-[#6b7f5a] outline-none transition-colors focus:border-[#BFFF5E]/70 focus:ring-2 focus:ring-[#BFFF5E]/20"
+                aria-label="Jumlah Follower / Subscriber"
+                className="font-mono"
               />
               {followerCount && parseInt(followerCount) < MEDIA_MIN_FOLLOWERS && (
                 <p className="mt-1 flex items-center gap-1 text-[11px] text-danger">
-                  <AlertTriangle size={11} /> Follower kamu belum mencapai minimal {MEDIA_MIN_FOLLOWERS.toLocaleString('id-ID')}
+                  <AlertTriangle size={11} aria-hidden="true" /> Follower kamu belum mencapai minimal {MEDIA_MIN_FOLLOWERS.toLocaleString('id-ID')}
                 </p>
               )}
             </div>
@@ -169,7 +176,7 @@ function ApplicationModal({ rank, open, onClose }) {
         )}
 
         <Button fullWidth size="sm" onClick={handleSend} disabled={!playerNick}>
-          <Send size={13} /> {playerNick ? 'Kirim Pendaftaran via WhatsApp' : 'Login dulu untuk daftar'}
+          <Send size={13} aria-hidden="true" /> {playerNick ? 'Kirim Pendaftaran via WhatsApp' : 'Login dulu untuk daftar'}
         </Button>
       </div>
     </Modal>
@@ -188,7 +195,7 @@ export function SpecialRanksSection() {
           description="Rank Builder dan Media 100% gratis untuk player yang memenuhi syarat. Daftar langsung via WhatsApp."
         />
 
-        <div className="grid grid-cols-1 gap-5 md:grid-cols-2 max-w-3xl mx-auto">
+        <div className="neu-grid neu-grid-2 max-w-3xl mx-auto">
           {SPECIAL_RANKS.map((rank, i) => (
             <GlassCard
               key={rank.key}
@@ -199,11 +206,11 @@ export function SpecialRanksSection() {
             >
               <div className="flex flex-col gap-4 p-5">
                 <div className="flex items-center gap-3">
-                  <div className="grid h-11 w-11 shrink-0 place-items-center rounded-md border border-[#1d2b1f]/20 bg-[#f5ece0]">
-                    {(() => { const Icon = RANK_ICONS[rank.icon]; return Icon ? <Icon size={20} className="text-[#1d2b1f]" /> : null; })()}
+                  <div className="neu-icon h-11 w-11 rounded-[14px]">
+                    {(() => { const Icon = RANK_ICONS[rank.icon]; return Icon ? <Icon size={20} aria-hidden="true" className="text-[#1d2b1f]" /> : null; })()}
                   </div>
                   <div>
-                    <span className="rounded-md border border-success/25 bg-success/8 px-2 py-0.5 text-[0.6rem] font-bold uppercase tracking-wide text-success-bright">FREE</span>
+                    <span className="neu-tag text-[0.6rem] font-bold uppercase tracking-wide text-[#4a5e3a]">FREE</span>
                     <h3 className="mt-0.5 font-display text-base font-bold text-[#1d2b1f]">{rank.name}</h3>
                     <p className="text-xs text-[#4a5e3a]">{rank.subtitle}</p>
                   </div>
@@ -215,7 +222,7 @@ export function SpecialRanksSection() {
                     <ul className="flex flex-col gap-1.5">
                       {rank.benefits.map((b) => (
                         <li key={b} className="flex items-start gap-1.5 text-[0.7rem] text-[#4a5e3a]">
-                          <Check size={10} className="mt-0.5 shrink-0 text-success-bright" /> {b}
+                          <Check size={10} aria-hidden="true" className="mt-0.5 shrink-0 text-success-bright" /> {b}
                         </li>
                       ))}
                     </ul>
@@ -225,7 +232,7 @@ export function SpecialRanksSection() {
                     <ul className="flex flex-col gap-1.5">
                       {rank.requirements.map((r) => (
                         <li key={r} className="flex items-start gap-1.5 text-[0.7rem] text-[#4a5e3a]">
-                          <Check size={10} className="mt-0.5 shrink-0 text-[#1d2b1f]" /> {r}
+                          <Check size={10} aria-hidden="true" className="mt-0.5 shrink-0 text-[#1d2b1f]" /> {r}
                         </li>
                       ))}
                     </ul>
@@ -233,7 +240,7 @@ export function SpecialRanksSection() {
                 </div>
 
                 <Button fullWidth variant="secondary" size="sm" onClick={() => setSelected(rank)}>
-                  {rank.ctaLabel} <ChevronRight size={13} />
+                  {rank.ctaLabel} <ChevronRight size={13} aria-hidden="true" />
                 </Button>
               </div>
             </GlassCard>

@@ -1,6 +1,6 @@
 'use client';
 import { useEffect, useState } from 'react';
-import { RefreshCw } from 'lucide-react';
+import { Lock, RefreshCw } from 'lucide-react';
 import { Modal } from '@/components/ui/Modal';
 import { CheckboxField, FieldLabel, SelectField, TextField } from '@/components/ui/FormFields';
 import { Button } from '@/components/ui/Button';
@@ -92,8 +92,8 @@ export function RankOrderModal({ rank, open, onClose }) {
         <div>
           <FieldLabel>
             Rank Saat Ini
-            {rankLoading && <RefreshCw size={11} className="ml-1.5 inline animate-spin text-[#6b7f5a]" />}
-            {!rankLoading && playerNick && <span className="ml-1.5 text-[0.6rem] text-[#6b7f5a]">(terdeteksi otomatis)</span>}
+            {rankLoading && <RefreshCw size={11} aria-hidden="true" className="ml-1.5 inline animate-spin text-[#5a7048]" />}
+            {!rankLoading && playerNick && <span className="ml-1.5 text-[0.6rem] text-[#5a7048]">(terdeteksi otomatis)</span>}
           </FieldLabel>
           <SelectField value={ownedRank} onChange={(e) => !rankLocked && setOwnedRank(e.target.value)} disabled={rankLoading || rankLocked}>
             <option value="none">Belum punya rank / Member</option>
@@ -132,12 +132,15 @@ export function RankOrderModal({ rank, open, onClose }) {
                 key={opt.id}
                 type="button"
                 onClick={() => setDuration(opt.id)}
+                aria-pressed={duration === opt.id}
                 className={cn(
-                  'rounded-md border border-[#1d2b1f]/40 px-3 py-3 text-center transition-all',
-                  duration === opt.id ? 'border-[#1d2b1f] bg-[#BFFF5E] text-[#1d2b1f]' : 'bg-[#f5ece0] hover:bg-[#BFFF5E]/20'
+                  'min-h-[48px] rounded-[var(--radius-neu)] px-3 py-3 text-center transition-transform',
+                  duration === opt.id
+                    ? 'bg-[#fff8f0] shadow-[var(--neu-in)]'
+                    : 'neu-press bg-[linear-gradient(145deg,var(--neu-hi),var(--neu-lo))] shadow-[var(--neu-out)]'
                 )}
               >
-                {opt.badge && <span className="mb-1 block text-[0.6rem] font-bold text-warning">{opt.badge}</span>}
+                {opt.badge && <span className="mb-1 block text-[0.6rem] font-bold text-[#5a7048]">{opt.badge}</span>}
                 <span className="block text-sm font-bold text-[#1d2b1f]">{opt.label}</span>
                 <span className="block text-[0.65rem] text-[#4a5e3a]">{opt.sub}</span>
               </button>
@@ -155,7 +158,12 @@ export function RankOrderModal({ rank, open, onClose }) {
 
         <div className="flex flex-col gap-2">
           <Button fullWidth size="sm" onClick={handleQris} disabled={basePrice <= 0 || !playerNick} title={!playerNick ? 'Login dulu untuk melakukan order' : undefined}>
-            {playerNick ? 'Mulai Pembayaran' : '🔒 Login dulu untuk order'}
+            {playerNick ? 'Mulai Pembayaran' : (
+              <span className="inline-flex items-center gap-1.5">
+                <Lock size={13} aria-hidden="true" />
+                Login dulu untuk order
+              </span>
+            )}
           </Button>
         </div>
       </div>

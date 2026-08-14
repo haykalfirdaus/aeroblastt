@@ -166,7 +166,7 @@ export function HeroSection() {
               <span
                 className={cn(
                   'h-2 w-2 shrink-0 rounded-full',
-                  status.state === 'online' ? 'neu-dot-live' : 'bg-[#8a9e7a]'
+                  status.state === 'online' ? 'neu-dot-live' : 'bg-[#5a7048]'
                 )}
                 aria-hidden="true"
               />
@@ -226,14 +226,14 @@ export function HeroSection() {
                   aria-label={`Salin ${item.label} server`}
                   className="neu-press flex min-h-[48px] items-center gap-2 rounded-full bg-[#fff8f0] px-5 shadow-[var(--neu-out)]"
                 >
-                  <span className="text-[0.6rem] font-black uppercase tracking-widest text-[#6b7f5a]">
+                  <span className="text-[0.6rem] font-black uppercase tracking-widest text-[#5a7048]">
                     {item.label}
                   </span>
                   <span className="font-mono text-xs font-bold text-[#1d2b1f]">{item.value}</span>
                   {copiedKey === item.key ? (
                     <Check size={13} className="text-[#059669]" aria-hidden="true" />
                   ) : (
-                    <Copy size={13} className="text-[#6b7f5a]" aria-hidden="true" />
+                    <Copy size={13} className="text-[#5a7048]" aria-hidden="true" />
                   )}
                 </button>
               ))}

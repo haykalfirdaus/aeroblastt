@@ -9,7 +9,7 @@ import { supabase } from '@/lib/supabase';
 import { cn } from '@/lib/cn';
 
 const fieldBase =
-  'w-full rounded-md border border-2 border-[#1d2b1f] bg-[#fffdf9] px-4 py-3 text-sm text-[#1d2b1f] placeholder:text-[#6b7f5a] outline-none transition-colors focus:border-[#BFFF5E]/70 focus:ring-2 focus:ring-[#BFFF5E]/20';
+  'w-full rounded-md border border-2 border-[#1d2b1f] bg-[#fffdf9] px-4 py-3 text-sm text-[#1d2b1f] placeholder:text-[#5a7048] outline-none transition-colors focus:border-[#BFFF5E]/70 focus:ring-2 focus:ring-[#BFFF5E]/20';
 
 // ---------------------------------------------------------------------------
 // Decorative element
@@ -341,7 +341,7 @@ export default function AdminLoginPage() {
         {view === 'forgot' && <ForgotView onBack={() => setView('login')} />}
         {view === 'reset' && <ResetPasswordView onDone={() => setView('login')} />}
 
-        <p className="mt-6 text-xs text-[#6b7f5a]">
+        <p className="mt-6 text-xs text-[#5a7048]">
           AeroBlast &copy; {new Date().getFullYear()} &mdash; Hanya untuk staf resmi
         </p>
       </main>

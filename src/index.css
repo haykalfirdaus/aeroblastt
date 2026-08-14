@@ -49,8 +49,8 @@
   --color-text-bright: #1d2b1f;
   --color-text: #2a3a2c;
   --color-text-muted: #4a5e3a;
-  --color-text-dim: #6b7f5a;
-  --color-text-faint: #8a9e7a;
+  --color-text-dim: #5a7048;
+  --color-text-faint: #5a7048;
 
   /* ---- Status (functional — unchanged) ------------------------------ */
   --color-success: #22c55e;
@@ -244,7 +244,7 @@
     color: #1d2b1f;
   }
   select option:disabled {
-    color: #8a9e7a;
+    color: #5a7048;
   }
 
   @media (prefers-reduced-motion: reduce) {

@@ -48,7 +48,7 @@ function BalanceOrderModal({ open, onClose, initialRupiah = 0 }) {
     <Modal open={open} onClose={onClose} title="Top-Up Balance" badge="IN-GAME BALANCE">
       <div className="mt-6 flex flex-col gap-4">
         <CountdownBanner open={open} />
-        <div className="rounded-md border border-[#BFFF5E]/20 bg-[#BFFF5E]/8 p-4 text-center">
+        <div className="rounded-[var(--radius-neu-lg)] bg-[#fff8f0] p-4 text-center shadow-[var(--neu-in)]">
           <p className="text-xs text-[#4a5e3a] mb-1">Kurs: Rp 1 = {BALANCE_RATE} Balance</p>
           <p className="font-mono text-2xl font-bold text-[#1d2b1f]">{formatNumber(balance)} <span className="text-sm font-normal text-[#4a5e3a]">Balance</span></p>
         </div>
@@ -72,7 +72,7 @@ function BalanceOrderModal({ open, onClose, initialRupiah = 0 }) {
               value={rupiahInput}
               onChange={(e) => setRupiahInput(e.target.value)}
               placeholder="5000"
-              className="w-full rounded-md border border-2 border-[#1d2b1f] bg-[#fffdf9] pl-10 pr-4 py-3 font-mono text-sm text-[#1d2b1f] placeholder:text-[#6b7f5a] outline-none transition-colors focus:border-[#BFFF5E]/60 focus:ring-2 focus:ring-[#BFFF5E]/15"
+              className="neu-field w-full pl-10 pr-4 font-mono text-sm"
             />
           </div>
         </div>
@@ -81,7 +81,13 @@ function BalanceOrderModal({ open, onClose, initialRupiah = 0 }) {
         <CheckboxField checked={agreed} onChange={setAgreed}>Saya menyetujui <a href="/terms" target="_blank" className="text-[#1d2b1f] hover:underline">Syarat &amp; Ketentuan</a> yang berlaku.</CheckboxField>
         <div className="flex flex-col gap-2">
           <Button fullWidth size="sm" onClick={handleQris} disabled={!playerNick} title={!playerNick ? 'Login dulu untuk melakukan order' : undefined}>
-            {playerNick ? 'Mulai Pembayaran' : '🔒 Login dulu untuk order'}
+            {playerNick ? (
+              'Mulai Pembayaran'
+            ) : (
+              <>
+                <Lock size={13} aria-hidden="true" /> Login dulu untuk order
+              </>
+            )}
           </Button>
         </div>
       </div>
@@ -104,7 +110,8 @@ function getPickTier(idx, total) {
     featured,
     isTop,
     priceSize: isTop ? 'text-base' : featured ? 'text-sm' : 'text-xs',
-    opacity: featured ? '' : 'opacity-75',
+    // Elevation, not opacity, carries the tier ranking.
+    elevation: featured ? 'shadow-[var(--neu-out-lg)]' : 'shadow-[var(--neu-out)]',
   };
 }
 
@@ -126,9 +133,9 @@ export function BalanceTab() {
       <div className="mx-auto max-w-2xl" data-aos="fade-up" data-aos-duration="500">
         <GlassCard className="p-5 sm:p-6">
           <div className="mb-5 flex items-center gap-3">
-            <div className="grid h-10 w-10 place-items-center rounded-md border border-[#BFFF5E]/25 bg-[#BFFF5E]/10">
-              <Coins size={20} className="text-[#1d2b1f]" />
-            </div>
+            <span className="neu-icon h-11 w-11 rounded-[14px] text-[#1d2b1f]">
+              <Coins size={20} aria-hidden="true" />
+            </span>
             <div>
               <h3 className="font-display text-base font-bold text-[#1d2b1f]">Top-Up Balance</h3>
               <p className="text-xs text-[#4a5e3a]">Kurs: Rp 1 = {BALANCE_RATE} Balance</p>
@@ -137,11 +144,11 @@ export function BalanceTab() {
 
           <div className="mb-1 flex items-center justify-between">
             <p className="text-[0.65rem] font-semibold uppercase tracking-wider text-[#4a5e3a]">Quick Pick</p>
-            <p className="text-[0.65rem] text-[#6b7f5a]">Tampil dari terbesar</p>
+            <p className="text-[0.65rem] text-[#5a7048]">Tampil dari terbesar</p>
           </div>
-          <p className="mb-3 text-[0.6rem] text-[#6b7f5a]">Semakin ke bawah semakin terjangkau</p>
+          <p className="mb-3 text-[0.6rem] text-[#5a7048]">Semakin ke bawah semakin terjangkau</p>
 
-          <div className="mb-5 grid grid-cols-2 gap-2.5 sm:grid-cols-3">
+          <div className="mb-5 grid grid-cols-2 gap-3.5 sm:grid-cols-3">
             {PICKS_DESC.map(({ rupiah, popular }, idx) => {
               const tier = getPickTier(idx, total);
               return (
@@ -155,28 +162,31 @@ export function BalanceTab() {
                   data-aos-delay={idx * 40}
                   data-aos-duration="400"
                   className={cn(
-                    'relative overflow-hidden rounded-md border border-[#1d2b1f] px-4 py-4 text-center transition-all',
-                    tier.featured
-                      ? 'bg-[#faf3e8] hover:-translate-y-0.5 hover:brightness-105'
-                      : 'bg-[#fffdf9] hover:bg-[#faf3e8]',
-                    tier.opacity,
-                    !nick && 'cursor-not-allowed opacity-50',
+                    'relative min-h-[48px] overflow-hidden rounded-[var(--radius-neu-lg)] px-4 pb-4 pt-6 text-center',
+                    'will-change-transform [transition:transform_150ms_ease,box-shadow_150ms_ease]',
+                    nick
+                      ? cn(
+                          'bg-[linear-gradient(145deg,var(--neu-hi),var(--neu-lo))]',
+                          tier.elevation,
+                          'hover:-translate-y-[3px] hover:shadow-[var(--neu-out-lg)]',
+                        )
+                      : 'cursor-not-allowed bg-[#fff8f0] shadow-[var(--neu-in)]',
                   )}
                 >
                   {popular && (
-                    <span className="absolute right-0 top-0 rounded-bl-lg bg-[#9CC81E] px-2 py-0.5 text-[0.6rem] font-bold text-[#1d2b1f]">
+                    <span className="neu-chip absolute right-2 top-2">
                       POPULAR
                     </span>
                   )}
                   {tier.isTop && (
-                    <span className="absolute left-0 top-0 rounded-br-lg bg-warning/80 px-2 py-0.5 text-[0.6rem] font-bold text-[#1d2b1f]">
+                    <span className="neu-chip absolute left-2 top-2">
                       MAX VALUE
                     </span>
                   )}
-                  <p className={cn('font-mono font-bold', tier.priceSize, tier.featured ? 'text-[#1d2b1f]' : 'text-[#4a5e3a]')}>
+                  <p className={cn('font-mono font-bold text-[#1d2b1f]', tier.priceSize)}>
                     {formatRupiah(rupiah)}
                   </p>
-                  <p className={cn('text-[0.65rem]', tier.featured ? 'text-[#4a5e3a]' : 'text-[#6b7f5a]')}>
+                  <p className="text-[0.65rem] text-[#4a5e3a]">
                     {formatNumber(rupiah * BALANCE_RATE)} Balance
                   </p>
                 </button>
@@ -185,7 +195,7 @@ export function BalanceTab() {
           </div>
 
           <Button fullWidth size="sm" onClick={() => openWith(0)} disabled={!nick} title={!nick ? 'Login dulu untuk order' : undefined}>
-            {nick ? 'Top-Up Custom Amount' : <><Lock size={12} className="inline mr-1" />Login dulu untuk order</>}
+            {nick ? 'Top-Up Custom Amount' : <><Lock size={13} aria-hidden="true" /> Login dulu untuk order</>}
           </Button>
         </GlassCard>
       </div>

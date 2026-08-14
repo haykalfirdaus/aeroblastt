@@ -121,7 +121,7 @@ export function CustomSelect({ value, onChange, options = [], placeholder = 'Sel
           !disabled && 'cursor-pointer'
         )}
       >
-        <span className={cn('truncate', selectedOption ? 'text-[#1d2b1f]' : 'text-[#8a9e7a]')}>
+        <span className={cn('truncate', selectedOption ? 'text-[#1d2b1f]' : 'text-[#5a7048]')}>
           {selectedOption ? selectedOption.label : placeholder}
         </span>
         <ChevronDown
@@ -187,7 +187,7 @@ export function CustomSelect({ value, onChange, options = [], placeholder = 'Sel
                 <span className="flex flex-col gap-0.5 min-w-0">
                   <span className="truncate font-medium leading-snug">{option.label}</span>
                   {option.description && (
-                    <span className="truncate text-[0.7rem] text-[#6b7f5a] leading-snug">
+                    <span className="truncate text-[0.7rem] text-[#5a7048] leading-snug">
                       {option.description}
                     </span>
                   )}
@@ -197,7 +197,7 @@ export function CustomSelect({ value, onChange, options = [], placeholder = 'Sel
           })}
 
           {options.length === 0 && (
-            <li className="px-4 py-3 text-center text-xs text-[#6b7f5a]">No options available</li>
+            <li className="px-4 py-3 text-center text-xs text-[#5a7048]">No options available</li>
           )}
         </ul>
       </div>

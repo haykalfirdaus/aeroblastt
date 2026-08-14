@@ -56,9 +56,9 @@ export default function FaqPage() {
         {/* Search — inset field */}
         <div className="relative mb-5">
           <Search
-            size={17}
+            size={18}
             aria-hidden="true"
-            className="pointer-events-none absolute left-4 top-1/2 z-10 -translate-y-1/2 text-[#6b7f5a]"
+            className="pointer-events-none absolute left-[1.15rem] top-1/2 z-10 -translate-y-1/2 text-[#5a7048]"
           />
           <label htmlFor="faq-search" className="sr-only">
             Cari pertanyaan
@@ -69,7 +69,7 @@ export default function FaqPage() {
             value={query}
             onChange={(e) => setQuery(e.target.value)}
             placeholder="Cari pertanyaan…"
-            className="neu-field pl-11 text-sm"
+            className="neu-field neu-field-icon text-sm"
           />
         </div>
 

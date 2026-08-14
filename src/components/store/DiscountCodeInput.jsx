@@ -28,7 +28,7 @@ export function DiscountCodeInput({ onApply, category }) {
       </label>
       <div className="flex gap-2">
         <div className="relative flex-1">
-          <Tag size={14} className="absolute left-3.5 top-1/2 -translate-y-1/2 text-[#4a5e3a]" />
+          <Tag size={14} aria-hidden="true" className="pointer-events-none absolute left-4 top-1/2 z-10 -translate-y-1/2 text-[#5a7048]" />
           <input
             type="text"
             value={code}
@@ -37,24 +37,24 @@ export function DiscountCodeInput({ onApply, category }) {
             placeholder="Contoh: SUMMER25"
             maxLength={30}
             disabled={checking}
-            className="w-full rounded-md border border-2 border-[#1d2b1f] bg-[#fffdf9] pl-9 pr-4 py-3 font-mono text-sm text-[#1d2b1f] placeholder:text-[#6b7f5a] outline-none transition-colors focus:border-[#BFFF5E]/60 focus:ring-2 focus:ring-[#BFFF5E]/15 uppercase disabled:opacity-50"
+            className="neu-field neu-field-icon font-mono text-sm uppercase disabled:opacity-50"
           />
         </div>
         <button
           type="button"
           onClick={handleApply}
           disabled={checking || !code.trim()}
-          className="shrink-0 rounded-md border border-[#BFFF5E]/40 bg-[#BFFF5E]/10 px-4 text-sm font-semibold text-[#1d2b1f] transition hover:bg-[#BFFF5E]/18 hover:border-[#BFFF5E]/60 disabled:opacity-40 disabled:cursor-not-allowed"
+          className="neu-press inline-flex min-h-[48px] shrink-0 items-center justify-center rounded-[var(--radius-neu)] bg-[linear-gradient(145deg,var(--neu-hi),var(--neu-lo))] px-5 text-sm font-semibold text-[#1d2b1f] shadow-[var(--neu-out)] disabled:cursor-not-allowed disabled:opacity-40"
         >
           {checking ? (
-            <span className="h-3.5 w-3.5 animate-spin rounded-md border-2 border-[#1d2b1f]/30 border-t-[#1d2b1f] inline-block" />
+            <span className="inline-block h-3.5 w-3.5 animate-spin rounded-full border-2 border-[#1d2b1f]/25 border-t-[#1d2b1f]" />
           ) : (
             'Pakai'
           )}
         </button>
       </div>
       {msg && (
-        <p className={cn('mt-1.5 text-xs font-medium', msg.valid ? 'text-success-bright' : 'text-danger-bright')}>
+        <p className={cn('mt-2 text-xs font-medium', msg.valid ? 'text-[#4a5e3a]' : 'text-[#a3271f]')}>
           {msg.message}
         </p>
       )}

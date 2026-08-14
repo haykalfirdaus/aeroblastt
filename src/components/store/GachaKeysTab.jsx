@@ -29,13 +29,17 @@ const KEY_ACCENT = {
   AEROSPACE: 'cyan-400',
 };
 
-// position 0 = Aerospace (20k), position 4 = Basic (1k)
+/*
+ * position 0 = Aerospace (20k) … position 4 = Basic (1k).
+ * Tiers are separated by ELEVATION rather than opacity: fading a cheap tier to
+ * 65% made its text fail contrast and look broken. Depth ranks them instead.
+ */
 const KEY_TIER = {
-  0: { featured: true,  priceSize: 'text-xl', opacity: '', badgeTone: 'cyan',  badge: 'PREMIUM',  glow: true  },
-  1: { featured: true,  priceSize: 'text-lg', opacity: '', badgeTone: 'gold',  badge: null,       glow: true  },
-  2: { featured: true,  priceSize: 'text-base',opacity: '',badgeTone: 'neon',  badge: null,       glow: true  },
-  3: { featured: false, priceSize: 'text-sm', opacity: 'opacity-80', badge: null, glow: false },
-  4: { featured: false, priceSize: 'text-sm', opacity: 'opacity-65', badge: 'STARTER', badgeTone: 'dim', glow: false },
+  0: { featured: true, priceSize: 'text-xl', elevation: 'shadow-[var(--neu-out-lg)]', badgeTone: 'cyan', badge: 'PREMIUM' },
+  1: { featured: true, priceSize: 'text-lg', elevation: 'shadow-[var(--neu-out-lg)]', badgeTone: 'gold', badge: null },
+  2: { featured: true, priceSize: 'text-base', elevation: 'shadow-[var(--neu-out)]', badgeTone: 'neon', badge: null },
+  3: { featured: false, priceSize: 'text-sm', elevation: 'shadow-[var(--neu-out)]', badge: null },
+  4: { featured: false, priceSize: 'text-sm', elevation: 'shadow-[var(--neu-out)]', badge: 'STARTER', badgeTone: 'dim' },
 };
 
 function KeyOrderModal({ keyData, open, onClose }) {
@@ -79,9 +83,25 @@ function KeyOrderModal({ keyData, open, onClose }) {
         <div>
           <FieldLabel required>Jumlah Key</FieldLabel>
           <div className="flex items-center gap-3">
-            <button type="button" onClick={() => setQty((q) => Math.max(1, q - 1))} className="grid h-10 w-10 shrink-0 place-items-center rounded-md border border-2 border-[#1d2b1f] bg-[#f5ece0] text-[#4a5e3a] transition hover:border-[#BFFF5E]/30 hover:bg-[#E8E2D5]"><Minus size={16} /></button>
-            <span className="flex-1 text-center font-mono text-2xl font-bold text-[#1d2b1f]">{qty}x</span>
-            <button type="button" onClick={() => setQty((q) => Math.min(999, q + 1))} className="grid h-10 w-10 shrink-0 place-items-center rounded-md border border-2 border-[#1d2b1f] bg-[#f5ece0] text-[#4a5e3a] transition hover:border-[#BFFF5E]/30 hover:bg-[#E8E2D5]"><Plus size={16} /></button>
+            <button
+              type="button"
+              onClick={() => setQty((q) => Math.max(1, q - 1))}
+              aria-label="Kurangi jumlah"
+              className="neu-press grid h-12 w-12 shrink-0 place-items-center rounded-full bg-[#fff8f0] text-[#4a5e3a] shadow-[var(--neu-out)]"
+            >
+              <Minus size={17} aria-hidden="true" />
+            </button>
+            <span className="flex-1 text-center font-mono text-2xl font-bold text-[#1d2b1f]" aria-live="polite">
+              {qty}x
+            </span>
+            <button
+              type="button"
+              onClick={() => setQty((q) => Math.min(999, q + 1))}
+              aria-label="Tambah jumlah"
+              className="neu-press grid h-12 w-12 shrink-0 place-items-center rounded-full bg-[#fff8f0] text-[#4a5e3a] shadow-[var(--neu-out)]"
+            >
+              <Plus size={17} aria-hidden="true" />
+            </button>
           </div>
           <p className="mt-1.5 text-center text-xs text-[#4a5e3a]">{formatRupiah(keyData.price)} × {qty} = {formatRupiah(basePrice)}</p>
         </div>
@@ -90,7 +110,13 @@ function KeyOrderModal({ keyData, open, onClose }) {
         <CheckboxField checked={agreed} onChange={setAgreed}>Saya menyetujui <a href="/terms" target="_blank" className="text-[#1d2b1f] hover:underline">Syarat &amp; Ketentuan</a> yang berlaku.</CheckboxField>
         <div className="flex flex-col gap-2">
           <Button fullWidth size="sm" onClick={handleQris} disabled={!playerNick} title={!playerNick ? 'Login dulu untuk melakukan order' : undefined}>
-            {playerNick ? 'Mulai Pembayaran' : '🔒 Login dulu untuk order'}
+            {playerNick ? (
+              'Mulai Pembayaran'
+            ) : (
+              <>
+                <Lock size={13} aria-hidden="true" /> Login dulu untuk order
+              </>
+            )}
           </Button>
         </div>
       </div>
@@ -111,60 +137,53 @@ export function GachaKeysTab() {
 
   return (
     <>
-      <p className="mb-4 text-center text-xs text-[#6b7f5a]">
+      <p className="mb-4 text-center text-xs text-[#5a7048]">
         Tampil dari harga tertinggi — semakin ke bawah semakin terjangkau
       </p>
-      <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
+      <div className="neu-grid neu-grid-3">
         {KEYS_DESC.map((k, idx) => {
           const tier = KEY_TIER[idx] ?? KEY_TIER[4];
           const tone = KEY_ACCENT[k.key] || 'neon-400';
 
           return (
-            <div
+            <article
               key={k.key}
               className={cn(
-                'group relative flex flex-col overflow-hidden rounded-md transition-all duration-200',
-                tier.featured
-                  ? 'border border-[#1d2b1f] bg-[#faf3e8] hover:scale-[1.015] hover:brightness-105'
-                  : 'border border-[#1d2b1f]/60 bg-[#fffdf9] hover:scale-[1.01]',
-                tier.opacity,
+                'group relative flex flex-col rounded-[var(--radius-neu-xl)] p-6',
+                'bg-[linear-gradient(145deg,var(--neu-hi),var(--neu-lo))]',
+                tier.elevation,
+                'will-change-transform [transition:transform_150ms_ease,box-shadow_150ms_ease]',
+                'hover:-translate-y-[3px] hover:shadow-[var(--neu-out-lg)]'
               )}
               style={{ '--accent': `var(--color-${tone})` }}
               data-aos="fade-up"
               data-aos-delay={idx * 50}
-              data-aos-duration="500"
             >
-              {/* top shimmer */}
+              {/* Accent bar replaces the hairline shimmer */}
               <span
                 aria-hidden="true"
-                className="absolute inset-x-0 top-0 h-px"
-                style={{ background: `linear-gradient(90deg, transparent, var(--accent), transparent)`, opacity: tier.featured ? 0.7 : 0.2 }}
+                className="absolute left-1/2 top-3.5 h-1 w-11 -translate-x-1/2 rounded-full"
+                style={{ background: 'var(--accent)', opacity: 0.9 }}
               />
 
-              <div className="flex flex-col items-center gap-3 p-5 text-center">
+              <div className="flex flex-col items-center gap-3 pt-3 text-center">
                 {(tier.badge || k.badge) && (
                   <Badge tone={tier.badgeTone ?? 'neon'}>{tier.badge ?? k.badge}</Badge>
                 )}
 
-                <div
-                  className="grid h-12 w-12 place-items-center rounded-md border border-2 border-[#1d2b1f] bg-[#f5ece0]"
-                  style={{ boxShadow: tier.glow ? `0 0 20px -4px var(--accent)` : undefined }}
-                >
-                  <Icon name={k.icon} size={22} className={cn('text-[var(--accent)]', !tier.featured && 'opacity-70')} />
-                </div>
+                <span className="neu-icon h-14 w-14 rounded-full" style={{ color: 'var(--accent)' }}>
+                  <Icon name={k.icon} size={24} />
+                </span>
 
                 <div>
-                  <h3 className={cn('font-display text-sm font-bold', tier.featured ? 'text-[#1d2b1f]' : 'text-[#4a5e3a]')}>
-                    {k.name}
-                  </h3>
-                  <p className={cn('font-mono font-bold text-[#1d2b1f]', tier.priceSize, !tier.featured && 'opacity-70')}>
-                    {formatRupiah(k.price)}<span className="text-xs text-[#4a5e3a] font-normal"> / key</span>
+                  <h3 className="font-display text-base font-extrabold text-[#1d2b1f]">{k.name}</h3>
+                  <p className={cn('font-mono font-bold text-[#1d2b1f]', tier.priceSize)}>
+                    {formatRupiah(k.price)}
+                    <span className="text-xs font-normal text-[#4a5e3a]"> / key</span>
                   </p>
                 </div>
 
-                <p className={cn('text-xs', tier.featured ? 'text-[#4a5e3a]' : 'text-[#4a5e3a]')}>
-                  {k.description}
-                </p>
+                <p className="flex-1 text-xs leading-relaxed text-[#4a5e3a]">{k.description}</p>
 
                 <Button
                   fullWidth
@@ -173,12 +192,18 @@ export function GachaKeysTab() {
                   onClick={() => nick && setSelected(k)}
                   disabled={!nick}
                   title={!nick ? 'Login dulu untuk order' : undefined}
-                  className={!tier.featured ? 'opacity-75' : ''}
+                  className="mt-1"
                 >
-                  {nick ? 'Order Sekarang' : <><Lock size={12} className="inline mr-1" />Login dulu</>}
+                  {nick ? (
+                    'Order Sekarang'
+                  ) : (
+                    <>
+                      <Lock size={13} aria-hidden="true" /> Login dulu
+                    </>
+                  )}
                 </Button>
               </div>
-            </div>
+            </article>
           );
         })}
       </div>

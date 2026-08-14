@@ -28,7 +28,7 @@ import { cn } from '@/lib/cn';
 // ---------------------------------------------------------------------------
 
 const fieldBase =
-  'w-full rounded-md border border-2 border-[#1d2b1f] bg-[#fffdf9] px-4 py-3 text-sm text-[#1d2b1f] placeholder:text-[#6b7f5a] outline-none transition-colors focus:border-[#BFFF5E]/70 focus:ring-2 focus:ring-[#BFFF5E]/20 focus:bg-[#faf3e8] disabled:cursor-not-allowed disabled:opacity-50';
+  'w-full rounded-md border border-2 border-[#1d2b1f] bg-[#fffdf9] px-4 py-3 text-sm text-[#1d2b1f] placeholder:text-[#5a7048] outline-none transition-colors focus:border-[#BFFF5E]/70 focus:ring-2 focus:ring-[#BFFF5E]/20 focus:bg-[#faf3e8] disabled:cursor-not-allowed disabled:opacity-50';
 
 function FieldLabel({ children, required }) {
   return (
@@ -485,7 +485,7 @@ function DonateOrderItem({ item, onMark, onDelete, marking, deleting, confirming
             <Clock size={10} />
             {remaining}
           </span>
-          <span className="ml-auto text-[10px] font-mono text-[#6b7f5a]">QRIS</span>
+          <span className="ml-auto text-[10px] font-mono text-[#5a7048]">QRIS</span>
         </div>
       </div>
 
@@ -979,7 +979,7 @@ function DiscountItem({ item, expired, confirming, onRequestDelete, onCancelDele
         ? 'border-2 border-[#1d2b1f]/40 bg-[#fffdf9]/60 opacity-60'
         : 'border-2 border-[#1d2b1f] bg-[#faf3e8] hover:border-[#BFFF5E]/30'
     )}>
-      <PercentCircle size={15} className={cn('mt-0.5 shrink-0', expired ? 'text-[#6b7f5a]' : 'text-[#4a5e3a]')} />
+      <PercentCircle size={15} className={cn('mt-0.5 shrink-0', expired ? 'text-[#5a7048]' : 'text-[#4a5e3a]')} />
       <div className="min-w-0 flex-1">
         <div className="flex items-center gap-2">
           <span className={cn('font-mono text-sm font-bold tracking-wider', expired ? 'text-[#4a5e3a]' : 'text-[#1d2b1f]')}>
@@ -994,7 +994,7 @@ function DiscountItem({ item, expired, confirming, onRequestDelete, onCancelDele
             -{item.percent}%
           </span>
           {expired && (
-            <span className="rounded border border-2 border-[#1d2b1f] bg-[#f5ece0] px-1.5 py-0.5 text-[10px] font-semibold text-[#6b7f5a]">
+            <span className="rounded border border-2 border-[#1d2b1f] bg-[#f5ece0] px-1.5 py-0.5 text-[10px] font-semibold text-[#5a7048]">
               Expired
             </span>
           )}
@@ -1010,7 +1010,7 @@ function DiscountItem({ item, expired, confirming, onRequestDelete, onCancelDele
         )}
         <span className="mt-1 inline-flex items-center gap-1 text-xs text-[#4a5e3a]">
           {expired ? (
-            <span className="text-[#6b7f5a]">Berakhir {new Date(item.expiresAt).toLocaleDateString('id-ID')}</span>
+            <span className="text-[#5a7048]">Berakhir {new Date(item.expiresAt).toLocaleDateString('id-ID')}</span>
           ) : (
             <><Clock size={11} />{remaining}</>
           )}

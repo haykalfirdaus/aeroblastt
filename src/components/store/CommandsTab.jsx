@@ -31,8 +31,8 @@ function getTier(idx, total) {
     featured,
     isTop,
     priceSize: isTop ? 'text-base' : featured ? 'text-sm' : 'text-xs',
-    opacity: featured ? '' : idx >= topCount + 2 ? 'opacity-70' : 'opacity-85',
-    glow: featured,
+    // Tiers are separated by ELEVATION, not opacity — dimmed text fails contrast.
+    elevation: featured ? 'shadow-[var(--neu-out-lg)]' : 'shadow-[var(--neu-out)]',
   };
 }
 
@@ -79,13 +79,19 @@ function CommandOrderModal({ cmd, open, onClose }) {
         </div>
         <div>
           <FieldLabel required>Durasi</FieldLabel>
-          <div className="grid grid-cols-3 gap-2">
+          <div className="grid grid-cols-3 gap-2.5">
             {COMMAND_DURATION_OPTIONS.map((opt) => (
               <button
                 key={opt.id}
                 type="button"
                 onClick={() => setDuration(opt.id)}
-                className={cn('rounded-md border px-3 py-2.5 text-center transition-all', duration === opt.id ? 'border-[#BFFF5E]/60 bg-[#BFFF5E]/15' : 'border-2 border-[#1d2b1f] bg-[#f5ece0] hover:border-[#BFFF5E]/25')}
+                className={cn(
+                  'min-h-[48px] rounded-[var(--radius-neu)] px-3 py-2.5 text-center',
+                  'will-change-transform [transition:transform_150ms_ease,box-shadow_150ms_ease]',
+                  duration === opt.id
+                    ? 'bg-[#fff8f0] shadow-[var(--neu-in)]'
+                    : 'neu-press bg-[linear-gradient(145deg,var(--neu-hi),var(--neu-lo))] shadow-[var(--neu-out)]'
+                )}
               >
                 {opt.badge && <span className="mb-1 block text-[0.6rem] font-bold text-warning">{opt.badge}</span>}
                 <span className="block text-xs font-bold text-[#1d2b1f]">{opt.label}</span>
@@ -102,7 +108,13 @@ function CommandOrderModal({ cmd, open, onClose }) {
         </CheckboxField>
         <div className="flex flex-col gap-2">
           <Button fullWidth size="sm" onClick={handleQris} disabled={!playerNick} title={!playerNick ? 'Login dulu untuk melakukan order' : undefined}>
-            {playerNick ? 'Mulai Pembayaran' : '🔒 Login dulu untuk order'}
+            {playerNick ? (
+              'Mulai Pembayaran'
+            ) : (
+              <>
+                <Lock size={13} aria-hidden="true" /> Login dulu untuk order
+              </>
+            )}
           </Button>
         </div>
       </div>
@@ -125,10 +137,10 @@ export function CommandsTab() {
 
   return (
     <>
-      <p className="mb-4 text-center text-xs text-[#6b7f5a]">
+      <p className="mb-4 text-center text-xs text-[#5a7048]">
         Tampil dari harga tertinggi — semakin ke bawah semakin terjangkau
       </p>
-      <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-4">
+      <div className="neu-grid neu-grid-4">
         {COMMANDS_DESC.map((cmd, idx) => {
           const tier = getTier(idx, total);
           const ownedByRank = isCommandOwnedByRank(cmd, playerRank);
@@ -137,62 +149,59 @@ export function CommandsTab() {
             <div
               key={cmd.key}
               className={cn(
-                'group relative flex flex-col overflow-hidden rounded-md transition-all duration-200',
-                tier.featured
-                  ? 'border border-[#1d2b1f] bg-[#faf3e8] hover:scale-[1.015] hover:brightness-[1.02]'
-                  : 'border border-[#1d2b1f]/60 bg-[#fffdf9] hover:scale-[1.01]',
-                ownedByRank ? 'opacity-60 grayscale' : tier.opacity,
+                'group relative flex flex-col rounded-[var(--radius-neu-xl)]',
+                // Owned commands are carved in ("already yours") instead of faded out.
+                ownedByRank
+                  ? 'bg-[#fff8f0] shadow-[var(--neu-in)]'
+                  : cn(
+                      'bg-[linear-gradient(145deg,var(--neu-hi),var(--neu-lo))]',
+                      tier.elevation,
+                      'will-change-transform [transition:transform_150ms_ease,box-shadow_150ms_ease]',
+                      'hover:-translate-y-[3px] hover:shadow-[var(--neu-out-lg)]',
+                    ),
               )}
               data-aos="fade-up"
               data-aos-delay={idx * 40}
               data-aos-duration="500"
             >
-              {/* top shimmer */}
+              {/* Accent bar replaces the hairline shimmer */}
               <span
                 aria-hidden="true"
-                className="absolute inset-x-0 top-0 h-px"
-                style={{ background: 'linear-gradient(90deg, transparent, #BFFF5E, transparent)', opacity: tier.featured ? 0.5 : 0.15 }}
+                className="absolute left-1/2 top-3.5 h-1 w-11 -translate-x-1/2 rounded-full"
+                style={{ background: 'var(--color-neon-400, #BFFF5E)', opacity: ownedByRank ? 0.35 : 0.9 }}
               />
 
-              <div className="flex flex-col gap-2.5 p-4">
+              <div className="flex flex-col gap-2.5 p-5 pt-7">
                 {ownedByRank && <Badge tone="neon">SUDAH DIMILIKI</Badge>}
                 {cmd.bundleTag && <Badge tone="cyan">{cmd.bundleTag}</Badge>}
                 {cmd.badge && <Badge tone={tier.isTop ? 'gold' : 'neon'}>{cmd.badge}</Badge>}
 
                 <div className="flex items-center gap-2.5">
-                  <div className={cn(
-                    'grid h-9 w-9 shrink-0 place-items-center rounded-md border',
-                    tier.featured ? 'border-[#BFFF5E]/30 bg-[#BFFF5E]/10' : 'border-[#1d2b1f]/40 bg-[#f5ece0]',
-                  )}>
-                    <Icon
-                      name={cmd.icon}
-                      size={17}
-                      className={cn(tier.featured ? 'text-[#1d2b1f]' : 'text-[#4a5e3a]')}
-                      style={tier.glow ? { filter: 'drop-shadow(0 0 6px #BFFF5E)' } : undefined}
-                    />
-                  </div>
+                  <span className="neu-icon h-11 w-11 rounded-[14px] shrink-0 text-[#1d2b1f]">
+                    <Icon name={cmd.icon} size={17} />
+                  </span>
                   <div className="min-w-0">
-                    <p className={cn('font-mono text-xs font-bold truncate', tier.featured ? 'text-[#1d2b1f]' : 'text-[#4a5e3a]')}>
+                    <p className="truncate font-mono text-xs font-bold text-[#1d2b1f]">
                       {cmd.command}
                     </p>
                     <p className="text-[0.65rem] text-[#4a5e3a]">{cmd.name}</p>
                   </div>
                 </div>
 
-                <p className={cn('line-clamp-2 text-[0.7rem] leading-relaxed', tier.featured ? 'text-[#4a5e3a]' : 'text-[#6b7f5a]')}>
+                <p className="line-clamp-2 text-[0.7rem] leading-relaxed text-[#4a5e3a]">
                   {cmd.description}
                 </p>
 
                 {cmd.bundleItems && (
-                  <div className="flex flex-wrap gap-1">
+                  <div className="flex flex-wrap gap-1.5">
                     {cmd.bundleItems.map((b) => (
-                      <span key={b} className="rounded-md border border-[#4a5e3a]/25 bg-[#4a5e3a]/8 px-1.5 py-0.5 text-[0.6rem] text-[#354530]">{b}</span>
+                      <span key={b} className="neu-tag">{b}</span>
                     ))}
                   </div>
                 )}
 
                 <div className="mt-auto pt-1">
-                  <p className={cn('mb-1.5 font-mono font-bold text-[#1d2b1f]', tier.priceSize, !tier.featured && 'opacity-75')}>
+                  <p className={cn('mb-2 font-mono font-bold text-[#1d2b1f]', tier.priceSize)}>
                     {formatRupiah(cmd.basePrice)}
                   </p>
                   <Button
@@ -206,11 +215,10 @@ export function CommandsTab() {
                         ? `Sudah termasuk benefit rank ${cmd.includedInRank}`
                         : !nick ? 'Login dulu untuk order' : undefined
                     }
-                    className={!tier.featured ? 'opacity-75' : ''}
                   >
                     {ownedByRank
-                      ? <><Lock size={12} className="inline mr-1" />Termasuk rank kamu</>
-                      : nick ? 'Order' : <><Lock size={12} className="inline mr-1" />Login dulu</>}
+                      ? <><Lock size={13} aria-hidden="true" /> Termasuk rank kamu</>
+                      : nick ? 'Order' : <><Lock size={13} aria-hidden="true" /> Login dulu</>}
                   </Button>
                   {ownedByRank && (
                     <p className="mt-1.5 text-center text-[0.6rem] text-[#4a5e3a]">

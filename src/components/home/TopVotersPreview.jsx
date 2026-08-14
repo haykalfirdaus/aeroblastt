@@ -8,7 +8,7 @@ import { useTopVoters } from '@/hooks/useTopVoters';
 import { SITE } from '@/data/config';
 import { skinUrl } from '@/data/voterRewards';
 
-const MEDAL_COLORS = ['text-warning', 'text-[#6b7f5a]', 'text-rank-orbiter', 'text-[#4a5e3a]', 'text-[#4a5e3a]'];
+const MEDAL_COLORS = ['text-warning', 'text-[#5a7048]', 'text-rank-orbiter', 'text-[#4a5e3a]', 'text-[#4a5e3a]'];
 const MEDAL_LABELS = ['#1', '#2', '#3', '#4', '#5'];
 
 export function TopVotersPreview() {
@@ -34,13 +34,13 @@ export function TopVotersPreview() {
 
           {status === 'empty' && (
             <div className="flex flex-col items-center gap-3 py-10 text-center">
-              <Trophy size={28} className="text-[#6b7f5a]" />
+              <Trophy size={28} className="text-[#5a7048]" />
               <p className="text-xs text-[#4a5e3a]">Belum ada voter bulan ini.<br />Jadilah yang pertama!</p>
             </div>
           )}
 
           {status === 'success' && voters.length > 0 && (
-            <ul className="divide-y divide-[#D8D1C0]/60">
+            <ul className="divide-y divide-[#5a7048]/60">
               {voters.slice(0, 5).map((voter, i) => (
                 <li key={voter.nickname} className="flex items-center gap-3 px-4 py-3">
                   <span className={`w-6 shrink-0 text-center font-mono text-xs font-bold ${MEDAL_COLORS[i]}`}>
