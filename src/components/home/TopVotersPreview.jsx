@@ -15,7 +15,7 @@ export function TopVotersPreview() {
   const { voters, status } = useTopVoters({ limit: 5, useProxy: true, fallbackToDemo: false });
 
   return (
-    <section id="top-voters" className="px-4 py-16 sm:px-6 lg:px-8">
+    <section id="top-voters" className="cv-auto px-4 py-16 sm:px-6 lg:px-8">
       <div className="mx-auto max-w-4xl">
         <SectionHeading
           eyebrow="Top Voters Bulan Ini"

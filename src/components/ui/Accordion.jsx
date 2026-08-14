@@ -21,16 +21,27 @@ export function AccordionItem({ id, title, icon, children, className }) {
   const isOpen = ctx.openId === id;
 
   return (
-    <div className={cn('overflow-hidden rounded-md border border-[#1d2b1f]/20 bg-[#fffdf9] transition-colors', isOpen && 'border-[#1d2b1f]/50 bg-[#faf3e8]', className)}>
+    <div
+      className={cn(
+        'overflow-hidden rounded-[var(--radius-neu-lg)] bg-[linear-gradient(145deg,var(--neu-hi),var(--neu-lo))]',
+        '[transition:box-shadow_150ms_ease]',
+        isOpen ? 'shadow-[var(--neu-in)]' : 'shadow-[var(--neu-out)]',
+        className
+      )}
+    >
       <button
         type="button"
         onClick={() => ctx.toggle(id)}
         aria-expanded={isOpen}
-        className="flex w-full items-center gap-3 px-4 py-3 text-left sm:px-5"
+        className="flex min-h-[56px] w-full cursor-pointer items-center gap-3 px-4 py-3 text-left sm:px-5"
       >
-        {icon && <span className="text-lg shrink-0">{icon}</span>}
-        <span className="flex-1 font-semibold text-[#1d2b1f] text-sm">{title}</span>
-        <ChevronDown size={18} className={cn('shrink-0 text-[#4a5e3a] transition-transform duration-300', isOpen && 'rotate-180 text-[#1d2b1f]')} />
+        {icon && <span className="shrink-0 text-lg">{icon}</span>}
+        <span className="flex-1 text-sm font-bold text-[#1d2b1f]">{title}</span>
+        <ChevronDown
+          size={20}
+          aria-hidden="true"
+          className={cn('shrink-0 text-[#4a5e3a] [transition:transform_150ms_ease]', isOpen && 'rotate-180 text-[#1d2b1f]')}
+        />
       </button>
       <div className={cn('grid transition-all duration-300 ease-in-out', isOpen ? 'grid-rows-[1fr] opacity-100' : 'grid-rows-[0fr] opacity-0')}>
         <div className="overflow-hidden">

@@ -13,8 +13,6 @@
     "@anthropic-ai/sdk": "^0.111.0",
     "@supabase/supabase-js": "^2.110.2",
     "@tailwindcss/postcss": "^4.3.2",
-    "aos": "^2.3.4",
-    "gsap": "^3.13.0",
     "jsqr": "^1.4.0",
     "lucide-react": "^1.23.0",
     "mysql2": "^3.22.6",

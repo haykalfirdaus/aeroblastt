@@ -7,7 +7,7 @@ const CAT_ICONS = [Handshake, TreePine, Settings];
 
 export function RulesSection() {
   return (
-    <section id="rules" className="px-4 py-16 sm:px-6 lg:px-8">
+    <section id="rules" className="cv-auto px-4 py-16 sm:px-6 lg:px-8">
       <div className="mx-auto max-w-4xl">
         <SectionHeading
           eyebrow="Peraturan Server"
@@ -28,16 +28,18 @@ export function RulesSection() {
                 data-aos-delay={catIdx * 120}
                 data-aos-duration="800"
               >
-                <div className="p-4">
-                  <div className="mb-3 flex items-center gap-2">
-                    <CatIcon size={15} className="text-[#1d2b1f] shrink-0" />
+                <div className="p-5">
+                  <div className="mb-4 flex items-center gap-3">
+                    <span className="neu-icon h-11 w-11 rounded-[14px]">
+                      <CatIcon size={18} className="shrink-0 text-[#1d2b1f]" aria-hidden="true" />
+                    </span>
                     <h3 className="font-display text-sm font-bold text-[#1d2b1f]">{cat.title}</h3>
                   </div>
 
                   <ul className="mb-3 flex flex-col gap-2.5">
                     {cat.points.map((pt) => (
                       <li key={pt.label} className="flex items-start gap-2">
-                        <Ban size={11} className="mt-0.5 shrink-0 text-danger-bright" />
+                        <Ban size={12} className="mt-0.5 shrink-0 text-[#dc2626]" aria-hidden="true" />
                         <div>
                           <span className="text-[0.7rem] font-bold text-[#1d2b1f]">{pt.label}: </span>
                           <span className="text-[0.7rem] text-[#4a5e3a]">{pt.text}</span>
@@ -46,9 +48,9 @@ export function RulesSection() {
                     ))}
                   </ul>
 
-                  <div className="rounded-lg border border-danger/18 bg-danger/6 px-3 py-2">
-                    <p className="inline-flex items-center gap-1 text-[0.65rem] font-semibold text-danger-bright">
-                      <Scale size={10} /> Sanksi
+                  <div className="rounded-[var(--radius-neu)] bg-[#fff8f0] px-3.5 py-2.5 shadow-[var(--neu-in)]">
+                    <p className="inline-flex items-center gap-1 text-[0.65rem] font-bold text-[#dc2626]">
+                      <Scale size={11} aria-hidden="true" /> Sanksi
                     </p>
                     <p className="text-[0.65rem] text-[#4a5e3a]">{cat.sanction}</p>
                   </div>

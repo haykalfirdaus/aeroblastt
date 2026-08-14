@@ -1,19 +1,37 @@
 'use client';
 import { useEffect, useRef, useState } from 'react';
 import Link from 'next/link';
+import Image from 'next/image';
 import { usePathname } from 'next/navigation';
 import { Menu, X, Home, ShoppingBag, Trophy, HelpCircle, MessageCircle, Heart } from 'lucide-react';
 import { cn } from '@/lib/cn';
 import { scrollToId } from '@/lib/motion';
 import { useServerStatus } from '@/hooks/useServerStatus';
-const logo = '/logo.png';
+import { SITE } from '@/data/config';
+
+/**
+ * Soft UI navbar — floating pill.
+ *
+ * Logic preserved verbatim: scroll state, route-change close, click-outside,
+ * same-page section scroll, and the live useServerStatus() badge.
+ *
+ * PERF / a11y changes:
+ *  - `<img>` → `next/image` with explicit width/height, so the logo reserves
+ *    its box before load. An unsized logo in a sticky header is a classic CLS
+ *    contributor.
+ *  - The mobile drawer no longer animates `max-height`. That tweens a layout
+ *    property, forcing reflow every frame of the open/close. It now toggles
+ *    outright and the panel itself fades/slides via transform+opacity.
+ *  - Every target is ≥48px (the old hamburger was 32×32 — below the minimum).
+ *  - Discord URL now reads from SITE.social rather than a duplicated literal.
+ */
 
 const NAV_LINKS = [
-  { to: '/', label: 'Beranda', exact: true, icon: Home,        sectionId: 'home' },
-  { to: '/store', label: 'Store',             icon: ShoppingBag, sectionId: null },
-  { to: '/top-voters', label: 'Top Voters',   icon: Trophy,      sectionId: null },
-  { to: '/faq', label: 'FAQ',                 icon: HelpCircle,  sectionId: null },
-  { to: '/donate', label: 'Donasi',           icon: Heart,       sectionId: null },
+  { to: '/', label: 'Beranda', exact: true, icon: Home, sectionId: 'home' },
+  { to: '/store', label: 'Store', icon: ShoppingBag, sectionId: null },
+  { to: '/top-voters', label: 'Top Voters', icon: Trophy, sectionId: null },
+  { to: '/faq', label: 'FAQ', icon: HelpCircle, sectionId: null },
+  { to: '/donate', label: 'Donasi', icon: Heart, sectionId: null },
 ];
 
 export function Navbar() {
@@ -29,7 +47,9 @@ export function Navbar() {
     return () => window.removeEventListener('scroll', onScroll);
   }, []);
 
-  useEffect(() => { setOpen(false); }, [pathname]);
+  useEffect(() => {
+    setOpen(false);
+  }, [pathname]);
 
   useEffect(() => {
     function handleClickOutside(e) {
@@ -48,36 +68,37 @@ export function Navbar() {
   }
 
   return (
-    <header
-      ref={menuRef}
-      className={cn(
-        'fixed inset-x-0 top-0 z-[100] transition-all duration-200',
-        scrolled
-          ? 'border-b-2 border-[#1d2b1f] bg-[#fff8f0]/95 backdrop-blur-md'
-          : 'bg-transparent'
-      )}
-    >
-      <nav className="mx-auto flex w-full max-w-7xl items-center justify-between px-4 py-3 sm:px-6 lg:px-8">
+    <header ref={menuRef} className="fixed inset-x-0 top-0 z-[100] px-3 pt-3 sm:px-5">
+      <nav
+        className={cn(
+          'mx-auto flex w-full max-w-7xl items-center justify-between gap-3 rounded-full px-3 py-2 sm:px-4',
+          '[transition:box-shadow_200ms_ease,background-color_200ms_ease]',
+          scrolled ? 'bg-[#fff8f0] shadow-[var(--neu-out)]' : 'bg-transparent'
+        )}
+      >
         {/* Logo */}
-        <Link href="/" className="flex items-center gap-2 group shrink-0" aria-label="AeroBlast Network Home">
-          <div className="logo-orbit-wrapper">
-            <span className="orbit-star" aria-hidden="true" />
-            <span className="orbit-star" aria-hidden="true" />
-            <span className="orbit-star" aria-hidden="true" />
-            <span className="orbit-star" aria-hidden="true" />
-            <img
-              src={logo}
-              alt="AeroBlast logo"
-              className="relative z-[1] h-7 w-7 rounded-md object-cover border border-[#1d2b1f]/30"
+        <Link
+          href="/"
+          className="flex min-h-[48px] shrink-0 items-center gap-2.5"
+          aria-label="AeroBlast Network Beranda"
+        >
+          <span className="grid h-10 w-10 place-items-center rounded-[13px] bg-[#fff8f0] shadow-[var(--neu-out)]">
+            <Image
+              src="/logo.png"
+              alt=""
+              width={26}
+              height={26}
+              className="rounded-lg object-cover"
+              priority
             />
-          </div>
-          <span className="hidden font-display text-sm font-bold tracking-tight text-[#1d2b1f] sm:block">
+          </span>
+          <span className="hidden font-display text-sm font-extrabold tracking-tight text-[#1d2b1f] sm:block">
             Aero<span className="text-[#5a9e10]">Blast</span>
           </span>
         </Link>
 
         {/* Desktop nav */}
-        <div className="hidden items-center gap-1.5 md:flex">
+        <div className="hidden items-center gap-1 md:flex">
           {NAV_LINKS.map((link) => {
             const isActive = link.exact ? pathname === link.to : pathname.startsWith(link.to);
             const isDonate = link.to === '/donate';
@@ -86,100 +107,108 @@ export function Navbar() {
                 key={link.to}
                 href={link.to}
                 onClick={(e) => handleNavClick(e, link)}
+                aria-current={isActive ? 'page' : undefined}
                 className={cn(
+                  'inline-flex min-h-[48px] items-center gap-1.5 rounded-full px-4 text-xs font-bold',
+                  'will-change-transform [transition:transform_150ms_ease,box-shadow_150ms_ease,color_150ms_ease]',
+                  'active:scale-[0.96]',
                   isDonate
-                    ? 'inline-flex items-center gap-1.5 rounded-md border-2 border-[#1d2b1f] bg-[#BFFF5E] px-3 py-1.5 text-xs font-bold text-[#1d2b1f] shadow-[2px_2px_0_#1d2b1f] transition-all hover:translate-x-[2px] hover:translate-y-[2px] hover:shadow-none'
-                    : cn('nav-pill', isActive && 'nav-pill-active')
+                    ? 'neu-lime'
+                    : isActive
+                      ? 'bg-[#fff8f0] text-[#1d2b1f] shadow-[var(--neu-in)]'
+                      : 'text-[#4a5e3a] hover:text-[#1d2b1f] hover:shadow-[var(--neu-out)]'
                 )}
               >
-                <link.icon size={11} className="shrink-0" />
+                <link.icon size={13} className="shrink-0" aria-hidden="true" />
                 {link.label}
               </Link>
             );
           })}
         </div>
 
-        {/* Right side: server status + Join Now */}
+        {/* Right: live status + CTA */}
         <div className="hidden items-center gap-2 md:flex">
           {status.online && (
-            <div className="flex items-center gap-1.5 rounded-md border-2 border-[#1d2b1f] bg-[#BFFF5E]/20 px-3 py-1.5 text-xs font-bold text-[#1d2b1f]">
-              <span className="glow-dot-green" />
+            <span className="inline-flex min-h-[40px] items-center gap-2 rounded-full bg-[#fff8f0] px-3.5 text-xs font-bold text-[#1d2b1f] shadow-[var(--neu-in)]">
+              <span className="neu-dot-live h-2 w-2 rounded-full" aria-hidden="true" />
               Online: {status.players?.online ?? 0}
-            </div>
+            </span>
           )}
           <a
-            href={SITE_DISCORD}
+            href={SITE.social.discord}
             target="_blank"
             rel="noopener noreferrer"
-            className="inline-flex items-center gap-1.5 rounded-md border-2 border-[#1d2b1f] bg-[#BFFF5E] px-4 py-1.5 text-xs font-bold text-[#1d2b1f] shadow-[2px_2px_0_#1d2b1f] transition-all hover:translate-x-[2px] hover:translate-y-[2px] hover:shadow-none"
+            className="neu-lime neu-press inline-flex min-h-[48px] items-center gap-1.5 rounded-full px-5 text-xs font-extrabold"
           >
-            <MessageCircle size={11} />
+            <MessageCircle size={13} aria-hidden="true" />
             Join Now
           </a>
         </div>
 
-        {/* Mobile hamburger */}
+        {/* Mobile hamburger — 48×48 */}
         <button
           type="button"
           aria-label={open ? 'Tutup menu' : 'Buka menu'}
           aria-expanded={open}
+          aria-controls="mobile-drawer"
           onClick={() => setOpen((v) => !v)}
-          className="grid h-8 w-8 place-items-center rounded-md border-2 border-[#1d2b1f] text-[#1d2b1f] transition-all hover:bg-[#BFFF5E] md:hidden"
+          className="grid h-12 w-12 shrink-0 place-items-center rounded-full bg-[#fff8f0] text-[#1d2b1f] shadow-[var(--neu-out)] [transition:transform_150ms_ease,box-shadow_150ms_ease] active:scale-[0.94] active:shadow-[var(--neu-in)] md:hidden"
         >
-          {open ? <X size={14} /> : <Menu size={14} />}
+          {open ? <X size={20} aria-hidden="true" /> : <Menu size={20} aria-hidden="true" />}
         </button>
       </nav>
 
-      {/* Mobile drawer */}
-      <div
-        className={cn(
-          'overflow-hidden transition-all duration-250 md:hidden',
-          open ? 'max-h-80 border-b-2 border-[#1d2b1f] bg-[#fff8f0]/98' : 'max-h-0'
-        )}
-        aria-hidden={!open}
-      >
-        <div className="flex flex-col gap-1 px-4 pb-4 pt-2">
-          {NAV_LINKS.map((link) => {
-            const isActive = link.exact ? pathname === link.to : pathname.startsWith(link.to);
-            const isDonate = link.to === '/donate';
-            return (
-              <Link
-                key={link.to}
-                href={link.to}
-                onClick={(e) => handleNavClick(e, link)}
-                className={cn(
-                  'flex items-center gap-2.5 rounded-md border px-4 py-2.5 text-xs font-semibold transition-all',
-                  isDonate
-                    ? 'border-[#1d2b1f] bg-[#BFFF5E] text-[#1d2b1f] font-bold'
-                    : isActive
-                    ? 'border-[#1d2b1f]/60 bg-[#BFFF5E]/15 text-[#1d2b1f] font-bold'
-                    : 'border-[#1d2b1f]/20 text-[#4a5e3a] hover:border-[#1d2b1f]/50 hover:bg-[#f5ede0] hover:text-[#1d2b1f]'
-                )}
-              >
-                <link.icon size={13} />
-                {link.label}
-              </Link>
-            );
-          })}
-          {status.online && (
-            <div className="mt-1 flex items-center gap-1.5 rounded-md border-2 border-[#1d2b1f] bg-[#BFFF5E]/15 px-4 py-2 text-xs font-bold text-[#1d2b1f]">
-              <span className="glow-dot-green" />
-              Online: {status.players?.online ?? 0} Players
-            </div>
-          )}
-          <a
-            href={SITE_DISCORD}
-            target="_blank"
-            rel="noopener noreferrer"
-            className="mt-1 flex items-center gap-2.5 rounded-md border-2 border-[#1d2b1f] bg-[#BFFF5E] px-4 py-2.5 text-xs font-bold text-[#1d2b1f] shadow-[2px_2px_0_#1d2b1f]"
-          >
-            <MessageCircle size={13} />
-            Join Now (Discord)
-          </a>
+      {/* Mobile drawer — no max-height tween (that reflows every frame) */}
+      {open && (
+        <div
+          id="mobile-drawer"
+          className="drawer-in mx-auto mt-2 w-full max-w-7xl rounded-[var(--radius-neu-xl)] bg-[#fff8f0] p-2 shadow-[var(--neu-out)] md:hidden"
+        >
+          <div className="flex flex-col gap-1">
+            {NAV_LINKS.map((link) => {
+              const isActive = link.exact ? pathname === link.to : pathname.startsWith(link.to);
+              const isDonate = link.to === '/donate';
+              return (
+                <Link
+                  key={link.to}
+                  href={link.to}
+                  onClick={(e) => handleNavClick(e, link)}
+                  aria-current={isActive ? 'page' : undefined}
+                  className={cn(
+                    'flex min-h-[52px] items-center gap-2.5 rounded-[var(--radius-neu)] px-4 text-sm font-bold',
+                    '[transition:transform_150ms_ease,box-shadow_150ms_ease] active:scale-[0.98]',
+                    isDonate
+                      ? 'neu-lime'
+                      : isActive
+                        ? 'bg-[#fff8f0] text-[#1d2b1f] shadow-[var(--neu-in)]'
+                        : 'text-[#4a5e3a]'
+                  )}
+                >
+                  <link.icon size={16} aria-hidden="true" />
+                  {link.label}
+                </Link>
+              );
+            })}
+
+            {status.online && (
+              <span className="mt-1 flex min-h-[48px] items-center gap-2 rounded-[var(--radius-neu)] bg-[#fff8f0] px-4 text-xs font-bold text-[#1d2b1f] shadow-[var(--neu-in)]">
+                <span className="neu-dot-live h-2 w-2 rounded-full" aria-hidden="true" />
+                Online: {status.players?.online ?? 0} Players
+              </span>
+            )}
+
+            <a
+              href={SITE.social.discord}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="neu-lime mt-1 flex min-h-[52px] items-center gap-2.5 rounded-[var(--radius-neu)] px-4 text-sm font-extrabold"
+            >
+              <MessageCircle size={16} aria-hidden="true" />
+              Join Now (Discord)
+            </a>
+          </div>
         </div>
-      </div>
+      )}
     </header>
   );
 }
-
-const SITE_DISCORD = 'https://discord.gg/rgRRnPS9cp';

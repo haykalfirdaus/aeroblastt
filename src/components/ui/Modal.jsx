@@ -50,30 +50,25 @@ export function Modal({ open, onClose, title, subtitle, icon, badge, size = 'md'
       >
         <div
           className={cn(
-            'relative w-full max-h-[calc(100dvh-2rem)] overflow-y-auto rounded-md border border-[#1d2b1f]/30 bg-[#fff8f0] shadow-[0_8px_32px_-8px_rgba(29,43,31,0.18)] transition-all duration-150',
+            'relative max-h-[calc(100dvh-2rem)] w-full overflow-y-auto rounded-[var(--radius-neu-xl)] bg-[#fff8f0] shadow-[var(--neu-out-lg)]',
+            '[transition:transform_150ms_ease,opacity_150ms_ease]',
             sizeClass,
             entered ? 'translate-y-0 scale-100 opacity-100' : 'translate-y-2 scale-95 opacity-0'
           )}
         >
-          <span
-            aria-hidden="true"
-            className="pointer-events-none sticky top-0 z-10 block h-0.5 w-full bg-[#BFFF5E]"
-          />
-
           <button
             type="button"
             onClick={onClose}
             aria-label="Tutup"
-            className="absolute right-4 top-4 z-10 grid h-9 w-9 place-items-center rounded-md border-2 border-[#1d2b1f] bg-[#f5ece0] text-[#4a5e3a] transition hover:bg-[#BFFF5E] hover:text-[#1d2b1f]"
+            className="absolute right-4 top-4 z-10 grid h-12 w-12 place-items-center rounded-full bg-[#fff8f0] text-[#4a5e3a] shadow-[var(--neu-out)] [transition:transform_150ms_ease,box-shadow_150ms_ease] hover:text-[#1d2b1f] active:scale-[0.94] active:shadow-[var(--neu-in)]"
           >
-            <X size={16} strokeWidth={2.5} />
+            <X size={18} strokeWidth={2.5} aria-hidden="true" />
           </button>
 
           {(title || icon) && (
-            <div className="flex flex-col items-center gap-1.5 px-6 pb-2 pt-7 text-center sm:px-8">
+            <div className="flex flex-col items-center gap-1.5 px-6 pb-2 pt-8 text-center sm:px-8">
               {badge && (
-                <span className="mb-1 inline-flex items-center gap-1.5 rounded border border-[#1d2b1f]/40 bg-[#BFFF5E]/30 px-2.5 py-0.5 font-mono text-[0.6rem] font-semibold uppercase tracking-wider text-[#1d2b1f]">
-                  <span className="h-1.5 w-1.5 animate-pulse-dot rounded-full bg-[#1d2b1f]" />
+                <span className="neu-chip mb-1 text-[0.6rem] tracking-wider text-[#1d2b1f]">
                   {badge}
                 </span>
               )}

@@ -1,0 +1,1095 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>AeroBlast Network — Server Minecraft Survival Indonesia</title>
+<meta name="description" content="AeroBlast Network: server Minecraft survival Indonesia. Java 1.20–1.21+ & Bedrock/PE. Claim land, Jobs, Quest, Auction House, Custom Enchants, 11 Skill, dan 8 tier rank.">
+<meta name="theme-color" content="#fff8f0">
+<link rel="canonical" href="https://store.aeroblast.my.id/">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="AeroBlast Network">
+<meta property="og:title" content="AeroBlast Network — Server Minecraft Survival Indonesia">
+<meta property="og:description" content="Survival Indonesia. Java & Bedrock. Claim, Jobs, Quest, Auction, Custom Enchants, 11 Skill.">
+<meta property="og:url" content="https://store.aeroblast.my.id/">
+<meta property="og:image" content="https://store.aeroblast.my.id/og-cover.png">
+<meta name="twitter:card" content="summary_large_image">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<style>
+/* ============================================================
+   AEROBLAST — Soft UI / Neumorphism
+   Brand base cream #fff8f0 · lime #BFFF5E · forest #1d2b1f
+   Highlights/shadows derived mathematically from the base.
+   ============================================================ */
+:root{
+  --r:14px; --r-lg:22px; --r-xl:28px; --r-pill:999px;
+
+  --cream:#fff8f0;         /* base surface            */
+  --cream-hi:#fffdf9;      /* base +30% light         */
+  --cream-lo:#efe4d4;      /* base -30% light         */
+  --lime:#BFFF5E; --lime-hi:#d4ff80; --lime-lo:#a8f040; --lime-deep:#7acc1a;
+  --ink:#1d2b1f; --ink-2:#2a3a2c; --mut:#4a5e3a; --dim:#6b7f5a; --faint:#8a9e7a;
+
+  --sh-l:rgba(255,255,255,.95);
+  --sh-d:rgba(29,43,31,.16);
+  --out:-5px -5px 15px var(--sh-l), 5px 5px 15px var(--sh-d);
+  --out-lg:-9px -9px 26px var(--sh-l), 9px 9px 26px var(--sh-d);
+  --in:inset -4px -4px 10px var(--sh-l), inset 4px 4px 10px var(--sh-d);
+  --in-deep:inset -6px -6px 14px var(--sh-l), inset 6px 6px 14px var(--sh-d);
+  --grad:linear-gradient(145deg,var(--cream-hi),var(--cream-lo));
+
+  --ok:#22c55e; --warn:#f59e0b; --dang:#ef4444;
+  --scout:#059669;--voyager:#2563eb;--orbiter:#ea580c;--ravest:#7c3aed;
+  --vortex:#0891b2;--quantum:#b45309;--galatics:#dc2626;--universe:#9333ea;
+}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
+html{scroll-behavior:smooth;-webkit-text-size-adjust:100%}
+body{
+  font:400 16px/1.6 'Inter',ui-sans-serif,system-ui,-apple-system,'Segoe UI',sans-serif;
+  background:var(--cream);color:var(--mut);overflow-x:hidden;
+  text-rendering:optimizeSpeed;
+}
+h1,h2,h3,h4{color:var(--ink);line-height:1.12;letter-spacing:-.02em;font-weight:800}
+a{color:inherit;text-decoration:none}
+img,svg{display:block;max-width:100%}
+button,input,select{font:inherit;color:inherit;border:0;background:none}
+ul{list-style:none}
+:focus-visible{outline:3px solid var(--lime-deep);outline-offset:3px;border-radius:4px}
+
+/* ---- layout ------------------------------------------------ */
+.wrap{width:min(100% - 2rem,1200px);margin-inline:auto}
+@media(min-width:640px){.wrap{width:min(100% - 3rem,1200px)}}
+.sec{padding:clamp(3.5rem,8vw,6.5rem) 0}
+/* off-screen sections skip layout/paint until scrolled near */
+.lazy{content-visibility:auto;contain-intrinsic-size:auto 900px}
+.grid{display:grid;gap:clamp(1rem,2.5vw,1.75rem)}
+.auto-3{grid-template-columns:repeat(auto-fit,minmax(min(100%,270px),1fr))}
+.auto-4{grid-template-columns:repeat(auto-fit,minmax(min(100%,220px),1fr))}
+.center{text-align:center}
+.stack{display:flex;flex-direction:column;gap:1rem}
+.row{display:flex;flex-wrap:wrap;align-items:center;gap:.75rem}
+
+/* ---- neumorphic primitives --------------------------------- */
+.neu{background:var(--grad);border-radius:var(--r);box-shadow:var(--out)}
+.neu-lg{border-radius:var(--r-xl);box-shadow:var(--out-lg)}
+.neu-flat{background:var(--cream);border-radius:var(--r);box-shadow:var(--out)}
+.neu-in{background:var(--cream);border-radius:var(--r);box-shadow:var(--in)}
+/* only transform + opacity animate; shadow swap is discrete (no tween) */
+.neu-press{cursor:pointer;will-change:transform;transition:transform .15s ease,box-shadow .15s ease}
+.neu-press:hover{transform:translateY(-3px)}
+.neu-press:active{transform:scale(.97);box-shadow:var(--in)}
+@media(hover:none){.neu-press:hover{transform:none}}
+
+.ico{display:grid;place-items:center;flex:0 0 auto;width:52px;height:52px;
+  background:var(--cream);border-radius:16px;box-shadow:var(--out);color:var(--ink)}
+.ico svg{width:24px;height:24px;stroke-width:1.8}
+.chip{display:inline-flex;align-items:center;gap:.4rem;padding:.5rem 1rem;
+  background:var(--cream);border-radius:var(--r-pill);box-shadow:var(--in);
+  font-size:.72rem;font-weight:800;letter-spacing:.12em;text-transform:uppercase;color:var(--dim)}
+.tag{display:inline-block;padding:.3rem .7rem;background:var(--cream);border-radius:var(--r-pill);
+  box-shadow:var(--in);font:600 .74rem/1 'JetBrains Mono',ui-monospace,monospace;color:var(--mut)}
+.rule{height:2px;border-radius:999px;background:var(--cream);box-shadow:var(--in)}
+
+/* touch targets ≥48px everywhere */
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:.55rem;
+  min-height:48px;padding:.85rem 1.6rem;border-radius:var(--r-pill);
+  font-weight:800;font-size:.95rem;cursor:pointer;color:var(--ink);
+  background:var(--grad);box-shadow:var(--out);
+  will-change:transform;transition:transform .15s ease,box-shadow .15s ease}
+.btn:hover{transform:translateY(-3px)}
+.btn:active{transform:scale(.97);box-shadow:var(--in)}
+.btn svg{width:20px;height:20px;stroke-width:2}
+.btn-lime{background:linear-gradient(145deg,var(--lime-hi),var(--lime-lo));color:#22331a}
+.btn-sm{min-height:48px;padding:.7rem 1.2rem;font-size:.85rem}
+@media(hover:none){.btn:hover{transform:none}}
+
+.sec-head{max-width:44rem;margin-inline:auto;text-align:center;margin-bottom:clamp(2rem,5vw,3.25rem)}
+.sec-head h2{margin-top:1.1rem;font-size:clamp(1.7rem,4.4vw,2.6rem)}
+.sec-head p{margin-top:.9rem;font-size:clamp(.95rem,2vw,1.05rem)}
+
+/* ---- navbar ------------------------------------------------- */
+.nav-outer{position:sticky;top:0;z-index:50;padding:.85rem 0}
+.nav{display:flex;align-items:center;justify-content:space-between;gap:1rem;
+  padding:.6rem .7rem .6rem 1rem;border-radius:var(--r-pill);
+  background:var(--cream);box-shadow:var(--out)}
+.brand{display:flex;align-items:center;gap:.7rem;min-height:48px}
+.brand-mark{display:grid;place-items:center;width:42px;height:42px;border-radius:13px;
+  background:linear-gradient(145deg,var(--lime-hi),var(--lime-lo));box-shadow:var(--out);color:#22331a}
+.brand-mark svg{width:22px;height:22px;stroke-width:2}
+.brand b{font-size:1.05rem;font-weight:800;color:var(--ink);letter-spacing:-.02em}
+.nav-links{display:none;gap:.35rem}
+@media(min-width:1024px){.nav-links{display:flex}}
+.nav-links a{display:inline-flex;align-items:center;min-height:48px;padding:0 1rem;
+  border-radius:var(--r-pill);font-size:.9rem;font-weight:700;color:var(--mut);
+  will-change:transform;transition:transform .15s ease,box-shadow .15s ease,color .15s ease}
+.nav-links a:hover{color:var(--ink);box-shadow:var(--in);transform:translateY(-1px)}
+.nav-act{display:flex;align-items:center;gap:.5rem}
+.icon-btn{display:grid;place-items:center;width:48px;height:48px;border-radius:var(--r-pill);
+  background:var(--cream);box-shadow:var(--out);color:var(--ink);cursor:pointer;
+  will-change:transform;transition:transform .15s ease,box-shadow .15s ease}
+.icon-btn:active{transform:scale(.94);box-shadow:var(--in)}
+.icon-btn svg{width:22px;height:22px;stroke-width:2}
+.nav-cta{display:none}
+@media(min-width:560px){.nav-cta{display:inline-flex}}
+@media(min-width:1024px){.burger{display:none}}
+.drawer{display:none;margin-top:.7rem;padding:.6rem;border-radius:var(--r-xl);
+  background:var(--cream);box-shadow:var(--out)}
+.drawer.open{display:block}
+@media(min-width:1024px){.drawer.open{display:none}}
+.drawer a{display:flex;align-items:center;min-height:52px;padding:0 1.1rem;
+  border-radius:var(--r);font-weight:700;color:var(--mut)}
+.drawer a:active{box-shadow:var(--in)}
+
+/* ---- hero --------------------------------------------------- */
+.hero{padding:clamp(2rem,6vw,4rem) 0 clamp(3rem,7vw,5rem)}
+.hero-grid{display:grid;gap:clamp(2.5rem,6vw,3.5rem);align-items:center}
+@media(min-width:1024px){.hero-grid{grid-template-columns:1.05fr .95fr}}
+.hero h1{font-size:clamp(2.1rem,6.5vw,4rem);margin-top:1.3rem}
+.hero h1 em{font-style:normal;color:var(--lime-deep)}
+.hero p.lead{margin-top:1.3rem;font-size:clamp(1rem,2.2vw,1.15rem);max-width:34rem}
+.hero-cta{margin-top:2rem;display:flex;flex-wrap:wrap;gap:.9rem}
+@media(max-width:479px){.hero-cta .btn{width:100%}}
+.stats{margin-top:2.4rem;display:grid;grid-template-columns:repeat(auto-fit,minmax(130px,1fr));gap:.9rem}
+.stat{padding:1rem;border-radius:var(--r);background:var(--cream);box-shadow:var(--in);text-align:center}
+.stat b{display:block;font-size:1.35rem;color:var(--ink);font-weight:800}
+.stat span{font-size:.72rem;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--faint)}
+
+/* server card / IP */
+.ipcard{padding:clamp(1.4rem,4vw,2rem);border-radius:var(--r-xl);
+  background:var(--grad);box-shadow:var(--out-lg)}
+.live{display:inline-flex;align-items:center;gap:.5rem;padding:.45rem .95rem;
+  border-radius:var(--r-pill);background:var(--cream);box-shadow:var(--in);
+  font-size:.72rem;font-weight:800;letter-spacing:.1em;text-transform:uppercase;color:var(--mut)}
+.dot{width:9px;height:9px;border-radius:50%;background:var(--ok);
+  box-shadow:0 0 0 3px rgba(34,197,94,.22);animation:pulse 2s ease-in-out infinite}
+@keyframes pulse{0%,100%{opacity:1;transform:scale(1)}50%{opacity:.55;transform:scale(.82)}}
+.ipbox{margin-top:1.1rem;display:flex;align-items:center;gap:.75rem;flex-wrap:wrap;
+  padding:1rem 1.15rem;border-radius:var(--r);background:var(--cream);box-shadow:var(--in)}
+.ipbox code{flex:1 1 auto;min-width:0;font:700 clamp(.95rem,3vw,1.2rem)/1.3 'JetBrains Mono',ui-monospace,monospace;
+  color:var(--ink);word-break:break-all}
+.copy{flex:0 0 auto;width:48px;height:48px;display:grid;place-items:center;border-radius:12px;
+  background:linear-gradient(145deg,var(--lime-hi),var(--lime-lo));box-shadow:var(--out);
+  color:#22331a;cursor:pointer;will-change:transform;transition:transform .15s ease,box-shadow .15s ease}
+.copy:active{transform:scale(.93);box-shadow:var(--in)}
+.copy svg{width:20px;height:20px;stroke-width:2}
+.plat{margin-top:1rem;display:flex;flex-wrap:wrap;gap:.5rem}
+
+/* floating decor — transform/opacity only */
+.orb{position:absolute;border-radius:50%;background:var(--grad);box-shadow:var(--out-lg);
+  pointer-events:none;will-change:transform}
+.f1{animation:fl 8s ease-in-out infinite}
+.f2{animation:fl 11s ease-in-out infinite reverse}
+@keyframes fl{0%,100%{transform:translate3d(0,0,0)}50%{transform:translate3d(0,-18px,0)}}
+
+/* ---- cards -------------------------------------------------- */
+.card{padding:clamp(1.3rem,3vw,1.75rem);border-radius:var(--r-lg);
+  background:var(--grad);box-shadow:var(--out)}
+.card h3{font-size:1.05rem;margin-top:1.1rem}
+.card p{margin-top:.55rem;font-size:.9rem;line-height:1.6}
+.card .row{margin-top:1rem}
+
+/* rank cards */
+.rank{position:relative;display:flex;flex-direction:column;
+  padding:1.6rem 1.35rem;border-radius:var(--r-lg);background:var(--grad);box-shadow:var(--out)}
+.rank .ico{border-radius:50%;width:56px;height:56px;margin-inline:auto}
+.rank h3{margin-top:1rem;text-align:center;font-size:1.15rem}
+.rank .price{margin:.35rem 0 1.1rem;text-align:center;font-size:1.45rem;font-weight:800;color:var(--ink)}
+.rank .price small{display:block;font-size:.7rem;font-weight:700;letter-spacing:.08em;
+  text-transform:uppercase;color:var(--faint);margin-top:.2rem}
+.rank ul{flex:1;display:flex;flex-direction:column;gap:.6rem;font-size:.85rem}
+.rank li{display:flex;gap:.55rem;align-items:flex-start}
+.rank li svg{flex:0 0 auto;width:16px;height:16px;margin-top:.2rem;stroke-width:2.6;color:var(--lime-deep)}
+.rank .btn{margin-top:1.4rem;width:100%}
+.badge{position:absolute;top:-11px;left:50%;transform:translateX(-50%);white-space:nowrap;
+  padding:.35rem .85rem;border-radius:var(--r-pill);
+  background:linear-gradient(145deg,var(--lime-hi),var(--lime-lo));box-shadow:var(--out);
+  font-size:.65rem;font-weight:800;letter-spacing:.1em;color:#22331a}
+.hi{background:linear-gradient(145deg,#fffdf9,#e8f7cf);box-shadow:var(--out-lg)}
+.bar{height:4px;width:44px;margin:0 auto;border-radius:999px}
+
+/* rules */
+.rulecard{padding:1.6rem 1.4rem;border-radius:var(--r-lg);background:var(--grad);box-shadow:var(--out)}
+.rulecard h3{font-size:1.05rem;margin-top:1rem}
+.rulecard li{display:flex;gap:.7rem;padding:.7rem 0;font-size:.88rem;align-items:flex-start}
+.rulecard li b{color:var(--ink);font-weight:700}
+.rulecard li svg{flex:0 0 auto;width:17px;height:17px;margin-top:.15rem;stroke-width:2.4;color:var(--dang)}
+.sanction{margin-top:.9rem;padding:.75rem 1rem;border-radius:var(--r);
+  background:var(--cream);box-shadow:var(--in);font-size:.78rem;font-weight:700;color:var(--mut)}
+
+/* faq */
+details.faq{border-radius:var(--r-lg);background:var(--grad);box-shadow:var(--out);overflow:hidden}
+details.faq+details.faq{margin-top:.9rem}
+details.faq summary{display:flex;align-items:center;justify-content:space-between;gap:1rem;
+  min-height:56px;padding:1.05rem 1.3rem;cursor:pointer;font-weight:700;color:var(--ink);
+  font-size:.95rem;list-style:none}
+details.faq summary::-webkit-details-marker{display:none}
+details.faq summary svg{flex:0 0 auto;width:20px;height:20px;stroke-width:2.4;color:var(--dim);
+  transition:transform .15s ease}
+details.faq[open] summary svg{transform:rotate(180deg)}
+.faq-body{padding:0 1.3rem 1.3rem;font-size:.9rem;line-height:1.7}
+.faq-body p+p{margin-top:.7rem}
+.faq-body b{color:var(--ink)}
+
+/* footer */
+.foot{padding:clamp(2rem,5vw,3rem);border-radius:var(--r-xl);background:var(--grad);box-shadow:var(--out-lg)}
+.foot-grid{display:grid;gap:2.25rem;grid-template-columns:repeat(auto-fit,minmax(min(100%,200px),1fr))}
+.foot h4{font-size:.74rem;letter-spacing:.14em;text-transform:uppercase;color:var(--ink)}
+.foot li{margin-top:.7rem}
+.foot li a{display:inline-flex;align-items:center;min-height:32px;font-size:.88rem;font-weight:600;
+  transition:transform .15s ease,color .15s ease}
+.foot li a:hover{color:var(--ink);transform:translateX(3px)}
+.socials{display:flex;gap:.6rem;margin-top:1.4rem;flex-wrap:wrap}
+.foot-bot{margin-top:2rem;display:flex;flex-wrap:wrap;gap:1rem;align-items:center;
+  justify-content:space-between;font-size:.8rem;font-weight:600;color:var(--faint)}
+.foot-bot ul{display:flex;flex-wrap:wrap;gap:.35rem 1.25rem}
+.foot-bot a{display:inline-flex;align-items:center;min-height:32px}
+
+/* reveal — opacity+transform only, no JS-driven layout */
+.rv{opacity:0;transform:translate3d(0,18px,0);
+  transition:opacity .5s ease,transform .5s cubic-bezier(.22,.9,.3,1)}
+.rv.on{opacity:1;transform:none}
+
+.sr{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
+.skip{position:absolute;left:-9999px}
+.skip:focus{left:1rem;top:1rem;z-index:99;padding:.8rem 1.2rem;background:var(--cream);
+  box-shadow:var(--out);border-radius:var(--r)}
+
+@media (prefers-reduced-motion:reduce){
+  *,*::before,*::after{animation-duration:.01ms!important;animation-iteration-count:1!important;
+    transition-duration:.01ms!important;scroll-behavior:auto!important}
+  .rv{opacity:1;transform:none}
+}
+</style>
+</head>
+<body>
+<a class="skip" href="#main">Lewati ke konten utama</a>
+
+<!-- ===== ICON SPRITE — defined once, referenced via <use> ===== -->
+<svg width="0" height="0" style="position:absolute" aria-hidden="true" focusable="false">
+<defs>
+<g id="i-rocket" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><path d="M4.5 16.5c-1.5 1.26-2 5-2 5s3.74-.5 5-2c.71-.84.7-2.13-.09-2.91a2.18 2.18 0 0 0-2.91-.09z"/><path d="m12 15-3-3a22 22 0 0 1 2-3.95A12.88 12.88 0 0 1 22 2c0 2.72-.78 7.5-6 11a22.35 22.35 0 0 1-4 2z"/><path d="M9 12H4s.55-3.03 2-4c1.62-1.08 5 0 5 0M12 15v5s3.03-.55 4-2c1.08-1.62 0-5 0-5"/></g>
+<g id="i-copy" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><rect width="14" height="14" x="8" y="8" rx="2"/><path d="M4 16c-1.1 0-2-.9-2-2V4c0-1.1.9-2 2-2h10c1.1 0 2 .9 2 2"/></g>
+<g id="i-check" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></g>
+<g id="i-menu" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><path d="M4 6h16M4 12h16M4 18h16"/></g>
+<g id="i-chev" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><path d="m6 9 6 6 6-6"/></g>
+<g id="i-arrow" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M12 5l7 7-7 7"/></g>
+<g id="i-store" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><path d="m2 7 1.6-3.2A2 2 0 0 1 5.4 3h13.2a2 2 0 0 1 1.8 1.1L22 7M2 7h20v2a3 3 0 0 1-6 0 3 3 0 0 1-6 0 3 3 0 0 1-6 0zM4 12v8a1 1 0 0 0 1 1h14a1 1 0 0 0 1-1v-8"/></g>
+<g id="i-home" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><path d="m3 10 9-7 9 7v10a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><path d="M9 22V12h6v10"/></g>
+<g id="i-pin" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0z"/><circle cx="12" cy="10" r="3"/></g>
+<g id="i-hammer" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><path d="m15 12-8.4 8.4a2.1 2.1 0 0 1-3-3L12 9"/><path d="M17.6 6.4 22 10.8M14 5l5 5 3-3-5-5z"/></g>
+<g id="i-case" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><rect width="20" height="14" x="2" y="7" rx="2"/><path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16"/></g>
+<g id="i-scroll" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><path d="M8 21h12a2 2 0 0 0 2-2v-2H10v2a2 2 0 1 1-4 0V5a2 2 0 1 0-4 0v3h4"/><path d="M12 8h6M12 12h6"/></g>
+<g id="i-swords" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><path d="m14.5 17.5 3 3M3 3h4l11 11-4 4L3 7zM21 3h-4L6 14l4 4L21 7z"/></g>
+<g id="i-dice" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><rect width="18" height="18" x="3" y="3" rx="3"/><circle cx="8.5" cy="8.5" r="1.2" fill="currentColor" stroke="none"/><circle cx="15.5" cy="15.5" r="1.2" fill="currentColor" stroke="none"/><circle cx="15.5" cy="8.5" r="1.2" fill="currentColor" stroke="none"/></g>
+<g id="i-zap" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><path d="M13 2 3 14h9l-1 8 10-12h-9z"/></g>
+<g id="i-spark" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><path d="m12 3 2.2 6.2L20.5 11l-6.3 1.8L12 19l-2.2-6.2L3.5 11l6.3-1.8z"/><path d="M19 3v3M20.5 4.5h-3"/></g>
+<g id="i-trade" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><path d="M8 3 4 7l4 4M4 7h16M16 21l4-4-4-4M20 17H4"/></g>
+<g id="i-bank" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><path d="M3 21h18M4 10h16M12 3 3 8h18zM6 10v11M10 10v11M14 10v11M18 10v11"/></g>
+<g id="i-tree" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><path d="m17 14 3 3.3a1 1 0 0 1-.7 1.7H4.7a1 1 0 0 1-.7-1.7L7 14h-.7a1 1 0 0 1-.7-1.7L9 9h-.7a1 1 0 0 1-.7-1.7L12 3l4.4 4.3a1 1 0 0 1-.7 1.7H15l3.4 3.3a1 1 0 0 1-.7 1.7zM12 19v3"/></g>
+<g id="i-boat" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><path d="M22 18H2a4 4 0 0 0 4 4h12a4 4 0 0 0 4-4M21 14 10 2v12M3 14h18M10 14V6"/></g>
+<g id="i-sat" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><path d="m13 7 9 9-3 3-9-9zM10 10 7 7l3-3 3 3M4 14l3 3-3 3-3-3z"/><path d="M12 18a6 6 0 0 0 6-6"/></g>
+<g id="i-star" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><path d="m12 2 3.1 6.3 6.9 1-5 4.9 1.2 6.9-6.2-3.3-6.2 3.3L7 14.2l-5-4.9 6.9-1z"/></g>
+<g id="i-gem" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><path d="M6 3h12l4 6-10 12L2 9z"/><path d="M2 9h20M12 21 8 9l4-6 4 6z"/></g>
+<g id="i-shield" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/><path d="M12 2v20"/></g>
+<g id="i-crown" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><path d="m2 18 2-11 5 5 3-7 3 7 5-5-2 11z"/><path d="M4 22h16"/></g>
+<g id="i-globe" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M2 12h20M12 2a15 15 0 0 1 0 20 15 15 0 0 1 0-20z"/></g>
+<g id="i-key" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><circle cx="7.5" cy="15.5" r="4.5"/><path d="m10.7 12.3 8.3-8.3M17 6l2.5 2.5M14 9l2.5 2.5"/></g>
+<g id="i-vote" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><rect width="18" height="18" x="3" y="3" rx="3"/><path d="m8 12 3 3 5-6"/></g>
+<g id="i-trophy" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><path d="M6 4h12v6a6 6 0 0 1-12 0z"/><path d="M6 6H3v2a3 3 0 0 0 3 3M18 6h3v2a3 3 0 0 1-3 3M9 21h6M12 16v5"/></g>
+<g id="i-hat" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><path d="M2 17h20v3H2zM4 15a8 8 0 0 1 16 0z"/><path d="M10 7.3V15M14 7.3V15"/></g>
+<g id="i-video" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><path d="m22 8-6 4 6 4z"/><rect width="14" height="12" x="2" y="6" rx="2"/></g>
+<g id="i-alert" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><path d="M12 9v4M12 17h.01"/><path d="M10.3 3.9 1.8 18a2 2 0 0 0 1.7 3h17a2 2 0 0 0 1.7-3L13.7 3.9a2 2 0 0 0-3.4 0z"/></g>
+<g id="i-feather" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><path d="M20.2 3.8a5.5 5.5 0 0 0-7.8 0L3 13.2V21h7.8l9.4-9.4a5.5 5.5 0 0 0 0-7.8zM16 8 2 22M17.5 15H9"/></g>
+<g id="i-heart" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><path d="M20.8 4.6a5.5 5.5 0 0 0-7.8 0L12 5.7l-1-1.1a5.5 5.5 0 0 0-7.8 7.8l8.8 8.8 8.8-8.8a5.5 5.5 0 0 0 0-7.8z"/></g>
+<g id="i-drum" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><path d="M15.4 15.6a6 6 0 1 0-7-7c-.3 1.4-1 2-2 2.7A4 4 0 1 0 9 18a4 4 0 1 0 3.7-4.6c.7-1 1.3-1.7 2.7-2z"/></g>
+<g id="i-door" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><path d="M13 4h3a2 2 0 0 1 2 2v14M2 20h20M13 2v20l-8-2V4z"/><circle cx="10" cy="12" r=".8" fill="currentColor" stroke="none"/></g>
+<g id="i-wrench" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><path d="M14.7 6.3a4 4 0 0 0 5 5l-9 9a2.8 2.8 0 0 1-4-4z"/></g>
+<g id="i-eye" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><path d="M2 12s4-7 10-7 10 7 10 7-4 7-10 7-10-7-10-7z"/><circle cx="12" cy="12" r="3"/></g>
+<g id="i-ghost" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><path d="M9 10h.01M15 10h.01"/><path d="M12 2a8 8 0 0 0-8 8v12l3-3 2 2 3-3 3 3 2-2 3 3V10a8 8 0 0 0-8-8z"/></g>
+<g id="i-wifi" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12.5a10 10 0 0 1 14 0M8.5 16a5 5 0 0 1 7 0M2 9a15 15 0 0 1 20 0M12 20h.01"/></g>
+<g id="i-users" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M22 21v-2a4 4 0 0 0-3-3.9M16 3.1a4 4 0 0 1 0 7.8"/></g>
+<g id="i-shieldcheck" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/><path d="m9 12 2 2 4-4"/></g>
+<g id="i-clock" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/></g>
+<g id="i-wa" fill="currentColor"><path d="M17.5 14.4c-.3-.2-1.7-.9-2-1-.3-.1-.5-.1-.7.1-.2.3-.7 1-.9 1.2-.2.2-.3.2-.6.1-.3-.2-1.3-.5-2.4-1.5-.9-.8-1.5-1.8-1.7-2.1-.2-.3 0-.4.1-.6l.5-.5c.1-.2.2-.3.3-.5 0-.2 0-.4-.1-.5L9 6.9c-.2-.5-.5-.5-.7-.5h-.6c-.2 0-.5.1-.8.4-.3.3-1 1-1 2.5s1.1 2.9 1.2 3.1c.2.2 2.2 3.3 5.3 4.6 2.6 1.1 3.1.9 3.7.8.6-.1 1.7-.7 2-1.4.2-.7.2-1.2.2-1.4-.1-.2-.3-.3-.6-.4z"/><path d="M12 2a10 10 0 0 0-8.6 15L2 22l5.1-1.3A10 10 0 1 0 12 2zm0 18.2a8.2 8.2 0 0 1-4.2-1.1l-.3-.2-3 .8.8-3-.2-.3A8.2 8.2 0 1 1 12 20.2z"/></g>
+<g id="i-dc" fill="currentColor"><path d="M19.3 5.3A16.9 16.9 0 0 0 15.1 4l-.2.4a15.6 15.6 0 0 1 3.7 1.2 13 13 0 0 0-11.2 0A15.6 15.6 0 0 1 11.1 4.4L10.9 4a16.9 16.9 0 0 0-4.2 1.3C4 9.3 3.3 13.2 3.6 17a17 17 0 0 0 5.2 2.6l.6-1a11 11 0 0 1-1.7-.8l.4-.3a12.1 12.1 0 0 0 10.3 0l.4.3a11 11 0 0 1-1.7.8l.6 1a17 17 0 0 0 5.2-2.6c.4-4.4-.6-8.3-3.6-11.7zM9.5 14.7c-1 0-1.9-.9-1.9-2.1s.8-2.1 1.9-2.1 1.9 1 1.9 2.1-.8 2.1-1.9 2.1zm5 0c-1 0-1.9-.9-1.9-2.1s.8-2.1 1.9-2.1 1.9 1 1.9 2.1-.8 2.1-1.9 2.1z"/></g>
+<g id="i-tt" fill="currentColor"><path d="M16.6 5.8a4.9 4.9 0 0 1-1.2-3.3h-3.3v13.1a2.8 2.8 0 1 1-2-2.7v-3.3a6.1 6.1 0 1 0 5.3 6V9a8.2 8.2 0 0 0 4.7 1.5V7.2a4.9 4.9 0 0 1-3.5-1.4z"/></g>
+</defs>
+</svg>
+
+<!-- ===== NAVBAR ===== -->
+<header class="nav-outer">
+  <div class="wrap">
+    <nav class="nav" aria-label="Navigasi utama">
+      <a class="brand" href="#top">
+        <span class="brand-mark"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="#i-rocket"/></svg></span>
+        <b>AeroBlast</b>
+      </a>
+      <ul class="nav-links">
+        <li><a href="#fitur">Fitur</a></li>
+        <li><a href="#rank">Rank</a></li>
+        <li><a href="#store">Store</a></li>
+        <li><a href="#vote">Vote</a></li>
+        <li><a href="#rules">Rules</a></li>
+        <li><a href="#faq">FAQ</a></li>
+      </ul>
+      <div class="nav-act">
+        <a class="btn btn-lime btn-sm nav-cta" href="#rank">Beli Rank</a>
+        <button class="icon-btn burger" id="burger" aria-label="Buka menu" aria-expanded="false" aria-controls="drawer">
+          <svg viewBox="0 0 24 24" aria-hidden="true"><use href="#i-menu"/></svg>
+        </button>
+      </div>
+    </nav>
+    <div class="drawer" id="drawer">
+      <a href="#fitur">Fitur Server</a>
+      <a href="#rank">Rank</a>
+      <a href="#store">Store</a>
+      <a href="#vote">Vote &amp; Reward</a>
+      <a href="#rules">Peraturan</a>
+      <a href="#faq">FAQ</a>
+      <a href="#terms">Ketentuan</a>
+    </div>
+  </div>
+</header>
+
+<main id="main">
+
+<!-- ===== HERO ===== -->
+<section class="hero" id="top">
+  <div class="wrap hero-grid">
+    <div>
+      <span class="chip"><span class="dot"></span> Java &amp; Bedrock · Survival Indonesia</span>
+      <h1>Server Survival<br>yang bikin kamu <em>betah</em>.</h1>
+      <p class="lead">AeroBlast Network — survival Minecraft Indonesia dengan Claim Land, Jobs, Quest,
+        Auction House, Custom Enchants, dan 11 skill unik. Java Edition 1.20–1.21+ dan Bedrock / PE, semuanya dalam satu server.</p>
+      <div class="hero-cta">
+        <a class="btn btn-lime" href="#rank">Lihat Rank <svg viewBox="0 0 24 24" aria-hidden="true"><use href="#i-arrow"/></svg></a>
+        <a class="btn" href="#fitur">Jelajahi Fitur</a>
+      </div>
+      <div class="stats">
+        <div class="stat"><b>8</b><span>Tier Rank</span></div>
+        <div class="stat"><b>12+</b><span>Fitur Utama</span></div>
+        <div class="stat"><b>11</b><span>Skill Unik</span></div>
+      </div>
+    </div>
+
+    <div style="position:relative">
+      <div class="orb f1" style="width:96px;height:96px;top:-28px;right:-14px"></div>
+      <div class="orb f2" style="width:60px;height:60px;bottom:-20px;left:-16px"></div>
+      <div class="ipcard" style="position:relative">
+        <span class="live"><span class="dot"></span> Server Online</span>
+        <h2 style="font-size:1.15rem;margin-top:1rem">Gabung Sekarang</h2>
+        <div class="ipbox">
+          <code id="ip">aeroblast.my.id</code>
+          <button class="copy" data-copy="aeroblast.my.id" aria-label="Salin IP server">
+            <svg viewBox="0 0 24 24" aria-hidden="true"><use href="#i-copy"/></svg>
+          </button>
+        </div>
+        <div class="ipbox">
+          <code id="port">Port · 25543</code>
+          <button class="copy" data-copy="25543" aria-label="Salin port server">
+            <svg viewBox="0 0 24 24" aria-hidden="true"><use href="#i-copy"/></svg>
+          </button>
+        </div>
+        <div class="plat">
+          <span class="tag">Java Edition</span>
+          <span class="tag">Bedrock / PE</span>
+          <span class="tag">1.20 – 1.21+</span>
+        </div>
+        <p style="margin-top:1rem;font-size:.82rem;color:var(--faint)">
+          Bedrock/PE: masukkan IP dan Port terpisah di menu <b style="color:var(--mut)">External Server</b>.
+        </p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<div class="wrap"><div class="rule"></div></div>
+
+<!-- ===== FITUR ===== -->
+<section class="sec lazy" id="fitur">
+  <div class="wrap">
+    <div class="sec-head rv">
+      <span class="chip">Fitur Server</span>
+      <h2>Semua yang kamu butuhkan untuk survival</h2>
+      <p>Dua belas sistem yang saling terhubung — dari ekonomi pemain sampai proteksi bangunan.</p>
+    </div>
+    <div class="grid auto-3">
+      <article class="card neu-press rv"><span class="ico"><svg viewBox="0 0 24 24"><use href="#i-store"/></svg></span>
+        <h3>Shop &amp; Quick Shop</h3><p>Beli &amp; jual item lewat /shop GUI atau buat toko sendiri dengan Quick Shop</p>
+        <div class="row"><span class="tag">/shop</span><span class="tag">/qs create</span></div></article>
+
+      <article class="card neu-press rv"><span class="ico"><svg viewBox="0 0 24 24"><use href="#i-home"/></svg></span>
+        <h3>Claim Land</h3><p>Lindungi bangunanmu dari griefing dengan sistem claim menggunakan Golden Shovel</p>
+        <div class="row"><span class="tag">/claim</span><span class="tag">/trust</span></div></article>
+
+      <article class="card neu-press rv"><span class="ico"><svg viewBox="0 0 24 24"><use href="#i-pin"/></svg></span>
+        <h3>Player Warps</h3><p>Buat warp publik ke lokasi favoritmu untuk memudahkan player lain</p>
+        <div class="row"><span class="tag">/pwarp</span></div></article>
+
+      <article class="card neu-press rv"><span class="ico"><svg viewBox="0 0 24 24"><use href="#i-hammer"/></svg></span>
+        <h3>Auction House</h3><p>Lelang item ke seluruh pemain online dan raih profit maksimal</p>
+        <div class="row"><span class="tag">/ah</span></div></article>
+
+      <article class="card neu-press rv"><span class="ico"><svg viewBox="0 0 24 24"><use href="#i-case"/></svg></span>
+        <h3>Jobs System</h3><p>Pilih profesi sesuai gaya bermainmu dan dapatkan XP &amp; money dari aktivitas</p>
+        <div class="row"><span class="tag">/jobs</span></div></article>
+
+      <article class="card neu-press rv"><span class="ico"><svg viewBox="0 0 24 24"><use href="#i-scroll"/></svg></span>
+        <h3>Quest System</h3><p>Selesaikan misi harian &amp; mingguan untuk mendapatkan reward eksklusif</p>
+        <div class="row"><span class="tag">/quests</span></div></article>
+
+      <article class="card neu-press rv"><span class="ico"><svg viewBox="0 0 24 24"><use href="#i-swords"/></svg></span>
+        <h3>Arena PvP</h3><p>Uji kemampuan bertarungmu di arena PvP tanpa kehilangan item</p>
+        <div class="row"><span class="tag">/pvp</span></div></article>
+
+      <article class="card neu-press rv"><span class="ico"><svg viewBox="0 0 24 24"><use href="#i-dice"/></svg></span>
+        <h3>Gacha System</h3><p>Gunakan Key untuk membuka peti gacha berisi item langka dan berharga</p>
+        <div class="row"><span class="tag">/gacha</span></div></article>
+
+      <article class="card neu-press rv"><span class="ico"><svg viewBox="0 0 24 24"><use href="#i-zap"/></svg></span>
+        <h3>Skill System</h3><p>Tingkatkan 11 skill unik untuk meningkatkan kemampuan karaktermu</p>
+        <div class="row"><span class="tag">/skills</span></div></article>
+
+      <article class="card neu-press rv"><span class="ico"><svg viewBox="0 0 24 24"><use href="#i-spark"/></svg></span>
+        <h3>Custom Enchants</h3><p>Enchantment eksklusif di luar vanilla Minecraft untuk gear terbaikmu</p>
+        <div class="row"><span class="tag">/ce</span></div></article>
+
+      <article class="card neu-press rv"><span class="ico"><svg viewBox="0 0 24 24"><use href="#i-trade"/></svg></span>
+        <h3>Trade System</h3><p>Trade item langsung dengan pemain lain secara aman, anti-scam!</p>
+        <div class="row"><span class="tag">/trade</span></div></article>
+
+      <article class="card neu-press rv"><span class="ico"><svg viewBox="0 0 24 24"><use href="#i-bank"/></svg></span>
+        <h3>Bank System</h3><p>Simpan balance kamu di bank dengan aman, deposit &amp; withdraw kapan saja</p>
+        <div class="row"><span class="tag">/bank</span></div></article>
+    </div>
+  </div>
+</section>
+
+<!-- ===== RANK ===== -->
+<section class="sec lazy" id="rank">
+  <div class="wrap">
+    <div class="sec-head rv">
+      <span class="chip">Rank</span>
+      <h2>Delapan tier, satu perjalanan</h2>
+      <p>Setiap tier mewarisi semua fitur tier di bawahnya. Tersedia 1 Bulan (50%), 3 Bulan (80%), dan Permanen.</p>
+    </div>
+    <div class="grid auto-4">
+
+      <article class="rank neu-press rv">
+        <span class="bar" style="background:var(--scout)"></span>
+        <span class="ico" style="color:var(--scout)"><svg viewBox="0 0 24 24"><use href="#i-tree"/></svg></span>
+        <h3>Scout</h3><p class="price">Rp 5.000<small>Permanen</small></p>
+        <ul>
+          <li><svg viewBox="0 0 24 24"><use href="#i-check"/></svg>Home Limit: 5</li>
+          <li><svg viewBox="0 0 24 24"><use href="#i-check"/></svg>PlayerVault: 1</li>
+          <li><svg viewBox="0 0 24 24"><use href="#i-check"/></svg>P-Warp Limit: 2</li>
+          <li><svg viewBox="0 0 24 24"><use href="#i-check"/></svg>/stonecutter &amp; /wb</li>
+          <li><svg viewBox="0 0 24 24"><use href="#i-check"/></svg>Scout Kits</li>
+        </ul>
+        <a class="btn btn-sm" href="#order">Pesan</a>
+      </article>
+
+      <article class="rank neu-press rv">
+        <span class="bar" style="background:var(--voyager)"></span>
+        <span class="ico" style="color:var(--voyager)"><svg viewBox="0 0 24 24"><use href="#i-boat"/></svg></span>
+        <h3>Voyager</h3><p class="price">Rp 20.000<small>Permanen</small></p>
+        <ul>
+          <li><svg viewBox="0 0 24 24"><use href="#i-check"/></svg>Home Limit: 10</li>
+          <li><svg viewBox="0 0 24 24"><use href="#i-check"/></svg>PlayerVault: 3</li>
+          <li><svg viewBox="0 0 24 24"><use href="#i-check"/></svg>P-Warp Limit: 3</li>
+          <li><svg viewBox="0 0 24 24"><use href="#i-check"/></svg>/ec &amp; /wb &amp; /stonecutter</li>
+          <li><svg viewBox="0 0 24 24"><use href="#i-check"/></svg>Voyager Kits</li>
+        </ul>
+        <a class="btn btn-sm" href="#order">Pesan</a>
+      </article>
+
+      <article class="rank neu-press rv">
+        <span class="bar" style="background:var(--orbiter)"></span>
+        <span class="ico" style="color:var(--orbiter)"><svg viewBox="0 0 24 24"><use href="#i-sat"/></svg></span>
+        <h3>Orbiter</h3><p class="price">Rp 40.000<small>Permanen</small></p>
+        <ul>
+          <li><svg viewBox="0 0 24 24"><use href="#i-check"/></svg>Home Limit: 15 | PV: 6</li>
+          <li><svg viewBox="0 0 24 24"><use href="#i-check"/></svg>P-Warp Limit: 5</li>
+          <li><svg viewBox="0 0 24 24"><use href="#i-check"/></svg>/ec, /trash, /stonecutter</li>
+          <li><svg viewBox="0 0 24 24"><use href="#i-check"/></svg>/grindstone &amp; /wb</li>
+          <li><svg viewBox="0 0 24 24"><use href="#i-check"/></svg>Orbiter Kits</li>
+        </ul>
+        <a class="btn btn-sm" href="#order">Pesan</a>
+      </article>
+
+      <article class="rank neu-press rv">
+        <span class="bar" style="background:var(--ravest)"></span>
+        <span class="ico" style="color:var(--ravest)"><svg viewBox="0 0 24 24"><use href="#i-star"/></svg></span>
+        <h3>Ravest</h3><p class="price">Rp 70.000<small>Permanen</small></p>
+        <ul>
+          <li><svg viewBox="0 0 24 24"><use href="#i-check"/></svg>Home Limit: 25 | PV: 10</li>
+          <li><svg viewBox="0 0 24 24"><use href="#i-check"/></svg>P-Warp Limit: 10</li>
+          <li><svg viewBox="0 0 24 24"><use href="#i-check"/></svg>/feed &amp; /anvil</li>
+          <li><svg viewBox="0 0 24 24"><use href="#i-check"/></svg>/repair &amp; /recipe</li>
+          <li><svg viewBox="0 0 24 24"><use href="#i-check"/></svg>Ravest Kits</li>
+        </ul>
+        <a class="btn btn-sm" href="#order">Pesan</a>
+      </article>
+
+      <article class="rank neu-press hi rv">
+        <span class="badge">Popular</span>
+        <span class="bar" style="background:var(--vortex)"></span>
+        <span class="ico" style="color:var(--vortex)"><svg viewBox="0 0 24 24"><use href="#i-gem"/></svg></span>
+        <h3>Vortex</h3><p class="price">Rp 120.000<small>Permanen</small></p>
+        <ul>
+          <li><svg viewBox="0 0 24 24"><use href="#i-check"/></svg>Home Limit: 50 | PV: 20</li>
+          <li><svg viewBox="0 0 24 24"><use href="#i-check"/></svg>P-Warp Limit: 20</li>
+          <li><svg viewBox="0 0 24 24"><use href="#i-check"/></svg>/pweather &amp; /ptime</li>
+          <li><svg viewBox="0 0 24 24"><use href="#i-check"/></svg>/nick &amp; /hat</li>
+          <li><svg viewBox="0 0 24 24"><use href="#i-check"/></svg>Vortex Kits</li>
+        </ul>
+        <a class="btn btn-lime btn-sm" href="#order">Pesan</a>
+      </article>
+
+      <article class="rank neu-press rv">
+        <span class="bar" style="background:var(--quantum)"></span>
+        <span class="ico" style="color:var(--quantum)"><svg viewBox="0 0 24 24"><use href="#i-shield"/></svg></span>
+        <h3>Quantum</h3><p class="price">Rp 200.000<small>Permanen</small></p>
+        <ul>
+          <li><svg viewBox="0 0 24 24"><use href="#i-check"/></svg>Home Limit: 100 | PV: 40</li>
+          <li><svg viewBox="0 0 24 24"><use href="#i-check"/></svg>P-Warp Limit: 50</li>
+          <li><svg viewBox="0 0 24 24"><use href="#i-check"/></svg>/fly &amp; /heal</li>
+          <li><svg viewBox="0 0 24 24"><use href="#i-check"/></svg>/msgtoggle &amp; /repairall</li>
+          <li><svg viewBox="0 0 24 24"><use href="#i-check"/></svg>Quantum Kits</li>
+        </ul>
+        <a class="btn btn-sm" href="#order">Pesan</a>
+      </article>
+
+      <article class="rank neu-press rv">
+        <span class="bar" style="background:var(--galatics)"></span>
+        <span class="ico" style="color:var(--galatics)"><svg viewBox="0 0 24 24"><use href="#i-crown"/></svg></span>
+        <h3>Galatics</h3><p class="price">Rp 300.000<small>Permanen</small></p>
+        <ul>
+          <li><svg viewBox="0 0 24 24"><use href="#i-check"/></svg>Home Limit: 500 | PV: 75</li>
+          <li><svg viewBox="0 0 24 24"><use href="#i-check"/></svg>P-Warp Limit: 100</li>
+          <li><svg viewBox="0 0 24 24"><use href="#i-check"/></svg>/tptoggle &amp; /invsee</li>
+          <li><svg viewBox="0 0 24 24"><use href="#i-check"/></svg>/weather &amp; /time</li>
+          <li><svg viewBox="0 0 24 24"><use href="#i-check"/></svg>Galatics Kits</li>
+        </ul>
+        <a class="btn btn-sm" href="#order">Pesan</a>
+      </article>
+
+      <article class="rank neu-press rv">
+        <span class="badge">Ultimate</span>
+        <span class="bar" style="background:var(--universe)"></span>
+        <span class="ico" style="color:var(--universe)"><svg viewBox="0 0 24 24"><use href="#i-globe"/></svg></span>
+        <h3>Universe</h3><p class="price">Rp 400.000<small>Permanen</small></p>
+        <ul>
+          <li><svg viewBox="0 0 24 24"><use href="#i-check"/></svg>Home: Unlimited | PV: 100</li>
+          <li><svg viewBox="0 0 24 24"><use href="#i-check"/></svg>P-Warp: Unlimited</li>
+          <li><svg viewBox="0 0 24 24"><use href="#i-check"/></svg>/god &amp; /vanish</li>
+          <li><svg viewBox="0 0 24 24"><use href="#i-check"/></svg>All Previous Features</li>
+          <li><svg viewBox="0 0 24 24"><use href="#i-check"/></svg>Universe Ultimate Kits</li>
+        </ul>
+        <a class="btn btn-sm" href="#order">Pesan</a>
+      </article>
+    </div>
+  </div>
+</section>
+
+<!-- ===== STORE: KEYS ===== -->
+<section class="sec lazy" id="store">
+  <div class="wrap">
+    <div class="sec-head rv">
+      <span class="chip">Store</span>
+      <h2>Gacha Key</h2>
+      <p>Buka peti gacha dengan key. Semakin tinggi tier, semakin langka isinya.</p>
+    </div>
+    <div class="grid auto-3">
+      <article class="card neu-press rv"><span class="ico"><svg viewBox="0 0 24 24"><use href="#i-key"/></svg></span>
+        <h3>Basic Key</h3><p>Kunci standar untuk memulai petualanganmu!</p>
+        <p class="price" style="margin-top:1rem;font-size:1.25rem;font-weight:800;color:var(--ink)">Rp 1.000</p></article>
+      <article class="card neu-press rv"><span class="ico"><svg viewBox="0 0 24 24"><use href="#i-vote"/></svg></span>
+        <h3>Vote Key</h3><p>Item menarik hanya dengan mendukung server!</p>
+        <p style="margin-top:1rem;font-size:1.25rem;font-weight:800;color:var(--ink)">Rp 2.000</p></article>
+      <article class="card neu-press rv"><span class="ico"><svg viewBox="0 0 24 24"><use href="#i-gem"/></svg></span>
+        <h3>VIP Key</h3><p>Tools dan armor yang lebih kuat!</p>
+        <p style="margin-top:1rem;font-size:1.25rem;font-weight:800;color:var(--ink)">Rp 5.000</p></article>
+      <article class="card neu-press rv"><span class="ico"><svg viewBox="0 0 24 24"><use href="#i-trophy"/></svg></span>
+        <h3>Legend Key</h3><p>Hadiah legendaris dengan kekuatan menarik!</p>
+        <p style="margin-top:1rem;font-size:1.25rem;font-weight:800;color:var(--ink)">Rp 10.000</p></article>
+      <article class="card neu-press hi rv" style="position:relative"><span class="badge">Premium</span>
+        <span class="ico"><svg viewBox="0 0 24 24"><use href="#i-rocket"/></svg></span>
+        <h3>Aerospace Key</h3><p>Item langka dan kekuatan super besar!</p>
+        <p style="margin-top:1rem;font-size:1.25rem;font-weight:800;color:var(--ink)">Rp 20.000</p></article>
+    </div>
+  </div>
+</section>
+
+<!-- ===== COMMANDS ===== -->
+<section class="sec lazy">
+  <div class="wrap">
+    <div class="sec-head rv">
+      <span class="chip">Premium Command</span>
+      <h2>Beli command satuan</h2>
+      <p>Harga di bawah untuk 30 hari. 3 Bulan = 2×, Permanen = 3× — sekali bayar, milik selamanya.</p>
+    </div>
+    <div class="grid auto-3">
+      <article class="card neu-press rv"><span class="ico" style="color:var(--voyager)"><svg viewBox="0 0 24 24"><use href="#i-feather"/></svg></span>
+        <h3>Fly <span class="tag">/fly</span></h3><p>Terbang bebas di seluruh server tanpa batas!</p>
+        <p style="margin-top:.9rem;font-weight:800;color:var(--ink)">Rp 30.000 <small style="font-weight:600;color:var(--faint)">/30 hari</small></p>
+        <p style="margin-top:.4rem;font-size:.78rem;color:var(--faint)">Sudah termasuk di rank Quantum</p></article>
+
+      <article class="card neu-press hi rv" style="position:relative"><span class="badge">Best</span>
+        <span class="ico" style="color:var(--quantum)"><svg viewBox="0 0 24 24"><use href="#i-zap"/></svg></span>
+        <h3>God Mode <span class="tag">/god</span></h3><p>Kebal dari segala damage! Tidak bisa mati selama aktif.</p>
+        <p style="margin-top:.9rem;font-weight:800;color:var(--ink)">Rp 30.000 <small style="font-weight:600;color:var(--faint)">/30 hari</small></p>
+        <p style="margin-top:.4rem;font-size:.78rem;color:var(--faint)">Sudah termasuk di rank Universe</p></article>
+
+      <article class="card neu-press rv"><span class="ico" style="color:var(--scout)"><svg viewBox="0 0 24 24"><use href="#i-drum"/></svg></span>
+        <h3>Feed <span class="tag">/feed</span></h3><p>Isi penuh hunger bar setiap saat kapan pun kamu mau.</p>
+        <p style="margin-top:.9rem;font-weight:800;color:var(--ink)">Rp 10.000 <small style="font-weight:600;color:var(--faint)">/30 hari</small></p>
+        <p style="margin-top:.4rem;font-size:.78rem;color:var(--faint)">Sudah termasuk di rank Ravest</p></article>
+
+      <article class="card neu-press rv"><span class="ico" style="color:var(--galatics)"><svg viewBox="0 0 24 24"><use href="#i-heart"/></svg></span>
+        <h3>Heal <span class="tag">/heal</span></h3><p>Pulihkan HP penuh kapan saja kamu butuhkan.</p>
+        <p style="margin-top:.9rem;font-weight:800;color:var(--ink)">Rp 10.000 <small style="font-weight:600;color:var(--faint)">/30 hari</small></p>
+        <p style="margin-top:.4rem;font-size:.78rem;color:var(--faint)">Sudah termasuk di rank Quantum</p></article>
+
+      <article class="card neu-press rv"><span class="ico" style="color:var(--ravest)"><svg viewBox="0 0 24 24"><use href="#i-door"/></svg></span>
+        <h3>Teleport <span class="tag">/tp [player]</span></h3><p>Teleport ke player manapun di server secara langsung.</p>
+        <p style="margin-top:.9rem;font-weight:800;color:var(--ink)">Rp 20.000 <small style="font-weight:600;color:var(--faint)">/30 hari</small></p></article>
+
+      <article class="card neu-press rv"><span class="ico" style="color:var(--orbiter)"><svg viewBox="0 0 24 24"><use href="#i-wrench"/></svg></span>
+        <h3>Repair <span class="tag">/repair</span></h3><p>Repair item yang kamu pegang secara instan tanpa anvil.</p>
+        <p style="margin-top:.9rem;font-weight:800;color:var(--ink)">Rp 10.000 <small style="font-weight:600;color:var(--faint)">/30 hari</small></p>
+        <p style="margin-top:.4rem;font-size:.78rem;color:var(--faint)">Sudah termasuk di rank Ravest</p></article>
+
+      <article class="card neu-press rv"><span class="ico" style="color:var(--vortex)"><svg viewBox="0 0 24 24"><use href="#i-eye"/></svg></span>
+        <h3>Invsee <span class="tag">/invsee [player]</span></h3><p>Lihat inventory player lain kapan saja.</p>
+        <p style="margin-top:.9rem;font-weight:800;color:var(--ink)">Rp 25.000 <small style="font-weight:600;color:var(--faint)">/30 hari</small></p>
+        <p style="margin-top:.4rem;font-size:.78rem;color:var(--faint)">Sudah termasuk di rank Galatics</p></article>
+
+      <article class="card neu-press rv"><span class="ico" style="color:var(--universe)"><svg viewBox="0 0 24 24"><use href="#i-ghost"/></svg></span>
+        <h3>Vanish <span class="tag">/vanish</span></h3><p>Jadi tak terlihat oleh player lain kapan pun kamu mau.</p>
+        <p style="margin-top:.9rem;font-weight:800;color:var(--ink)">Rp 25.000 <small style="font-weight:600;color:var(--faint)">/30 hari</small></p>
+        <p style="margin-top:.4rem;font-size:.78rem;color:var(--faint)">Sudah termasuk di rank Universe</p></article>
+
+      <article class="card neu-press rv" style="position:relative"><span class="badge">Bundle 3-in-1</span>
+        <span class="ico" style="color:var(--scout)"><svg viewBox="0 0 24 24"><use href="#i-case"/></svg></span>
+        <h3>Utility Pack</h3><p>Akses Anvil, Ender Chest, dan Workbench portabel kapan saja!</p>
+        <div class="row"><span class="tag">/anvil</span><span class="tag">/ec</span><span class="tag">/wb</span></div>
+        <p style="margin-top:.9rem;font-weight:800;color:var(--ink)">Rp 15.000 <small style="font-weight:600;color:var(--faint)">/30 hari</small></p>
+        <p style="margin-top:.4rem;font-size:.78rem;color:var(--faint)">Sudah termasuk di rank Ravest</p></article>
+    </div>
+  </div>
+</section>
+
+<!-- ===== SKILL & BALANCE ===== -->
+<section class="sec lazy">
+  <div class="wrap">
+    <div class="sec-head rv">
+      <span class="chip">Skill &amp; Balance</span>
+      <h2>Sebelas skill, tiga kategori</h2>
+      <p>Setiap skill punya 5 ability dan bisa dinaikkan sampai level 100.</p>
+    </div>
+    <div class="grid auto-3">
+      <article class="card rv">
+        <span class="ico" style="color:var(--galatics)"><svg viewBox="0 0 24 24"><use href="#i-swords"/></svg></span>
+        <h3>Combat Skills</h3>
+        <p style="font-weight:800;color:var(--ink)">Rp 3.000 <small style="font-weight:600;color:var(--faint)">/level</small></p>
+        <div class="row" style="margin-top:.9rem"><span class="tag">Fighting</span><span class="tag">Defense</span><span class="tag">Archery</span></div>
+        <p style="margin-top:.8rem;font-size:.82rem">Parry, Sword Master, First Strike, Bleed, Lightning Blade, Shielding, Immunity, Piercing, Stun, Charged Shot, dan lainnya.</p>
+      </article>
+      <article class="card rv">
+        <span class="ico" style="color:var(--ravest)"><svg viewBox="0 0 24 24"><use href="#i-spark"/></svg></span>
+        <h3>Semi-Combat Skills</h3>
+        <p style="font-weight:800;color:var(--ink)">Rp 2.500 <small style="font-weight:600;color:var(--faint)">/level</small></p>
+        <div class="row" style="margin-top:.9rem"><span class="tag">Agility</span><span class="tag">Alchemy</span></div>
+        <p style="margin-top:.8rem;font-size:.82rem">Light Fall, Jumper, Golden Heal, Fleeting, Meal Steal, Alchemist, Life Steal, Golden Heart, Wise Effect, Brewer.</p>
+      </article>
+      <article class="card rv">
+        <span class="ico" style="color:var(--scout)"><svg viewBox="0 0 24 24"><use href="#i-hammer"/></svg></span>
+        <h3>Gathering &amp; Utility</h3>
+        <p style="font-weight:800;color:var(--ink)">Rp 2.000 <small style="font-weight:600;color:var(--faint)">/level</small></p>
+        <div class="row" style="margin-top:.9rem"><span class="tag">Farming</span><span class="tag">Foraging</span><span class="tag">Mining</span><span class="tag">Fishing</span><span class="tag">Excavation</span><span class="tag">Enchanting</span></div>
+        <p style="margin-top:.8rem;font-size:.82rem">Bountiful Harvest, Treecapitator, Lucky Miner, Treasure Hunter, Metal Detector, Lucky Table, dan lainnya.</p>
+      </article>
+    </div>
+
+    <div class="card rv" style="margin-top:1.75rem">
+      <div class="row" style="justify-content:space-between;gap:1.5rem">
+        <div style="flex:1 1 260px">
+          <span class="ico" style="color:var(--quantum)"><svg viewBox="0 0 24 24"><use href="#i-bank"/></svg></span>
+          <h3 style="margin-top:1rem">In-Game Balance</h3>
+          <p>Kurs tetap: <b style="color:var(--ink)">Rp 1 = 20 Balance</b>. Langsung masuk ke akunmu.</p>
+        </div>
+        <div class="row" style="flex:1 1 300px">
+          <span class="tag">Rp 5.000 = 100.000</span>
+          <span class="tag">Rp 10.000 = 200.000</span>
+          <span class="tag">Rp 25.000 = 500.000</span>
+          <span class="tag">Rp 50.000 = 1.000.000</span>
+          <span class="tag">Rp 100.000 = 2.000.000</span>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ===== SPECIAL RANKS ===== -->
+<section class="sec lazy">
+  <div class="wrap">
+    <div class="sec-head rv">
+      <span class="chip">Rank Khusus</span>
+      <h2>Gratis, lewat kontribusi</h2>
+      <p>Dua rank yang tidak dijual — hanya bisa didapat dengan memenuhi syarat.</p>
+    </div>
+    <div class="grid auto-3" style="grid-template-columns:repeat(auto-fit,minmax(min(100%,320px),1fr))">
+      <article class="card rv">
+        <span class="ico" style="color:var(--quantum)"><svg viewBox="0 0 24 24"><use href="#i-hat"/></svg></span>
+        <h3>Builder</h3><p style="color:var(--faint);font-size:.8rem;font-weight:700;text-transform:uppercase;letter-spacing:.08em">Rank Khusus Builder</p>
+        <ul class="stack" style="margin-top:1rem;gap:.55rem;font-size:.87rem">
+          <li>Bangunan besar dan keren di server AeroBlast, minimal 150 × 150 block</li>
+          <li>Bangunan akan di-review langsung oleh Staff</li>
+          <li>Dilarang menggunakan bangunan orang lain</li>
+          <li>Rank dapat dicabut kapan saja jika ditemukan pelanggaran</li>
+        </ul>
+        <div class="row" style="margin-top:1rem"><span class="tag">Prefix [BUILDER]</span><span class="tag">Fly di area claim</span></div>
+        <a class="btn btn-sm" style="margin-top:1.2rem" href="#kontak">Daftar Builder</a>
+      </article>
+      <article class="card rv">
+        <span class="ico" style="color:var(--galatics)"><svg viewBox="0 0 24 24"><use href="#i-video"/></svg></span>
+        <h3>Media</h3><p style="color:var(--faint);font-size:.8rem;font-weight:700;text-transform:uppercase;letter-spacing:.08em">Rank Khusus Content Creator</p>
+        <ul class="stack" style="margin-top:1rem;gap:.55rem;font-size:.87rem">
+          <li>Sudah mengupload video atau live streaming tentang server AeroBlast</li>
+          <li>Akun minimal 1.000 follower/subscriber</li>
+          <li>Konten tidak boleh mengandung unsur negatif atau SARA</li>
+          <li>Rank dapat dicabut kapan saja jika creator tidak aktif</li>
+        </ul>
+        <div class="row" style="margin-top:1rem"><span class="tag">Prefix [MEDIA]</span><span class="tag">/fly cinematic</span><span class="tag">Share link konten</span></div>
+        <a class="btn btn-sm" style="margin-top:1.2rem" href="#kontak">Daftar Media</a>
+      </article>
+    </div>
+  </div>
+</section>
+
+<!-- ===== VOTE ===== -->
+<section class="sec lazy" id="vote">
+  <div class="wrap">
+    <div class="sec-head rv">
+      <span class="chip">Vote &amp; Reward</span>
+      <h2>Dukung server, dapat hadiah</h2>
+      <p>Reward dibagikan setiap akhir periode berdasarkan peringkat Top Voter.</p>
+    </div>
+    <div class="grid auto-4">
+      <article class="card neu-press hi rv" style="position:relative"><span class="badge">#1 Top Voter</span>
+        <span class="ico" style="color:var(--quantum)"><svg viewBox="0 0 24 24"><use href="#i-trophy"/></svg></span>
+        <h3>Juara Pertama</h3>
+        <ul class="stack" style="margin-top:.9rem;gap:.5rem;font-size:.87rem">
+          <li><b style="color:var(--ink)">Rank Aviator</b> — Permanent</li>
+          <li>Vote Key ×5</li><li>Legend Key ×1</li>
+        </ul>
+        <p style="margin-top:.9rem;font-size:.78rem;color:var(--faint)">Jika sudah punya Aviator, diganti paket alternatif: Vote Key ×5, Legend Key ×1, Aerospace Key ×1, dan Fly Privilege 15 hari.</p>
+      </article>
+      <article class="card neu-press rv">
+        <span class="ico" style="color:var(--voyager)"><svg viewBox="0 0 24 24"><use href="#i-star"/></svg></span>
+        <h3>#2 — #3 Runner Up</h3>
+        <ul class="stack" style="margin-top:.9rem;gap:.5rem;font-size:.87rem">
+          <li>Aerospace Key ×1</li><li>Vote Key ×5</li><li>Legend Key ×1</li>
+        </ul>
+      </article>
+      <article class="card neu-press rv">
+        <span class="ico" style="color:var(--scout)"><svg viewBox="0 0 24 24"><use href="#i-gem"/></svg></span>
+        <h3>#4 — #5 Top 5</h3>
+        <ul class="stack" style="margin-top:.9rem;gap:.5rem;font-size:.87rem">
+          <li>Legend Key ×1</li><li>Vote Key ×5</li>
+        </ul>
+      </article>
+      <article class="card neu-press rv">
+        <span class="ico" style="color:var(--universe)"><svg viewBox="0 0 24 24"><use href="#i-vote"/></svg></span>
+        <h3>#6 — #10 Top 10</h3>
+        <ul class="stack" style="margin-top:.9rem;gap:.5rem;font-size:.87rem">
+          <li>Vote Key ×10</li>
+        </ul>
+      </article>
+    </div>
+    <div class="center" style="margin-top:2rem">
+      <a class="btn btn-lime" href="https://minecraft-mp.com/server-s353091" rel="noopener" target="_blank">
+        Vote Sekarang <svg viewBox="0 0 24 24" aria-hidden="true"><use href="#i-arrow"/></svg></a>
+    </div>
+  </div>
+</section>
+
+<!-- ===== RULES ===== -->
+<section class="sec lazy" id="rules">
+  <div class="wrap">
+    <div class="sec-head rv">
+      <span class="chip">Peraturan</span>
+      <h2>Aturan main di AeroBlast</h2>
+      <p>Dibuat supaya semua orang bisa bermain dengan nyaman. Melanggar berarti sanksi.</p>
+    </div>
+    <div class="grid auto-3">
+      <article class="rulecard rv">
+        <span class="ico" style="color:var(--dang)"><svg viewBox="0 0 24 24"><use href="#i-users"/></svg></span>
+        <h3>Sosial, Etika &amp; Chat</h3>
+        <ul>
+          <li><svg viewBox="0 0 24 24"><use href="#i-alert"/></svg><span><b>SARA</b> — Dilarang keras menyentuh isu SARA &amp; Agama</span></li>
+          <li><svg viewBox="0 0 24 24"><use href="#i-alert"/></svg><span><b>Toxic</b> — Dilarang menggunakan kata-kata kasar</span></li>
+          <li><svg viewBox="0 0 24 24"><use href="#i-alert"/></svg><span><b>Spam &amp; Promo</b> — Dilarang spam atau promosi server luar</span></li>
+        </ul>
+        <p class="sanction">Sanksi: Warn / Mute / Ban Sementara – Kekal</p>
+      </article>
+
+      <article class="rulecard rv">
+        <span class="ico" style="color:var(--dang)"><svg viewBox="0 0 24 24"><use href="#i-shieldcheck"/></svg></span>
+        <h3>Survival &amp; Dunia</h3>
+        <ul>
+          <li><svg viewBox="0 0 24 24"><use href="#i-alert"/></svg><span><b>Fair Play</b> — Dilarang menggunakan Cheat atau Hacks</span></li>
+          <li><svg viewBox="0 0 24 24"><use href="#i-alert"/></svg><span><b>Griefing</b> — Dilarang merusak bangunan orang lain</span></li>
+          <li><svg viewBox="0 0 24 24"><use href="#i-alert"/></svg><span><b>Trapping</b> — Dilarang menjebak pemain (Player Trap)</span></li>
+        </ul>
+        <p class="sanction">Sanksi: Jail / Kick / Ban 7 Hari – Kekal</p>
+      </article>
+
+      <article class="rulecard rv">
+        <span class="ico" style="color:var(--dang)"><svg viewBox="0 0 24 24"><use href="#i-wrench"/></svg></span>
+        <h3>Teknikal, Bug &amp; Exploit</h3>
+        <ul>
+          <li><svg viewBox="0 0 24 24"><use href="#i-alert"/></svg><span><b>Bug</b> — Dilarang exploit Bug atau Duplikasi item</span></li>
+          <li><svg viewBox="0 0 24 24"><use href="#i-alert"/></svg><span><b>Server Lag</b> — Dilarang membuat mesin penyebab LAG</span></li>
+          <li><svg viewBox="0 0 24 24"><use href="#i-alert"/></svg><span><b>Report</b> — Wajib lapor Bug kepada Staff</span></li>
+        </ul>
+        <p class="sanction">Sanksi: Ban IP / Ban Kekal / Wipe Aset</p>
+      </article>
+    </div>
+  </div>
+</section>
+
+<!-- ===== FAQ ===== -->
+<section class="sec lazy" id="faq">
+  <div class="wrap">
+    <div class="sec-head rv">
+      <span class="chip">FAQ</span>
+      <h2>Pertanyaan yang sering ditanya</h2>
+    </div>
+    <div style="max-width:52rem;margin-inline:auto">
+      <details class="faq rv">
+        <summary>Bagaimana cara join server AeroBlast?<svg viewBox="0 0 24 24" aria-hidden="true"><use href="#i-chev"/></svg></summary>
+        <div class="faq-body">
+          <p>Buka Minecraft lalu pilih <b>Multiplayer → Add Server</b> dan masukkan:</p>
+          <p><span class="tag">IP · aeroblast.my.id</span> <span class="tag">Port · 25543</span></p>
+          <p>Mendukung <b>Java Edition</b> (1.20–1.21+) dan <b>Bedrock / PE</b>. Untuk Bedrock, masukkan IP dan port secara terpisah di menu External Server.</p>
+        </div>
+      </details>
+
+      <details class="faq rv">
+        <summary>Versi Minecraft berapa yang didukung?<svg viewBox="0 0 24 24" aria-hidden="true"><use href="#i-chev"/></svg></summary>
+        <div class="faq-body"><p>AeroBlast mendukung <b>Java Edition 1.20 hingga 1.21+</b> dan <b>Bedrock / Pocket Edition</b> versi 1.21.11+. Jika ada masalah versi, coba update Minecraft kamu ke versi terbaru.</p></div>
+      </details>
+
+      <details class="faq rv">
+        <summary>Kenapa saya tidak bisa masuk server?<svg viewBox="0 0 24 24" aria-hidden="true"><use href="#i-chev"/></svg></summary>
+        <div class="faq-body">
+          <p>Coba periksa hal berikut:</p>
+          <p>• Pastikan IP dan Port sudah benar: <b>aeroblast.my.id : 25543</b><br>
+             • Cek status server di halaman utama — mungkin sedang maintenance.<br>
+             • Pastikan koneksi internet kamu stabil.<br>
+             • Jika kamu menggunakan VPN, coba matikan dulu.<br>
+             • Jika masih tidak bisa, kemungkinan akunmu terkena ban — hubungi Admin.</p>
+        </div>
+      </details>
+
+      <details class="faq rv">
+        <summary>Kenapa saya kena kick atau ban?<svg viewBox="0 0 24 24" aria-hidden="true"><use href="#i-chev"/></svg></summary>
+        <div class="faq-body">
+          <p>Ada beberapa kemungkinan penyebabnya:</p>
+          <p>• <b>Kick otomatis</b> — tidak aktif terlalu lama (AFK tanpa pool), atau koneksi terputus.<br>
+             • <b>Ban sementara</b> — melanggar rules seperti spam, toxic, atau griefing.<br>
+             • <b>Ban permanen</b> — cheat, exploit bug, atau pelanggaran berat lainnya.</p>
+          <p>Jika merasa tidak melanggar, hubungi Admin melalui <b>WhatsApp atau Discord</b> untuk klarifikasi dan proses banding.</p>
+        </div>
+      </details>
+
+      <details class="faq rv">
+        <summary>Apakah ada backup data pemain?<svg viewBox="0 0 24 24" aria-hidden="true"><use href="#i-chev"/></svg></summary>
+        <div class="faq-body"><p>Ya, server AeroBlast melakukan backup data secara berkala. Namun item yang hilang akibat <b>kelalaian pemain sendiri</b> (misal: jatuh ke lava, terkena mob) <b>tidak bisa dikembalikan</b>. Backup hanya digunakan untuk pemulihan server jika terjadi crash atau error teknis.</p></div>
+      </details>
+
+      <details class="faq rv">
+        <summary>Berapa lama item pesanan saya masuk?<svg viewBox="0 0 24 24" aria-hidden="true"><use href="#i-chev"/></svg></summary>
+        <div class="faq-body"><p>Item otomatis masuk dalam <b>1–10 menit</b> setelah pembayaran berhasil. Jika ada kendala, segera lapor ke Discord.</p></div>
+      </details>
+
+      <details class="faq rv">
+        <summary>Metode pembayaran apa saja yang tersedia?<svg viewBox="0 0 24 24" aria-hidden="true"><use href="#i-chev"/></svg></summary>
+        <div class="faq-body"><p>Tersedia <b>DANA</b>, <b>GoPay</b>, dan <b>QRIS</b> (bisa dibayar dari semua e-wallet dan mobile banking yang mendukung QRIS).</p></div>
+      </details>
+    </div>
+  </div>
+</section>
+
+<!-- ===== TERMS ===== -->
+<section class="sec lazy" id="terms">
+  <div class="wrap">
+    <div class="sec-head rv">
+      <span class="chip">Ketentuan</span>
+      <h2>Ketentuan pembelian</h2>
+      <p>Baca dulu sebelum melakukan order — dengan membeli, kamu dianggap menyetujui poin di bawah.</p>
+    </div>
+    <div class="grid auto-3">
+      <article class="card rv"><span class="ico" style="color:var(--dang)"><svg viewBox="0 0 24 24"><use href="#i-alert"/></svg></span>
+        <h3>Dilarang Memperjualbelikan</h3><p>Item atau rank yang dibeli <b style="color:var(--ink)">tidak boleh</b> dipindahtangankan ke pemain lain.</p></article>
+      <article class="card rv"><span class="ico" style="color:var(--dang)"><svg viewBox="0 0 24 24"><use href="#i-shieldcheck"/></svg></span>
+        <h3>Kebijakan Refund</h3><p>Semua transaksi bersifat final. <b style="color:var(--ink)">Tidak ada pengembalian dana</b> setelah proses berhasil.</p></article>
+      <article class="card rv"><span class="ico" style="color:var(--warn)"><svg viewBox="0 0 24 24"><use href="#i-users"/></svg></span>
+        <h3>Ganti Akun</h3><p>Harap <b style="color:var(--ink)">hubungi Admin</b> jika ada perubahan nickname sebelum melakukan order.</p></article>
+      <article class="card rv"><span class="ico" style="color:var(--dang)"><svg viewBox="0 0 24 24"><use href="#i-swords"/></svg></span>
+        <h3>Sanksi</h3><p>Pelanggaran aturan server dapat mengakibatkan <b style="color:var(--ink)">pencabutan akses</b> tanpa kompensasi.</p></article>
+      <article class="card rv"><span class="ico" style="color:var(--scout)"><svg viewBox="0 0 24 24"><use href="#i-clock"/></svg></span>
+        <h3>Proses Pengiriman</h3><p>Item otomatis masuk dalam 1–10 menit. Jika kendala, lapor ke Discord secepatnya.</p></article>
+    </div>
+  </div>
+</section>
+
+<!-- ===== ORDER CTA ===== -->
+<section class="sec lazy" id="order">
+  <div class="wrap">
+    <div class="ipcard center rv" style="position:relative;overflow:hidden;padding:clamp(2.5rem,7vw,4rem) clamp(1.5rem,5vw,3rem)">
+      <div class="orb f1" style="width:120px;height:120px;top:-40px;left:-40px;opacity:.6"></div>
+      <div class="orb f2" style="width:80px;height:80px;bottom:-30px;right:-20px;opacity:.6"></div>
+      <div style="position:relative">
+        <span class="chip">Siap Bermain?</span>
+        <h2 style="margin-top:1.2rem;font-size:clamp(1.7rem,4.5vw,2.6rem);max-width:34rem;margin-inline:auto">
+          Order lewat WhatsApp, item masuk dalam hitungan menit</h2>
+        <p style="margin-top:1rem;max-width:34rem;margin-inline:auto">
+          Pembayaran via DANA, GoPay, atau QRIS. Konfirmasi otomatis, tanpa antre.</p>
+        <div class="row center" style="justify-content:center;margin-top:2rem" id="kontak">
+          <a class="btn btn-lime" href="https://wa.me/628123731343" rel="noopener" target="_blank">
+            <svg viewBox="0 0 24 24" aria-hidden="true"><use href="#i-wa"/></svg> Order via WhatsApp</a>
+          <a class="btn" href="https://discord.gg/rgRRnPS9cp" rel="noopener" target="_blank">
+            <svg viewBox="0 0 24 24" aria-hidden="true"><use href="#i-dc"/></svg> Gabung Discord</a>
+        </div>
+        <div class="row" style="justify-content:center;margin-top:1.5rem">
+          <span class="tag">DANA</span><span class="tag">GoPay</span><span class="tag">QRIS</span>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+</main>
+
+<!-- ===== FOOTER ===== -->
+<footer class="wrap lazy" style="padding-bottom:2.5rem">
+  <div class="foot">
+    <div class="foot-grid">
+      <div style="grid-column:span 1;min-width:0">
+        <a class="brand" href="#top">
+          <span class="brand-mark"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="#i-rocket"/></svg></span>
+          <b>AeroBlast</b>
+        </a>
+        <p style="margin-top:1rem;font-size:.88rem;max-width:26rem">
+          Server Minecraft survival Indonesia. Java Edition &amp; Bedrock / PE, dengan ekonomi pemain,
+          claim land, dan sistem skill yang lengkap.</p>
+        <div class="socials">
+          <a class="icon-btn" href="https://chat.whatsapp.com/F1d5WMvuuiiGGhpPZdAI36" rel="noopener" target="_blank" aria-label="Grup WhatsApp AeroBlast">
+            <svg viewBox="0 0 24 24" aria-hidden="true"><use href="#i-wa"/></svg></a>
+          <a class="icon-btn" href="https://discord.gg/rgRRnPS9cp" rel="noopener" target="_blank" aria-label="Discord AeroBlast">
+            <svg viewBox="0 0 24 24" aria-hidden="true"><use href="#i-dc"/></svg></a>
+          <a class="icon-btn" href="https://www.tiktok.com/@aeroblast.my.id" rel="noopener" target="_blank" aria-label="TikTok AeroBlast">
+            <svg viewBox="0 0 24 24" aria-hidden="true"><use href="#i-tt"/></svg></a>
+        </div>
+      </div>
+
+      <nav aria-label="Store">
+        <h4>Store</h4>
+        <ul>
+          <li><a href="#rank">Rank</a></li>
+          <li><a href="#store">Gacha Key</a></li>
+          <li><a href="#store">Premium Command</a></li>
+          <li><a href="#store">Skill Boost</a></li>
+          <li><a href="#store">In-Game Balance</a></li>
+        </ul>
+      </nav>
+
+      <nav aria-label="Server">
+        <h4>Server</h4>
+        <ul>
+          <li><a href="#fitur">Fitur Server</a></li>
+          <li><a href="#rules">Peraturan</a></li>
+          <li><a href="#vote">Top Voters</a></li>
+          <li><a href="#vote">Vote Reward</a></li>
+          <li><a href="#faq">FAQ</a></li>
+        </ul>
+      </nav>
+
+      <nav aria-label="Bantuan">
+        <h4>Bantuan</h4>
+        <ul>
+          <li><a href="https://wa.me/628123731343" rel="noopener" target="_blank">Kontak Admin</a></li>
+          <li><a href="https://discord.gg/rgRRnPS9cp" rel="noopener" target="_blank">Lapor Bug</a></li>
+          <li><a href="#terms">Ketentuan Pembelian</a></li>
+          <li><a href="#faq">Cara Order</a></li>
+          <li><a href="/sitemap.xml">Sitemap</a></li>
+        </ul>
+      </nav>
+    </div>
+
+    <div class="rule" style="margin-top:2.25rem"></div>
+
+    <div class="foot-bot">
+      <p>© 2026 AeroBlast Network. Seluruh hak cipta dilindungi.</p>
+      <ul>
+        <li><a href="#terms">Kebijakan Privasi</a></li>
+        <li><a href="#terms">Syarat &amp; Ketentuan</a></li>
+        <li><a href="#faq">Bantuan</a></li>
+        <li><a href="https://wa.me/628123731343" rel="noopener" target="_blank">Kontak</a></li>
+      </ul>
+    </div>
+    <p style="margin-top:1.25rem;font-size:.74rem;color:var(--faint)">
+      AeroBlast Network tidak berafiliasi dengan Mojang AB atau Microsoft. Minecraft adalah merek dagang Mojang AB.
+    </p>
+  </div>
+</footer>
+
+<script>
+// Semua interaksi: ~1KB, defer-free karena diletakkan di akhir body.
+(function(){
+  'use strict';
+
+  // -- drawer ---------------------------------------------------
+  var b = document.getElementById('burger'), d = document.getElementById('drawer');
+  b.addEventListener('click', function(){
+    var open = d.classList.toggle('open');
+    b.setAttribute('aria-expanded', open ? 'true' : 'false');
+  });
+  d.addEventListener('click', function(e){
+    if (e.target.tagName === 'A'){ d.classList.remove('open'); b.setAttribute('aria-expanded','false'); }
+  });
+
+  // -- copy IP / port (event delegation, satu listener) ---------
+  document.addEventListener('click', function(e){
+    var btn = e.target.closest('.copy');
+    if (!btn) return;
+    var txt = btn.getAttribute('data-copy');
+    var done = function(){
+      var u = btn.querySelector('use');
+      u.setAttribute('href', '#i-check');
+      setTimeout(function(){ u.setAttribute('href', '#i-copy'); }, 1400);
+    };
+    if (navigator.clipboard) navigator.clipboard.writeText(txt).then(done, function(){});
+    else { var t = document.createElement('textarea'); t.value = txt; document.body.appendChild(t);
+           t.select(); try{ document.execCommand('copy'); done(); }catch(_){} document.body.removeChild(t); }
+  });
+
+  // -- reveal on scroll (opacity/transform saja, unobserve setelah tampil)
+  var els = document.querySelectorAll('.rv');
+  if (!('IntersectionObserver' in window)){
+    for (var i=0;i<els.length;i++) els[i].classList.add('on');
+    return;
+  }
+  var io = new IntersectionObserver(function(entries){
+    for (var i=0;i<entries.length;i++){
+      if (entries[i].isIntersecting){ entries[i].target.classList.add('on'); io.unobserve(entries[i].target); }
+    }
+  }, { rootMargin: '0px 0px -8% 0px', threshold: 0.05 });
+  for (var j=0;j<els.length;j++) io.observe(els[j]);
+})();
+</script>
+</body>
+</html>

@@ -180,7 +180,7 @@ export function SpecialRanksSection() {
   const [selected, setSelected] = useState(null);
 
   return (
-    <section id="special-ranks" className="px-4 py-16 sm:px-6 lg:px-8">
+    <section id="special-ranks" className="cv-auto px-4 py-16 sm:px-6 lg:px-8">
       <div className="mx-auto max-w-7xl">
         <SectionHeading
           eyebrow="Special Ranks"

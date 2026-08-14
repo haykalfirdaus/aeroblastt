@@ -1,19 +1,29 @@
 import { cn } from '@/lib/cn';
 
+/**
+ * Soft UI badge — debossed (concave) pill.
+ *
+ * In neumorphism a badge is informational, not interactive, so it reads as
+ * carved INTO the surface (inset shadow) rather than raised out of it. That
+ * keeps the raised treatment meaningful: raised = pressable.
+ *
+ * Tone keys are unchanged (neon / cyan / gold / danger / success / dim).
+ */
 const TONES = {
-  neon: 'border-[#1d2b1f] bg-[#BFFF5E] text-[#1d2b1f]',
-  cyan: 'border-[#1d2b1f]/40 bg-[#4a5e3a]/10 text-[#354530]',
-  gold: 'border-warning/50 bg-warning/15 text-[#b45309]',
-  danger: 'border-danger/40 bg-danger/10 text-danger-bright',
-  success: 'border-success/40 bg-success/10 text-success-bright',
-  dim: 'border-[#1d2b1f]/25 bg-[#f5ece0] text-[#4a5e3a]',
+  neon: 'text-[#5a9e10]',
+  cyan: 'text-[#0891b2]',
+  gold: 'text-[#b45309]',
+  danger: 'text-[#dc2626]',
+  success: 'text-[#059669]',
+  dim: 'text-[#4a5e3a]',
 };
 
 export function Badge({ tone = 'neon', className, children }) {
   return (
     <span
       className={cn(
-        'inline-flex items-center gap-1 rounded border px-2.5 py-1 font-mono text-[0.65rem] font-bold uppercase tracking-wider',
+        'inline-flex items-center gap-1 rounded-full bg-[#fff8f0] px-3 py-1',
+        'shadow-[var(--neu-in)] font-mono text-[0.65rem] font-bold uppercase tracking-wider',
         TONES[tone],
         className
       )}

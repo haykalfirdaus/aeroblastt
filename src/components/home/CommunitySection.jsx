@@ -84,7 +84,7 @@ export function CommunitySection() {
   const [reportOpen, setReportOpen] = useState(false);
 
   return (
-    <section id="community" className="px-4 py-16 sm:px-6 lg:px-8">
+    <section id="community" className="cv-auto px-4 py-16 sm:px-6 lg:px-8">
       <div className="mx-auto max-w-5xl">
         <SectionHeading
           eyebrow="Komunitas"
