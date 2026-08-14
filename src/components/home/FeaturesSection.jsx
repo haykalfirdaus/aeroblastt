@@ -24,7 +24,7 @@ export function FeaturesSection() {
     });
 
   return (
-    <section id="features" className="px-4 py-20 sm:px-6 lg:px-8">
+    <section id="features" className="cv-auto px-4 py-20 sm:px-6 lg:px-8">
       <div className="mx-auto max-w-7xl">
         <SectionHeading
           eyebrow="Fitur Server"
@@ -42,7 +42,7 @@ export function FeaturesSection() {
               <GlassCard
                 key={feature.title}
                 interactive
-                className={cn('card-hover', isOpen && 'border-[#1d2b1f]/60 bg-[#faf3e8]')}
+                className={cn(isOpen && 'shadow-[var(--neu-in)]')}
                 data-aos={AOS_DIRS[i % AOS_DIRS.length]}
                 data-aos-delay={i * 60}
                 data-aos-duration="800"
@@ -53,10 +53,10 @@ export function FeaturesSection() {
                   onClick={() => toggle(feature.title)}
                   aria-expanded={isOpen}
                   aria-controls={panelId}
-                  className="flex w-full items-center gap-3 p-5 text-left"
+                  className="flex min-h-[48px] w-full cursor-pointer items-center gap-3 p-5 text-left"
                 >
-                  <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-md border border-[#1d2b1f]/15 bg-[#BFFF5E]/10">
-                    <Icon name={feature.icon} size={18} className="text-[#1d2b1f]" />
+                  <span className="neu-icon h-11 w-11 rounded-[14px]">
+                    <Icon name={feature.icon} size={19} className="text-[#1d2b1f]" />
                   </span>
                   <h3 className="flex-1 text-sm font-bold text-[#1d2b1f]">{feature.title}</h3>
                   <ChevronDown
@@ -75,7 +75,7 @@ export function FeaturesSection() {
                       <p className="text-[0.72rem] leading-relaxed text-[#4a5e3a]">{feature.description}</p>
                       <div className="flex flex-wrap gap-1.5">
                         {feature.tags.map((tag) => (
-                          <span key={tag} className="badge-pill border border-[#BFFF5E]/35 bg-[#BFFF5E]/10 text-[#1d2b1f]">
+                          <span key={tag} className="neu-tag">
                             {tag}
                           </span>
                         ))}

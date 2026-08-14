@@ -1,0 +1,181 @@
+/* ==========================================================================
+   AEROBLAST — Soft UI / Neumorphism layer
+   Import AFTER Tailwind in src/index.css:  @import './neu.css';
+
+   Brand palette is UNCHANGED (cream #fff8f0 · lime #BFFF5E · forest #1d2b1f).
+   The highlight/shadow pair is derived mathematically from the cream base:
+     --neu-hi  = base lightness +30%   (#fffdf9)
+     --neu-lo  = base lightness -30%   (#efe4d4)
+   The dark shadow is the brand forest green at low alpha — not neutral grey —
+   so the depth reads warm instead of muddy against cream.
+   ========================================================================== */
+
+@theme {
+  /* Radii — 14 / 22 / 28px per the Soft UI spec */
+  --radius-neu: 14px;
+  --radius-neu-lg: 22px;
+  --radius-neu-xl: 28px;
+}
+
+:root {
+  --neu-base: #fff8f0;
+  --neu-hi: #fffdf9;
+  --neu-lo: #efe4d4;
+
+  --neu-light: rgba(255, 255, 255, 0.95);
+  --neu-dark: rgba(29, 43, 31, 0.16);
+
+  /* Convex (raised) */
+  --neu-out: -5px -5px 15px var(--neu-light), 5px 5px 15px var(--neu-dark);
+  --neu-out-lg: -9px -9px 26px var(--neu-light), 9px 9px 26px var(--neu-dark);
+  /* Concave (pressed / inset) */
+  --neu-in: inset -4px -4px 10px var(--neu-light), inset 4px 4px 10px var(--neu-dark);
+  --neu-in-deep: inset -6px -6px 14px var(--neu-light), inset 6px 6px 14px var(--neu-dark);
+
+  --neu-grad: linear-gradient(145deg, var(--neu-hi), var(--neu-lo));
+  --neu-grad-lime: linear-gradient(145deg, #d4ff80, #a8f040);
+}
+
+@layer utilities {
+  /* ---- Core primitives -------------------------------------------- */
+  .neu {
+    background: var(--neu-grad);
+    border-radius: var(--radius-neu);
+    box-shadow: var(--neu-out);
+  }
+  .neu-lg { border-radius: var(--radius-neu-xl); box-shadow: var(--neu-out-lg); }
+
+  .neu-flat {
+    background: var(--neu-base);
+    border-radius: var(--radius-neu);
+    box-shadow: var(--neu-out);
+  }
+
+  .neu-in {
+    background: var(--neu-base);
+    border-radius: var(--radius-neu);
+    box-shadow: var(--neu-in);
+  }
+  .neu-in-deep { box-shadow: var(--neu-in-deep); }
+
+  /*
+   * Press interaction — 150ms.
+   * PERF: only `transform` is tweened (compositor-only). The shadow swap is
+   * discrete, NOT transitioned: animating box-shadow repaints every frame and
+   * is a primary cause of the jank on the current build.
+   */
+  .neu-press {
+    cursor: pointer;
+    will-change: transform;
+    transition: transform 150ms ease, box-shadow 150ms ease;
+  }
+  .neu-press:hover { transform: translateY(-3px); }
+  .neu-press:active { transform: scale(0.97); box-shadow: var(--neu-in); }
+  @media (hover: none) {
+    .neu-press:hover { transform: none; }
+  }
+
+  .neu-lime {
+    background: var(--neu-grad-lime);
+    color: #22331a;
+    box-shadow: var(--neu-out);
+  }
+
+  /* ---- Icon tile / chip / tag -------------------------------------- */
+  .neu-icon {
+    display: grid;
+    place-items: center;
+    flex: 0 0 auto;
+    width: 52px;
+    height: 52px;
+    background: var(--neu-base);
+    border-radius: 16px;
+    box-shadow: var(--neu-out);
+    color: #1d2b1f;
+  }
+
+  .neu-chip {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.4rem;
+    padding: 0.5rem 1rem;
+    background: var(--neu-base);
+    border-radius: 999px;
+    box-shadow: var(--neu-in);
+    font-size: 0.72rem;
+    font-weight: 800;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: #6b7f5a;
+  }
+
+  .neu-tag {
+    display: inline-block;
+    padding: 0.3rem 0.7rem;
+    background: var(--neu-base);
+    border-radius: 999px;
+    box-shadow: var(--neu-in);
+    font-family: var(--font-mono);
+    font-size: 0.74rem;
+    font-weight: 600;
+    color: #4a5e3a;
+  }
+
+  .neu-rule {
+    height: 2px;
+    border-radius: 999px;
+    background: var(--neu-base);
+    box-shadow: var(--neu-in);
+  }
+
+  /* ---- Touch targets ----------------------------------------------- */
+  /* WCAG 2.5.8 / mobile ergonomics: every interactive element ≥48×48px. */
+  .touch-target { min-height: 48px; min-width: 48px; }
+
+  /* ---- Dark surface variants (footer) ------------------------------- */
+  /*
+   * Neumorphism depends on the shadow pair matching the surface it sits on.
+   * Reusing the cream shadows on the dark forest footer would read as a white
+   * halo, so the pair is re-derived from #1d2b1f the same way: lighten +30%
+   * for the highlight, darken -30% for the shadow.
+   */
+  .neu-dark-surface {
+    --neu-light: rgba(58, 78, 61, 0.55);
+    --neu-dark: rgba(8, 14, 9, 0.65);
+    --neu-hi: #26362a;
+    --neu-lo: #141f16;
+  }
+
+  .neu-dark-in {
+    background: #1d2b1f;
+    border-radius: var(--radius-neu);
+    box-shadow: inset -4px -4px 10px rgba(58, 78, 61, 0.45),
+                inset 4px 4px 10px rgba(8, 14, 9, 0.6);
+  }
+
+  .neu-dark-out {
+    background: linear-gradient(145deg, #26362a, #141f16);
+    border-radius: var(--radius-neu);
+    box-shadow: -5px -5px 15px rgba(58, 78, 61, 0.35), 5px 5px 15px rgba(8, 14, 9, 0.6);
+  }
+
+  /* ---- Perf: skip layout+paint for offscreen sections --------------- */
+  /* contain-intrinsic-size reserves height so the scrollbar never jumps (CLS). */
+  .cv-auto {
+    content-visibility: auto;
+    contain-intrinsic-size: auto 900px;
+  }
+  .cv-auto-sm { content-visibility: auto; contain-intrinsic-size: auto 480px; }
+
+  /* ---- Scroll reveal (replaces AOS — zero JS library) --------------- */
+  .neu-reveal {
+    opacity: 0;
+    transform: translate3d(0, 18px, 0);
+    transition: opacity 500ms ease, transform 500ms cubic-bezier(0.22, 0.9, 0.3, 1);
+  }
+  .neu-reveal[data-shown='true'] { opacity: 1; transform: none; }
+
+  @media (prefers-reduced-motion: reduce) {
+    .neu-reveal { opacity: 1; transform: none; transition: none; }
+  }
+}
