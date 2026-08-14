@@ -1,20 +1,31 @@
 /* ==========================================================================
-   AEROBLAST — Soft UI / Neumorphism layer
-   Import AFTER Tailwind in src/index.css:  @import './neu.css';
+   AEROBLAST — Soft UI / Neumorphism design system
+   Imported at the top of src/index.css.
 
-   Brand palette is UNCHANGED (cream #fff8f0 · lime #BFFF5E · forest #1d2b1f).
-   The highlight/shadow pair is derived mathematically from the cream base:
-     --neu-hi  = base lightness +30%   (#fffdf9)
-     --neu-lo  = base lightness -30%   (#efe4d4)
-   The dark shadow is the brand forest green at low alpha — not neutral grey —
-   so the depth reads warm instead of muddy against cream.
+   Palette is the original brand set — cream #fff8f0, lime #BFFF5E,
+   forest #1d2b1f. Only the highlight/shadow pair is new, derived
+   mathematically from the cream base:
+     --neu-hi = base lightness +30%  (#fffdf9)
+     --neu-lo = base lightness -30%  (#efe4d4)
+   The dark shadow is forest green at low alpha, never neutral grey, so the
+   depth reads warm against cream instead of dirty.
    ========================================================================== */
 
 @theme {
-  /* Radii — 14 / 22 / 28px per the Soft UI spec */
+  /* Radii — the 14/22/28 Soft UI scale */
   --radius-neu: 14px;
   --radius-neu-lg: 22px;
   --radius-neu-xl: 28px;
+
+  /* Typographic scale — fluid, clamp-based, no breakpoint jumps */
+  --text-display: clamp(2.4rem, 6.5vw, 4.2rem);
+  --text-h1: clamp(2rem, 5vw, 3.2rem);
+  --text-h2: clamp(1.6rem, 4vw, 2.4rem);
+  --text-h3: clamp(1.1rem, 2.2vw, 1.35rem);
+
+  /* Vertical rhythm */
+  --space-section: clamp(3.5rem, 8vw, 6.5rem);
+  --space-block: clamp(1.5rem, 4vw, 2.75rem);
 }
 
 :root {
@@ -28,7 +39,7 @@
   /* Convex (raised) */
   --neu-out: -5px -5px 15px var(--neu-light), 5px 5px 15px var(--neu-dark);
   --neu-out-lg: -9px -9px 26px var(--neu-light), 9px 9px 26px var(--neu-dark);
-  /* Concave (pressed / inset) */
+  /* Concave (inset) */
   --neu-in: inset -4px -4px 10px var(--neu-light), inset 4px 4px 10px var(--neu-dark);
   --neu-in-deep: inset -6px -6px 14px var(--neu-light), inset 6px 6px 14px var(--neu-dark);
 
@@ -37,7 +48,7 @@
 }
 
 @layer utilities {
-  /* ---- Core primitives -------------------------------------------- */
+  /* ---- Core surfaces ------------------------------------------------ */
   .neu {
     background: var(--neu-grad);
     border-radius: var(--radius-neu);
@@ -60,9 +71,8 @@
 
   /*
    * Press interaction — 150ms.
-   * PERF: only `transform` is tweened (compositor-only). The shadow swap is
-   * discrete, NOT transitioned: animating box-shadow repaints every frame and
-   * is a primary cause of the jank on the current build.
+   * Only `transform` is tweened (compositor-only). The shadow swap is discrete:
+   * animating box-shadow repaints every frame and is a primary jank source.
    */
   .neu-press {
     cursor: pointer;
@@ -81,7 +91,7 @@
     box-shadow: var(--neu-out);
   }
 
-  /* ---- Icon tile / chip / tag -------------------------------------- */
+  /* ---- Components ---------------------------------------------------- */
   .neu-icon {
     display: grid;
     place-items: center;
@@ -128,16 +138,28 @@
     box-shadow: var(--neu-in);
   }
 
-  /* ---- Touch targets ----------------------------------------------- */
-  /* WCAG 2.5.8 / mobile ergonomics: every interactive element ≥48×48px. */
-  .touch-target { min-height: 48px; min-width: 48px; }
+  /* Inset form field — inputs read as carved into the surface. */
+  .neu-field {
+    width: 100%;
+    min-height: 52px;
+    padding: 0.85rem 1.15rem;
+    background: var(--neu-base);
+    border: 0;
+    border-radius: var(--radius-neu);
+    box-shadow: var(--neu-in);
+    color: #1d2b1f;
+    font-weight: 600;
+    outline: none;
+    transition: box-shadow 150ms ease;
+  }
+  .neu-field::placeholder { color: #8a9e7a; font-weight: 400; }
+  .neu-field:focus-visible { box-shadow: var(--neu-in-deep); }
 
-  /* ---- Dark surface variants (footer) ------------------------------- */
+  /* ---- Dark surface variants (footer) -------------------------------- */
   /*
-   * Neumorphism depends on the shadow pair matching the surface it sits on.
-   * Reusing the cream shadows on the dark forest footer would read as a white
-   * halo, so the pair is re-derived from #1d2b1f the same way: lighten +30%
-   * for the highlight, darken -30% for the shadow.
+   * Neumorphism needs its shadow pair to match the surface underneath.
+   * Reusing the cream pair on dark forest would paint a white halo, so it is
+   * re-derived from #1d2b1f the same way: +30% highlight, -30% shadow.
    */
   .neu-dark-surface {
     --neu-light: rgba(58, 78, 61, 0.55);
@@ -159,23 +181,84 @@
     box-shadow: -5px -5px 15px rgba(58, 78, 61, 0.35), 5px 5px 15px rgba(8, 14, 9, 0.6);
   }
 
-  /* ---- Perf: skip layout+paint for offscreen sections --------------- */
-  /* contain-intrinsic-size reserves height so the scrollbar never jumps (CLS). */
+  /* ---- Layout helpers ------------------------------------------------ */
+  .neu-wrap {
+    width: min(100% - 2rem, 1200px);
+    margin-inline: auto;
+  }
+  @media (min-width: 640px) {
+    .neu-wrap { width: min(100% - 3rem, 1200px); }
+  }
+  .neu-section { padding-block: var(--space-section); }
+
+  /*
+   * Fluid auto-fit grids. `min()` guards the minmax floor so a 320px viewport
+   * never overflows — the classic cause of horizontal scroll on narrow phones.
+   */
+  .neu-grid { display: grid; gap: clamp(1rem, 2.5vw, 1.75rem); }
+  .neu-grid-2 { grid-template-columns: repeat(auto-fit, minmax(min(100%, 300px), 1fr)); }
+  .neu-grid-3 { grid-template-columns: repeat(auto-fit, minmax(min(100%, 270px), 1fr)); }
+  .neu-grid-4 { grid-template-columns: repeat(auto-fit, minmax(min(100%, 220px), 1fr)); }
+
+  /* WCAG 2.5.8 — every interactive target clears 48×48. */
+  .touch-target { min-height: 48px; min-width: 48px; }
+
+  /* ---- Perf ----------------------------------------------------------- */
+  /*
+   * content-visibility skips layout AND paint for offscreen subtrees.
+   * IMPORTANT: never combine this with an opacity-0 reveal on descendants —
+   * the skipped subtree is invisible to IntersectionObserver, so the reveal
+   * never fires and the content stays blank. Reveals here are CSS-only and
+   * self-healing (see .neu-rise below).
+   */
   .cv-auto {
     content-visibility: auto;
     contain-intrinsic-size: auto 900px;
   }
   .cv-auto-sm { content-visibility: auto; contain-intrinsic-size: auto 480px; }
 
-  /* ---- Scroll reveal (replaces AOS — zero JS library) --------------- */
-  .neu-reveal {
-    opacity: 0;
-    transform: translate3d(0, 18px, 0);
-    transition: opacity 500ms ease, transform 500ms cubic-bezier(0.22, 0.9, 0.3, 1);
+  /* ---- Entrance animation --------------------------------------------- */
+  /*
+   * Pure CSS, runs once on mount. Crucially it animates FROM a faded state TO
+   * the final state via `forwards` on a normal (not paused) animation — so the
+   * element is guaranteed visible when the animation ends, regardless of
+   * scroll position, observers, or hydration timing. Nothing can strand it at
+   * opacity 0. Stagger with --i on the child.
+   */
+  .neu-rise {
+    animation: neu-rise 520ms cubic-bezier(0.22, 0.9, 0.3, 1) backwards;
+    animation-delay: calc(var(--i, 0) * 70ms);
   }
-  .neu-reveal[data-shown='true'] { opacity: 1; transform: none; }
 
   @media (prefers-reduced-motion: reduce) {
-    .neu-reveal { opacity: 1; transform: none; transition: none; }
+    .neu-rise { animation: none; }
   }
+}
+
+/*
+ * Legacy `data-aos` attributes are still scattered across ~19 files. Rather
+ * than edit every call site, they map to the same CSS entrance here — and
+ * `data-aos-delay` is read directly for the stagger. No JS, no observer, and
+ * critically no way to leave an element stuck invisible.
+ *
+ * This lives outside @layer utilities so it applies regardless of layer order.
+ */
+[data-aos] {
+  animation: neu-rise 520ms cubic-bezier(0.22, 0.9, 0.3, 1) backwards;
+}
+[data-aos-delay='60'] { animation-delay: 60ms; }
+[data-aos-delay='100'] { animation-delay: 100ms; }
+[data-aos-delay='120'] { animation-delay: 120ms; }
+[data-aos-delay='180'] { animation-delay: 180ms; }
+[data-aos-delay='200'] { animation-delay: 200ms; }
+[data-aos-delay='240'] { animation-delay: 240ms; }
+[data-aos-delay='300'] { animation-delay: 300ms; }
+
+@media (prefers-reduced-motion: reduce) {
+  [data-aos] { animation: none; }
+}
+
+@keyframes neu-rise {
+  from { opacity: 0; transform: translate3d(0, 16px, 0); }
+  to   { opacity: 1; transform: none; }
 }

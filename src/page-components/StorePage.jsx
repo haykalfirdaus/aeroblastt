@@ -1,8 +1,6 @@
 'use client';
 import { useRef, useState } from 'react';
-import {
-  Medal, KeyRound, Zap, Coins, Terminal, Palette,
-} from 'lucide-react';
+import { Medal, KeyRound, Zap, Coins, Terminal, Palette } from 'lucide-react';
 import { PageLayout } from '@/components/layout/PageLayout';
 import { PlayerLoginPrompt } from '@/components/store/PlayerLoginPrompt';
 import { RankTab } from '@/components/store/RankTab';
@@ -11,33 +9,37 @@ import { SkillBoostTab } from '@/components/store/SkillBoostTab';
 import { BalanceTab } from '@/components/store/BalanceTab';
 import { CommandsTab } from '@/components/store/CommandsTab';
 import { CosmeticsTab } from '@/components/store/CosmeticsTab';
+import { PageHeader } from '@/components/layout/PageHeader';
 import { cn } from '@/lib/cn';
 
 const TABS = [
-  { id: 'ranks',     label: 'Rank',        icon: Medal,    desc: 'Upgrade rank permanenmu' },
-  { id: 'keys',      label: 'Gacha Keys',  icon: KeyRound, desc: 'Key untuk buka peti gacha' },
-  { id: 'skills',    label: 'Skill Boost', icon: Zap,      desc: 'Boost skill in-game' },
-  { id: 'balance',   label: 'Balance',     icon: Coins,    desc: 'Top-up balance in-game' },
-  { id: 'commands',  label: 'Commands',    icon: Terminal, desc: 'Akses command premium' },
-  { id: 'cosmetics', label: 'Cosmetics',   icon: Palette,  desc: 'Custom prefix & tampilan' },
+  { id: 'ranks', label: 'Rank', icon: Medal, desc: 'Upgrade rank permanenmu', Panel: RankTab },
+  { id: 'keys', label: 'Gacha Keys', icon: KeyRound, desc: 'Key untuk buka peti gacha', Panel: GachaKeysTab },
+  { id: 'skills', label: 'Skill Boost', icon: Zap, desc: 'Boost skill in-game', Panel: SkillBoostTab },
+  { id: 'balance', label: 'Balance', icon: Coins, desc: 'Top-up balance in-game', Panel: BalanceTab },
+  { id: 'commands', label: 'Commands', icon: Terminal, desc: 'Akses command premium', Panel: CommandsTab },
+  { id: 'cosmetics', label: 'Cosmetics', icon: Palette, desc: 'Custom prefix & tampilan', Panel: CosmeticsTab },
 ];
-
-const TAB_CONTENT = {
-  ranks:     <RankTab />,
-  keys:      <GachaKeysTab />,
-  skills:    <SkillBoostTab />,
-  balance:   <BalanceTab />,
-  commands:  <CommandsTab />,
-  cosmetics: <CosmeticsTab />,
-};
 
 const TAB_IDS = TABS.map((t) => t.id);
 
+/**
+ * Store — Soft UI.
+ *
+ * All purchase logic lives inside the tab components and is untouched.
+ *
+ * Two fixes beyond the reskin:
+ *  - The old version built a TAB_CONTENT map holding all six <Tab /> elements,
+ *    so every tab's element tree was constructed on every render even though
+ *    only one is shown. Now only the active panel is created.
+ *  - Tabs are real ARIA tabs (role/aria-selected/aria-controls) with arrow-key
+ *    navigation, instead of unlabelled buttons.
+ */
 export default function StorePage() {
   const [activeTab, setActiveTab] = useState('ranks');
   const current = TABS.find((t) => t.id === activeTab);
-  const swipeRef = useRef(null);
   const touchStartX = useRef(null);
+  const ActivePanel = current?.Panel;
 
   function handleTouchStart(e) {
     touchStartX.current = e.touches[0].clientX;
@@ -47,122 +49,99 @@ export default function StorePage() {
     if (touchStartX.current === null) return;
     const dx = e.changedTouches[0].clientX - touchStartX.current;
     touchStartX.current = null;
-    if (Math.abs(dx) < 50) return; // minimum swipe distance
+    if (Math.abs(dx) < 50) return;
     const idx = TAB_IDS.indexOf(activeTab);
     if (dx < 0 && idx < TAB_IDS.length - 1) setActiveTab(TAB_IDS[idx + 1]);
     if (dx > 0 && idx > 0) setActiveTab(TAB_IDS[idx - 1]);
   }
 
+  function handleKeyDown(e) {
+    const idx = TAB_IDS.indexOf(activeTab);
+    if (e.key === 'ArrowRight' && idx < TAB_IDS.length - 1) {
+      e.preventDefault();
+      setActiveTab(TAB_IDS[idx + 1]);
+    }
+    if (e.key === 'ArrowLeft' && idx > 0) {
+      e.preventDefault();
+      setActiveTab(TAB_IDS[idx - 1]);
+    }
+  }
+
   return (
     <PageLayout>
-      {/* Page header */}
-      <div className="relative border-b border-2 border-[#1d2b1f] bg-[#f5ede0] px-4 py-10 text-center sm:px-6 lg:px-8">
-        <div aria-hidden="true" className="pointer-events-none absolute inset-0">
-          <div className="absolute left-1/2 top-0 h-48 w-80 -translate-x-1/2 rounded-md bg-[#BFFF5E]/10 " />
-        </div>
-        <span data-aos="fade-down" data-aos-duration="600" className="relative mb-3 inline-flex items-center gap-1.5 rounded-md border border-[#BFFF5E]/35 bg-[#BFFF5E]/10 px-3 py-1 font-mono text-[0.65rem] font-semibold uppercase tracking-[0.15em] text-[#1d2b1f]">
-          <span className="h-1.5 w-1.5 animate-pulse-dot rounded-md bg-[#BFFF5E]" />
-          AeroBlast Store
-        </span>
-        <h1 data-aos="fade-up" data-aos-delay="100" data-aos-duration="700" className="relative font-display text-2xl font-extrabold text-[#1d2b1f] sm:text-3xl">
-          Toko In-Game Resmi
-        </h1>
-        <p data-aos="fade-up" data-aos-delay="200" data-aos-duration="700" className="relative mt-1.5 text-xs text-[#4a5e3a]">
-          Bayar lewat QRIS — item masuk otomatis begitu pembayaran terdeteksi.
-        </p>
-      </div>
+      <PageHeader
+        eyebrow="AeroBlast Store"
+        title="Toko In-Game Resmi"
+        description="Bayar lewat QRIS — item masuk otomatis begitu pembayaran terdeteksi."
+      />
 
-      {/* Tab bar — desktop: dividers, mobile: horizontal chips */}
-      <div className="sticky top-14 z-40 border-b border-2 border-[#1d2b1f] bg-[#f5ede0]/95 ">
-        {/* Mobile: scrollable chips dengan fade indicator */}
-        <div className="relative md:hidden">
-          <div className="no-scrollbar flex overflow-x-auto px-3 py-2 gap-1.5">
-            {TABS.map((tab) => {
-              const TabIcon = tab.icon;
-              return (
-                <button
-                  key={tab.id}
-                  type="button"
-                  onClick={() => setActiveTab(tab.id)}
-                  className={cn(
-                    'inline-flex shrink-0 items-center gap-1.5 rounded-md px-3 py-1.5 text-xs font-medium transition-all',
-                    activeTab === tab.id
-                      ? 'bg-[#BFFF5E]/20 text-[#1d2b1f] ring-1 ring-[#BFFF5E]/40'
-                      : 'bg-[#D8D1C0]/40 text-[#4a5e3a] hover:bg-[#D8D1C0]/70 hover:text-[#1d2b1f]'
-                  )}
-                >
-                  <TabIcon size={12} />
-                  {tab.label}
-                </button>
-              );
-            })}
-          </div>
-          {/* Gradient fade kanan — indikator ada konten tersembunyi */}
-          <div className="pointer-events-none absolute right-0 top-0 h-full w-8 bg-gradient-to-l from-[#f5ede0] to-transparent" />
-        </div>
-        {/* Desktop: divider-separated tabs */}
-        <div className="hidden md:block">
-          <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-            <div className="flex items-center">
-              {TABS.map((tab, idx) => {
-                const TabIcon = tab.icon;
-                return (
-                  <div key={tab.id} className="flex items-center">
-                    {idx > 0 && <div className="h-4 w-px bg-[#D8D1C0]" />}
-                    <button
-                      type="button"
-                      onClick={() => setActiveTab(tab.id)}
-                      className={cn(
-                        'group inline-flex items-center gap-1.5 px-4 py-3 text-xs font-medium transition-all border-b-2',
-                        activeTab === tab.id
-                          ? 'border-[#BFFF5E] text-[#1d2b1f]'
-                          : 'border-transparent text-[#4a5e3a] hover:text-[#1d2b1f]'
-                      )}
-                    >
-                      <TabIcon size={13} className={activeTab === tab.id ? 'text-[#BFFF5E]' : 'text-[#6b7f5a] group-hover:text-[#4a5e3a]'} />
-                      {tab.label}
-                    </button>
-                  </div>
-                );
-              })}
-            </div>
-          </div>
+      {/* Tab bar — one scrollable row on mobile, centred pills on desktop */}
+      <div className="sticky top-[76px] z-40 bg-[#fff8f0]/90 py-3 backdrop-blur-sm">
+        <div
+          role="tablist"
+          aria-label="Kategori store"
+          onKeyDown={handleKeyDown}
+          className="no-scrollbar neu-wrap flex gap-2 overflow-x-auto md:justify-center"
+        >
+          {TABS.map((tab) => {
+            const TabIcon = tab.icon;
+            const isActive = activeTab === tab.id;
+            return (
+              <button
+                key={tab.id}
+                type="button"
+                role="tab"
+                id={`tab-${tab.id}`}
+                aria-selected={isActive}
+                aria-controls={`panel-${tab.id}`}
+                tabIndex={isActive ? 0 : -1}
+                onClick={() => setActiveTab(tab.id)}
+                className={cn(
+                  'inline-flex min-h-[48px] shrink-0 cursor-pointer items-center gap-2 rounded-full px-5 text-sm font-bold',
+                  'will-change-transform [transition:transform_150ms_ease,box-shadow_150ms_ease,color_150ms_ease]',
+                  'active:scale-[0.96]',
+                  isActive
+                    ? 'bg-[#fff8f0] text-[#1d2b1f] shadow-[var(--neu-in)]'
+                    : 'bg-[#fff8f0] text-[#4a5e3a] shadow-[var(--neu-out)] hover:-translate-y-[2px] hover:text-[#1d2b1f]'
+                )}
+              >
+                <TabIcon size={16} aria-hidden="true" />
+                {tab.label}
+              </button>
+            );
+          })}
         </div>
       </div>
 
-      {/* Active tab content — swipeable di mobile */}
       <div
-        ref={swipeRef}
-        className="mx-auto max-w-7xl px-4 py-8 sm:px-6 lg:px-8"
+        className="neu-wrap py-8"
         onTouchStart={handleTouchStart}
         onTouchEnd={handleTouchEnd}
       >
         <PlayerLoginPrompt />
+
         {current && (
-          <div className="mb-6 flex items-center gap-2">
-            <current.icon size={16} className="text-[#1d2b1f]" />
-            <h2 className="font-display text-lg font-bold text-[#1d2b1f]">{current.label}</h2>
-            <span className="text-[#4a5e3a]">·</span>
-            <p className="text-xs text-[#4a5e3a]">{current.desc}</p>
+          <div className="mb-7 flex items-center gap-3">
+            <span className="neu-icon h-12 w-12 rounded-[15px]">
+              <current.icon size={20} aria-hidden="true" />
+            </span>
+            <div>
+              <h2 className="font-display text-lg font-extrabold text-[#1d2b1f]">{current.label}</h2>
+              <p className="text-xs text-[#4a5e3a]">{current.desc}</p>
+            </div>
           </div>
         )}
-        {/* Dot indicator mobile */}
-        <div className="mb-5 flex justify-center gap-1.5 md:hidden">
-          {TABS.map((tab) => (
-            <button
-              key={tab.id}
-              type="button"
-              onClick={() => setActiveTab(tab.id)}
-              className={cn(
-                'rounded-md transition-all',
-                activeTab === tab.id
-                  ? 'h-1.5 w-4 bg-[#BFFF5E]'
-                  : 'h-1.5 w-1.5 bg-[#D8D1C0]'
-              )}
-            />
-          ))}
+
+        {/* Only the active panel is constructed */}
+        <div
+          key={activeTab}
+          id={`panel-${activeTab}`}
+          role="tabpanel"
+          aria-labelledby={`tab-${activeTab}`}
+          className="neu-rise"
+        >
+          {ActivePanel && <ActivePanel />}
         </div>
-        <div key={activeTab} style={{ animation: 'page-wipe-in 0.28s cubic-bezier(0.22,1,0.36,1) both' }}>{TAB_CONTENT[activeTab]}</div>
       </div>
     </PageLayout>
   );

@@ -4,16 +4,22 @@
 @import './neu.css';
 
 /* ==========================================================================
-   AEROBLAST — Organic Infrastructure Design System
+   AEROBLAST — Soft UI Design System
    - Warm cream background (#fff8f0), dark forest-green text (#1d2b1f)
    - Lime accent (#BFFF5E) — used for CTA, badges, highlights
-   - Premium Blocky: 2px solid borders, 4px hard-offset shadows (no blur)
-   - Playfair Display headings, Inter body
+   - Neumorphic: no borders, layered convex/concave shadows, 14–28px radii
+   - Outfit (rounded geometric) headings, Plus Jakarta Sans body
    ========================================================================== */
 @theme {
   /* ---- Typography -------------------------------------------------- */
-  --font-display: 'Playfair Display', Georgia, 'Times New Roman', serif;
-  --font-sans: 'Inter', ui-sans-serif, system-ui, sans-serif;
+  /*
+   * Playfair Display (a high-contrast serif) fought the Soft UI language —
+   * neumorphism is soft, rounded and low-contrast, so the type has to match.
+   * Outfit is a geometric sans with rounded terminals; Plus Jakarta Sans has
+   * open counters that stay legible at small sizes on a low-contrast surface.
+   */
+  --font-display: 'Outfit', ui-sans-serif, system-ui, sans-serif;
+  --font-sans: 'Plus Jakarta Sans', ui-sans-serif, system-ui, sans-serif;
   --font-mono: 'JetBrains Mono', ui-monospace, 'SF Mono', monospace;
 
   /* ---- Backgrounds: warm cream scale -------------------------------- */
@@ -357,136 +363,88 @@
     transform: translateZ(0);
   }
 
-  /* ---- Hard-offset shadow (blocky style) ---------------------------- */
-  .shadow-hard {
-    box-shadow: 4px 4px 0px #1d2b1f;
-  }
+  /* ---- Legacy aliases → Soft UI --------------------------------------
+     These class names are still referenced across a number of components.
+     Rather than a risky find/replace over every file, they now resolve to the
+     neumorphic treatment, so nothing can render in the old blocky style. */
+  .shadow-hard,
+  .shadow-hard-sm { box-shadow: var(--neu-out); }
 
-  .shadow-hard-sm {
-    box-shadow: 2px 2px 0px #1d2b1f;
-  }
-
-  /* ---- Blocky card base --------------------------------------------- */
-  .card-blocky {
-    border: 2px solid #1d2b1f;
-    border-radius: 8px;
-    background: #fffdf9;
-    box-shadow: 4px 4px 0 #1d2b1f;
-    transition: box-shadow 0.15s ease, transform 0.15s ease;
-  }
-  .card-blocky:hover {
-    transform: translate(2px, 2px);
-    box-shadow: 2px 2px 0 #1d2b1f;
-  }
-
-  /* ---- Glass surfaces (minimal — fallback for non-blocky areas) ----- */
-  .glass-minimal {
-    background: rgba(255, 253, 249, 0.90);
-    border: 1px solid rgba(29, 43, 31, 0.18);
-  }
-
+  .card-blocky,
+  .glass-minimal,
   .glass-frosted {
-    background: rgba(255, 253, 249, 0.92);
-    border: 1px solid rgba(29, 43, 31, 0.20);
-    backdrop-filter: blur(12px);
-    -webkit-backdrop-filter: blur(12px);
+    border: 0;
+    border-radius: var(--radius-neu-lg);
+    background: var(--neu-grad);
+    box-shadow: var(--neu-out);
   }
 
-  /* ---- Pill nav links ----------------------------------------------- */
+  .card-hover {
+    will-change: transform;
+    transition: transform 150ms ease, box-shadow 150ms ease;
+  }
+  .card-hover:hover { transform: translateY(-3px); box-shadow: var(--neu-out-lg); }
+  .card-hover:active { transform: scale(0.98); box-shadow: var(--neu-in); }
+
   .nav-pill {
     display: inline-flex;
     align-items: center;
     gap: 6px;
-    padding: 5px 14px;
-    border-radius: 6px;
-    border: 1.5px solid rgba(29, 43, 31, 0.18);
-    font-size: 0.75rem;
-    font-weight: 600;
+    min-height: 48px;
+    padding: 0 16px;
+    border: 0;
+    border-radius: 999px;
+    background: transparent;
     font-family: var(--font-sans);
-    color: rgba(29, 43, 31, 0.65);
-    transition: all 0.15s ease;
-    background: rgba(29, 43, 31, 0.03);
-    letter-spacing: 0;
-  }
-  .nav-pill:hover {
-    border-color: rgba(29, 43, 31, 0.35);
-    background: rgba(29, 43, 31, 0.07);
-    color: #1d2b1f;
-  }
-  .nav-pill-active {
-    border-color: #1d2b1f;
-    background: #BFFF5E;
-    color: #1d2b1f;
+    font-size: 0.8rem;
     font-weight: 700;
+    color: #4a5e3a;
+    transition: transform 150ms ease, box-shadow 150ms ease, color 150ms ease;
+  }
+  .nav-pill:hover { color: #1d2b1f; box-shadow: var(--neu-out); }
+  .nav-pill-active {
+    background: #fff8f0;
+    box-shadow: var(--neu-in);
+    color: #1d2b1f;
+    font-weight: 800;
   }
 
-  /* ---- Online status dot (functional green) ------------------------- */
   .glow-dot-green {
     width: 8px;
     height: 8px;
     border-radius: 50%;
     background: var(--color-success);
-    box-shadow: 0 0 6px rgba(34, 197, 94, 0.6), 0 0 12px rgba(34, 197, 94, 0.3);
+    box-shadow: 0 0 0 3px rgba(34, 197, 94, 0.22);
     animation: pulse-dot 1.8s ease-in-out infinite;
   }
 
-  /* ---- Card hover (blocky press effect) ---------------------------- */
-  .card-hover {
-    transition: transform 0.15s ease, box-shadow 0.15s ease;
-  }
-  .card-hover:hover {
-    transform: translate(2px, 2px);
-    box-shadow: 2px 2px 0 #1d2b1f;
-  }
+  .badge-online { border: 0; background: #fff8f0; box-shadow: var(--neu-in); }
 
-  /* ---- Online badge ------------------------------------------------- */
-  .badge-online {
-    border-color: rgba(34, 197, 94, 0.5);
-    background: rgba(34, 197, 94, 0.1);
-  }
-
-  /* ---- Pill badge --------------------------------------------------- */
   .badge-pill {
     display: inline-flex;
     align-items: center;
-    gap: 4px;
-    padding: 4px 12px;
-    border-radius: 4px;
-    font-size: 0.6rem;
-    font-weight: 900;
-    letter-spacing: 0.08em;
+    gap: 5px;
+    padding: 5px 13px;
+    border: 0;
+    border-radius: 999px;
+    background: #fff8f0;
+    box-shadow: var(--neu-in);
+    font-size: 0.62rem;
+    font-weight: 800;
+    letter-spacing: 0.1em;
     text-transform: uppercase;
   }
 
-  /* ---- Logo orbit stars --------------------------------------------- */
+  /* Orbit stars retired — spinning dots clash with the calm Soft UI language,
+     and they animated 4 elements forever on every page. */
   .logo-orbit-wrapper {
     position: relative;
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    width: 28px;
-    height: 28px;
+    display: inline-grid;
+    place-items: center;
+    width: 40px;
+    height: 40px;
   }
-
-  .orbit-star {
-    position: absolute;
-    width: 4px;
-    height: 4px;
-    border-radius: 50%;
-    background: #BFFF5E;
-    box-shadow: 0 0 4px #BFFF5E, 0 0 8px rgba(191, 255, 94, 0.5);
-    animation: orbit 3s linear infinite;
-    top: 50%;
-    left: 50%;
-    margin-top: -2px;
-    margin-left: -2px;
-    pointer-events: none;
-  }
-
-  .orbit-star:nth-child(1) { animation-delay: 0s; }
-  .orbit-star:nth-child(2) { animation-delay: -0.75s; }
-  .orbit-star:nth-child(3) { animation-delay: -1.5s; }
-  .orbit-star:nth-child(4) { animation-delay: -2.25s; }
+  .orbit-star { display: none; }
 }
 
 /* ==========================================================================
@@ -503,10 +461,13 @@
    * Each hero child sets `--hero-i` for its stagger index. Pure CSS, so the
    * intro plays before hydration instead of waiting on a useEffect — and it
    * costs 0 bytes of JS versus ~70KB for GSAP.
+   *
+   * `backwards` (not `forwards` + opacity:0) is deliberate: the element holds
+   * the from-state only during the delay, then animates to fully visible. It
+   * can never be stranded invisible if the animation is skipped or interrupted.
    */
   .hero-in {
-    opacity: 0;
-    animation: hero-rise 0.6s cubic-bezier(0.22, 0.9, 0.3, 1) forwards;
+    animation: hero-rise 0.6s cubic-bezier(0.22, 0.9, 0.3, 1) backwards;
     animation-delay: calc(var(--hero-i, 0) * 90ms);
   }
 
@@ -529,7 +490,12 @@
 
   /* ---- Mobile drawer entrance --------------------------------------- */
   .drawer-in {
-    animation: hero-rise 0.18s ease-out forwards;
+    animation: hero-rise 0.18s ease-out backwards;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .hero-in,
+    .drawer-in { animation: none; }
   }
 
   /* ---- Marquee ticker ------------------------------------------------ */

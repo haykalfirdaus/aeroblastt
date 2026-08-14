@@ -1,4 +1,4 @@
-import { Inter, Playfair_Display, JetBrains_Mono } from 'next/font/google';
+import { Plus_Jakarta_Sans, Outfit, JetBrains_Mono } from 'next/font/google';
 import { ToastProvider } from '@/context/ToastContext';
 import { AuthProvider } from '@/context/AuthContext';
 import { PlayerAuthProvider } from '@/context/PlayerAuthContext';
@@ -7,9 +7,35 @@ import { DevtoolsWarningOverlay } from '@/components/layout/DevtoolsWarningOverl
 import { getServerConfig } from '@/lib/serverConfig';
 import '../src/index.css';
 
-const inter = Inter({ subsets: ['latin'], variable: '--font-inter', display: 'swap' });
-const playfair = Playfair_Display({ subsets: ['latin'], variable: '--font-playfair', display: 'swap', style: ['normal', 'italic'] });
-const jetbrainsMono = JetBrains_Mono({ subsets: ['latin'], variable: '--font-mono', display: 'swap' });
+/*
+ * Soft UI typography. Variable names match the @theme tokens in index.css
+ * (--font-sans / --font-display / --font-mono) so Tailwind's font-sans,
+ * font-display and font-mono utilities resolve to the self-hosted files.
+ *
+ * PERF: `display: 'swap'` renders fallback text immediately rather than
+ * blocking on the webfont, and next/font self-hosts + preloads the subset, so
+ * there is no render-blocking request to fonts.googleapis.com and no layout
+ * shift from a late-arriving face. Weights are pinned to only what is used —
+ * every extra weight is another file to download.
+ */
+const jakarta = Plus_Jakarta_Sans({
+  subsets: ['latin'],
+  weight: ['400', '500', '600', '700'],
+  variable: '--font-sans',
+  display: 'swap',
+});
+const outfit = Outfit({
+  subsets: ['latin'],
+  weight: ['600', '700', '800'],
+  variable: '--font-display',
+  display: 'swap',
+});
+const jetbrainsMono = JetBrains_Mono({
+  subsets: ['latin'],
+  weight: ['500', '700'],
+  variable: '--font-mono',
+  display: 'swap',
+});
 
 export const metadata = {
   title: 'AeroBlast Network - Minecraft Server Indonesia Terbaik | Survival, Economy, PvP',
@@ -39,8 +65,10 @@ export const metadata = {
 
 export const viewport = {
   themeColor: '#fff8f0',
-  maximumScale: 1,
-  userScalable: false,
+  // maximumScale/userScalable removed — blocking pinch-zoom fails WCAG 1.4.4
+  // and Lighthouse flags it. Users on small screens need to be able to zoom.
+  width: 'device-width',
+  initialScale: 1,
 };
 
 export default async function RootLayout({ children }) {
@@ -49,9 +77,13 @@ export default async function RootLayout({ children }) {
   const serverConfig = await getServerConfig();
 
   return (
-    <html lang="id" className={`${inter.variable} ${playfair.variable} ${jetbrainsMono.variable}`}>
+    <html lang="id" className={`${jakarta.variable} ${outfit.variable} ${jetbrainsMono.variable}`}>
       <head>
-        <link rel="preload" href="/wallpaper.webp" as="image" type="image/webp" fetchPriority="high" />
+        {/*
+          The wallpaper preload was dropped: it is a decorative background used
+          at 3–8% opacity, so fetching it at high priority competed with the
+          LCP text and the font files for early bandwidth.
+        */}
         <link rel="sitemap" type="application/xml" title="Sitemap" href="/sitemap.xml" />
         <script
           type="application/ld+json"
