@@ -112,11 +112,12 @@ export function Navbar() {
                   'inline-flex min-h-[48px] items-center gap-1.5 rounded-full px-4 text-xs font-bold',
                   'will-change-transform [transition:transform_150ms_ease,box-shadow_150ms_ease,color_150ms_ease]',
                   'active:scale-[0.96]',
-                  isDonate
-                    ? 'neu-lime'
-                    : isActive
-                      ? 'bg-[#fff8f0] text-[#1d2b1f] shadow-[var(--neu-in)]'
-                      : 'text-[#4a5e3a] hover:text-[#1d2b1f] hover:shadow-[var(--neu-out)]'
+                  // "Donasi" used to be painted lime here, making it the only
+                  // nav item that read as a separate product. Lime is now
+                  // reserved for the single "Join Now" CTA on the right.
+                  isActive
+                    ? 'bg-[#fff8f0] text-[#1d2b1f] shadow-[var(--neu-in)]'
+                    : 'text-[#4a5e3a] hover:text-[#1d2b1f] hover:shadow-[var(--neu-out)]'
                 )}
               >
                 <link.icon size={13} className="shrink-0" aria-hidden="true" />
@@ -177,11 +178,9 @@ export function Navbar() {
                   className={cn(
                     'flex min-h-[52px] items-center gap-2.5 rounded-[var(--radius-neu)] px-4 text-sm font-bold',
                     '[transition:transform_150ms_ease,box-shadow_150ms_ease] active:scale-[0.98]',
-                    isDonate
-                      ? 'neu-lime'
-                      : isActive
-                        ? 'bg-[#fff8f0] text-[#1d2b1f] shadow-[var(--neu-in)]'
-                        : 'text-[#4a5e3a]'
+                    isActive
+                      ? 'bg-[#fff8f0] text-[#1d2b1f] shadow-[var(--neu-in)]'
+                      : 'text-[#4a5e3a]'
                   )}
                 >
                   <link.icon size={16} aria-hidden="true" />

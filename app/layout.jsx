@@ -3,6 +3,7 @@ import { ToastProvider } from '@/context/ToastContext';
 import { AuthProvider } from '@/context/AuthContext';
 import { PlayerAuthProvider } from '@/context/PlayerAuthContext';
 import { ServerConfigProvider } from '@/context/ServerConfigContext';
+import { PageLoader } from '@/components/layout/PageLoader';
 import { getServerConfig } from '@/lib/serverConfig';
 import '../src/index.css';
 
@@ -103,7 +104,15 @@ export default async function RootLayout({ children }) {
         <ServerConfigProvider value={serverConfig}>
           <ToastProvider>
             <AuthProvider>
-              <PlayerAuthProvider>{children}</PlayerAuthProvider>
+              <PlayerAuthProvider>
+                {/*
+                  Rendered AFTER children so it layers on top without ever
+                  gating them — the page underneath is complete and interactive
+                  even if the loader misbehaves.
+                */}
+                {children}
+                <PageLoader />
+              </PlayerAuthProvider>
             </AuthProvider>
           </ToastProvider>
         </ServerConfigProvider>

@@ -234,6 +234,70 @@
   }
   .cv-auto-sm { content-visibility: auto; contain-intrinsic-size: auto 480px; }
 
+  /* ---- First-paint loader --------------------------------------------- */
+  /*
+   * Sits above the page for ~0.6s on a cold open / hard refresh. The content
+   * beneath is already rendered, so this is decoration, never a gate — see the
+   * safety notes in PageLoader.jsx.
+   */
+  .page-loader {
+    position: fixed;
+    inset: 0;
+    z-index: 9998;
+    display: grid;
+    place-content: center;
+    justify-items: center;
+    gap: 1.5rem;
+    background: var(--neu-base);
+    animation: loader-in 200ms ease-out;
+  }
+  .page-loader.is-leaving {
+    animation: loader-out 320ms ease-in forwards;
+    pointer-events: none;
+  }
+
+  .page-loader__mark {
+    position: relative;
+    display: grid;
+    place-items: center;
+    width: 96px;
+    height: 96px;
+    border-radius: 50%;
+    background: var(--neu-grad);
+    box-shadow: var(--neu-out-lg);
+    color: #1d2b1f;
+  }
+  .page-loader__mark svg {
+    width: 38px;
+    height: 38px;
+    animation: loader-pulse 1.4s ease-in-out infinite;
+  }
+
+  /* Sweeping arc — transform-only, so it stays on the compositor. */
+  .page-loader__ring {
+    position: absolute;
+    inset: -9px;
+    border-radius: 50%;
+    background: conic-gradient(from 0deg, transparent 0deg 270deg, #a8f040 330deg, transparent 360deg);
+    mask: radial-gradient(farthest-side, transparent calc(100% - 4px), #000 calc(100% - 3px));
+    -webkit-mask: radial-gradient(farthest-side, transparent calc(100% - 4px), #000 calc(100% - 3px));
+    animation: loader-spin 900ms linear infinite;
+    will-change: transform;
+  }
+
+  .page-loader__word {
+    font-family: var(--font-display);
+    font-size: 1.05rem;
+    font-weight: 800;
+    letter-spacing: 0.02em;
+    color: #1d2b1f;
+  }
+  .page-loader__word span { color: #3d7208; }
+
+  @media (prefers-reduced-motion: reduce) {
+    .page-loader { display: none; }
+  }
+
   /* ---- Entrance animation --------------------------------------------- */
   /*
    * Pure CSS, runs once on mount. Crucially it animates FROM a faded state TO
@@ -278,4 +342,20 @@
 @keyframes neu-rise {
   from { opacity: 0; transform: translate3d(0, 16px, 0); }
   to   { opacity: 1; transform: none; }
+}
+
+@keyframes loader-in {
+  from { opacity: 0; }
+  to   { opacity: 1; }
+}
+@keyframes loader-out {
+  from { opacity: 1; }
+  to   { opacity: 0; visibility: hidden; }
+}
+@keyframes loader-spin {
+  to { transform: rotate(360deg); }
+}
+@keyframes loader-pulse {
+  0%, 100% { transform: scale(1); opacity: 1; }
+  50%      { transform: scale(0.9); opacity: 0.65; }
 }

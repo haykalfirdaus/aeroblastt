@@ -86,7 +86,9 @@ export function Footer() {
             </p>
             <ul className="flex flex-col gap-0.5">
               {LINKS.map((l) => {
-                const isDonate = l.to === '/donate';
+                // "Donasi" no longer gets its own lime treatment — it is just
+                // another page, and singling it out made it read as a separate
+                // product from the rest of the site.
                 return (
                   <li key={l.to}>
                     <Link
@@ -95,16 +97,10 @@ export function Footer() {
                       className={cn(
                         'inline-flex min-h-[40px] items-center gap-2 rounded-full px-1 text-xs',
                         '[transition:transform_150ms_ease,color_150ms_ease] hover:translate-x-1',
-                        isDonate
-                          ? 'font-bold text-[#BFFF5E] hover:text-[#d4ff80]'
-                          : 'text-[#fff8f0]/85 hover:text-[#BFFF5E]'
+                        'text-[#fff8f0]/85 hover:text-[#BFFF5E]'
                       )}
                     >
-                      <l.icon
-                        size={13}
-                        className={isDonate ? 'text-[#BFFF5E]' : 'text-[#fff8f0]/75'}
-                        aria-hidden="true"
-                      />
+                      <l.icon size={13} className="text-[#fff8f0]/75" aria-hidden="true" />
                       {l.label}
                     </Link>
                   </li>

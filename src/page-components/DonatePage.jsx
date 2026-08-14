@@ -246,7 +246,7 @@ export default function DonatePage() {
         </h1>
         <p data-aos="fade-up" data-aos-delay="200" data-aos-duration="700" className="relative mt-1.5 flex items-center justify-center gap-1.5 text-xs text-[#4a5e3a]">
           Bantu server tetap berjalan &amp; masuk leaderboard donatur!
-          <Heart size={12} aria-hidden="true" className="fill-[#3d7208] text-[#3d7208]" />
+          <Heart size={12} aria-hidden="true" className="fill-[#1d2b1f] text-[#1d2b1f]" />
         </p>
       </div>
 
@@ -266,14 +266,14 @@ export default function DonatePage() {
                 <div>
                   <h2 className="flex items-center justify-center gap-2 font-display text-2xl font-extrabold text-[#1d2b1f]">
                     Donasi Diterima!
-                    <PartyPopper size={22} aria-hidden="true" className="text-[#3d7208]" />
+                    <PartyPopper size={22} aria-hidden="true" className="text-[#1d2b1f]" />
                   </h2>
                   <p className="mt-2 text-sm text-[#4a5e3a]">
                     Transfer <span className="font-bold text-[#1d2b1f]">{formatRupiah(order?.totalAmount ?? 0)}</span> sudah masuk.
                   </p>
                   <p className="mt-0.5 flex items-center justify-center gap-1.5 text-sm text-[#4a5e3a]">
                     Terima kasih telah mendukung AeroBlast Network!
-                    <Heart size={14} aria-hidden="true" className="fill-[#3d7208] text-[#3d7208]" />
+                    <Heart size={14} aria-hidden="true" className="fill-[#1d2b1f] text-[#1d2b1f]" />
                   </p>
                   {loggedNick && (
                     <p className="mt-3 rounded-[var(--radius-neu)] bg-[#fff8f0] px-3 py-2 text-xs text-[#1d2b1f] shadow-[var(--neu-in)]">
@@ -325,7 +325,7 @@ export default function DonatePage() {
                       <span className={cn('font-mono text-xs font-bold', expUrgent ? 'text-danger' : 'text-[#1d2b1f]')}>{expLabel}</span>
                     </div>
                     <div className="h-1.5 w-full overflow-hidden rounded-full bg-[#fff8f0] shadow-[var(--neu-in)]">
-                      <div className={cn('h-full rounded-full transition-all duration-1000', expUrgent ? 'bg-danger' : 'bg-[#8fc93a]')} style={{ width: `${expPct}%` }} />
+                      <div className={cn('h-full rounded-full transition-all duration-1000', expUrgent ? 'bg-danger' : 'bg-[#a8f040]')} style={{ width: `${expPct}%` }} />
                     </div>
                   </div>
 
@@ -443,11 +443,11 @@ export default function DonatePage() {
                       Atau ketik nominal <span className="font-normal text-[#5a7048]">(min. Rp 1.000)</span>
                     </label>
                     <div className="relative">
-                      <span aria-hidden="true" className="absolute left-4 top-1/2 z-10 -translate-y-1/2 text-xs font-bold text-[#4a5e3a]">Rp</span>
+                      <span aria-hidden="true" className="pointer-events-none absolute left-[1.15rem] top-1/2 z-10 -translate-y-1/2 text-xs font-bold text-[#4a5e3a]">Rp</span>
                       <TextField id="donate-page-amount" type="text" inputMode="numeric"
                         value={amount ? Number(amount).toLocaleString('id-ID') : ''}
                         onChange={handleAmountInput} placeholder="0"
-                        className="pl-10 font-mono" />
+                        className="neu-field-icon font-mono" />
                     </div>
                     {amount && !isValid && <p className="mt-1 text-[11px] text-danger">Nominal minimal Rp 1.000</p>}
                   </div>
@@ -632,7 +632,7 @@ export default function DonatePage() {
                   </p>
                   <p className="mt-0.5 flex items-center gap-1 text-[10px] text-[#4a5e3a]">
                     dari {recent.length} donasi · Terima kasih!
-                    <Heart size={10} aria-hidden="true" className="fill-[#3d7208] text-[#3d7208]" />
+                    <Heart size={10} aria-hidden="true" className="fill-[#1d2b1f] text-[#1d2b1f]" />
                   </p>
                 </div>
               )}

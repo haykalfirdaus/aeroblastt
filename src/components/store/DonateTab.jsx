@@ -153,7 +153,7 @@ export function DonateTab() {
           </p>
           <p className="mt-0.5 flex items-center justify-center gap-1.5 text-sm text-[#4a5e3a]">
             Terima kasih telah mendukung AeroBlast Network!
-            <Heart size={14} aria-hidden="true" className="fill-[#3d7208] text-[#3d7208]" />
+            <Heart size={14} aria-hidden="true" className="fill-[#1d2b1f] text-[#1d2b1f]" />
           </p>
           {name.trim() && (
             <p className="mt-1 text-xs text-[#5a7048]">— {name.trim()}</p>
@@ -232,7 +232,7 @@ export function DonateTab() {
             </div>
             <div className="h-1.5 w-full overflow-hidden rounded-full bg-[#fff8f0] shadow-[var(--neu-in)]">
               <div
-                className={cn('h-full rounded-full transition-all duration-1000', expUrgent ? 'bg-danger' : 'bg-[#8fc93a]')}
+                className={cn('h-full rounded-full transition-all duration-1000', expUrgent ? 'bg-danger' : 'bg-[#a8f040]')}
                 style={{ width: `${expPct}%` }}
               />
             </div>
@@ -351,7 +351,7 @@ export function DonateTab() {
             Atau ketik nominal <span className="text-[#5a7048] font-normal">(min. Rp 1.000)</span>
           </label>
           <div className="relative">
-            <span aria-hidden="true" className="absolute left-4 top-1/2 z-10 -translate-y-1/2 text-xs font-bold text-[#4a5e3a]">Rp</span>
+            <span aria-hidden="true" className="pointer-events-none absolute left-[1.15rem] top-1/2 z-10 -translate-y-1/2 text-xs font-bold text-[#4a5e3a]">Rp</span>
             <TextField
               id="donate-amount"
               type="text"
@@ -359,7 +359,7 @@ export function DonateTab() {
               value={amount ? Number(amount).toLocaleString('id-ID') : ''}
               onChange={handleAmountInput}
               placeholder="0"
-              className="pl-10 font-mono"
+              className="neu-field-icon font-mono"
             />
           </div>
           {amount && !isValid && (
