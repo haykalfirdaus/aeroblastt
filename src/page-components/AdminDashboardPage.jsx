@@ -666,7 +666,9 @@ function CosmeticOrderItem({ item, onDone, deleting }) {
   }, [d.prefixText, d.base, d.prefixColor, d.icon, d.textColor, d.shadowColor]);
 
   function handleDownload() {
-    const url = prefixTagDataURL(cfg, 8);
+    // Scale 1 = ukuran pixel asli 74×12 — yang dipakai texture resourcepack.
+    // Versi diperbesar hanya untuk preview di layar, bukan untuk file.
+    const url = prefixTagDataURL(cfg, 1);
     if (!url) return;
     const a = document.createElement('a');
     a.download = `prefix-${(item.nick || 'player').replace(/[^\w.-]/g, '_')}-${String(d.prefixText || 'custom').toLowerCase().replace(/[^\w-]/g, '_')}.png`;
@@ -703,7 +705,7 @@ function CosmeticOrderItem({ item, onDone, deleting }) {
           onClick={handleDownload}
           className="flex flex-1 items-center justify-center gap-1.5 rounded-lg border border-[#BFFF5E]/50 bg-[#BFFF5E]/15 py-1.5 text-xs font-semibold text-[#1d2b1f] transition-colors hover:bg-[#BFFF5E]/25 hover:border-[#BFFF5E]/70"
         >
-          <Download size={13} /> Download PNG (74×12 ×8)
+          <Download size={13} /> Download PNG (74×12)
         </button>
         <button
           onClick={() => onDone(item.id)}
