@@ -5,6 +5,7 @@ import {
   BellRing,
   CheckCircle,
   Clock,
+  Download,
   FileText,
   Heart,
   LogOut,
@@ -14,6 +15,7 @@ import {
   Save,
   Server,
   Shield,
+  Sparkles,
   Terminal,
   Trash2,
   Zap,
@@ -22,6 +24,7 @@ import { useAuth } from '@/context/AuthContext';
 import { useToast } from '@/context/ToastContext';
 import { Button } from '@/components/ui/Button';
 import { cn } from '@/lib/cn';
+import { drawPrefixTag, prefixTagDataURL, ICON_LABELS } from '@/lib/prefixTag';
 
 // ---------------------------------------------------------------------------
 // Shared primitives
@@ -535,6 +538,158 @@ function DonateOrderItem({ item, onMark, onDelete, marking, deleting, confirming
             </button>
           </div>
         )}
+      </div>
+    </div>
+  );
+}
+
+// ---------------------------------------------------------------------------
+// Section: Custom Prefix lunas — antrean download PNG
+// ---------------------------------------------------------------------------
+
+/*
+ * Hanya order cosmetic berstatus PAID yang muncul di sini (endpoint-nya
+ * memfilter), jadi PNG tidak pernah bisa diambil sebelum dibayar. Pembeli
+ * sendiri tidak punya tombol download sama sekali — file dipasang admin.
+ */
+function CosmeticOrdersSection() {
+  const showToast = useToast();
+  const [items, setItems] = useState([]);
+  const [fetching, setFetching] = useState(true);
+  const [deletingId, setDeletingId] = useState(null);
+
+  const fetchOrders = useCallback(async () => {
+    try {
+      const res = await fetch('/api/admin/cosmetic-orders', { credentials: 'include' });
+      if (!res.ok) throw new Error('Gagal memuat order prefix');
+      const data = await res.json();
+      setItems(Array.isArray(data) ? data : []);
+    } catch (err) {
+      showToast(err.message, 'error');
+    } finally {
+      setFetching(false);
+    }
+  }, [showToast]);
+
+  useEffect(() => {
+    fetchOrders();
+    const interval = setInterval(fetchOrders, 10000);
+    function onFocus() { fetchOrders(); }
+    window.addEventListener('focus', onFocus);
+    return () => {
+      clearInterval(interval);
+      window.removeEventListener('focus', onFocus);
+    };
+  }, [fetchOrders]);
+
+  async function handleDone(id) {
+    if (deletingId) return;
+    setDeletingId(id);
+    try {
+      await fetch(`/api/admin/cosmetic-orders?id=${encodeURIComponent(id)}`, {
+        method: 'DELETE',
+        credentials: 'include',
+      });
+      setItems((prev) => prev.filter((i) => i.id !== id));
+      showToast('Order prefix ditandai selesai', 'success');
+    } catch {
+      showToast('Gagal menghapus order', 'error');
+    } finally {
+      setDeletingId(null);
+    }
+  }
+
+  return (
+    <SectionCard icon={Sparkles} title="Custom Prefix Lunas" badge={items.length > 0 ? items.length : undefined}>
+      {fetching ? (
+        <div className="flex justify-center py-10">
+          <span className="h-6 w-6 animate-spin rounded-md border-2 border-[#BFFF5E]/20 border-t-[#BFFF5E]" />
+        </div>
+      ) : items.length === 0 ? (
+        <div className="flex flex-col items-center justify-center gap-2 py-10 text-center">
+          <Sparkles size={32} className="text-[#BFFF5E]/40" />
+          <p className="text-sm text-[#4a5e3a]">Tidak ada prefix yang menunggu dipasang.</p>
+        </div>
+      ) : (
+        <div className="space-y-2">
+          <p className="mb-2 text-xs font-semibold uppercase tracking-wide text-[#4a5e3a]">
+            Sudah dibayar — download PNG lalu pasang ke resourcepack
+          </p>
+          {items.map((item) => (
+            <CosmeticOrderItem key={item.id} item={item} onDone={handleDone} deleting={deletingId === item.id} />
+          ))}
+        </div>
+      )}
+    </SectionCard>
+  );
+}
+
+function CosmeticOrderItem({ item, onDone, deleting }) {
+  const canvasRef = useRef(null);
+  const d = item.details || {};
+  const cfg = {
+    text: d.prefixText || 'CUSTOM',
+    base: d.base || d.prefixColor || '#d0d0d0',
+    icon: d.icon || 'basic',
+    textColor: d.textColor || '#ffffff',
+    shadowColor: d.shadowColor || '#000000',
+  };
+
+  useEffect(() => {
+    drawPrefixTag(canvasRef.current, cfg, 8);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [d.prefixText, d.base, d.prefixColor, d.icon, d.textColor, d.shadowColor]);
+
+  function handleDownload() {
+    const url = prefixTagDataURL(cfg, 8);
+    if (!url) return;
+    const a = document.createElement('a');
+    a.download = `prefix-${(item.nick || 'player').replace(/[^\w.-]/g, '_')}-${String(d.prefixText || 'custom').toLowerCase().replace(/[^\w-]/g, '_')}.png`;
+    a.href = url;
+    a.click();
+  }
+
+  return (
+    <div className="rounded-md border border-[#BFFF5E]/30 bg-[#BFFF5E]/[0.04] px-4 py-3">
+      <div className="flex flex-wrap items-center gap-2">
+        <span className="font-semibold text-sm text-[#1d2b1f]">{item.nick}</span>
+        <span className="text-xs text-[#4a5e3a]">·</span>
+        <span className="text-xs text-[#4a5e3a]">{item.platform}</span>
+        <span className="rounded border border-2 border-[#1d2b1f] bg-[#f5ece0] px-1.5 py-0.5 text-[10px] text-[#4a5e3a]">
+          {ICON_LABELS[cfg.icon] || cfg.icon}
+        </span>
+        <span className="ml-auto font-mono text-sm font-bold text-[#1d2b1f]">{formatRupiah(item.totalAmount)}</span>
+      </div>
+
+      <div className="mt-2.5 rounded-md bg-[#2b2b2b] p-3">
+        <canvas ref={canvasRef} className="[image-rendering:pixelated]" style={{ width: 222, maxWidth: '100%', height: 'auto' }} />
+      </div>
+
+      <div className="mt-2 flex flex-wrap items-center gap-x-3 gap-y-1 text-[11px] text-[#4a5e3a]">
+        <span>Teks: <b className="text-[#1d2b1f]">{d.prefixText}</b></span>
+        <span>Base: <span className="font-mono">{cfg.base}</span></span>
+        <span>Teks/Shadow: <span className="font-mono">{cfg.textColor} / {cfg.shadowColor}</span></span>
+        {d.nickColor && <span>Nick: <span className="font-mono">{d.nickColor}</span></span>}
+        {item.paidAt && <span className="ml-auto">Lunas {new Date(item.paidAt).toLocaleString('id-ID')}</span>}
+      </div>
+
+      <div className="mt-2.5 flex items-center gap-2">
+        <button
+          onClick={handleDownload}
+          className="flex flex-1 items-center justify-center gap-1.5 rounded-lg border border-[#BFFF5E]/50 bg-[#BFFF5E]/15 py-1.5 text-xs font-semibold text-[#1d2b1f] transition-colors hover:bg-[#BFFF5E]/25 hover:border-[#BFFF5E]/70"
+        >
+          <Download size={13} /> Download PNG (74×12 ×8)
+        </button>
+        <button
+          onClick={() => onDone(item.id)}
+          disabled={deleting}
+          aria-label="Tandai selesai dipasang"
+          className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg border border-danger/30 bg-danger/[0.07] text-danger transition-colors hover:bg-danger/15 disabled:cursor-not-allowed disabled:opacity-40"
+        >
+          {deleting
+            ? <span className="h-3 w-3 animate-spin rounded-md border border-danger/40 border-t-danger" />
+            : <Trash2 size={13} />}
+        </button>
       </div>
     </div>
   );
@@ -1596,6 +1751,10 @@ export default function AdminDashboardPage() {
         {/* Donate orders — full width */}
         <div className="mb-6">
           <DonateOrdersSection />
+        </div>
+
+        <div className="mb-6">
+          <CosmeticOrdersSection />
         </div>
 
         {/* Announcements + Discounts — side by side */}

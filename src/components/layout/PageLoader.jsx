@@ -4,9 +4,8 @@ import { useEffect, useState } from 'react';
 /**
  * First-paint loading overlay.
  *
- * Shows once per browser tab: on a cold open or a hard refresh, but NOT when
- * navigating between routes (client-side navigation keeps the module alive, and
- * `sessionStorage` survives soft reloads within the tab).
+ * Shows on every cold open / hard refresh, but NOT when navigating between
+ * routes (client-side navigation never re-mounts the root layout).
  *
  * SAFETY: the overlay is an ADDITIVE layer on top of the page, never a gate in
  * front of it. The content underneath is fully rendered and interactive the
@@ -20,32 +19,20 @@ import { useEffect, useState } from 'react';
  * strictly worse than having no loader.
  */
 
-const KEY = 'aeroblast:seen-loader';
-const HOLD_MS = 620; // long enough to read the mark, short enough not to annoy
-const HARD_CAP_MS = 2000;
+const HOLD_MS = 1400; // panjang penuh animasi brand — tampil di TIAP hard load
+const HARD_CAP_MS = 3000;
 
 export function PageLoader() {
   const [visible, setVisible] = useState(false);
   const [leaving, setLeaving] = useState(false);
 
   useEffect(() => {
-    let seen = false;
-    try {
-      seen = sessionStorage.getItem(KEY) === '1';
-    } catch {
-      // Private mode / storage disabled — treat as "already seen" so the
-      // loader never becomes a recurring annoyance we cannot suppress.
-      seen = true;
-    }
-
-    if (seen) return;
-    if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
-      try { sessionStorage.setItem(KEY, '1'); } catch { /* noop */ }
-      return;
-    }
+    // Sengaja TANPA guard sessionStorage: loader tampil pada setiap cold open
+    // dan hard refresh. Navigasi client-side antar halaman tidak me-remount
+    // layout, jadi pindah route tetap tidak memicunya.
+    if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
 
     setVisible(true);
-    try { sessionStorage.setItem(KEY, '1'); } catch { /* noop */ }
 
     const dismiss = () => {
       setLeaving(true);

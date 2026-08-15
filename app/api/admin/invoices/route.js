@@ -56,7 +56,12 @@ export async function PATCH(request) {
   if (error || !data) return NextResponse.json({ ok: false, error: 'Invoice tidak ditemukan atau sudah lunas' }, { status: 404 });
 
   const { data: linkedOrder } = await supabase.from('beta_orders').select('id').eq('invoice_id', id).neq('status', 'expired').maybeSingle();
-  if (linkedOrder?.id) await supabase.from('beta_orders').update({ status: 'expired' }).eq('id', linkedOrder.id);
+  if (linkedOrder?.id) {
+    // Cosmetic tetap hidup sebagai 'paid' — antrean download PNG admin
+    // (cosmetic-orders) membacanya dari sana. Tipe lain cukup dimatikan.
+    if (data.type === 'cosmetic') await supabase.from('beta_orders').update({ status: 'paid', paid_at: new Date().toISOString() }).eq('id', linkedOrder.id);
+    else await supabase.from('beta_orders').update({ status: 'expired' }).eq('id', linkedOrder.id);
+  }
 
   let rconResult = null;
   if (data.type === 'rank' && data.details?.target) rconResult = await grantRank(data.nick, data.details.target, data.details.duration ?? 'permanent');

@@ -84,7 +84,7 @@ export function Navbar() {
         >
           <span className="grid h-10 w-10 place-items-center rounded-[13px] bg-[#fff8f0] shadow-[var(--neu-out)]">
             <Image
-              src="/logo.png"
+              src="/aeroblastlogo.png"
               alt=""
               width={26}
               height={26}

@@ -49,8 +49,9 @@ export function Footer() {
           {/* Brand */}
           <div className="flex flex-col gap-4">
             <Link href="/" className="flex min-h-[48px] w-fit items-center gap-2.5">
-              <span className="neu-dark-out grid h-10 w-10 place-items-center rounded-[13px]">
-                <Image src="/logo.png" alt="" width={26} height={26} className="rounded-lg object-cover" />
+              {/* Logo hitam — butuh plate terang di footer gelap */}
+              <span className="grid h-10 w-10 place-items-center rounded-[13px] bg-[#fff8f0]">
+                <Image src="/aeroblastlogo.png" alt="" width={26} height={26} className="rounded-lg object-cover" />
               </span>
               <span className="font-display text-sm font-extrabold text-[#fff8f0]">
                 Aero<span className="text-[#BFFF5E]">Blast</span>

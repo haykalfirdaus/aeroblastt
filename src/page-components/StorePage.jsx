@@ -86,7 +86,13 @@ export default function StorePage() {
           role="tablist"
           aria-label="Kategori store"
           onKeyDown={handleKeyDown}
-          className="no-scrollbar neu-wrap flex gap-2 overflow-x-auto md:justify-center"
+          className={cn(
+            // Padding di DALAM scroll container, bukan margin di pill-nya:
+            // shadow neumorphic menjorok keluar elemen, dan overflow-x-auto
+            // memotongnya tepat di tepi — itu yang tadinya terlihat seperti
+            // pill "nabrak"/ngebug dengan pill sebelahnya saat di-scroll.
+            'no-scrollbar neu-wrap flex gap-3 overflow-x-auto px-4 py-4 md:justify-center'
+          )}
         >
           {TABS.map((tab) => {
             const TabIcon = tab.icon;
@@ -103,11 +109,13 @@ export default function StorePage() {
                 onClick={() => setActiveTab(tab.id)}
                 className={cn(
                   'inline-flex min-h-[48px] shrink-0 cursor-pointer items-center gap-2 rounded-full px-5 text-sm font-bold',
-                  'will-change-transform [transition:transform_150ms_ease,box-shadow_150ms_ease,color_150ms_ease]',
+                  'will-change-transform [transition:transform_150ms_ease,box-shadow_150ms_ease,color_150ms_ease,background-color_150ms_ease]',
                   'active:scale-[0.96]',
+                  // Aktif = pressed-in + tinted, jelas beda dari tetangganya
+                  // tanpa mengandalkan shadow yang bisa saling tumpang.
                   isActive
-                    ? 'bg-[#fff8f0] text-[#1d2b1f] shadow-[var(--neu-in)]'
-                    : 'bg-[#fff8f0] text-[#4a5e3a] shadow-[var(--neu-out)] hover:-translate-y-[2px] hover:text-[#1d2b1f]'
+                    ? 'bg-[#eef3e2] text-[#1d2b1f] shadow-[var(--neu-in)]'
+                    : 'bg-[#fff8f0] text-[#4a5e3a] shadow-[var(--neu-out)] hover:text-[#1d2b1f]'
                 )}
               >
                 <TabIcon size={16} aria-hidden="true" />
