@@ -372,12 +372,12 @@ export function renderMiniTag(cfg, doc = typeof document !== 'undefined' ? docum
   for (let y = 1; y <= 6; y++)
     for (let x = 10; x <= 63; x++) px(x, y, TONE[miniBgTone(x, y)]);
 
-  /* teks 5px di y1..y5, shadow +1/+1 */
+  /* teks 5px di y1..y5, shadow lurus 1px ke bawah (sama seperti versi besar) */
   const L = layout(cfg.text || '', tracking);
   const startX = Math.floor(37 - L.width / 2) + offx;
   const inArea = (x, y) => x >= 10 && x <= 63 && y >= 1 && y <= 6;
   for (const p of L.cells) {
-    const sx = startX + p.x + 1, sy = 2 + p.y;
+    const sx = startX + p.x, sy = 2 + p.y;
     if (inArea(sx, sy)) px(sx, sy, shadowColor);
   }
   for (const p of L.cells) {
