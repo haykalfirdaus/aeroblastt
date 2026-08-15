@@ -29,29 +29,37 @@ function QrisZoom({ src, amount, onClose }) {
   useLockBodyScroll(true);
   return createPortal(
     <div
-      className="fixed inset-0 z-[600] grid place-items-center bg-[#1d2b1f]/80 p-6"
+      className="fixed inset-0 z-[600] grid place-items-center bg-[#1d2b1f]/85"
       role="dialog"
       aria-modal="true"
       aria-label="QRIS diperbesar"
       onClick={onClose}
     >
-      <div className="flex flex-col items-center gap-3">
-        <div className="rounded-[var(--radius-neu-lg)] bg-white p-4 shadow-[var(--neu-out-lg)]">
-          <img
-            src={src}
-            alt="QRIS AeroBlast diperbesar"
-            className="block aspect-square w-[min(80vw,70vh,26rem)] object-contain [image-rendering:pixelated]"
-          />
-        </div>
-        <p className="text-sm font-bold text-[#fff8f0]">{formatRupiah(amount)}</p>
-        <button
-          type="button"
-          onClick={onClose}
-          className="flex min-h-[44px] items-center gap-1.5 rounded-full bg-[#fff8f0] px-5 text-xs font-bold text-[#1d2b1f] shadow-[var(--neu-out)]"
-        >
-          <X size={14} aria-hidden="true" /> Tutup
-        </button>
+      {/*
+        QR memenuhi layar: sisinya = 100% dari dimensi viewport terpendek
+        (100vmin), jadi selalu menyentuh tepi atas-bawah (landscape) atau
+        kiri-kanan (portrait). Padding putih di sekitar QR adalah quiet zone
+        yang memang dibutuhkan scanner.
+      */}
+      <div className="bg-white p-[2vmin]">
+        <img
+          src={src}
+          alt="QRIS AeroBlast diperbesar"
+          className="block aspect-square h-auto w-[96vmin] object-contain"
+        />
       </div>
+      {/* Nominal + tombol tutup mengambang di atas overlay agar tidak memakan tinggi QR */}
+      <p className="pointer-events-none absolute left-1/2 top-3 -translate-x-1/2 rounded-full bg-[#1d2b1f]/70 px-4 py-1.5 text-sm font-bold text-[#fff8f0]">
+        {formatRupiah(amount)}
+      </p>
+      <button
+        type="button"
+        onClick={onClose}
+        aria-label="Tutup"
+        className="absolute right-3 top-3 grid h-11 w-11 place-items-center rounded-full bg-[#fff8f0] text-[#1d2b1f] shadow-[var(--neu-out)]"
+      >
+        <X size={18} aria-hidden="true" />
+      </button>
     </div>,
     document.body,
   );
