@@ -81,6 +81,61 @@ function SectionCard({ icon: Icon, title, accent = 'neon-400', badge, children }
   );
 }
 
+/*
+ * Parser durasi ringkas: "1m" menit, "1h" jam, "1d" hari, "1w" minggu,
+ * "1mo" bulan (30 hari), "1y" tahun (365 hari). Angka polos = menit
+ * (kompatibel input lama). Desimal boleh ("1.5h"). Hasil: menit, atau null.
+ */
+const DURATION_UNITS = { m: 1, h: 60, d: 1440, w: 10080, mo: 43200, y: 525600 };
+
+function parseDuration(input) {
+  const s = String(input || '').trim().toLowerCase();
+  if (!s) return null;
+  const m = s.match(/^(\d+(?:[.,]\d+)?)\s*(mo|m|h|d|w|y)?$/);
+  if (!m) return null;
+  const n = parseFloat(m[1].replace(',', '.'));
+  if (!Number.isFinite(n) || n <= 0) return null;
+  return Math.round(n * DURATION_UNITS[m[2] || 'm']);
+}
+
+/** Label manusiawi dari hasil parse — feedback langsung di bawah input. */
+function describeDuration(minutes) {
+  if (!minutes) return null;
+  if (minutes % 525600 === 0) return `${minutes / 525600} tahun`;
+  if (minutes % 43200 === 0) return `${minutes / 43200} bulan`;
+  if (minutes % 10080 === 0) return `${minutes / 10080} minggu`;
+  if (minutes % 1440 === 0) return `${minutes / 1440} hari`;
+  if (minutes % 60 === 0) return `${minutes / 60} jam`;
+  return `${minutes.toLocaleString('id-ID')} menit`;
+}
+
+/** Input durasi ber-format + hint hasil parse. Dipakai Announcement & Diskon. */
+function DurationField({ value, onChange, disabled, placeholder = 'misal: 45m, 2h, 3d, 1w, 1mo, 1y' }) {
+  const minutes = parseDuration(value);
+  return (
+    <div>
+      <FieldLabel required>Durasi</FieldLabel>
+      <input
+        type="text"
+        inputMode="decimal"
+        value={value}
+        onChange={(e) => onChange(e.target.value)}
+        placeholder={placeholder}
+        required
+        disabled={disabled}
+        className={fieldBase}
+      />
+      <p className={cn('mt-1 text-[11px]', value && !minutes ? 'text-danger/80' : 'text-[#4a5e3a]')}>
+        {value
+          ? minutes
+            ? `= ${describeDuration(minutes)}`
+            : 'Format tidak dikenali — pakai 1m / 1h / 1d / 1w / 1mo / 1y'
+          : 'm = menit · h = jam · d = hari · w = minggu · mo = bulan · y = tahun'}
+      </p>
+    </div>
+  );
+}
+
 function formatRemaining(expiresAt) {
   const diff = new Date(expiresAt) - Date.now();
   if (diff <= 0) return 'Expired';
@@ -761,7 +816,7 @@ function AnnouncementsSection() {
         method: 'POST',
         credentials: 'include',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ text: text.trim(), durationMinutes: Number(duration) }),
+        body: JSON.stringify({ text: text.trim(), durationMinutes: parseDuration(duration) }),
       });
       if (!res.ok) {
         const d = await res.json().catch(() => ({}));
@@ -806,25 +861,12 @@ function AnnouncementsSection() {
             className={cn(fieldBase, 'resize-none')}
           />
         </div>
-        <div>
-          <FieldLabel required>Durasi (menit)</FieldLabel>
-          <input
-            type="number"
-            min={1}
-            max={10080}
-            value={duration}
-            onChange={(e) => setDuration(e.target.value)}
-            placeholder="misal: 60"
-            required
-            disabled={submitting}
-            className={fieldBase}
-          />
-        </div>
+        <DurationField value={duration} onChange={setDuration} disabled={submitting} />
         <Button
           type="submit"
           variant="primary"
           size="sm"
-          disabled={submitting || !text.trim() || !duration}
+          disabled={submitting || !text.trim() || !parseDuration(duration)}
           className="gap-1.5"
         >
           {submitting ? (
@@ -958,7 +1000,7 @@ function DiscountsSection() {
 
   async function handleAdd(e) {
     e.preventDefault();
-    if (!code.trim() || !percent || categories.length === 0 || !duration) return;
+    if (!code.trim() || !percent || categories.length === 0 || !parseDuration(duration)) return;
     setSubmitting(true);
     try {
       const res = await fetch('/api/admin/discounts', {
@@ -969,7 +1011,7 @@ function DiscountsSection() {
           code: code.trim().toUpperCase(),
           percent: Number(percent),
           categories,
-          durationMinutes: Number(duration),
+          durationMinutes: parseDuration(duration),
         }),
       });
       if (!res.ok) {
@@ -1084,26 +1126,13 @@ function DiscountsSection() {
           </p>
         </div>
 
-        <div>
-          <FieldLabel required>Durasi (menit)</FieldLabel>
-          <input
-            type="number"
-            min={1}
-            max={10080}
-            value={duration}
-            onChange={(e) => setDuration(e.target.value)}
-            placeholder="misal: 120"
-            required
-            disabled={submitting}
-            className={fieldBase}
-          />
-        </div>
+        <DurationField value={duration} onChange={setDuration} disabled={submitting} />
 
         <Button
           type="submit"
           variant="primary"
           size="sm"
-          disabled={submitting || !code.trim() || !percent || categories.length === 0 || !duration}
+          disabled={submitting || !code.trim() || !percent || categories.length === 0 || !parseDuration(duration)}
           className="gap-1.5"
         >
           {submitting ? (
