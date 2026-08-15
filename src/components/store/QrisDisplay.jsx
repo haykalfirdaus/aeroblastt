@@ -28,8 +28,10 @@ function QrisZoom({ src, amount, onClose }) {
   useEscapeKey(true, onClose);
   useLockBodyScroll(true);
   return createPortal(
+    /* Modal pembayaran (ui/Modal) memakai z-[9999], jadi lightbox HARUS di
+       atasnya — kalau tidak, QR tertutup form order + overlay gelapnya. */
     <div
-      className="fixed inset-0 z-[600] grid place-items-center bg-[#1d2b1f]/85"
+      className="fixed inset-0 z-[10050] grid place-items-center bg-[#1d2b1f]/85"
       role="dialog"
       aria-modal="true"
       aria-label="QRIS diperbesar"
