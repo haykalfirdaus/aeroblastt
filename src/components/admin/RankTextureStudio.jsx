@@ -5,13 +5,18 @@ import { useToast } from '@/context/ToastContext';
 import {
   TAG_W,
   TAG_H,
+  MINI_W,
+  MINI_H,
   TEXT_MAX_W,
+  MINI_TEXT_MAX_W,
   PRESETS,
   ICON_NAMES,
   autoTone,
   drawIconThumb,
   drawPrefixTag,
+  drawMiniTag,
   prefixTagDataURL,
+  miniTagDataURL,
   textWidth,
 } from '@/lib/prefixTag';
 
@@ -148,6 +153,9 @@ function IconThumb({ name, color, selected, onClick }) {
 export function RankTextureStudio() {
   const showToast = useToast();
 
+  // versi: 'big' 74×12 (template member.png) / 'mini' 65×8 (template silver.png)
+  const [size, setSize] = useState('big');
+
   // desain
   const [text, setText] = useState('MEMBER');
   const [fname, setFname] = useState('member');
@@ -190,15 +198,21 @@ export function RankTextureStudio() {
     [text, base, icon, useAutoTone, tone.mid, tone.dark, mid, dark, textColor, shadowColor, offx, tracking, icOwnColor, iconColor],
   );
 
+  const isMini = size === 'mini';
+  const W = isMini ? MINI_W : TAG_W;
+  const H = isMini ? MINI_H : TAG_H;
+  const maxW = isMini ? MINI_TEXT_MAX_W : TEXT_MAX_W;
   const tw = textWidth(text, cfg.tracking);
-  const fits = tw <= TEXT_MAX_W;
+  const fits = tw <= maxW;
+  const toPng = isMini ? miniTagDataURL : prefixTagDataURL;
 
   const prevRef = useRef(null);
   const chatRef = useRef(null);
   useEffect(() => {
-    drawPrefixTag(prevRef.current, cfg, 6);
-    drawPrefixTag(chatRef.current, cfg, 2);
-  }, [cfg]);
+    const draw = isMini ? drawMiniTag : drawPrefixTag;
+    draw(prevRef.current, cfg, 6);
+    draw(chatRef.current, cfg, 2);
+  }, [cfg, isMini]);
 
   const allocChar = useCallback(() => {
     const used = new Set(pack.map((p) => p.char));
@@ -208,12 +222,12 @@ export function RankTextureStudio() {
 
   function handleAdd() {
     if (!text.trim()) return showToast('Nama rank masih kosong', 'error');
-    if (!fits) return showToast(`Teks ${tw}px melebihi area ${TEXT_MAX_W}px`, 'error');
+    if (!fits) return showToast(`Teks ${tw}px melebihi area ${maxW}px`, 'error');
     let ch = glyph ? [...glyph][0] : allocChar();
     if (pack.some((p) => p.char === ch)) return showToast(`Karakter ${toU(ch)} sudah dipakai`, 'error');
     const name = (fname.trim() || 'tag').replace(/[^\w.-]/g, '_');
     if (pack.some((p) => p.file === name)) return showToast(`Nama file "${name}" sudah ada`, 'error');
-    const dataURL = prefixTagDataURL(cfg, 1);
+    const dataURL = toPng(cfg, 1);
     setPack((prev) => [
       ...prev,
       { file: name, char: ch, dataURL, height: Number(fheight), ascent: Number(fascent), folder: folder.trim() || 'ranks' },
@@ -223,7 +237,7 @@ export function RankTextureStudio() {
   }
 
   function handleDownloadPng() {
-    const url = prefixTagDataURL(cfg, 1);
+    const url = toPng(cfg, 1);
     if (!url) return;
     const a = document.createElement('a');
     a.download = (fname.trim() || 'tag') + '.png';
@@ -267,6 +281,42 @@ export function RankTextureStudio() {
     <div className="grid gap-5 lg:grid-cols-[340px_1fr]">
       {/* ===== Kontrol ===== */}
       <div className="flex flex-col gap-4">
+        {/* Toggle versi */}
+        <div className="rounded-[var(--radius-neu-lg)] bg-[#fff8f0] p-4 shadow-[var(--neu-out)]">
+          <Label>Versi template</Label>
+          <div className="flex gap-2">
+            {[
+              { id: 'big', label: `Besar ${TAG_W}×${TAG_H}`, hint: 'template member.png' },
+              { id: 'mini', label: `Mini ${MINI_W}×${MINI_H}`, hint: 'template silver.png' },
+            ].map((v) => (
+              <button
+                key={v.id}
+                type="button"
+                onClick={() => {
+                  setSize(v.id);
+                  // default provider yang pas untuk masing-masing template
+                  if (v.id === 'mini') { setFheight(8); setFascent(7); }
+                  else { setFheight(11); setFascent(9); }
+                }}
+                aria-pressed={size === v.id}
+                className={`flex min-h-[52px] flex-1 flex-col items-center justify-center gap-0.5 rounded-[var(--radius-neu)] px-3 py-2 text-xs font-bold [transition:box-shadow_150ms_ease,color_150ms_ease] ${
+                  size === v.id
+                    ? 'bg-[#eef3e2] text-[#1d2b1f] shadow-[var(--neu-in)]'
+                    : 'bg-[#fff8f0] text-[#4a5e3a] shadow-[var(--neu-out)] hover:text-[#1d2b1f]'
+                }`}
+              >
+                {v.label}
+                <span className="font-mono text-[10px] font-semibold opacity-70">{v.hint}</span>
+              </button>
+            ))}
+          </div>
+          {isMini && (
+            <p className="mt-2 text-[11px] text-[#4a5e3a]">
+              Versi mini: ikon blok polos (tanpa gambar), teks &amp; warna tetap bisa diatur.
+            </p>
+          )}
+        </div>
+
         {/* Rank */}
         <div className="rounded-[var(--radius-neu-lg)] bg-[#fff8f0] p-4 shadow-[var(--neu-out)]">
           <Label>Nama rank (teks di plate)</Label>
@@ -325,7 +375,8 @@ export function RankTextureStudio() {
           </div>
         </div>
 
-        {/* Ikon */}
+        {/* Ikon — hanya versi besar; ikon mini adalah blok polos dari template */}
+        {!isMini && (
         <div className="rounded-[var(--radius-neu-lg)] bg-[#fff8f0] p-4 shadow-[var(--neu-out)]">
           <Label>Ikon kiri (12×12) — diwarnai ulang mengikuti base</Label>
           <div className="grid grid-cols-4 gap-1.5">
@@ -343,6 +394,7 @@ export function RankTextureStudio() {
             </div>
           )}
         </div>
+        )}
 
         {/* Font provider */}
         <div className="rounded-[var(--radius-neu-lg)] bg-[#fff8f0] p-4 shadow-[var(--neu-out)]">
@@ -388,8 +440,8 @@ export function RankTextureStudio() {
       {/* ===== Preview + pack ===== */}
       <div className="flex min-w-0 flex-col gap-4">
         <p className="text-xs text-[#4a5e3a]">
-          Texture <b className="text-[#1d2b1f]">{TAG_W} × {TAG_H}px</b> · lebar teks{' '}
-          <b className={fits ? 'text-[#1d2b1f]' : 'text-warning'}>{tw}/{TEXT_MAX_W}px</b> · height{' '}
+          Texture <b className="text-[#1d2b1f]">{W} × {H}px</b> · lebar teks{' '}
+          <b className={fits ? 'text-[#1d2b1f]' : 'text-warning'}>{tw}/{maxW}px</b> · height{' '}
           <b className="text-[#1d2b1f]">{fheight}</b>, ascent <b className="text-[#1d2b1f]">{fascent}</b>
         </p>
 
@@ -403,12 +455,12 @@ export function RankTextureStudio() {
             backgroundPosition: '0 0, 8px 8px',
           }}
         >
-          <canvas ref={prevRef} className="[image-rendering:pixelated]" style={{ width: TAG_W * 6, maxWidth: '100%', height: 'auto' }} />
+          <canvas ref={prevRef} className="[image-rendering:pixelated]" style={{ width: W * 6, maxWidth: '100%', height: 'auto' }} />
         </div>
 
         {/* Chat line */}
         <div className="flex items-center gap-1.5 rounded-[var(--radius-neu-lg)] bg-[#2b2b2b] shadow-[var(--neu-in)] px-4 py-3 font-mono text-sm">
-          <canvas ref={chatRef} className="shrink-0 [image-rendering:pixelated]" style={{ width: TAG_W * 1.5, height: 'auto' }} />
+          <canvas ref={chatRef} className="shrink-0 [image-rendering:pixelated]" style={{ width: W * 1.5, height: 'auto' }} />
           <span className="text-white">Steve&gt; halo semua</span>
         </div>
 

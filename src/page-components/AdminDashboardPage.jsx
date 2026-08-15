@@ -128,6 +128,9 @@ function InvoicesSection() {
   const [fetching, setFetching] = useState(items.length === 0);
   const [markingId, setMarkingId] = useState(null);
   const [confirmId, setConfirmId] = useState(null);
+  // Section ini di-poll tiap 5 detik — kalau lagi error (mis. sesi habis),
+  // tanpa guard ini toast "gagal memuat" muncul terus tiap poll.
+  const erroredRef = useRef(false);
 
   const fetchInvoices = useCallback(async () => {
     try {
@@ -137,8 +140,10 @@ function InvoicesSection() {
       const list = Array.isArray(data) ? data : [];
       writeCache('admin:invoices', list);
       setItems(list);
+      erroredRef.current = false;
     } catch (err) {
-      showToast(err.message, 'error');
+      if (!erroredRef.current) showToast(err.message, 'error');
+      erroredRef.current = true;
     } finally {
       setFetching(false);
     }
@@ -353,6 +358,7 @@ function DonateOrdersSection() {
   const [markingId, setMarkingId] = useState(null);
   const [deletingId, setDeletingId] = useState(null);
   const [confirmId, setConfirmId] = useState(null);
+  const erroredRef = useRef(false);
 
   const fetchOrders = useCallback(async () => {
     try {
@@ -362,8 +368,10 @@ function DonateOrdersSection() {
       const list = Array.isArray(data.orders) ? data.orders : [];
       writeCache('admin:donate-orders', list);
       setItems(list);
+      erroredRef.current = false;
     } catch (err) {
-      showToast(err.message, 'error');
+      if (!erroredRef.current) showToast(err.message, 'error');
+      erroredRef.current = true;
     } finally {
       setFetching(false);
     }
@@ -571,6 +579,7 @@ function CosmeticOrdersSection() {
   const [items, setItems] = useState(() => readCache('admin:cosmetic-orders') || []);
   const [fetching, setFetching] = useState(items.length === 0);
   const [deletingId, setDeletingId] = useState(null);
+  const erroredRef = useRef(false);
 
   const fetchOrders = useCallback(async () => {
     try {
@@ -580,8 +589,10 @@ function CosmeticOrdersSection() {
       const list = Array.isArray(data) ? data : [];
       writeCache('admin:cosmetic-orders', list);
       setItems(list);
+      erroredRef.current = false;
     } catch (err) {
-      showToast(err.message, 'error');
+      if (!erroredRef.current) showToast(err.message, 'error');
+      erroredRef.current = true;
     } finally {
       setFetching(false);
     }

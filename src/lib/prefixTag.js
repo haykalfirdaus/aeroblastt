@@ -13,6 +13,10 @@
 export const TAG_W = 74;
 export const TAG_H = 12;
 
+/* Versi mini 65×8 — direplikasi pixel-per-pixel dari assetsmini/silver.png */
+export const MINI_W = 65;
+export const MINI_H = 8;
+
 const ICO_X0 = 0, ICO_X1 = 11; // kotak ikon kiri
 const GAP_X = 12;              // 1 kolom transparan
 const PLT_X0 = 13, PLT_X1 = 73; // plate teks
@@ -312,6 +316,109 @@ export function renderPrefixTag(cfg, doc = typeof document !== 'undefined' ? doc
   ctx.clearRect(GAP_X, 0, 1, TAG_H);
 
   return cv;
+}
+
+/*
+ * ===== Versi MINI 65×8 =====
+ * Replika pixel-per-pixel template assetsmini/silver.png — hanya palet dan
+ * teksnya yang diganti. Anatomi (dibaca dari PNG):
+ *  - kotak ikon x0..7 (border hitam #1d1d1d, isi blok dengan shading),
+ *    kolom x8 transparan, plate x9..64.
+ *  - turunan warna dari base: i92 = base×0.92 (isi ikon), mid = base×0.85,
+ *    dark = base×0.62 (silver: d0d0d0 → bfbfbf / b1b1b1 / 818181).
+ *  - teks glyph 5px di y1..y5, shadow +1/+1 memakai dark.
+ */
+function miniBgTone(x, y) {
+  // 0 = base, 1 = mid — pola dither plate silver.png
+  switch (y) {
+    case 1: return 0;
+    case 2: return x % 4 === 0 ? 1 : 0;
+    case 3: return x % 2 === 0 ? 1 : 0;
+    case 4: return x % 2 === 1 ? 1 : 0;
+    default: return 1; // y5, y6
+  }
+}
+
+export function renderMiniTag(cfg, doc = typeof document !== 'undefined' ? document : null) {
+  if (!doc) return null;
+  const base = cfg.base || '#d0d0d0';
+  const i92 = mulc(base, 0.92);
+  const mid = cfg.mid || mulc(base, 0.85);
+  const dark = cfg.dark || mulc(base, 0.62);
+  const textColor = cfg.textColor || '#ffffff';
+  const shadowColor = cfg.shadowColor || dark;
+  const tracking = Number.isFinite(cfg.tracking) ? cfg.tracking : 1;
+  const offx = Number.isFinite(cfg.offx) ? cfg.offx : 0;
+  const K = '#1d1d1d';
+
+  const cv = doc.createElement('canvas');
+  cv.width = MINI_W;
+  cv.height = MINI_H;
+  const ctx = cv.getContext('2d');
+  const px = (x, y, col) => { ctx.fillStyle = col; ctx.fillRect(x, y, 1, 1); };
+
+  /* kotak ikon x0..7 — blok shading persis silver.png */
+  for (let x = 0; x <= 7; x++) { px(x, 0, K); px(x, 7, K); }
+  for (let y = 1; y <= 6; y++) { px(0, y, K); px(7, y, K); }
+  for (let y = 1; y <= 2; y++) { px(1, y, base); px(6, y, base); for (let x = 2; x <= 5; x++) px(x, y, i92); }
+  px(1, 3, base); px(2, 3, base); px(3, 3, i92); px(4, 3, i92); px(5, 3, base); px(6, 3, base);
+  for (let y = 4; y <= 5; y++) { px(1, y, mid); px(6, y, mid); for (let x = 2; x <= 5; x++) px(x, y, i92); }
+  px(1, 6, mid); px(6, 6, mid); for (let x = 2; x <= 5; x++) px(x, 6, dark);
+
+  /* plate x9..64 */
+  for (let x = 9; x <= 64; x++) { px(x, 0, K); px(x, 7, K); }
+  for (let y = 1; y <= 6; y++) { px(9, y, K); px(64, y, K); }
+  const TONE = [base, mid];
+  for (let y = 1; y <= 6; y++)
+    for (let x = 10; x <= 63; x++) px(x, y, TONE[miniBgTone(x, y)]);
+
+  /* teks 5px di y1..y5, shadow +1/+1 */
+  const L = layout(cfg.text || '', tracking);
+  const startX = Math.floor(37 - L.width / 2) + offx;
+  const inArea = (x, y) => x >= 10 && x <= 63 && y >= 1 && y <= 6;
+  for (const p of L.cells) {
+    const sx = startX + p.x + 1, sy = 2 + p.y;
+    if (inArea(sx, sy)) px(sx, sy, shadowColor);
+  }
+  for (const p of L.cells) {
+    const sx = startX + p.x, sy = 1 + p.y;
+    if (inArea(sx, sy)) px(sx, sy, textColor);
+  }
+
+  /* kolom pemisah x8 transparan */
+  ctx.clearRect(8, 0, 1, MINI_H);
+
+  return cv;
+}
+
+/** Lebar teks maksimum versi mini (px). */
+export const MINI_TEXT_MAX_W = 63 - 10 + 1;
+
+/** Gambar tag mini ke canvas tujuan dengan zoom pixelated. */
+export function drawMiniTag(targetCanvas, cfg, zoom = 4) {
+  const src = renderMiniTag(cfg);
+  if (!src || !targetCanvas) return false;
+  targetCanvas.width = MINI_W * zoom;
+  targetCanvas.height = MINI_H * zoom;
+  const cx = targetCanvas.getContext('2d');
+  cx.imageSmoothingEnabled = false;
+  cx.clearRect(0, 0, targetCanvas.width, targetCanvas.height);
+  cx.drawImage(src, 0, 0, targetCanvas.width, targetCanvas.height);
+  return true;
+}
+
+/** dataURL PNG versi mini. */
+export function miniTagDataURL(cfg, scale = 1) {
+  const src = renderMiniTag(cfg);
+  if (!src) return null;
+  if (scale === 1) return src.toDataURL('image/png');
+  const cv = document.createElement('canvas');
+  cv.width = MINI_W * scale;
+  cv.height = MINI_H * scale;
+  const cx = cv.getContext('2d');
+  cx.imageSmoothingEnabled = false;
+  cx.drawImage(src, 0, 0, cv.width, cv.height);
+  return cv.toDataURL('image/png');
 }
 
 /** Gambar tag ke canvas tujuan dengan zoom pixelated. */
