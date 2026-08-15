@@ -1,10 +1,7 @@
 'use client';
 import { useEffect, useRef, useState } from 'react';
-import { Download, X, ZoomIn } from 'lucide-react';
+import { Download, ZoomIn } from 'lucide-react';
 import QRCode from 'qrcode';
-import { createPortal } from 'react-dom';
-import { useEscapeKey } from '@/hooks/useEscapeKey';
-import { useLockBodyScroll } from '@/hooks/useLockBodyScroll';
 import { formatRupiah } from '@/utils/currency';
 import { SITE } from '@/data/config';
 
@@ -18,66 +15,53 @@ const CANVAS_SIZE = 640;
 const DOWNLOAD_SIZE = 1024;
 
 /*
- * Lightbox pembesar QR — dipakai semua alur pembayaran (store & donate)
- * karena semuanya lewat QrisDisplay. Dirender lewat portal ke <body> supaya
- * tidak terpotong overflow/transform modal pembayaran yang menampungnya.
- * z-index di atas modal (300) dan toast (500) — QR yang sedang discan tidak
- * boleh ketutupan apa pun.
+ * Perbesar QR di TAB BARU — pendekatan lightbox/overlay ditinggalkan karena
+ * kalah tumpuk dengan modal pembayaran di sebagian device. Tab baru berisi
+ * halaman minimal: QR memenuhi sisi terpendek layar + nominal.
+ *
+ * dataURL tidak bisa dinavigasikan langsung ke tab baru (diblok browser
+ * modern), jadi PNG-nya di-embed ke dalam dokumen HTML yang ditulis ke tab.
  */
-function QrisZoom({ src, amount, onClose }) {
-  useEscapeKey(true, onClose);
-  useLockBodyScroll(true);
-  return createPortal(
-    /* Modal pembayaran (ui/Modal) memakai z-[9999], jadi lightbox HARUS di
-       atasnya — kalau tidak, QR tertutup form order + overlay gelapnya. */
-    <div
-      className="fixed inset-0 z-[10050] grid place-items-center bg-[#1d2b1f]/85"
-      role="dialog"
-      aria-modal="true"
-      aria-label="QRIS diperbesar"
-      onClick={onClose}
-    >
-      {/*
-        QR memenuhi layar: sisinya = 100% dari dimensi viewport terpendek
-        (100vmin), jadi selalu menyentuh tepi atas-bawah (landscape) atau
-        kiri-kanan (portrait). Padding putih di sekitar QR adalah quiet zone
-        yang memang dibutuhkan scanner.
-      */}
-      <div className="bg-white p-[2vmin]">
-        <img
-          src={src}
-          alt="QRIS AeroBlast diperbesar"
-          className="block aspect-square h-auto w-[96vmin] object-contain"
-        />
-      </div>
-      {/* Nominal + tombol tutup mengambang di atas overlay agar tidak memakan tinggi QR */}
-      <p className="pointer-events-none absolute left-1/2 top-3 -translate-x-1/2 rounded-full bg-[#1d2b1f]/70 px-4 py-1.5 text-sm font-bold text-[#fff8f0]">
-        {formatRupiah(amount)}
-      </p>
-      <button
-        type="button"
-        onClick={onClose}
-        aria-label="Tutup"
-        className="absolute right-3 top-3 grid h-11 w-11 place-items-center rounded-full bg-[#fff8f0] text-[#1d2b1f] shadow-[var(--neu-out)]"
-      >
-        <X size={18} aria-hidden="true" />
-      </button>
-    </div>,
-    document.body,
-  );
+function openQrisTab(src, amount) {
+  const win = window.open('', '_blank');
+  if (!win) return; // popup diblok — biarkan; user masih bisa pakai tombol download
+  win.document.write(`<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>QRIS AeroBlast — ${formatRupiah(amount)}</title>
+<style>
+  html,body{margin:0;height:100%;background:#1d2b1f;display:grid;place-items:center;
+    font-family:system-ui,sans-serif}
+  .wrap{display:flex;flex-direction:column;align-items:center;gap:12px;padding:8px}
+  .qr{background:#fff;padding:2vmin;line-height:0}
+  img{width:92vmin;height:92vmin;object-fit:contain;display:block}
+  p{color:#fff8f0;font-weight:700;font-size:15px;margin:0}
+  small{color:#fff8f0;opacity:.6;font-size:11px}
+</style>
+</head>
+<body>
+  <div class="wrap">
+    <div class="qr"><img src="${src}" alt="QRIS AeroBlast"></div>
+    <p>${formatRupiah(amount)}</p>
+    <small>Scan QR ini dengan aplikasi pembayaran, lalu kembali ke tab sebelumnya.</small>
+  </div>
+</body>
+</html>`);
+  win.document.close();
 }
 
 /**
  * Menampilkan QRIS dinamis (nominal sudah tertanam) untuk sebuah order.
  * Kalau payload dinamis tidak tersedia (env belum diset), fallback ke
  * gambar QRIS statis — player mengetik nominal manual seperti sebelumnya.
- * Tekan gambar QR untuk memperbesarnya (lightbox).
+ * Tekan gambar QR untuk membukanya besar di tab baru.
  */
 export function QrisDisplay({ payload, amount, label }) {
   const canvasRef = useRef(null);
   const [downloadUrl, setDownloadUrl] = useState('');
   const [failed, setFailed] = useState(false);
-  const [zoomed, setZoomed] = useState(false);
 
   useEffect(() => {
     if (!payload) return;
@@ -109,7 +93,7 @@ export function QrisDisplay({ payload, amount, label }) {
 
   const useStatic = !payload || failed;
   const fileName = `qris-aeroblast-${amount}.png`;
-  // Sumber gambar lightbox: dataURL resolusi download untuk QR dinamis,
+  // Sumber gambar tab pembesar: dataURL resolusi download untuk QR dinamis,
   // gambar statis untuk fallback.
   const zoomSrc = useStatic ? STATIC_QRIS_IMG : downloadUrl;
 
@@ -119,9 +103,9 @@ export function QrisDisplay({ payload, amount, label }) {
           muat di layar pendek tanpa mendorong tombol keluar dari modal. */}
       <button
         type="button"
-        onClick={() => zoomSrc && setZoomed(true)}
-        aria-label="Perbesar QRIS"
-        title="Tekan untuk memperbesar"
+        onClick={() => zoomSrc && openQrisTab(zoomSrc, amount)}
+        aria-label="Buka QRIS besar di tab baru"
+        title="Tekan untuk membuka versi besar di tab baru"
         className="cursor-zoom-in rounded-[var(--radius-neu-lg)] bg-white p-3 shadow-[var(--neu-out)] [transition:transform_150ms_ease] active:scale-[0.97]"
       >
         {useStatic ? (
@@ -141,7 +125,7 @@ export function QrisDisplay({ payload, amount, label }) {
 
       {/* Hint kecil & transparan — fitur zoom tidak kasat mata tanpa ini */}
       <p className="flex items-center gap-1 text-center text-[10px] leading-snug text-[#1d2b1f]/45">
-        <ZoomIn size={10} aria-hidden="true" /> Tekan QR untuk memperbesar
+        <ZoomIn size={10} aria-hidden="true" /> Tekan QR untuk versi besar (tab baru)
       </p>
 
       {useStatic ? (
@@ -168,8 +152,6 @@ export function QrisDisplay({ payload, amount, label }) {
           </p>
         </>
       )}
-
-      {zoomed && zoomSrc && <QrisZoom src={zoomSrc} amount={amount} onClose={() => setZoomed(false)} />}
     </div>
   );
 }
