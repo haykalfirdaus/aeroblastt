@@ -8,7 +8,7 @@ import { useTopVoters } from '@/hooks/useTopVoters';
 import { SITE } from '@/data/config';
 import { skinUrl } from '@/data/voterRewards';
 
-const MEDAL_COLORS = ['text-warning', 'text-[#5a7048]', 'text-rank-orbiter', 'text-[#4a5e3a]', 'text-[#4a5e3a]'];
+const MEDAL_COLORS = ['text-warning', 'text-[#5a7048]', 'text-[var(--color-rank-orbiter)]', 'text-[#4a5e3a]', 'text-[#4a5e3a]'];
 const MEDAL_LABELS = ['#1', '#2', '#3', '#4', '#5'];
 
 export function TopVotersPreview() {

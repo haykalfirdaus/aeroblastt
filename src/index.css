@@ -60,20 +60,6 @@
   --color-danger-bright: #f87171;
   --color-purple: #8b5cf6;
 
-  /* ---- Rank accent spectrum ------------------------------------------
-   * Mengikuti warna base prefix PNG in-game (scout kuning, voyager cyan,
-   * orbiter hijau, ravest merah, vortex ungu, quantum biru, galatics
-   * kuning-emas, universe magenta) — digelapkan secukupnya agar tetap
-   * kontras di latar krem, hue tidak diubah. */
-  --color-rank-scout: #8f8c00;    /* prefix #fffa00 */
-  --color-rank-voyager: #00889b;  /* prefix #00e1ff */
-  --color-rank-orbiter: #14a300;  /* prefix #1fff00 */
-  --color-rank-ravest: #d20000;   /* prefix #ff2929 */
-  --color-rank-vortex: #7d2fd0;   /* prefix #a03dff */
-  --color-rank-quantum: #1583b3;  /* prefix #33ccff */
-  --color-rank-galatics: #a98500; /* prefix #f9ff00 */
-  --color-rank-universe: #b23ad6; /* prefix #e68eff */
-
   /* ---- Command accent spectrum -------------------------------------- */
   --color-cmd-blue: #2563eb;
   --color-cmd-gold: #b45309;
@@ -90,6 +76,26 @@
   --animate-fade-up: fade-up 0.4s cubic-bezier(0.4, 0, 0.2, 1) forwards;
   --animate-pulse-dot: pulse-dot 1.8s ease-in-out infinite;
   --animate-float: float 6s ease-in-out infinite;
+}
+
+/*
+ * Rank accent spectrum — di :root, BUKAN @theme. Tailwind v4 men-tree-shake
+ * token @theme yang tidak dipakai kelas utility; warna ini dirujuk lewat
+ * style={{ background: var(--color-rank-…) }} inline, jadi di @theme sebagian
+ * (voyager/quantum/galatics) hilang dari CSS build dan garisnya transparan.
+ *
+ * Nilainya mengikuti warna base prefix PNG in-game, digelapkan secukupnya
+ * agar kontras di latar krem, hue dipertahankan.
+ */
+:root {
+  --color-rank-scout: #8f8c00;    /* prefix #fffa00 */
+  --color-rank-voyager: #00889b;  /* prefix #00e1ff */
+  --color-rank-orbiter: #14a300;  /* prefix #1fff00 */
+  --color-rank-ravest: #d20000;   /* prefix #ff2929 */
+  --color-rank-vortex: #7d2fd0;   /* prefix #a03dff */
+  --color-rank-quantum: #1583b3;  /* prefix #33ccff */
+  --color-rank-galatics: #a98500; /* prefix #f9ff00 */
+  --color-rank-universe: #b23ad6; /* prefix #e68eff */
 }
 
 @keyframes marquee {
