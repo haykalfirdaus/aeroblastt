@@ -7,6 +7,7 @@ import { Button } from '@/components/ui/Button';
 import { GlassCard } from '@/components/ui/GlassCard';
 import { CountdownBanner } from './CountdownBanner';
 import { DiscountCodeInput } from './DiscountCodeInput';
+import { AgreeVerify } from './AgreeVerify';
 import { PriceSummary } from './PriceSummary';
 import { BetaPaymentModal } from './BetaPaymentModal';
 import { drawPrefixTag, textFits, ICON_LABELS } from '@/lib/prefixTag';
@@ -91,9 +92,7 @@ function CosmeticOrderModal({ cfg, addons, open, onClose }) {
           </div>
           <DiscountCodeInput onApply={setDiscount} category="Custom Prefix" />
           <PriceSummary basePrice={basePrice} discountPercent={discount} />
-          <CheckboxField checked={agreed} onChange={setAgreed}>
-            Saya menyetujui <a href="/terms" target="_blank" className="text-[#1d2b1f] hover:underline">Syarat &amp; Ketentuan</a> yang berlaku.
-          </CheckboxField>
+          <AgreeVerify checked={agreed} onChange={(ok) => setAgreed(ok)} />
           <Button fullWidth size="sm" onClick={handleQris} disabled={!playerNick} title={!playerNick ? 'Login dulu untuk melakukan order' : undefined}>
             {playerNick ? 'Mulai Pembayaran' : <><Lock size={13} aria-hidden="true" /> Login dulu untuk order</>}
           </Button>

@@ -9,6 +9,7 @@ import { Modal } from '@/components/ui/Modal';
 import { CheckboxField, FieldLabel, SelectField, TextField } from '@/components/ui/FormFields';
 import { CountdownBanner } from './CountdownBanner';
 import { DiscountCodeInput } from './DiscountCodeInput';
+import { AgreeVerify } from './AgreeVerify';
 import { PriceSummary } from './PriceSummary';
 import { BetaPaymentModal } from './BetaPaymentModal';
 import { GACHA_KEYS } from '@/data/keys';
@@ -112,7 +113,7 @@ function KeyOrderModal({ keyData, open, onClose }) {
         </div>
         <DiscountCodeInput onApply={setDiscount} category="Gacha Key" />
         <PriceSummary basePrice={basePrice} discountPercent={discount} />
-        <CheckboxField checked={agreed} onChange={setAgreed}>Saya menyetujui <a href="/terms" target="_blank" className="text-[#1d2b1f] hover:underline">Syarat &amp; Ketentuan</a> yang berlaku.</CheckboxField>
+        <AgreeVerify checked={agreed} onChange={(ok) => setAgreed(ok)} />
         <div className="flex flex-col gap-2">
           <Button fullWidth size="sm" onClick={handleQris} disabled={!playerNick} title={!playerNick ? 'Login dulu untuk melakukan order' : undefined}>
             {playerNick ? (

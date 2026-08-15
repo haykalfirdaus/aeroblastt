@@ -4,6 +4,7 @@ import { AlertTriangle, Check, Clock } from 'lucide-react';
 import { Modal } from '@/components/ui/Modal';
 import { Button } from '@/components/ui/Button';
 import { createBetaOrder, pollBetaOrderStatus } from '@/utils/betaPayment';
+import { getTurnstileToken } from './AgreeVerify';
 import { formatRupiah } from '@/utils/currency';
 import { QrisDisplay } from './QrisDisplay';
 import { cn } from '@/lib/cn';
@@ -59,7 +60,8 @@ export function BetaPaymentModal({ open, onClose, orderPayload, productLabel }) 
     setStatus('loading');
     setError('');
     try {
-      const result = await createBetaOrder(orderPayload);
+      // Token Turnstile dari widget persetujuan S&K — diverifikasi server-side.
+      const result = await createBetaOrder({ ...orderPayload, turnstileToken: getTurnstileToken() });
       setOrder(result);
       setStatus('waiting');
       startPolling(result.orderId, result.expiresAt);

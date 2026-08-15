@@ -6,6 +6,7 @@ import { CheckboxField, FieldLabel, SelectField, TextField } from '@/components/
 import { Button } from '@/components/ui/Button';
 import { CountdownBanner } from './CountdownBanner';
 import { DiscountCodeInput } from './DiscountCodeInput';
+import { AgreeVerify } from './AgreeVerify';
 import { PriceSummary } from './PriceSummary';
 import { BetaPaymentModal } from './BetaPaymentModal';
 import { RANKS, RANK_DURATION_OPTIONS, RANK_ORDER, RANK_PRICES } from '@/data/ranks';
@@ -152,9 +153,7 @@ export function RankOrderModal({ rank, open, onClose }) {
 
         <PriceSummary basePrice={basePrice} discountPercent={discount} />
 
-        <CheckboxField checked={agreed} onChange={setAgreed}>
-          Saya menyetujui <a href="/terms" target="_blank" className="text-[#1d2b1f] hover:underline">Syarat &amp; Ketentuan</a> yang berlaku di AeroBlast Network.
-        </CheckboxField>
+        <AgreeVerify checked={agreed} onChange={(ok) => setAgreed(ok)} />
 
         <div className="flex flex-col gap-2">
           <Button fullWidth size="sm" onClick={handleQris} disabled={basePrice <= 0 || !playerNick} title={!playerNick ? 'Login dulu untuk melakukan order' : undefined}>

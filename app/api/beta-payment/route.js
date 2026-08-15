@@ -73,8 +73,28 @@ async function handleCreate(body, request) {
   const rl = rateLimit(getIp(request), { max: 5, windowMs: 10 * 60 * 1000 });
   if (!rl.ok) return NextResponse.json({ ok: false, error: `Terlalu banyak request. Coba lagi dalam ${rl.retryAfter} detik.` }, { status: 429, headers: { 'Retry-After': String(rl.retryAfter) } });
 
-  const { type, nick, platform, baseAmount, details } = body || {};
+  const { type, nick, platform, baseAmount, details, turnstileToken } = body || {};
   if (!VALID_TYPES.includes(type)) return NextResponse.json({ ok: false, error: 'type tidak valid' }, { status: 400 });
+
+  // ── Cloudflare Turnstile — widget persetujuan S&K di store ──────────────────
+  // Aktif hanya kalau TURNSTILE_SECRET_KEY diset; tanpa env, order jalan
+  // seperti biasa (fail-soft, konsisten dengan fallback checkbox di client).
+  // Donate tidak lewat widget ini, jadi hanya order store yang dicek.
+  const turnstileSecret = process.env.TURNSTILE_SECRET_KEY;
+  if (turnstileSecret && type !== 'donate') {
+    if (!turnstileToken) return NextResponse.json({ ok: false, error: 'Selesaikan verifikasi anti-bot dulu' }, { status: 400 });
+    try {
+      const vr = await fetch('https://challenges.cloudflare.com/turnstile/v0/siteverify', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ secret: turnstileSecret, response: turnstileToken, remoteip: getIp(request) }),
+      });
+      const vd = await vr.json();
+      if (!vd.success) return NextResponse.json({ ok: false, error: 'Verifikasi anti-bot gagal — coba ulangi' }, { status: 400 });
+    } catch {
+      // siteverify tidak terjangkau — jangan blokir pembelian karena outage pihak ketiga
+    }
+  }
 
   const amount = Number(baseAmount);
   if (!amount || amount <= 0 || !Number.isInteger(amount)) return NextResponse.json({ ok: false, error: 'baseAmount tidak valid' }, { status: 400 });
