@@ -3,6 +3,7 @@ import { useCallback, useEffect, useRef, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import {
   BellRing,
+  Brush,
   CheckCircle,
   Clock,
   Download,
@@ -25,13 +26,14 @@ import { useToast } from '@/context/ToastContext';
 import { Button } from '@/components/ui/Button';
 import { cn } from '@/lib/cn';
 import { drawPrefixTag, prefixTagDataURL, ICON_LABELS } from '@/lib/prefixTag';
+import { RankTextureStudio } from '@/components/admin/RankTextureStudio';
 
 // ---------------------------------------------------------------------------
 // Shared primitives
 // ---------------------------------------------------------------------------
 
 const fieldBase =
-  'w-full rounded-md border border-2 border-[#1d2b1f] bg-[#fffdf9] px-4 py-3 text-sm text-[#1d2b1f] placeholder:text-[#5a7048] outline-none transition-colors focus:border-[#BFFF5E]/70 focus:ring-2 focus:ring-[#BFFF5E]/20 focus:bg-[#faf3e8] disabled:cursor-not-allowed disabled:opacity-50';
+  'w-full rounded-[var(--radius-neu)] bg-[#fff8f0] px-4 py-3 text-sm shadow-[var(--neu-in)] text-[#1d2b1f] placeholder:text-[#5a7048] outline-none transition-colors focus:border-[#BFFF5E]/70 focus:ring-2 focus:ring-[#BFFF5E]/20 focus:bg-[#faf3e8] disabled:cursor-not-allowed disabled:opacity-50';
 
 function FieldLabel({ children, required }) {
   return (
@@ -44,7 +46,7 @@ function FieldLabel({ children, required }) {
 
 function SectionCard({ icon: Icon, title, accent = 'neon-400', badge, children }) {
   return (
-    <div className="relative flex flex-col overflow-hidden rounded-md border border-2 border-[#1d2b1f] bg-[#fffdf9]">
+    <div className="relative flex flex-col overflow-hidden rounded-[var(--radius-neu-lg)] bg-[#fff8f0] shadow-[var(--neu-out)]">
       <span
         aria-hidden="true"
         className="absolute inset-x-0 top-0 h-px opacity-60"
@@ -52,13 +54,13 @@ function SectionCard({ icon: Icon, title, accent = 'neon-400', badge, children }
           background: `linear-gradient(90deg, transparent, #BFFF5E, transparent)`,
         }}
       />
-      <div className="flex items-center gap-3 border-b border-2 border-[#1d2b1f] px-6 py-4">
-        <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-md border border-2 border-[#1d2b1f] bg-[#f5ece0] text-[#1d2b1f]">
+      <div className="flex items-center gap-3 border-b border-[#1d2b1f]/10 px-6 py-4">
+        <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-md border border-[#1d2b1f]/10 bg-[#f5ece0] text-[#1d2b1f]">
           <Icon size={18} />
         </div>
         <h2 className="font-display text-base font-semibold text-[#1d2b1f]">{title}</h2>
         {badge !== undefined && (
-          <span className="ml-auto rounded-md border border-2 border-[#1d2b1f] bg-[#f5ece0] px-2.5 py-0.5 text-xs font-bold text-[#4a5e3a]">
+          <span className="ml-auto rounded-md border border-[#1d2b1f]/10 bg-[#f5ece0] px-2.5 py-0.5 text-xs font-bold text-[#4a5e3a]">
             {badge}
           </span>
         )}
@@ -238,7 +240,7 @@ function InvoiceItem({ item, onMark, marking, confirming, onRequestConfirm, onCa
             <span className="font-semibold text-sm text-[#1d2b1f]">{item.nick}</span>
             <span className="text-xs text-[#4a5e3a]">·</span>
             <span className="text-xs text-[#4a5e3a]">{item.platform}</span>
-            <span className="rounded border border-2 border-[#1d2b1f] bg-[#f5ece0] px-1.5 py-0.5 text-[10px] text-[#4a5e3a]">
+            <span className="rounded border border-[#1d2b1f]/10 bg-[#f5ece0] px-1.5 py-0.5 text-[10px] text-[#4a5e3a]">
               {ORDER_LABELS[item.type] || item.type}
             </span>
           </div>
@@ -304,7 +306,7 @@ function InvoiceItem({ item, onMark, marking, confirming, onRequestConfirm, onCa
             <div className="flex items-center gap-1.5">
               <button
                 onClick={onCancelConfirm}
-                className="rounded-lg border border-2 border-[#1d2b1f] bg-[#fffdf9] px-2.5 py-1 text-xs font-semibold text-[#4a5e3a] transition-colors hover:border-2 border-[#1d2b1f] hover:text-[#1d2b1f]"
+                className="rounded-lg border border-[#1d2b1f]/10 bg-[#fffdf9] px-2.5 py-1 text-xs font-semibold text-[#4a5e3a] transition-colors hover:border-[#1d2b1f]/30 hover:text-[#1d2b1f]"
               >
                 Batal
               </button>
@@ -464,7 +466,7 @@ function DonateOrderItem({ item, onMark, onDelete, marking, deleting, confirming
             <span className="truncate font-semibold text-sm text-[#1d2b1f]">{item.donorName}</span>
             {item.nick
               ? <span className="shrink-0 rounded border border-[#BFFF5E]/30 bg-[#BFFF5E]/10 px-1.5 py-0.5 font-mono text-[10px] text-[#1d2b1f]">{item.nick}</span>
-              : <span className="shrink-0 rounded border border-2 border-[#1d2b1f] bg-[#f5ece0] px-1.5 py-0.5 text-[10px] text-[#4a5e3a]">Anonim</span>
+              : <span className="shrink-0 rounded border border-[#1d2b1f]/10 bg-[#f5ece0] px-1.5 py-0.5 text-[10px] text-[#4a5e3a]">Anonim</span>
             }
           </div>
           <span className="shrink-0 font-mono text-sm font-bold text-[#1d2b1f]">
@@ -480,7 +482,7 @@ function DonateOrderItem({ item, onMark, onDelete, marking, deleting, confirming
         {/* Row 3: meta — suffix + timer */}
         <div className="mt-1.5 flex flex-wrap items-center gap-2 text-[11px] text-[#4a5e3a]">
           {item.suffix > 0 && (
-            <span className="rounded border border-2 border-[#1d2b1f] bg-[#f5ece0] px-1.5 py-0.5 font-mono text-[10px]">
+            <span className="rounded border border-[#1d2b1f]/10 bg-[#f5ece0] px-1.5 py-0.5 font-mono text-[10px]">
               +{item.suffix} angka unik
             </span>
           )}
@@ -522,7 +524,7 @@ function DonateOrderItem({ item, onMark, onDelete, marking, deleting, confirming
             <span className="flex-1 text-xs font-semibold text-[#1d2b1f]">Konfirmasi donasi ini?</span>
             <button
               onClick={onCancelConfirm}
-              className="rounded-lg border border-2 border-[#1d2b1f] bg-[#f5ece0] px-3 py-1.5 text-xs font-semibold text-[#4a5e3a] transition-colors hover:text-[#1d2b1f]"
+              className="rounded-lg border border-[#1d2b1f]/10 bg-[#f5ece0] px-3 py-1.5 text-xs font-semibold text-[#4a5e3a] transition-colors hover:text-[#1d2b1f]"
             >
               Batal
             </button>
@@ -655,7 +657,7 @@ function CosmeticOrderItem({ item, onDone, deleting }) {
         <span className="font-semibold text-sm text-[#1d2b1f]">{item.nick}</span>
         <span className="text-xs text-[#4a5e3a]">·</span>
         <span className="text-xs text-[#4a5e3a]">{item.platform}</span>
-        <span className="rounded border border-2 border-[#1d2b1f] bg-[#f5ece0] px-1.5 py-0.5 text-[10px] text-[#4a5e3a]">
+        <span className="rounded border border-[#1d2b1f]/10 bg-[#f5ece0] px-1.5 py-0.5 text-[10px] text-[#4a5e3a]">
           {ICON_LABELS[cfg.icon] || cfg.icon}
         </span>
         <span className="ml-auto font-mono text-sm font-bold text-[#1d2b1f]">{formatRupiah(item.totalAmount)}</span>
@@ -845,7 +847,7 @@ function AnnouncementItem({ item, confirming, onRequestDelete, onCancelDelete, o
   }, [item.expiresAt]);
 
   return (
-    <div className="flex items-start gap-3 rounded-md border border-2 border-[#1d2b1f] bg-[#faf3e8] px-4 py-3 transition-colors hover:border-[#BFFF5E]/30">
+    <div className="flex items-start gap-3 rounded-md border border-[#1d2b1f]/10 bg-[#faf3e8] px-4 py-3 transition-colors hover:border-[#BFFF5E]/30">
       <BellRing size={15} className="mt-0.5 shrink-0 text-[#1d2b1f]" />
       <div className="min-w-0 flex-1">
         <p className="line-clamp-2 text-sm text-[#1d2b1f]">{item.text}</p>
@@ -868,7 +870,7 @@ function AnnouncementItem({ item, confirming, onRequestDelete, onCancelDelete, o
           <div className="flex items-center gap-1.5">
             <button
               onClick={onCancelDelete}
-              className="rounded-lg border border-2 border-[#1d2b1f] bg-[#fffdf9] px-2.5 py-1 text-xs font-semibold text-[#4a5e3a] transition-colors hover:border-[#BFFF5E]/30 hover:text-[#1d2b1f]"
+              className="rounded-lg border border-[#1d2b1f]/10 bg-[#fffdf9] px-2.5 py-1 text-xs font-semibold text-[#4a5e3a] transition-colors hover:border-[#BFFF5E]/30 hover:text-[#1d2b1f]"
             >
               Batal
             </button>
@@ -1021,7 +1023,7 @@ function DiscountsSection() {
                     'rounded-lg border px-3 py-1.5 text-xs font-semibold transition-colors',
                     active
                       ? 'border-[#BFFF5E]/50 bg-[#BFFF5E]/15 text-[#1d2b1f]'
-                      : 'border-2 border-[#1d2b1f] bg-[#f5ece0] text-[#4a5e3a] hover:border-[#BFFF5E]/30 hover:text-[#4a5e3a]'
+                      : 'bg-[#fff8f0] text-[#4a5e3a] shadow-[var(--neu-out)] hover:text-[#1d2b1f]'
                   )}
                 >
                   {cat}
@@ -1094,7 +1096,7 @@ function DiscountsSection() {
             )}
             {expiredItems.length > 0 && (
               <>
-                {activeItems.length > 0 && <div className="my-3 border-t border-2 border-[#1d2b1f]" />}
+                {activeItems.length > 0 && <div className="my-3 border-t border-[#1d2b1f]/10" />}
                 <p className="mb-2 text-xs font-semibold uppercase tracking-wide text-[#4a5e3a]/60">
                   Sudah expired
                 </p>
@@ -1131,8 +1133,8 @@ function DiscountItem({ item, expired, confirming, onRequestDelete, onCancelDele
     <div className={cn(
       'flex items-start gap-3 rounded-md border px-4 py-3 transition-colors',
       expired
-        ? 'border-2 border-[#1d2b1f]/40 bg-[#fffdf9]/60 opacity-60'
-        : 'border-2 border-[#1d2b1f] bg-[#faf3e8] hover:border-[#BFFF5E]/30'
+        ? 'bg-[#fffdf9]/60 opacity-60 shadow-[var(--neu-in)]'
+        : 'bg-[#fff8f0] shadow-[var(--neu-out)]'
     )}>
       <PercentCircle size={15} className={cn('mt-0.5 shrink-0', expired ? 'text-[#5a7048]' : 'text-[#4a5e3a]')} />
       <div className="min-w-0 flex-1">
@@ -1143,13 +1145,13 @@ function DiscountItem({ item, expired, confirming, onRequestDelete, onCancelDele
           <span className={cn(
             'rounded-md border px-1.5 py-0.5 text-xs font-semibold',
             expired
-              ? 'border-2 border-[#1d2b1f] bg-[#f5ece0] text-[#4a5e3a]'
+              ? 'bg-[#fff8f0] text-[#4a5e3a] shadow-[var(--neu-in)]'
               : 'border-[#BFFF5E]/35 bg-[#BFFF5E]/10 text-[#1d2b1f]'
           )}>
             -{item.percent}%
           </span>
           {expired && (
-            <span className="rounded border border-2 border-[#1d2b1f] bg-[#f5ece0] px-1.5 py-0.5 text-[10px] font-semibold text-[#5a7048]">
+            <span className="rounded border border-[#1d2b1f]/10 bg-[#f5ece0] px-1.5 py-0.5 text-[10px] font-semibold text-[#5a7048]">
               Expired
             </span>
           )}
@@ -1157,7 +1159,7 @@ function DiscountItem({ item, expired, confirming, onRequestDelete, onCancelDele
         {item.categories && item.categories.length > 0 && (
           <div className="mt-1 flex flex-wrap gap-1">
             {item.categories.map((cat) => (
-              <span key={cat} className="rounded border border-2 border-[#1d2b1f] bg-[#f5ece0] px-1.5 py-0.5 text-[10px] text-[#4a5e3a]">
+              <span key={cat} className="rounded border border-[#1d2b1f]/10 bg-[#f5ece0] px-1.5 py-0.5 text-[10px] text-[#4a5e3a]">
                 {cat}
               </span>
             ))}
@@ -1186,7 +1188,7 @@ function DiscountItem({ item, expired, confirming, onRequestDelete, onCancelDele
           <div className="flex items-center gap-1.5">
             <button
               onClick={onCancelDelete}
-              className="rounded-lg border border-2 border-[#1d2b1f] bg-[#fffdf9] px-2.5 py-1 text-xs font-semibold text-[#4a5e3a] transition-colors hover:border-[#BFFF5E]/30 hover:text-[#1d2b1f]"
+              className="rounded-lg border border-[#1d2b1f]/10 bg-[#fffdf9] px-2.5 py-1 text-xs font-semibold text-[#4a5e3a] transition-colors hover:border-[#BFFF5E]/30 hover:text-[#1d2b1f]"
             >
               Batal
             </button>
@@ -1417,7 +1419,7 @@ function RconSection() {
 
   const needsNick = ['rank', 'money', 'key'].includes(action);
 
-  const tabInactive = 'border-2 border-[#1d2b1f] bg-[#f5ece0] text-[#4a5e3a] hover:border-[#BFFF5E]/30 hover:text-[#4a5e3a]';
+  const tabInactive = 'bg-[#fff8f0] text-[#4a5e3a] shadow-[var(--neu-out)] hover:text-[#1d2b1f]';
   const tabActive = 'border-[#BFFF5E]/50 bg-[#BFFF5E]/15 text-[#1d2b1f]';
 
   return (
@@ -1562,7 +1564,7 @@ function RconSection() {
             )}
 
             {bansosSub === 'list' && (
-              <p className="rounded-md border border-2 border-[#1d2b1f] bg-[#faf3e8] px-4 py-3 text-xs text-[#4a5e3a]">
+              <p className="rounded-md border border-[#1d2b1f]/10 bg-[#faf3e8] px-4 py-3 text-xs text-[#4a5e3a]">
                 Klik <strong>Eksekusi RCON</strong> untuk melihat daftar bansos yang sedang aktif di server.
               </p>
             )}
@@ -1709,7 +1711,7 @@ export default function AdminDashboardPage() {
       <div className="bg-app" aria-hidden="true" />
 
       {/* Header */}
-      <header className="relative z-10 border-b border-2 border-[#1d2b1f] bg-[#fff8f0]/90 ">
+      <header className="relative z-10 border-b border-[#1d2b1f]/10 bg-[#fff8f0]/90 ">
         <div className="mx-auto flex max-w-7xl items-center justify-between gap-4 px-4 py-3 sm:px-6">
           <div className="flex items-center gap-3">
             <div className="flex h-9 w-9 items-center justify-center rounded-md border border-[#BFFF5E]/40 bg-[#BFFF5E]/10">
@@ -1771,6 +1773,13 @@ export default function AdminDashboardPage() {
         {/* RCON Manual — full width */}
         <div className="mt-6">
           <RconSection />
+        </div>
+
+        {/* Texture Rank studio — full width, seksi terpisah */}
+        <div className="mt-6">
+          <SectionCard icon={Brush} title="Texture Rank">
+            <RankTextureStudio />
+          </SectionCard>
         </div>
       </main>
     </div>

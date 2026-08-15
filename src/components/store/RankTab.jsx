@@ -98,7 +98,16 @@ export function RankTab() {
                 </span>
                 <div>
                   <h3 className="font-display text-base font-extrabold text-[#1d2b1f]">{rank.name}</h3>
-                  <p className={cn('font-mono font-bold text-[#1d2b1f]', tier.priceClass)}>
+                  {/* Tag prefix in-game — PNG asli 74×12, kecil & pixelated */}
+                  <img
+                    src={`/ranks/${rank.key.toLowerCase()}.png`}
+                    alt={`Prefix ${rank.name} in-game`}
+                    width={74}
+                    height={12}
+                    loading="lazy"
+                    className="mx-auto mt-1.5 h-6 w-auto [image-rendering:pixelated]"
+                  />
+                  <p className={cn('mt-1 font-mono font-bold text-[#1d2b1f]', tier.priceClass)}>
                     {formatRupiah(rank.price)}
                   </p>
                 </div>

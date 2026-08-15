@@ -58,8 +58,9 @@ export const metadata = {
     images: ['/icon-512.png'],
   },
   icons: {
-    icon: '/favicon-32.png',
-    apple: '/apple-touch-icon.png',
+    // ?v=2 memaksa browser membuang cache favicon lama
+    icon: '/favicon-32.png?v=2',
+    apple: '/apple-touch-icon.png?v=2',
   },
 };
 

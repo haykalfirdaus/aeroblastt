@@ -91,10 +91,11 @@ function bgTone(x, y) {
 }
 
 /*
- * Dua pilihan ikon yang dijual:
- *  - "basic"  → Logo Biasa  (bentuk orang; gratis, termasuk harga dasar)
- *  - "custom" → Logo Custom (bentuk bintang; premium +15rb)
+ * Ikon 8×7 (area x2..9, y2..8), semuanya diekstrak dari PNG rank asli.
  * b = base asli, p = palet hex, m = peta indeks palet per pixel.
+ *
+ * Dua pertama ("basic"/"custom") adalah yang dijual di store sebagai
+ * Logo Biasa / Logo Custom. Sisanya dipakai studio Texture Rank di admin.
  */
 const ICONS = {
   basic: {
@@ -107,9 +108,42 @@ const ICONS = {
     p: 'c700ff790eb0930bd99c40cba858d1000000bc7fdb',
     m: 'AAABBAAA/AACDDCAA/BBDEEDBB/FCDGGDCF/ACCEECCA/BBCFFCBB/FFFAAFFF',
   },
+  member: { b: 'd0d0d0', p: '9d9d9de3e3e3ebebebfffffff2f2f29f9f9fcdcdcda4a4a4e1e1e16e6e6e000000', m: 'AABCBBAA/AABDDEAA/AAFGGFHA/HAIICCHA/JEEDDDDJ/JDDDDDDJ/JKKKKKKJ' },
+  voyager: { b: '00e1ff', p: '3bb8c85ffdf58be7e292fff957d5ce009baf000000', m: 'AABBBBAA/AABCDDAA/AAAEEAAA/AACCBBAA/FBBCCDDF/FDDDDDDF/FGGGGGGF' },
+  orbiter: { b: '1fff00', p: '18c500a2ff967df36c80f07152ed3d139c0063e5526ded5c84ff73000000', m: 'AABBBBAA/AACDBBAA/AAAEEAAA/AACDEEAA/FBGGHCBF/FBBIBBBF/FJJJJJJF' },
+  ravest: { b: 'ff2929', p: 'd20000e79797dc7a7aff7575cd5151d66464000000', m: 'AABBBBAA/AACCDDAA/AAAEEAAA/AAEEFFAA/ACCCDDDA/ADDDDDDA/AGGGGGGA' },
+  vortex: { b: 'a03dff', p: '6a3999a56ddcb86eff7b4ba9351356000000', m: 'AABBBBAA/AABBCCAA/AAADDAAA/AADDBBAA/ABBBBCCA/ECCCCCCE/EFFFFFFE' },
+  quantum: { b: '33ccff', p: '3b8aa380d6f185e2ff50a9c569b8d116596f000000', m: 'AABBBBAA/AABBCCAA/AAADDAAA/AAEEBBAA/ABBBCCCA/FCCCCCCF/FGGGGGGF' },
+  galatics: { b: 'f9ff00', p: 'ffce00dca93edeb561e2a014d5c29a000000d4bb87', m: 'AAABBAAA/AABCCBAA/DDCEECDD/FBCGGCBF/ABBEEBBA/DDBFFBDD/FFFAAFFF' },
+  ownerdev: { b: 'f30000', p: 'aa00009313139a20208a0000983a3a000000a84646', m: 'AAABBAAA/AABCCBAA/DDCEECDD/FBCGGCBF/ABBEEBBA/DDBFFBDD/FFFAAFFF' },
+  media: { b: 'f30000', p: 'aa0000ffffff000000', m: 'AAAAAAAA/ABBBAAAA/ABBBBBAA/ABBBBBBA/ABBBBCCA/ABBBCAAA/ACCCAAAA' },
+  builder: { b: 'f30000', p: 'aa0000938a79adadad838383000000ad7100707070c98300e09914e7a62e', m: 'AAAAAAAA/AABBBCAA/ADEFEECA/GEAHAAEC/EAAIAAAE/AAAJAAAA/AAAJAAAA' },
+  helper: { b: 'f30000', p: 'aa0000ffffff000000', m: 'AAABBAAA/AAABBAAA/ABBBBBBA/ABBBBBBA/ACCBBCCA/AAABBAAA/AAACCAAA' },
+  matematika: { b: 'f30000', p: 'aa0000ffffff000000', m: 'AAAAAAAA/ABBBBBBA/ACBCCBCA/AABAABAA/AABAABAA/AABAABBA/AACAACCA' },
+  'cp-absolute': { b: 'ff2929', p: 'ffffffcd210acd1f1f000000', m: 'ABBAAAAA/ABCAADDD/AAAAABBB/DDDAAAAA/BBCAADDA/AAAAABBA/DDDDDBBD' },
+  'cp-duke': { b: '494949', p: '171717dd2a001b1b1bdd4b00dd6c00dd9200000001ddb3001a1a1a181818020203', m: 'ABCCBCBA/ABBCBBBA/ADDDDBDA/AEFDDEEA/GEFFHFEG/GIHHHHJG/KGAAAAGG' },
 };
 
 export const ICON_LABELS = { basic: 'Logo Biasa', custom: 'Logo Custom' };
+
+/** Semua nama ikon — untuk studio Texture Rank di admin. */
+export const ICON_NAMES = Object.keys(ICONS);
+
+/** Preset warna rank (dari palet PNG asli) — untuk studio admin. */
+export const PRESETS = [
+  { n: 'Member', base: '#d0d0d0', mid: '#9d9d9d', dark: '#6c6c6c', ico: 'member' },
+  { n: 'Scout', base: '#fffa00', mid: '#c8c400', dark: '#787500', ico: 'basic' },
+  { n: 'Voyager', base: '#00e1ff', mid: '#3bb8c8', dark: '#009baf', ico: 'voyager' },
+  { n: 'Orbiter', base: '#1fff00', mid: '#18c500', dark: '#139c00', ico: 'orbiter' },
+  { n: 'Ravest', base: '#ff2929', mid: '#d20000', dark: '#930000', ico: 'ravest' },
+  { n: 'Vortex', base: '#a03dff', mid: '#6a3999', dark: '#351356', ico: 'vortex' },
+  { n: 'Quantum', base: '#33ccff', mid: '#3b8aa3', dark: '#16596f', ico: 'quantum' },
+  { n: 'Galatics', base: '#f9ff00', mid: '#ffce00', dark: '#ff9200', ico: 'galatics' },
+  { n: 'Universe', base: '#e68eff', mid: '#c700ff', dark: '#9100ba', ico: 'custom' },
+  { n: 'OwnerDev', base: '#f30000', mid: '#aa0000', dark: '#6f0000', ico: 'ownerdev' },
+  { n: 'Duke', base: '#494949', mid: '#171717', dark: '#171717', ico: 'cp-duke' },
+  { n: 'Emerald', base: '#00ffa2', mid: '#00c67e', dark: '#009459', ico: 'quantum' },
+];
 
 /* ===================== util warna ===================== */
 const hex2rgb = (h) => [parseInt(h.slice(1, 3), 16), parseInt(h.slice(3, 5), 16), parseInt(h.slice(5, 7), 16)];
@@ -182,24 +216,56 @@ function layout(text, tracking) {
 export const TEXT_MAX_W = TXT_X1 - TXT_X0 + 1;
 
 /** Cek apakah teks muat di plate dengan tracking 1. */
-export function textFits(text) {
-  return layout(text, 1).width <= TEXT_MAX_W;
+export function textFits(text, tracking = 1) {
+  return layout(text, tracking).width <= TEXT_MAX_W;
+}
+
+/** Lebar teks dalam px (untuk indikator fit di studio admin). */
+export function textWidth(text, tracking = 1) {
+  return layout(text, tracking).width;
+}
+
+/** Turunan mid/dark otomatis dari base — dipakai UI saat autoTone aktif. */
+export function autoTone(base) {
+  return { mid: mulc(base, 0.78), dark: mulc(base, 0.52) };
+}
+
+/** Gambar thumbnail ikon 8×7 ke canvas (untuk picker di studio admin). */
+export function drawIconThumb(targetCanvas, name, targetColor) {
+  const ico = ICONS[name];
+  if (!ico || !targetCanvas) return false;
+  targetCanvas.width = 8;
+  targetCanvas.height = 7;
+  const cx = targetCanvas.getContext('2d');
+  const pal = iconPalette(ico, targetColor || '#' + ico.b);
+  ico.m.split('/').forEach((row, ry) => {
+    for (let rx = 0; rx < row.length; rx++) {
+      cx.fillStyle = pal[row.charCodeAt(rx) - 65];
+      cx.fillRect(rx, ry, 1, 1);
+    }
+  });
+  return true;
 }
 
 /**
  * Render tag 74×12 ke canvas baru.
- * cfg: { text, base, icon: 'basic'|'custom', textColor?, shadowColor? }
- * Mid & dark SELALU diturunkan otomatis dari base (aturan produk —
- * pembeli hanya memilih base). Warna teks & shadow bebas.
+ * cfg: { text, base, icon, textColor?, shadowColor?,
+ *        mid?, dark?          — override manual (default: turunan base),
+ *        offx?, tracking?     — geser teks & spasi huruf (default 0 / 1),
+ *        iconColor?           — ikon pakai warna sendiri, bukan base }
+ * Store hanya memakai subset (base + teks + shadow); studio Texture Rank
+ * di admin memakai semuanya.
  */
 export function renderPrefixTag(cfg, doc = typeof document !== 'undefined' ? document : null) {
   if (!doc) return null;
   const base = cfg.base || '#d0d0d0';
-  const mid = mulc(base, 0.78);
-  const dark = mulc(base, 0.52);
+  const tone = autoTone(base);
+  const mid = cfg.mid || tone.mid;
+  const dark = cfg.dark || tone.dark;
   const textColor = cfg.textColor || '#ffffff';
   const shadowColor = cfg.shadowColor || '#000000';
-  const tracking = 1;
+  const tracking = Number.isFinite(cfg.tracking) ? cfg.tracking : 1;
+  const offx = Number.isFinite(cfg.offx) ? cfg.offx : 0;
 
   const cv = doc.createElement('canvas');
   cv.width = TAG_W;
@@ -215,7 +281,7 @@ export function renderPrefixTag(cfg, doc = typeof document !== 'undefined' ? doc
   for (let x = 1; x <= 10; x++) { px(x, 1, base); px(x, 9, base); px(x, 10, dark); }
   for (let y = 2; y <= 8; y++) { px(1, y, base); px(10, y, base); }
   const ico = ICONS[cfg.icon] || ICONS.basic;
-  const pal = iconPalette(ico, base);
+  const pal = iconPalette(ico, cfg.iconColor || base);
   ico.m.split('/').forEach((row, ry) => {
     for (let rx = 0; rx < row.length; rx++) px(2 + rx, 2 + ry, pal[row.charCodeAt(rx) - 65]);
   });
@@ -231,7 +297,7 @@ export function renderPrefixTag(cfg, doc = typeof document !== 'undefined' ? doc
 
   /* huruf + shadow lurus ke bawah */
   const L = layout(cfg.text || '', tracking);
-  const startX = Math.floor(43 - L.width / 2);
+  const startX = Math.floor(43 - L.width / 2) + offx;
   const inArea = (x, y) => x >= TXT_X0 && x <= TXT_X1 && y >= 2 && y <= 8;
   for (const p of L.cells) {
     const sx = startX + p.x, sy = TXT_Y0 + p.y + 1;

@@ -9,7 +9,7 @@ import { supabase } from '@/lib/supabase';
 import { cn } from '@/lib/cn';
 
 const fieldBase =
-  'w-full rounded-md border border-2 border-[#1d2b1f] bg-[#fffdf9] px-4 py-3 text-sm text-[#1d2b1f] placeholder:text-[#5a7048] outline-none transition-colors focus:border-[#BFFF5E]/70 focus:ring-2 focus:ring-[#BFFF5E]/20';
+  'w-full rounded-[var(--radius-neu)] bg-[#fff8f0] px-4 py-3 text-sm shadow-[var(--neu-in)] text-[#1d2b1f] placeholder:text-[#5a7048] outline-none transition-colors focus:border-[#BFFF5E]/70 focus:ring-2 focus:ring-[#BFFF5E]/20';
 
 // ---------------------------------------------------------------------------
 // Decorative element
@@ -56,7 +56,7 @@ function LoginView({ onForgot }) {
   }
 
   return (
-    <div className={cn('relative w-full max-w-sm overflow-hidden rounded-md border border-2 border-[#1d2b1f] bg-[#fff8f0] shadow-[0_32px_64px_-16px_rgba(26,46,26,0.15)]', shake && 'animate-shake')}>
+    <div className={cn('relative w-full max-w-sm overflow-hidden rounded-[var(--radius-neu-xl)] bg-[#fff8f0] shadow-[var(--neu-out-lg)]', shake && 'animate-shake')}>
       <GlowLine />
       <form onSubmit={handleSubmit} className="p-7 pt-8">
         <h2 className="mb-6 font-display text-lg font-semibold text-[#1d2b1f]">
@@ -153,7 +153,7 @@ function ForgotView({ onBack }) {
   }
 
   return (
-    <div className="relative w-full max-w-sm overflow-hidden rounded-md border border-2 border-[#1d2b1f] bg-[#fff8f0] shadow-[0_32px_64px_-16px_rgba(26,46,26,0.15)]">
+    <div className="relative w-full max-w-sm overflow-hidden rounded-[var(--radius-neu-xl)] bg-[#fff8f0] shadow-[var(--neu-out-lg)]">
       <GlowLine />
       <div className="p-7 pt-8">
         <button
@@ -239,7 +239,7 @@ function ResetPasswordView({ onDone }) {
   }
 
   return (
-    <div className="relative w-full max-w-sm overflow-hidden rounded-md border border-2 border-[#1d2b1f] bg-[#fff8f0] shadow-[0_32px_64px_-16px_rgba(26,46,26,0.15)]">
+    <div className="relative w-full max-w-sm overflow-hidden rounded-[var(--radius-neu-xl)] bg-[#fff8f0] shadow-[var(--neu-out-lg)]">
       <GlowLine />
       <form onSubmit={handleReset} className="p-7 pt-8">
         <div className="mb-5 flex h-11 w-11 items-center justify-center rounded-md border border-[#BFFF5E]/35 bg-[#BFFF5E]/10">
