@@ -106,7 +106,7 @@ function CommandOrderModal({ cmd, open, onClose }) {
             ))}
           </div>
         </div>
-        <DiscountCodeInput onApply={setDiscount} />
+        <DiscountCodeInput onApply={setDiscount} category="Command" />
         <PriceSummary basePrice={basePrice} discountPercent={discount} />
         <CheckboxField checked={agreed} onChange={setAgreed}>
           Saya menyetujui <a href="/terms" target="_blank" className="text-[#1d2b1f] hover:underline">Syarat &amp; Ketentuan</a> yang berlaku.

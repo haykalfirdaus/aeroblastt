@@ -89,7 +89,7 @@ function CosmeticOrderModal({ cfg, addons, open, onClose }) {
               <p><span className="text-[#1d2b1f] font-semibold">Warna Nick:</span> <span className="font-mono">{addons.nickColorValue}</span></p>
             )}
           </div>
-          <DiscountCodeInput onApply={setDiscount} />
+          <DiscountCodeInput onApply={setDiscount} category="Custom Prefix" />
           <PriceSummary basePrice={basePrice} discountPercent={discount} />
           <CheckboxField checked={agreed} onChange={setAgreed}>
             Saya menyetujui <a href="/terms" target="_blank" className="text-[#1d2b1f] hover:underline">Syarat &amp; Ketentuan</a> yang berlaku.

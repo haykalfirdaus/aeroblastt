@@ -917,7 +917,9 @@ function AnnouncementItem({ item, confirming, onRequestDelete, onCancelDelete, o
 // Section B — Discounts
 // ---------------------------------------------------------------------------
 
-const DISCOUNT_CATEGORIES = ['Rank', 'Gacha Key', 'Balance', 'Skill Boost'];
+// Harus mencakup SEMUA kategori store yang punya DiscountCodeInput —
+// string ini dicocokkan (case-insensitive) dengan prop `category` di tab.
+const DISCOUNT_CATEGORIES = ['Rank', 'Gacha Key', 'Balance', 'Skill Boost', 'Command', 'Custom Prefix'];
 
 function DiscountsSection() {
   const showToast = useToast();
@@ -1034,7 +1036,20 @@ function DiscountsSection() {
         </div>
 
         <div>
-          <FieldLabel required>Kategori</FieldLabel>
+          <div className="mb-1.5 flex items-center justify-between">
+            <FieldLabel required>Kategori</FieldLabel>
+            {/* Toggle semua: sekali klik isi semua kategori, klik lagi kosongkan */}
+            <button
+              type="button"
+              disabled={submitting}
+              onClick={() =>
+                setCategories(categories.length === DISCOUNT_CATEGORIES.length ? [] : [...DISCOUNT_CATEGORIES])
+              }
+              className="rounded-full bg-[#fff8f0] px-3 py-1 text-[11px] font-bold text-[#1d2b1f] shadow-[var(--neu-out)] transition-colors hover:bg-[#BFFF5E]/20"
+            >
+              {categories.length === DISCOUNT_CATEGORIES.length ? 'Hapus Semua' : 'Pilih Semua Kategori'}
+            </button>
+          </div>
           <div className="flex flex-wrap gap-2 pt-0.5">
             {DISCOUNT_CATEGORIES.map((cat) => {
               const active = categories.includes(cat);
@@ -1044,21 +1059,29 @@ function DiscountsSection() {
                   type="button"
                   onClick={() => toggleCategory(cat)}
                   disabled={submitting}
+                  aria-pressed={active}
                   className={cn(
-                    'rounded-lg border px-3 py-1.5 text-xs font-semibold transition-colors',
+                    'inline-flex items-center gap-1.5 rounded-full px-3.5 py-2 text-xs font-bold',
+                    '[transition:box-shadow_150ms_ease,background-color_150ms_ease,color_150ms_ease]',
+                    // Terpilih = lime solid + centang + pressed-in; tidak
+                    // terpilih = pill netral raised. Kontrasnya tidak lagi
+                    // cuma beda border tipis.
                     active
-                      ? 'border-[#BFFF5E]/50 bg-[#BFFF5E]/15 text-[#1d2b1f]'
+                      ? 'bg-[#BFFF5E] text-[#1d2b1f] shadow-[var(--neu-in)]'
                       : 'bg-[#fff8f0] text-[#4a5e3a] shadow-[var(--neu-out)] hover:text-[#1d2b1f]'
                   )}
                 >
+                  <CheckCircle size={12} className={active ? '' : 'opacity-25'} aria-hidden="true" />
                   {cat}
                 </button>
               );
             })}
           </div>
-          {categories.length === 0 && (
-            <p className="mt-1.5 text-xs text-danger/70">Pilih minimal satu kategori</p>
-          )}
+          <p className={cn('mt-1.5 text-xs', categories.length === 0 ? 'text-danger/70' : 'text-[#4a5e3a]')}>
+            {categories.length === 0
+              ? 'Pilih minimal satu kategori'
+              : `${categories.length}/${DISCOUNT_CATEGORIES.length} kategori dipilih`}
+          </p>
         </div>
 
         <div>
