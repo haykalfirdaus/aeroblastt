@@ -101,7 +101,6 @@ export function Navbar() {
         <div className="hidden items-center gap-1 md:flex">
           {NAV_LINKS.map((link) => {
             const isActive = link.exact ? pathname === link.to : pathname.startsWith(link.to);
-            const isDonate = link.to === '/donate';
             return (
               <Link
                 key={link.to}
@@ -112,9 +111,9 @@ export function Navbar() {
                   'inline-flex min-h-[48px] items-center gap-1.5 rounded-full px-4 text-xs font-bold',
                   'will-change-transform [transition:transform_150ms_ease,box-shadow_150ms_ease,color_150ms_ease]',
                   'active:scale-[0.96]',
-                  // "Donasi" used to be painted lime here, making it the only
-                  // nav item that read as a separate product. Lime is now
-                  // reserved for the single "Join Now" CTA on the right.
+                  // No nav item is painted lime — including the Discord CTA on
+                  // the right. Anything tinted differently reads as a separate
+                  // product rather than part of the same bar.
                   isActive
                     ? 'bg-[#fff8f0] text-[#1d2b1f] shadow-[var(--neu-in)]'
                     : 'text-[#4a5e3a] hover:text-[#1d2b1f] hover:shadow-[var(--neu-out)]'
@@ -139,9 +138,13 @@ export function Navbar() {
             href={SITE.social.discord}
             target="_blank"
             rel="noopener noreferrer"
-            className="neu-lime neu-press inline-flex min-h-[48px] items-center gap-1.5 rounded-full px-5 text-xs font-extrabold"
+            className={cn(
+              'inline-flex min-h-[48px] items-center gap-1.5 rounded-full px-4 text-xs font-bold',
+              'will-change-transform [transition:transform_150ms_ease,box-shadow_150ms_ease,color_150ms_ease]',
+              'text-[#4a5e3a] hover:text-[#1d2b1f] hover:shadow-[var(--neu-out)] active:scale-[0.96]'
+            )}
           >
-            <MessageCircle size={13} aria-hidden="true" />
+            <MessageCircle size={13} className="shrink-0" aria-hidden="true" />
             Join Now
           </a>
         </div>
@@ -168,7 +171,6 @@ export function Navbar() {
           <div className="flex flex-col gap-1">
             {NAV_LINKS.map((link) => {
               const isActive = link.exact ? pathname === link.to : pathname.startsWith(link.to);
-              const isDonate = link.to === '/donate';
               return (
                 <Link
                   key={link.to}
@@ -200,7 +202,7 @@ export function Navbar() {
               href={SITE.social.discord}
               target="_blank"
               rel="noopener noreferrer"
-              className="neu-lime mt-1 flex min-h-[52px] items-center gap-2.5 rounded-[var(--radius-neu)] px-4 text-sm font-extrabold"
+              className="mt-1 flex min-h-[52px] items-center gap-2.5 rounded-[var(--radius-neu)] px-4 text-sm font-bold text-[#4a5e3a] [transition:transform_150ms_ease,box-shadow_150ms_ease] active:scale-[0.98]"
             >
               <MessageCircle size={16} aria-hidden="true" />
               Join Now (Discord)
