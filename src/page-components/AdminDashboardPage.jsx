@@ -27,6 +27,7 @@ import { Button } from '@/components/ui/Button';
 import { cn } from '@/lib/cn';
 import { drawPrefixTag, prefixTagDataURL, ICON_LABELS } from '@/lib/prefixTag';
 import { RankTextureStudio } from '@/components/admin/RankTextureStudio';
+import { readCache, writeCache } from '@/lib/swrCache';
 
 // ---------------------------------------------------------------------------
 // Shared primitives
@@ -41,6 +42,16 @@ function FieldLabel({ children, required }) {
       {children}
       {required && <span className="text-[#1d2b1f]"> *</span>}
     </label>
+  );
+}
+
+function SectionSkeleton({ rows = 2 }) {
+  return (
+    <div className="space-y-2 py-2" aria-busy="true">
+      {Array.from({ length: rows }).map((_, i) => (
+        <div key={i} className="neu-skel h-20 rounded-[var(--radius-neu)]" />
+      ))}
+    </div>
   );
 }
 
@@ -112,8 +123,9 @@ const ORDER_LABELS = {
 
 function InvoicesSection() {
   const showToast = useToast();
-  const [items, setItems] = useState([]);
-  const [fetching, setFetching] = useState(true);
+  // Seed dari cache — kunjungan kedua langsung berisi, fetch merevalidasi.
+  const [items, setItems] = useState(() => readCache('admin:invoices') || []);
+  const [fetching, setFetching] = useState(items.length === 0);
   const [markingId, setMarkingId] = useState(null);
   const [confirmId, setConfirmId] = useState(null);
 
@@ -122,7 +134,9 @@ function InvoicesSection() {
       const res = await fetch('/api/admin/invoices', { credentials: 'include' });
       if (!res.ok) throw new Error('Gagal memuat invoice');
       const data = await res.json();
-      setItems(Array.isArray(data) ? data : []);
+      const list = Array.isArray(data) ? data : [];
+      writeCache('admin:invoices', list);
+      setItems(list);
     } catch (err) {
       showToast(err.message, 'error');
     } finally {
@@ -186,9 +200,7 @@ function InvoicesSection() {
       badge={items.length > 0 ? items.length : undefined}
     >
       {fetching ? (
-        <div className="flex justify-center py-10">
-          <span className="h-6 w-6 animate-spin rounded-md border-2 border-[#BFFF5E]/20 border-t-[#BFFF5E]" />
-        </div>
+        <SectionSkeleton />
       ) : items.length === 0 ? (
         <div className="flex flex-col items-center justify-center gap-2 py-10 text-center">
           <CheckCircle size={32} className="text-success/40" />
@@ -336,8 +348,8 @@ function InvoiceItem({ item, onMark, marking, confirming, onRequestConfirm, onCa
 
 function DonateOrdersSection() {
   const showToast = useToast();
-  const [items, setItems] = useState([]);
-  const [fetching, setFetching] = useState(true);
+  const [items, setItems] = useState(() => readCache('admin:donate-orders') || []);
+  const [fetching, setFetching] = useState(items.length === 0);
   const [markingId, setMarkingId] = useState(null);
   const [deletingId, setDeletingId] = useState(null);
   const [confirmId, setConfirmId] = useState(null);
@@ -347,7 +359,9 @@ function DonateOrdersSection() {
       const res = await fetch('/api/admin/donate-orders', { credentials: 'include' });
       if (!res.ok) throw new Error('Gagal memuat donasi pending');
       const data = await res.json();
-      setItems(Array.isArray(data.orders) ? data.orders : []);
+      const list = Array.isArray(data.orders) ? data.orders : [];
+      writeCache('admin:donate-orders', list);
+      setItems(list);
     } catch (err) {
       showToast(err.message, 'error');
     } finally {
@@ -415,9 +429,7 @@ function DonateOrdersSection() {
       badge={items.length > 0 ? items.length : undefined}
     >
       {fetching ? (
-        <div className="flex justify-center py-10">
-          <span className="h-6 w-6 animate-spin rounded-md border-2 border-[#BFFF5E]/20 border-t-[#BFFF5E]" />
-        </div>
+        <SectionSkeleton />
       ) : items.length === 0 ? (
         <div className="flex flex-col items-center justify-center gap-2 py-10 text-center">
           <Heart size={32} className="text-[#BFFF5E]/40" />
@@ -556,8 +568,8 @@ function DonateOrderItem({ item, onMark, onDelete, marking, deleting, confirming
  */
 function CosmeticOrdersSection() {
   const showToast = useToast();
-  const [items, setItems] = useState([]);
-  const [fetching, setFetching] = useState(true);
+  const [items, setItems] = useState(() => readCache('admin:cosmetic-orders') || []);
+  const [fetching, setFetching] = useState(items.length === 0);
   const [deletingId, setDeletingId] = useState(null);
 
   const fetchOrders = useCallback(async () => {
@@ -565,7 +577,9 @@ function CosmeticOrdersSection() {
       const res = await fetch('/api/admin/cosmetic-orders', { credentials: 'include' });
       if (!res.ok) throw new Error('Gagal memuat order prefix');
       const data = await res.json();
-      setItems(Array.isArray(data) ? data : []);
+      const list = Array.isArray(data) ? data : [];
+      writeCache('admin:cosmetic-orders', list);
+      setItems(list);
     } catch (err) {
       showToast(err.message, 'error');
     } finally {
@@ -604,9 +618,7 @@ function CosmeticOrdersSection() {
   return (
     <SectionCard icon={Sparkles} title="Custom Prefix Lunas" badge={items.length > 0 ? items.length : undefined}>
       {fetching ? (
-        <div className="flex justify-center py-10">
-          <span className="h-6 w-6 animate-spin rounded-md border-2 border-[#BFFF5E]/20 border-t-[#BFFF5E]" />
-        </div>
+        <SectionSkeleton />
       ) : items.length === 0 ? (
         <div className="flex flex-col items-center justify-center gap-2 py-10 text-center">
           <Sparkles size={32} className="text-[#BFFF5E]/40" />
@@ -1707,7 +1719,7 @@ export default function AdminDashboardPage() {
   if (!isAdmin) return null;
 
   return (
-    <div className="relative min-h-screen bg-[#fff8f0]">
+    <div className="relative min-h-screen bg-[#f3e9da]">
       <div className="bg-app" aria-hidden="true" />
 
       {/* Header */}

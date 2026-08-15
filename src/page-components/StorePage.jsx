@@ -1,5 +1,5 @@
 'use client';
-import { useRef, useState } from 'react';
+import { useState } from 'react';
 import { Medal, KeyRound, Zap, Coins, Terminal, Palette } from 'lucide-react';
 import { PageLayout } from '@/components/layout/PageLayout';
 import { PlayerLoginPrompt } from '@/components/store/PlayerLoginPrompt';
@@ -38,22 +38,10 @@ const TAB_IDS = TABS.map((t) => t.id);
 export default function StorePage() {
   const [activeTab, setActiveTab] = useState('ranks');
   const current = TABS.find((t) => t.id === activeTab);
-  const touchStartX = useRef(null);
   const ActivePanel = current?.Panel;
 
-  function handleTouchStart(e) {
-    touchStartX.current = e.touches[0].clientX;
-  }
-
-  function handleTouchEnd(e) {
-    if (touchStartX.current === null) return;
-    const dx = e.changedTouches[0].clientX - touchStartX.current;
-    touchStartX.current = null;
-    if (Math.abs(dx) < 50) return;
-    const idx = TAB_IDS.indexOf(activeTab);
-    if (dx < 0 && idx < TAB_IDS.length - 1) setActiveTab(TAB_IDS[idx + 1]);
-    if (dx > 0 && idx > 0) setActiveTab(TAB_IDS[idx - 1]);
-  }
+  // Swipe antar kategori sengaja DIHAPUS: gestur geser sering ketrigger saat
+  // scroll/select di dalam panel. Pindah kategori hanya lewat tombol tab.
 
   function handleKeyDown(e) {
     const idx = TAB_IDS.indexOf(activeTab);
@@ -126,11 +114,7 @@ export default function StorePage() {
         </div>
       </div>
 
-      <div
-        className="neu-wrap py-8"
-        onTouchStart={handleTouchStart}
-        onTouchEnd={handleTouchEnd}
-      >
+      <div className="neu-wrap py-8">
         <PlayerLoginPrompt />
 
         {current && (

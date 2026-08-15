@@ -1,6 +1,7 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { SITE } from '@/data/config';
 import { DEMO_VOTERS } from '@/data/voterRewards';
+import { readCache, writeCache } from '@/lib/swrCache';
 
 const REFRESH_INTERVAL_MS = 5 * 60 * 1000;
 
@@ -14,8 +15,11 @@ const REFRESH_INTERVAL_MS = 5 * 60 * 1000;
  * @param {boolean} opts.fallbackToDemo - show demo data on failure
  */
 export function useTopVoters({ limit = 5, autoRefresh = false, fallbackToDemo = false } = {}) {
-  const [voters, setVoters] = useState([]);
-  const [status, setStatus] = useState('loading');
+  // Stale-while-revalidate: kunjungan kedua langsung menampilkan data cache
+  // (tanpa state 'loading'), lalu fetch di belakang menggantinya.
+  const cacheKey = `voters:${limit}`;
+  const [voters, setVoters] = useState(() => readCache(cacheKey) || []);
+  const [status, setStatus] = useState(voters.length ? 'success' : 'loading');
   const [lastUpdated, setLastUpdated] = useState(null);
   const [isRefreshing, setIsRefreshing] = useState(false);
   const timerRef = useRef(null);
@@ -37,6 +41,7 @@ export function useTopVoters({ limit = 5, autoRefresh = false, fallbackToDemo = 
           }))
           .sort((a, b) => b.votes - a.votes);
 
+        writeCache(cacheKey, list);
         setVoters(list);
         setStatus(list.length ? 'success' : 'empty');
         setLastUpdated(new Date());
@@ -53,7 +58,7 @@ export function useTopVoters({ limit = 5, autoRefresh = false, fallbackToDemo = 
         setIsRefreshing(false);
       }
     },
-    [limit, fallbackToDemo]
+    [limit, fallbackToDemo, cacheKey]
   );
 
   useEffect(() => {

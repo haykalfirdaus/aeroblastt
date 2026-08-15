@@ -60,15 +60,19 @@
   --color-danger-bright: #f87171;
   --color-purple: #8b5cf6;
 
-  /* ---- Rank accent spectrum ----------------------------------------- */
-  --color-rank-scout: #046b4d;
-  --color-rank-voyager: #2563eb;
-  --color-rank-orbiter: #ea580c;
-  --color-rank-ravest: #7c3aed;
-  --color-rank-vortex: #0891b2;
-  --color-rank-quantum: #b45309;
-  --color-rank-galatics: #dc2626;
-  --color-rank-universe: #9333ea;
+  /* ---- Rank accent spectrum ------------------------------------------
+   * Mengikuti warna base prefix PNG in-game (scout kuning, voyager cyan,
+   * orbiter hijau, ravest merah, vortex ungu, quantum biru, galatics
+   * kuning-emas, universe magenta) — digelapkan secukupnya agar tetap
+   * kontras di latar krem, hue tidak diubah. */
+  --color-rank-scout: #8f8c00;    /* prefix #fffa00 */
+  --color-rank-voyager: #00889b;  /* prefix #00e1ff */
+  --color-rank-orbiter: #14a300;  /* prefix #1fff00 */
+  --color-rank-ravest: #d20000;   /* prefix #ff2929 */
+  --color-rank-vortex: #7d2fd0;   /* prefix #a03dff */
+  --color-rank-quantum: #1583b3;  /* prefix #33ccff */
+  --color-rank-galatics: #a98500; /* prefix #f9ff00 */
+  --color-rank-universe: #b23ad6; /* prefix #e68eff */
 
   /* ---- Command accent spectrum -------------------------------------- */
   --color-cmd-blue: #2563eb;
@@ -188,7 +192,9 @@
   html, body {
     margin: 0;
     padding: 0;
-    background: #fff8f0;
+    /* Satu tingkat lebih gelap dari permukaan container (#fff8f0) supaya
+       tiap kartu/panel kelihatan batasnya, bukan putih menyatu semua. */
+    background: #f3e9da;
   }
 
   body {
@@ -267,7 +273,7 @@
     position: fixed;
     inset: 0;
     z-index: -10;
-    background-color: #fff8f0;
+    background-color: #f3e9da; /* selaras dengan body — container #fff8f0 menonjol */
     pointer-events: none;
   }
 

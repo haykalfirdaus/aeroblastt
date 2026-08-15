@@ -91,6 +91,25 @@
     box-shadow: var(--neu-out);
   }
 
+  /*
+   * Skeleton shimmer — dipakai app/loading.jsx (antar halaman) dan section
+   * data yang masih fetch. background-position saja yang dianimasikan
+   * (satu layer paint, tidak memicu layout); dimatikan saat
+   * prefers-reduced-motion.
+   */
+  .neu-skel {
+    background: linear-gradient(100deg, var(--neu-lo) 40%, var(--neu-hi) 50%, var(--neu-lo) 60%);
+    background-size: 200% 100%;
+    animation: neu-skel-sweep 1.2s ease-in-out infinite;
+  }
+  @keyframes neu-skel-sweep {
+    from { background-position: 120% 0; }
+    to { background-position: -80% 0; }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .neu-skel { animation: none; }
+  }
+
   /* ---- Components ---------------------------------------------------- */
   .neu-icon {
     display: grid;
