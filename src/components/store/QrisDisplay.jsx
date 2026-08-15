@@ -16,40 +16,44 @@ const DOWNLOAD_SIZE = 1024;
 
 /*
  * Perbesar QR di TAB BARU — pendekatan lightbox/overlay ditinggalkan karena
- * kalah tumpuk dengan modal pembayaran di sebagian device. Tab baru berisi
- * halaman minimal: QR memenuhi sisi terpendek layar + nominal.
+ * kalah tumpuk dengan modal pembayaran di sebagian device.
  *
- * dataURL tidak bisa dinavigasikan langsung ke tab baru (diblok browser
- * modern), jadi PNG-nya di-embed ke dalam dokumen HTML yang ditulis ke tab.
+ * Halaman dibuat sebagai BLOB URL, bukan document.write ke about:blank:
+ * about:blank di mobile sering mengabaikan meta viewport (QR jadi mungil di
+ * pojok kiri atas) dan isinya lenyap saat tab di-refresh karena tidak punya
+ * URL sungguhan. Blob URL punya dokumen beneran — viewport dihormati dan
+ * refresh tetap merender ulang halaman yang sama selama tab asal masih hidup.
  */
 function openQrisTab(src, amount) {
-  const win = window.open('', '_blank');
-  if (!win) return; // popup diblok — biarkan; user masih bisa pakai tombol download
-  win.document.write(`<!DOCTYPE html>
+  const html = `<!DOCTYPE html>
 <html lang="id">
 <head>
 <meta charset="utf-8">
-<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>QRIS AeroBlast — ${formatRupiah(amount)}</title>
 <style>
-  html,body{margin:0;height:100%;background:#1d2b1f;display:grid;place-items:center;
-    font-family:system-ui,sans-serif}
-  .wrap{display:flex;flex-direction:column;align-items:center;gap:12px;padding:8px}
+  html,body{margin:0;min-height:100%;background:#1d2b1f;font-family:system-ui,sans-serif}
+  body{display:grid;place-items:center;min-height:100vh;min-height:100dvh}
+  .wrap{display:flex;flex-direction:column;align-items:center;gap:12px;padding:12px}
   .qr{background:#fff;padding:2vmin;line-height:0}
-  img{width:92vmin;height:92vmin;object-fit:contain;display:block}
-  p{color:#fff8f0;font-weight:700;font-size:15px;margin:0}
-  small{color:#fff8f0;opacity:.6;font-size:11px}
+  img{width:min(92vmin,92vw);height:auto;aspect-ratio:1;object-fit:contain;display:block}
+  p{color:#fff8f0;font-weight:700;font-size:16px;margin:0}
+  small{color:#fff8f0;opacity:.6;font-size:12px;text-align:center}
 </style>
 </head>
 <body>
   <div class="wrap">
     <div class="qr"><img src="${src}" alt="QRIS AeroBlast"></div>
     <p>${formatRupiah(amount)}</p>
-    <small>Scan QR ini dengan aplikasi pembayaran, lalu kembali ke tab sebelumnya.</small>
+    <small>Scan QR ini dengan aplikasi pembayaran,<br>lalu kembali ke tab sebelumnya.</small>
   </div>
 </body>
-</html>`);
-  win.document.close();
+</html>`;
+  const url = URL.createObjectURL(new Blob([html], { type: 'text/html' }));
+  const win = window.open(url, '_blank');
+  // Jangan langsung revoke — refresh tab butuh blob-nya masih hidup.
+  // Dibersihkan saat halaman asal ditutup oleh browser.
+  if (!win) URL.revokeObjectURL(url); // popup diblok: bersihkan saja
 }
 
 /**
