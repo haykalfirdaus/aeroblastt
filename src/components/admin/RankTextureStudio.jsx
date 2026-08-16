@@ -140,7 +140,7 @@ function buildJSON(pack) {
             "file": "minecraft:${p.folder}/${p.file}.png",
             "ascent": ${p.ascent},
             "height": ${p.height},
-            "chars": ["${toU(p.char)}"]
+            "chars": ["${p.char}"]
         }`,
   );
   return '{\n    "providers": [\n' + provs.join(',\n') + '\n    ]\n}';
