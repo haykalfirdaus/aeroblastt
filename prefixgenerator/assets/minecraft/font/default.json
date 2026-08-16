@@ -1,0 +1,123 @@
+{
+    "providers": [
+        {
+            "type": "bitmap",
+            "file": "minecraft:ranks/member.png",
+            "ascent": 9,
+            "height": 11,
+            "chars": [""]
+	},
+        {
+            "type": "bitmap",
+            "file": "minecraft:ranks/scout.png",
+            "ascent": 9,
+            "height": 11,
+            "chars": [""]
+	},
+        {
+            "type": "bitmap",
+            "file": "minecraft:ranks/voyager.png",
+            "ascent": 9,
+            "height": 11,
+            "chars": [""]
+	},
+        {
+            "type": "bitmap",
+            "file": "minecraft:ranks/orbiter.png",
+            "ascent": 9,
+            "height": 11,
+            "chars": [""]
+	},
+        {
+            "type": "bitmap",
+            "file": "minecraft:ranks/ravest.png",
+            "ascent": 9,
+            "height": 11,
+            "chars": [""]
+	},
+        {
+            "type": "bitmap",
+            "file": "minecraft:ranks/vortex.png",
+            "ascent": 9,
+            "height": 11,
+            "chars": [""]
+	},
+        {
+            "type": "bitmap",
+            "file": "minecraft:ranks/quantum.png",
+            "ascent": 9,
+            "height": 11,
+            "chars": [""]
+	},
+        {
+            "type": "bitmap",
+            "file": "minecraft:ranks/galatics.png",
+            "ascent": 9,
+            "height": 11,
+            "chars": [""]
+	},
+        {
+            "type": "bitmap",
+            "file": "minecraft:ranks/universe.png",
+            "ascent": 9,
+            "height": 11,
+            "chars": [""]
+	},
+        {
+            "type": "bitmap",
+            "file": "minecraft:ranks/ownerdev.png",
+            "ascent": 9,
+            "height": 11,
+            "chars": [""]
+	},
+        {
+            "type": "bitmap",
+            "file": "minecraft:ranks/cp-presiden.png",
+            "ascent": 9,
+            "height": 11,
+            "chars": [""]
+	},
+        {
+            "type": "bitmap",
+            "file": "minecraft:ranks/cp-absolute.png",
+            "ascent": 9,
+            "height": 11,
+            "chars": [""]
+	},
+        {
+            "type": "bitmap",
+            "file": "minecraft:ranks/media.png",
+            "ascent": 9,
+            "height": 11,
+            "chars": [""]
+        },
+        {
+            "type": "bitmap",
+            "file": "minecraft:ranks/builder.png",
+            "ascent": 9,
+            "height": 11,
+            "chars": [""]
+        },
+        {
+            "type": "bitmap",
+            "file": "minecraft:ranks/helper.png",
+            "ascent": 9,
+            "height": 11,
+            "chars": [""]
+        },
+        {
+            "type": "bitmap",
+            "file": "minecraft:ranks/matematika.png",
+            "ascent": 9,
+            "height": 11,
+            "chars": [""]
+        },
+        {
+            "type": "bitmap",
+            "file": "minecraft:ranks/cp-duke.png",
+            "ascent": 9,
+            "height": 11,
+            "chars": [""]
+        }
+    ]
+}

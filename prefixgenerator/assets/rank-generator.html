@@ -1,0 +1,778 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="utf-8">
+<title>Rank Tag Generator — 74×12 (template member.png)</title>
+<style>
+  :root{
+    --bg:#12141a; --panel:#1b1e26; --panel2:#232733; --line:#2f3442;
+    --tx:#e6e8ee; --tx2:#9aa1b1; --acc:#5ee08a;
+  }
+  *{box-sizing:border-box}
+  body{margin:0;background:var(--bg);color:var(--tx);font:13px/1.5 "Segoe UI",system-ui,sans-serif}
+  header{padding:14px 18px;border-bottom:1px solid var(--line);display:flex;align-items:center;gap:12px}
+  header h1{font-size:15px;margin:0;font-weight:600}
+  header span{color:var(--tx2);font-size:12px}
+  .wrap{display:grid;grid-template-columns:340px 1fr;height:calc(100vh - 51px)}
+  .side{border-right:1px solid var(--line);overflow:auto;padding:16px}
+  .main{overflow:auto;padding:16px}
+  .grp{background:var(--panel);border:1px solid var(--line);border-radius:8px;padding:12px;margin-bottom:12px}
+  .grp h3{margin:0 0 10px;font-size:11px;letter-spacing:.08em;text-transform:uppercase;color:var(--tx2);font-weight:600}
+  label{display:block;font-size:11px;color:var(--tx2);margin:8px 0 4px}
+  input[type=text],input[type=number],select{width:100%;background:var(--panel2);border:1px solid var(--line);color:var(--tx);
+    border-radius:6px;padding:7px 9px;font:inherit;outline:none}
+  input[type=text]:focus,input[type=number]:focus,select:focus{border-color:var(--acc)}
+  input[type=color]{width:100%;height:30px;background:none;border:1px solid var(--line);border-radius:6px;padding:2px;cursor:pointer}
+  .row{display:flex;gap:8px}.row>*{flex:1}
+  .chk{display:flex;align-items:center;gap:7px;margin:7px 0;color:var(--tx);font-size:12px;cursor:pointer}
+  .chk input{accent-color:var(--acc);width:15px;height:15px}
+  button{background:var(--panel2);border:1px solid var(--line);color:var(--tx);border-radius:6px;padding:8px 12px;
+    font:inherit;cursor:pointer}
+  button:hover{border-color:var(--acc)}
+  button.pri{background:var(--acc);color:#0c1410;border-color:var(--acc);font-weight:600}
+  .prevbox{background:
+      linear-gradient(45deg,#2a2e38 25%,transparent 25%,transparent 75%,#2a2e38 75%),
+      linear-gradient(45deg,#2a2e38 25%,#20232b 25%,#20232b 75%,#2a2e38 75%);
+    background-size:16px 16px;background-position:0 0,8px 8px;
+    border:1px solid var(--line);border-radius:8px;padding:20px;overflow:auto;margin-bottom:12px}
+  canvas{image-rendering:pixelated;display:block}
+  .chatline{background:#2b2b2b;border:1px solid var(--line);border-radius:8px;padding:12px;margin-bottom:12px;
+    display:flex;align-items:center;gap:6px;font-family:monospace}
+  .meta{color:var(--tx2);font-size:11px;margin-bottom:12px}
+  .meta b{color:var(--tx)}
+  table{width:100%;border-collapse:collapse;font-size:12px}
+  th,td{text-align:left;padding:6px 8px;border-bottom:1px solid var(--line)}
+  th{color:var(--tx2);font-size:10px;text-transform:uppercase;letter-spacing:.06em}
+  pre{background:var(--panel);border:1px solid var(--line);border-radius:8px;padding:12px;overflow:auto;
+    max-height:280px;font-size:11px;color:#b9d8c4;margin:0}
+  .warn{color:#ffcc66;font-size:11px;margin-top:6px}
+  .tools{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:12px}
+  .swatches{display:grid;grid-template-columns:repeat(4,1fr);gap:5px;margin-top:6px}
+  .swatches button{padding:5px 2px;font-size:10px;line-height:1.2;border-radius:5px}
+  .iconlist{display:grid;grid-template-columns:repeat(4,1fr);gap:5px;margin-top:6px}
+  .iconlist button{padding:4px;display:flex;flex-direction:column;align-items:center;gap:3px;font-size:9px}
+  .iconlist canvas{width:24px;height:21px}
+  .iconlist button.sel{border-color:var(--acc);background:#1d2a22}
+</style>
+</head>
+<body>
+<header>
+  <h1>Rank Tag Generator</h1>
+  <span>template 74×12 — sama persis member.png, cuma ganti warna &amp; nama rank</span>
+</header>
+
+<div class="wrap">
+  <div class="side">
+    <div class="grp">
+      <h3>Rank</h3>
+      <label>Nama rank (teks di plate)</label>
+      <input type="text" id="txt" value="MEMBER" placeholder="contoh: LEGEND">
+      <label>Nama file (tanpa .png)</label>
+      <input type="text" id="fname" value="member">
+      <div class="row">
+        <div><label>Geser teks X</label><input type="number" id="offx" value="0" min="-20" max="20"></div>
+        <div><label>Spasi huruf</label><input type="number" id="tracking" value="1" min="0" max="4"></div>
+      </div>
+      <div class="warn" id="fitwarn" style="display:none"></div>
+    </div>
+
+    <div class="grp">
+      <h3>Warna</h3>
+      <label>Preset warna rank</label>
+      <div class="swatches" id="swatches"></div>
+      <label style="margin-top:10px">Base — garis luar &amp; baris terang</label>
+      <input type="color" id="cBase" value="#d0d0d0">
+      <label class="chk"><input type="checkbox" id="autoTone" checked> Turunkan mid &amp; dark otomatis dari base</label>
+      <div class="row">
+        <div><label>Mid (isi bg)</label><input type="color" id="cMid" value="#9d9d9d"></div>
+        <div><label>Dark (bayangan)</label><input type="color" id="cDark" value="#6c6c6c"></div>
+      </div>
+      <div class="row">
+        <div><label>Teks</label><input type="color" id="cText" value="#ffffff"></div>
+        <div><label>Shadow teks</label><input type="color" id="cShadow" value="#000000"></div>
+      </div>
+    </div>
+
+    <div class="grp">
+      <h3>Ikon kiri (12×12)</h3>
+      <label>Bentuk ikon — diwarnai ulang mengikuti base</label>
+      <div class="iconlist" id="iconlist"></div>
+      <label class="chk" style="margin-top:8px"><input type="checkbox" id="icOwnColor"> Ikon pakai warna sendiri</label>
+      <input type="color" id="cIcon" value="#ffaa00" disabled>
+    </div>
+
+    <div class="grp">
+      <h3>Font provider</h3>
+      <div class="row">
+        <div><label>height</label><input type="number" id="fheight" value="11"></div>
+        <div><label>ascent</label><input type="number" id="fascent" value="9"></div>
+      </div>
+      <label>Karakter (kosong = auto dari glyph_E8, U+E800&hellip;)</label>
+      <input type="text" id="glyph" placeholder="auto — halaman E8 (libglyph-mcbe)">
+      <label>Folder texture</label>
+      <input type="text" id="folder" value="ranks">
+    </div>
+
+    <div class="grp">
+      <h3>Aksi</h3>
+      <button class="pri" id="add" style="width:100%">+ Tambah ke pack</button>
+      <button id="canceledit" style="width:100%;margin-top:8px;display:none">Batal edit</button>
+      <div class="row" style="margin-top:8px">
+        <button id="dlpng">Download PNG</button>
+        <button id="clear">Kosongkan</button>
+      </div>
+      <button class="pri" id="dlzip" style="width:100%;margin-top:8px">&#11015; Download Java Pack (.zip)</button>
+      <button class="pri" id="dlbedrock" style="width:100%;margin-top:8px">&#11015; Download Bedrock Pack (.zip)</button>
+    </div>
+  </div>
+
+  <div class="main">
+    <div class="meta" id="meta"></div>
+    <div class="prevbox"><canvas id="prev"></canvas></div>
+    <div class="chatline"><span style="color:#aaa">&lt;</span><canvas id="prevChat"></canvas><span style="color:#fff">Steve&gt; halo semua</span></div>
+
+    <div class="grp">
+      <h3>Isi pack (<span id="cnt">0</span>)</h3>
+      <table id="tbl"><thead><tr><th>Preview</th><th>File</th><th>Char</th><th>Ukuran</th><th></th></tr></thead><tbody></tbody></table>
+    </div>
+
+    <div class="grp">
+      <h3>default.json</h3>
+      <div class="tools"><button id="copyjson">Salin JSON</button></div>
+      <pre id="json">{ "providers": [] }</pre>
+    </div>
+  </div>
+</div>
+
+<script src="_bedrock-assets.js"></script>
+<script>
+/* =====================================================================
+   Semua data di bawah ini diekstrak langsung dari PNG rank yang sudah ada
+   (member.png dkk), jadi hasilnya identik pixel-per-pixel — yang berubah
+   hanya palet warna dan teks rank-nya.
+   ===================================================================== */
+
+const W = 74, H = 12;
+const ICO_X0 = 0,  ICO_X1 = 11;   // kotak ikon kiri
+const GAP_X  = 12;                 // 1 kolom transparan
+const PLT_X0 = 13, PLT_X1 = 73;    // plate teks
+const TXT_X0 = 15, TXT_X1 = 71;    // area bebas untuk huruf
+const TXT_Y0 = 3;                  // baris atas huruf (tinggi 5 + shadow 1)
+
+/* ---- font 5px, hasil vote dari semua PNG rank ---- */
+const F = {};
+const g = (ch, rows) => F[ch] = rows.split('/');
+g('A','.##./#..#/####/#..#/#..#');
+g('B','###./#..#/###./#..#/####');
+g('C','.##/#../#../#../.##');
+g('D','###./#..#/#..#/#..#/###.');
+g('E','###/#../##./#../###');
+g('F','###/#../##./#../#..');
+g('G','####/#.../#.##/#..#/####');
+g('H','#.#/#.#/###/#.#/#.#');
+g('I','#/#/#/#/#');
+g('J','..##/...#/...#/#..#/.##.');
+g('K','#..#/#.#./##../#.#./#.##');
+g('L','#../#../#../#../###');
+g('M','#...#/##.##/#.#.#/#...#/#...#');
+g('N','#..#/##.#/#.##/#..#/#..#');
+g('O','.##./#..#/#..#/#..#/.##.');
+g('P','###./#..#/###./#.../#...');
+g('Q','.##./#..#/#..#/#.#./.#.#');
+g('R','###./#..#/###./#..#/#..#');
+g('S','###/#../###/..#/###');
+g('T','#####/..#../..#../..#../..#..');
+g('U','#..#/#..#/#..#/#..#/.##.');
+g('V','#..#/#..#/#..#/#.#./.#..');
+g('W','#...#/#...#/#.#.#/##.##/#...#');
+g('X','#.#/#.#/.#./#.#/#.#');
+g('Y','#.#/#.#/.#./.#./.#.');
+g('Z','####/...#/.##./#.../####');
+g('0','.##./#..#/#..#/#..#/.##.');
+g('1','.#./##./.#./.#./###');
+g('2','##./..#/.#./#../###');
+g('3','###/..#/.##/..#/###');
+g('4','#.#/#.#/###/..#/..#');
+g('5','###/#../###/..#/###');
+g('6','.##/#../###/#.#/###');
+g('7','###/..#/.#./.#./.#.');
+g('8','###/#.#/###/#.#/###');
+g('9','###/#.#/###/..#/###');
+g('+','.../.#./###/.#./...');
+g('-','.../.../###/.../...');
+g('.','./././././#');
+g('!','#/#/#/./#');
+g('*','.../#.#/.#./#.#/...');
+g('#','.#.#./#####/.#.#./#####/.#.#.');
+g('\'','#/#/./././');
+g('(','.#/#./#./#./.#');
+g(')','#./.#/.#/.#/#.');
+g('[','##/#./#./#./##');
+g(']','##/.#/.#/.#/##');
+g('/','..#/..#/.#./#../#..');
+g(':','./#/./#/.');
+const SPACE_W = 2;
+const GLYPH_H = 5;
+
+/* ---- dither background plate, hasil baca member.png baris y2..y8 ----
+   fungsi dari (x, y) -> pakai mid (0) atau dark (1) */
+function bgTone(x, y){
+  switch (y){
+    case 2: case 3: return 0;
+    case 4: return x % 4 === 1 ? 1 : 0;
+    case 5: return x % 2 === 1 ? 1 : 0;
+    case 6: return x % 2 === 0 ? 1 : 0;
+    default: return 1;              // y7, y8
+  }
+}
+
+/* ---- ikon 8×7 (area x2..9, y2..8) ----
+   b = warna base rank aslinya, p = palet warna eksak (hex tanpa '#', 6 char
+   per warna), m = indeks palet per pixel ('A' = warna ke-0, dst).
+   Saat base diganti, tiap warna palet digeser hue/saturation-nya mengikuti
+   selisih base baru vs base asli — jadi bentuk & shading tetap utuh. */
+const ICONS = {
+  "member": {b:"d0d0d0", p:"9d9d9de3e3e3ebebebfffffff2f2f29f9f9fcdcdcda4a4a4e1e1e16e6e6e000000", m:"AABCBBAA/AABDDEAA/AAFGGFHA/HAIICCHA/JEEDDDDJ/JDDDDDDJ/JKKKKKKJ"},
+  "scout": {b:"fffa00", p:"c8c400f6f5aafffd91fffb44fffc72e9e64d787500000000", m:"AABBBBAA/AACDDEAA/AAAFFAAA/AAFFEEAA/GCCDDDDG/GDDDDDDG/GHHHHHHG"},
+  "voyager": {b:"00e1ff", p:"3bb8c85ffdf58be7e292fff957d5ce009baf000000", m:"AABBBBAA/AABCDDAA/AAAEEAAA/AACCBBAA/FBBCCDDF/FDDDDDDF/FGGGGGGF"},
+  "orbiter": {b:"1fff00", p:"18c500a2ff967df36c80f07152ed3d139c0063e5526ded5c84ff73000000", m:"AABBBBAA/AACDBBAA/AAAEEAAA/AACDEEAA/FBGGHCBF/FBBIBBBF/FJJJJJJF"},
+  "ravest": {b:"ff2929", p:"d20000e79797dc7a7aff7575cd5151d66464000000", m:"AABBBBAA/AACCDDAA/AAAEEAAA/AAEEFFAA/ACCCDDDA/ADDDDDDA/AGGGGGGA"},
+  "vortex": {b:"a03dff", p:"6a3999a56ddcb86eff7b4ba9351356000000", m:"AABBBBAA/AABBCCAA/AAADDAAA/AADDBBAA/ABBBBCCA/ECCCCCCE/EFFFFFFE"},
+  "quantum": {b:"33ccff", p:"3b8aa380d6f185e2ff50a9c569b8d116596f000000", m:"AABBBBAA/AABBCCAA/AAADDAAA/AAEEBBAA/ABBBCCCA/FCCCCCCF/FGGGGGGF"},
+  "galatics": {b:"f9ff00", p:"ffce00dca93edeb561e2a014d5c29a000000d4bb87", m:"AAABBAAA/AABCCBAA/DDCEECDD/FBCGGCBF/ABBEEBBA/DDBFFBDD/FFFAAFFF"},
+  "universe": {b:"e68eff", p:"c700ff790eb0930bd99c40cba858d1000000bc7fdb", m:"AAABBAAA/AACDDCAA/BBDEEDBB/FCDGGDCF/ACCEECCA/BBCFFCBB/FFFAAFFF"},
+  "ownerdev": {b:"f30000", p:"aa00009313139a20208a0000983a3a000000a84646", m:"AAABBAAA/AABCCBAA/DDCEECDD/FBCGGCBF/ABBEEBBA/DDBFFBDD/FFFAAFFF"},
+  "media": {b:"f30000", p:"aa0000ffffff000000", m:"AAAAAAAA/ABBBAAAA/ABBBBBAA/ABBBBBBA/ABBBBCCA/ABBBCAAA/ACCCAAAA"},
+  "builder": {b:"f30000", p:"aa0000938a79adadad838383000000ad7100707070c98300e09914e7a62e", m:"AAAAAAAA/AABBBCAA/ADEFEECA/GEAHAAEC/EAAIAAAE/AAAJAAAA/AAAJAAAA"},
+  "helper": {b:"f30000", p:"aa0000ffffff000000", m:"AAABBAAA/AAABBAAA/ABBBBBBA/ABBBBBBA/ACCBBCCA/AAABBAAA/AAACCAAA"},
+  "matematika": {b:"f30000", p:"aa0000ffffff000000", m:"AAAAAAAA/ABBBBBBA/ACBCCBCA/AABAABAA/AABAABAA/AABAABBA/AACAACCA"},
+  "cp-absolute": {b:"ff2929", p:"ffffffcd210acd1f1f000000", m:"ABBAAAAA/ABCAADDD/AAAAABBB/DDDAAAAA/BBCAADDA/AAAAABBA/DDDDDBBD"},
+  "cp-duke": {b:"494949", p:"171717dd2a001b1b1bdd4b00dd6c00dd9200000001ddb3001a1a1a181818020203", m:"ABCCBCBA/ABBCBBBA/ADDDDBDA/AEFDDEEA/GEFFHFEG/GIHHHHJG/KGAAAAGG"}
+};
+
+/* ---- preset warna, diambil dari palet PNG asli ---- */
+const PRESETS = [
+  {n:'Member',   base:'#d0d0d0', mid:'#9d9d9d', dark:'#6c6c6c', ico:'member'},
+  {n:'Scout',    base:'#fffa00', mid:'#c8c400', dark:'#787500', ico:'scout'},
+  {n:'Voyager',  base:'#00e1ff', mid:'#3bb8c8', dark:'#009baf', ico:'voyager'},
+  {n:'Orbiter',  base:'#1fff00', mid:'#18c500', dark:'#139c00', ico:'orbiter'},
+  {n:'Ravest',   base:'#ff2929', mid:'#d20000', dark:'#930000', ico:'ravest'},
+  {n:'Vortex',   base:'#a03dff', mid:'#6a3999', dark:'#351356', ico:'vortex'},
+  {n:'Quantum',  base:'#33ccff', mid:'#3b8aa3', dark:'#16596f', ico:'quantum'},
+  {n:'Galatics', base:'#f9ff00', mid:'#ffce00', dark:'#ff9200', ico:'galatics'},
+  {n:'Universe', base:'#e68eff', mid:'#c700ff', dark:'#9100ba', ico:'universe'},
+  {n:'OwnerDev', base:'#f30000', mid:'#aa0000', dark:'#6f0000', ico:'ownerdev'},
+  {n:'Duke',     base:'#494949', mid:'#171717', dark:'#171717', ico:'cp-duke'},
+  {n:'Emerald',  base:'#00ffa2', mid:'#00c67e', dark:'#009459', ico:'quantum'}
+];
+
+/* ===================== util warna ===================== */
+const hex2rgb = h => [parseInt(h.slice(1,3),16), parseInt(h.slice(3,5),16), parseInt(h.slice(5,7),16)];
+const rgb2hex = a => '#' + a.map(v => Math.max(0,Math.min(255,Math.round(v))).toString(16).padStart(2,'0')).join('');
+const mulc  = (h, f) => rgb2hex(hex2rgb(h).map(v => v * f));
+
+function rgb2hsl([r,g_,b]){
+  r/=255; g_/=255; b/=255;
+  const mx = Math.max(r,g_,b), mn = Math.min(r,g_,b), l = (mx+mn)/2;
+  if (mx === mn) return [0,0,l];
+  const d = mx - mn;
+  const s = l > .5 ? d/(2-mx-mn) : d/(mx+mn);
+  let h;
+  if (mx === r)       h = ((g_-b)/d + (g_ < b ? 6 : 0));
+  else if (mx === g_) h = ((b-r)/d + 2);
+  else                h = ((r-g_)/d + 4);
+  return [h/6, s, l];
+}
+function hsl2rgb([h,s,l]){
+  if (s === 0){ const v = l*255; return [v,v,v]; }
+  const q = l < .5 ? l*(1+s) : l+s-l*s, p = 2*l - q;
+  const f = t => {
+    t = (t%1+1)%1;
+    if (t < 1/6) return p + (q-p)*6*t;
+    if (t < 1/2) return q;
+    if (t < 2/3) return p + (q-p)*(2/3-t)*6;
+    return p;
+  };
+  return [f(h+1/3)*255, f(h)*255, f(h-1/3)*255];
+}
+
+/* Warnai ulang satu warna palet ikon: hue diambil dari base baru, saturasi
+   diskalakan, lightness dipertahankan supaya shading ikon tidak hilang. */
+function recolor(colorHex, oldBaseHex, newBaseHex){
+  if (colorHex === oldBaseHex) return newBaseHex;
+  const c = rgb2hsl(hex2rgb(colorHex));
+  const o = rgb2hsl(hex2rgb(oldBaseHex));
+  const n = rgb2hsl(hex2rgb(newBaseHex));
+  if (c[2] < .04) return colorHex;                    // hampir hitam: biarkan
+  const dh = c[0] - o[0];
+  const s  = o[1] < .02 ? c[1] * n[1] / Math.max(o[1], .02)
+                        : Math.min(1, c[1] * (n[1] / o[1]));
+  const l  = c[2] + (n[2] - o[2]) * .35;
+  return rgb2hex(hsl2rgb([n[0] + dh, Math.min(1, s), Math.max(0, Math.min(1, l))]));
+}
+
+/* Palet ikon yang sudah diwarnai ulang ke `target`. Kalau target sama dengan
+   base aslinya, palet asli dipakai apa adanya (hasil identik PNG sumber). */
+function iconPalette(ico, target){
+  const oldBase = '#' + ico.b;
+  const cols = ico.p.match(/.{6}/g).map(s => '#' + s);
+  if (target.toLowerCase() === oldBase) return cols;
+  return cols.map(col => recolor(col, oldBase, target.toLowerCase()));
+}
+
+/* ===================== layout teks ===================== */
+function layout(text, tracking){
+  const cells = [];
+  let x = 0;
+  for (const ch of text.toUpperCase()){
+    if (ch === ' '){ x += SPACE_W + tracking; continue; }
+    const rows = F[ch];
+    if (!rows) continue;
+    for (let ry = 0; ry < rows.length; ry++)
+      for (let rx = 0; rx < rows[ry].length; rx++)
+        if (rows[ry][rx] === '#') cells.push({x: x + rx, y: ry});
+    x += rows[0].length + tracking;
+  }
+  return {cells, width: Math.max(0, x - tracking)};
+}
+
+/* ===================== render 74×12 ===================== */
+function render(c){
+  const cv = document.createElement('canvas');
+  cv.width = W; cv.height = H;
+  const ctx = cv.getContext('2d');
+  const px = (x, y, col) => { ctx.fillStyle = col; ctx.fillRect(x, y, 1, 1); };
+  const K = '#000000';
+  const TONE = [c.mid, c.dark];
+
+  /* --- kotak ikon kiri (x0..11) --- */
+  for (let x = ICO_X0; x <= ICO_X1; x++){ px(x, 0, K); px(x, H-1, K); }
+  for (let y = 1; y <= H-2; y++){ px(ICO_X0, y, K); px(ICO_X1, y, K); }
+  for (let x = 1; x <= 10; x++){ px(x, 1, c.base); px(x, 9, c.base); px(x, 10, c.dark); }
+  for (let y = 2; y <= 8; y++){ px(1, y, c.base); px(10, y, c.base); }
+  const ico = ICONS[c.icon];
+  if (ico){
+    const target = c.icOwnColor ? c.iconColor : c.base;
+    const pal = iconPalette(ico, target);
+    ico.m.split('/').forEach((row, ry) => {
+      for (let rx = 0; rx < row.length; rx++)
+        px(2 + rx, 2 + ry, pal[row.charCodeAt(rx) - 65]);
+    });
+  }
+
+  /* --- plate teks (x13..73) --- */
+  for (let x = PLT_X0; x <= PLT_X1; x++){ px(x, 0, K); px(x, H-1, K); }
+  for (let y = 1; y <= H-2; y++){ px(PLT_X0, y, K); px(PLT_X1, y, K); }
+  for (let x = 14; x <= 72; x++){ px(x, 1, c.base); px(x, 9, c.base); px(x, 10, c.dark); }
+  for (let y = 2; y <= 8; y++){
+    px(14, y, c.base); px(72, y, c.base);
+    for (let x = TXT_X0; x <= TXT_X1; x++) px(x, y, TONE[bgTone(x, y)]);
+  }
+
+  /* --- huruf + shadow lurus ke bawah (persis PNG asli) --- */
+  const L = layout(c.text, c.tracking);
+  // teks dipusatkan di x=43 (titik tengah yang dipakai PNG rank asli)
+  const avail = TXT_X1 - TXT_X0 + 1;
+  const startX = Math.floor(43 - L.width / 2) + c.offx;
+  const inArea = (x, y) => x >= TXT_X0 && x <= TXT_X1 && y >= 2 && y <= 8;
+  for (const p of L.cells){
+    const sx = startX + p.x, sy = TXT_Y0 + p.y + 1;
+    if (inArea(sx, sy)) px(sx, sy, c.shadowColor);
+  }
+  for (const p of L.cells){
+    const sx = startX + p.x, sy = TXT_Y0 + p.y;
+    if (inArea(sx, sy)) px(sx, sy, c.textColor);
+  }
+
+  /* --- kolom pemisah x=12 transparan --- */
+  ctx.clearRect(GAP_X, 0, 1, H);
+
+  return {canvas: cv, w: W, h: H, textWidth: L.width, fits: L.width <= avail};
+}
+
+/* ===================== UI ===================== */
+const $ = id => document.getElementById(id);
+let curIcon = 'member';
+
+const IDS = ['txt','offx','tracking','cBase','cMid','cDark','cText','cShadow',
+             'autoTone','icOwnColor','cIcon','fheight','fascent'];
+
+function cfg(){
+  return {
+    text: $('txt').value,
+    tracking: +$('tracking').value,
+    offx: +$('offx').value,
+    base: $('cBase').value,
+    mid:  $('cMid').value,
+    dark: $('cDark').value,
+    textColor: $('cText').value,
+    shadowColor: $('cShadow').value,
+    icon: curIcon,
+    icOwnColor: $('icOwnColor').checked,
+    iconColor: $('cIcon').value
+  };
+}
+
+function syncTone(){
+  if ($('autoTone').checked){
+    $('cMid').value  = mulc($('cBase').value, 0.78);
+    $('cDark').value = mulc($('cBase').value, 0.52);
+    $('cMid').disabled = $('cDark').disabled = true;
+  } else {
+    $('cMid').disabled = $('cDark').disabled = false;
+  }
+  $('cIcon').disabled = !$('icOwnColor').checked;
+}
+
+/* preset warna */
+PRESETS.forEach(p => {
+  const b = document.createElement('button');
+  b.textContent = p.n;
+  b.style.borderLeft = '4px solid ' + p.base;
+  b.onclick = () => {
+    $('cBase').value = p.base; $('cMid').value = p.mid; $('cDark').value = p.dark;
+    $('autoTone').checked = false;
+    curIcon = p.ico; drawIcons(); syncTone(); update();
+  };
+  $('swatches').appendChild(b);
+});
+
+/* daftar ikon */
+function drawIcons(){
+  const box = $('iconlist');
+  box.innerHTML = '';
+  Object.keys(ICONS).forEach(name => {
+    const b = document.createElement('button');
+    if (name === curIcon) b.className = 'sel';
+    const cv = document.createElement('canvas');
+    cv.width = 8; cv.height = 7;
+    const cx = cv.getContext('2d');
+    const base = $('icOwnColor').checked ? $('cIcon').value : $('cBase').value;
+    const ico = ICONS[name], pal = iconPalette(ico, base);
+    ico.m.split('/').forEach((row, ry) => {
+      for (let rx = 0; rx < row.length; rx++){
+        cx.fillStyle = pal[row.charCodeAt(rx) - 65];
+        cx.fillRect(rx, ry, 1, 1);
+      }
+    });
+    const lb = document.createElement('span');
+    lb.textContent = name.length > 8 ? name.slice(0,8) : name;
+    b.append(cv, lb);
+    b.onclick = () => { curIcon = name; drawIcons(); update(); };
+    box.appendChild(b);
+  });
+}
+
+let lastRender = null;
+function update(){
+  syncTone();
+  const c = cfg();
+  lastRender = render(c);
+
+  const zoom = 6, box = $('prev');
+  box.width = W * zoom; box.height = H * zoom;
+  const cx = box.getContext('2d'); cx.imageSmoothingEnabled = false;
+  cx.drawImage(lastRender.canvas, 0, 0, box.width, box.height);
+
+  const chat = $('prevChat');
+  chat.width = W; chat.height = H;
+  chat.getContext('2d').drawImage(lastRender.canvas, 0, 0);
+  chat.style.height = '18px';
+  chat.style.width = Math.round(W * 18 / H) + 'px';
+
+  const avail = TXT_X1 - TXT_X0 + 1;
+  $('meta').innerHTML = `Texture <b>${W} × ${H}px</b> &nbsp;·&nbsp; lebar teks <b>${lastRender.textWidth}/${avail}px</b>` +
+    ` &nbsp;·&nbsp; height <b>${$('fheight').value}</b>, ascent <b>${$('fascent').value}</b>`;
+  const wn = $('fitwarn');
+  if (!lastRender.fits){
+    wn.style.display = ''; wn.textContent = `Teks ${lastRender.textWidth}px melebihi area ${avail}px — kurangi huruf atau set spasi 0.`;
+  } else wn.style.display = 'none';
+
+  drawIcons();
+}
+
+IDS.forEach(id => ['input','change'].forEach(ev => $(id).addEventListener(ev, update)));
+
+/* ===================== PACK ===================== */
+/* Karakter otomatis dialokasikan dari halaman glyph_E8 (U+E800..U+E8FF) —
+   mengikuti libglyph-mcbe (inkiralet.github.io/libglyph-mcbe): di Bedrock
+   glyph custom dibuat dari atlas glyph_E8.png, jadi range ini yang dipakai
+   supaya pack Java & Bedrock share karakter yang sama persis. */
+let pack = [], nextCode = 0xE800;
+let editingIndex = -1;               // -1 = mode tambah, >=0 = mode edit
+const toU = ch => '\\u' + ch.codePointAt(0).toString(16).toUpperCase().padStart(4,'0');
+const usedChars = (exceptIdx = -1) =>
+  new Set(pack.filter((_, i) => i !== exceptIdx).map(p => p.char));
+function allocChar(){
+  const used = usedChars();
+  while (used.has(String.fromCodePoint(nextCode))) nextCode++;
+  return String.fromCodePoint(nextCode++);
+}
+
+function setEditMode(i){
+  editingIndex = i;
+  $('add').textContent = i === -1 ? '+ Tambah ke pack' : '✔ Simpan perubahan';
+  $('canceledit').style.display = i === -1 ? 'none' : '';
+}
+
+$('add').onclick = () => {
+  if (!$('txt').value.trim()){ alert('Nama rank masih kosong'); return; }
+  const c = cfg();
+  const r = render(c);
+  if (!r.fits && !confirm('Teks kepotong. Tetap ' + (editingIndex === -1 ? 'tambahkan' : 'simpan') + '?')) return;
+  let ch = $('glyph').value;
+  ch = ch ? [...ch][0] : (editingIndex !== -1 ? pack[editingIndex].char : allocChar());
+  if (usedChars(editingIndex).has(ch)){ alert('Karakter ' + toU(ch) + ' sudah dipakai'); return; }
+  const name = ($('fname').value.trim() || 'tag').replace(/[^\w.-]/g,'_');
+  if (pack.some((p, i) => i !== editingIndex && p.file === name)){ alert('Nama file "' + name + '" sudah ada'); return; }
+  const item = {
+    file: name, char: ch, w: W, h: H, dataURL: r.canvas.toDataURL('image/png'),
+    height: +$('fheight').value, ascent: +$('fascent').value,
+    folder: $('folder').value.trim() || 'ranks',
+    cfg: c                            // disimpan untuk fitur edit ulang
+  };
+  if (editingIndex === -1) pack.push(item);
+  else pack[editingIndex] = item;
+  $('glyph').value = '';
+  setEditMode(-1);
+  renderPack();
+};
+
+$('canceledit').onclick = () => { $('glyph').value = ''; setEditMode(-1); renderPack(); };
+
+/* Muat balik item pack ke form untuk diedit ulang */
+function startEdit(i){
+  const p = pack[i];
+  if (!p.cfg){ alert('Item lama tanpa data edit — hapus lalu buat ulang.'); return; }
+  const c = p.cfg;
+  $('txt').value = c.text; $('fname').value = p.file;
+  $('offx').value = c.offx; $('tracking').value = c.tracking;
+  $('autoTone').checked = false;
+  $('cBase').value = c.base; $('cMid').value = c.mid; $('cDark').value = c.dark;
+  $('cText').value = c.textColor; $('cShadow').value = c.shadowColor;
+  $('icOwnColor').checked = c.icOwnColor; $('cIcon').value = c.iconColor;
+  curIcon = c.icon;
+  $('fheight').value = p.height; $('fascent').value = p.ascent;
+  $('folder').value = p.folder; $('glyph').value = p.char;
+  setEditMode(i);
+  update();
+}
+
+$('clear').onclick = () => { if (confirm('Kosongkan semua isi pack?')){ pack = []; nextCode = 0xE800; setEditMode(-1); renderPack(); } };
+
+function renderPack(){
+  const tb = document.querySelector('#tbl tbody');
+  tb.innerHTML = '';
+  pack.forEach((p, i) => {
+    const tr = document.createElement('tr');
+    if (i === editingIndex) tr.style.outline = '1px solid var(--acc)';
+    const img = new Image(); img.src = p.dataURL;
+    img.style.cssText = 'height:20px;image-rendering:pixelated;background:#2b2b2b;border-radius:3px';
+    const td = t => { const e = document.createElement('td'); e.textContent = t; return e; };
+    const td0 = document.createElement('td'); td0.appendChild(img);
+    const td2 = document.createElement('td'); td2.innerHTML = '<code>' + toU(p.char) + '</code>';
+    const td4 = document.createElement('td');
+    td4.style.whiteSpace = 'nowrap';
+    const mkBtn = (label, title, fn, disabled) => {
+      const b = document.createElement('button');
+      b.textContent = label; b.title = title; b.disabled = !!disabled;
+      b.style.marginRight = '4px'; b.onclick = fn;
+      return b;
+    };
+    // urutan pack bisa dinaik-turunkan — urutan ini yang dipakai di
+    // default.json (Java) dan penomoran otomatis atlas Bedrock
+    td4.append(
+      mkBtn('↑', 'Naikkan urutan', () => { [pack[i-1], pack[i]] = [pack[i], pack[i-1]]; renderPack(); }, i === 0),
+      mkBtn('↓', 'Turunkan urutan', () => { [pack[i+1], pack[i]] = [pack[i], pack[i+1]]; renderPack(); }, i === pack.length - 1),
+      mkBtn('Edit', 'Edit ulang prefix ini', () => startEdit(i)),
+      mkBtn('Hapus', '', () => { if (i === editingIndex) setEditMode(-1); pack.splice(i,1); renderPack(); })
+    );
+    tr.append(td0, td(p.file + '.png'), td2, td(p.w + '×' + p.h), td4);
+    tb.appendChild(tr);
+  });
+  $('cnt').textContent = pack.length;
+  $('json').textContent = buildJSON();
+}
+
+function buildJSON(){
+  const provs = pack.map(p =>
+`        {
+            "type": "bitmap",
+            "file": "minecraft:${p.folder}/${p.file}.png",
+            "ascent": ${p.ascent},
+            "height": ${p.height},
+            "chars": ["${toU(p.char)}"]
+        }`);
+  return '{\n    "providers": [\n' + provs.join(',\n') + '\n    ]\n}';
+}
+
+$('copyjson').onclick = () => navigator.clipboard.writeText(buildJSON()).then(() => alert('JSON disalin'));
+
+$('dlpng').onclick = () => {
+  if (!lastRender) return;
+  const a = document.createElement('a');
+  a.download = ($('fname').value.trim() || 'tag') + '.png';
+  a.href = lastRender.canvas.toDataURL('image/png');
+  a.click();
+};
+
+/* ===================== ZIP (stored, tanpa dependensi) ===================== */
+const CRC_TABLE = (() => {
+  const t = new Uint32Array(256);
+  for (let n = 0; n < 256; n++){
+    let c = n;
+    for (let k = 0; k < 8; k++) c = (c & 1) ? (0xEDB88320 ^ (c >>> 1)) : (c >>> 1);
+    t[n] = c >>> 0;
+  }
+  return t;
+})();
+function crc32(buf){
+  let c = 0xFFFFFFFF;
+  for (let i = 0; i < buf.length; i++) c = CRC_TABLE[(c ^ buf[i]) & 0xFF] ^ (c >>> 8);
+  return (c ^ 0xFFFFFFFF) >>> 0;
+}
+function zip(files){
+  const enc = new TextEncoder(), chunks = [], central = [];
+  let offset = 0;
+  for (const f of files){
+    const name = enc.encode(f.name), data = f.data, crc = crc32(data);
+    const lh = new DataView(new ArrayBuffer(30));
+    lh.setUint32(0, 0x04034b50, true); lh.setUint16(4, 20, true);
+    lh.setUint32(14, crc, true); lh.setUint32(18, data.length, true); lh.setUint32(22, data.length, true);
+    lh.setUint16(26, name.length, true);
+    chunks.push(new Uint8Array(lh.buffer), name, data);
+    const ch = new DataView(new ArrayBuffer(46));
+    ch.setUint32(0, 0x02014b50, true); ch.setUint16(4, 20, true); ch.setUint16(6, 20, true);
+    ch.setUint32(16, crc, true); ch.setUint32(20, data.length, true); ch.setUint32(24, data.length, true);
+    ch.setUint16(28, name.length, true); ch.setUint32(42, offset, true);
+    central.push(new Uint8Array(ch.buffer), name);
+    offset += 30 + name.length + data.length;
+  }
+  const cStart = offset;
+  let cSize = 0; central.forEach(c => cSize += c.length);
+  const end = new DataView(new ArrayBuffer(22));
+  end.setUint32(0, 0x06054b50, true);
+  end.setUint16(8, files.length, true); end.setUint16(10, files.length, true);
+  end.setUint32(12, cSize, true); end.setUint32(16, cStart, true);
+  return new Blob([...chunks, ...central, new Uint8Array(end.buffer)], {type:'application/zip'});
+}
+function dataURLtoBytes(u){
+  const bin = atob(u.split(',')[1]);
+  const out = new Uint8Array(bin.length);
+  for (let i = 0; i < bin.length; i++) out[i] = bin.charCodeAt(i);
+  return out;
+}
+
+$('dlzip').onclick = () => {
+  if (!pack.length){ alert('Pack masih kosong — klik "+ Tambah ke pack" dulu'); return; }
+  const enc = new TextEncoder();
+  const files = [
+    {name:'pack.mcmeta', data: enc.encode(JSON.stringify({pack:{pack_format:15, description:"Custom Rank Tags"}}, null, 4))},
+    {name:'assets/minecraft/font/default.json', data: enc.encode(buildJSON())},
+    {name:'chars.txt', data: enc.encode(pack.map(p => `${p.file}\t${toU(p.char)}\t${p.char}`).join('\n'))}
+  ];
+  for (const p of pack) files.push({name:`assets/minecraft/textures/${p.folder}/${p.file}.png`, data: dataURLtoBytes(p.dataURL)});
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(zip(files));
+  a.download = 'rank-tags-pack.zip';
+  a.click();
+};
+
+/* ===================== BEDROCK PACK ===================== */
+/*
+ * Konversi langsung ke resource pack Bedrock, format persis contoh
+ * (sanzbedrock.zip / potatosmpbedrock.zip):
+ *
+ *   pack_icon.png       — statis (sama dengan contoh)
+ *   font/glyph_E2.png   — statis (sama dengan contoh)
+ *   font/glyph_E8.png   — atlas 2048×2048, grid 16×16 sel @128px.
+ *                         Karakter U+E8XY menempati sel baris X kolom Y —
+ *                         konvensi glyph Bedrock (libglyph-mcbe).
+ *                         ATURAN PENEMPATAN DALAM SEL (WAJIB TEPAT):
+ *                           74×12 → x=27, y=58 di semua sel (pola pack sanz)
+ *                           65×8  → y=60, x=30−3×kolom (pola pack potato /
+ *                                   mini: 30, 27, 24, … per kolom sel)
+ *   manifest.json       — dibuat oleh "Aeroblast Developer", UUID baru
+ *                         setiap generate, version selalu [0, 0, 1].
+ */
+const b64toBytes = b64 => {
+  const bin = atob(b64);
+  const out = new Uint8Array(bin.length);
+  for (let i = 0; i < bin.length; i++) out[i] = bin.charCodeAt(i);
+  return out;
+};
+
+// Posisi kiri-atas glyph di dalam sel 128px, per ukuran texture.
+// col = kolom sel (0-15) — pola potato menggeser 3px per kolom.
+function bedrockPlacement(w, h, col){
+  if (w === 74 && h === 12) return {x: 27, y: 58};                       // sanz
+  if (w === 65 && h === 8)  return {x: Math.max(0, 30 - 3 * col), y: 60}; // potato / mini
+  // ukuran lain: tengah sel, dibulatkan ke bawah
+  return {x: Math.floor((128 - w) / 2), y: Math.floor((128 - h) / 2)};
+}
+
+function randomUUID(){
+  if (crypto.randomUUID) return crypto.randomUUID();
+  const b = crypto.getRandomValues(new Uint8Array(16));
+  b[6] = (b[6] & 0x0f) | 0x40; b[8] = (b[8] & 0x3f) | 0x80;
+  const h = [...b].map(v => v.toString(16).padStart(2,'0')).join('');
+  return `${h.slice(0,8)}-${h.slice(8,12)}-${h.slice(12,16)}-${h.slice(16,20)}-${h.slice(20)}`;
+}
+
+async function buildGlyphE8(){
+  const atlas = document.createElement('canvas');
+  atlas.width = 2048; atlas.height = 2048;
+  const ctx = atlas.getContext('2d');
+  ctx.imageSmoothingEnabled = false;
+  for (const p of pack){
+    const code = p.char.codePointAt(0);
+    if ((code & 0xFF00) !== 0xE800){
+      throw new Error(`Karakter ${toU(p.char)} (${p.file}) di luar halaman E8 — pack Bedrock hanya memuat U+E800..U+E8FF.`);
+    }
+    const idx = code & 0xFF;
+    const cellX = (idx & 0x0F) * 128, cellY = (idx >> 4) * 128;
+    const img = new Image();
+    await new Promise((res, rej) => { img.onload = res; img.onerror = rej; img.src = p.dataURL; });
+    const pos = bedrockPlacement(p.w, p.h, idx & 0x0F);
+    ctx.drawImage(img, cellX + pos.x, cellY + pos.y);
+  }
+  const blob = await new Promise(res => atlas.toBlob(res, 'image/png'));
+  return new Uint8Array(await blob.arrayBuffer());
+}
+
+$('dlbedrock').onclick = async () => {
+  if (!pack.length){ alert('Pack masih kosong — klik "+ Tambah ke pack" dulu'); return; }
+  let glyphE8;
+  try { glyphE8 = await buildGlyphE8(); }
+  catch (e){ alert(e.message); return; }
+
+  const enc = new TextEncoder();
+  const manifest = {
+    format_version: 2,
+    header: {
+      description: 'Made By Aeroblast Developer',
+      name: 'Aeroblast Pack',
+      uuid: randomUUID(),                 // baru setiap generate
+      version: [0, 0, 1],                 // selalu versi terawal
+      min_engine_version: [1, 20, 0]
+    },
+    modules: [
+      { type: 'resources', uuid: randomUUID(), version: [0, 0, 1] }
+    ]
+  };
+  const files = [
+    {name:'pack_icon.png', data: b64toBytes(PACK_ICON_B64)},
+    {name:'manifest.json', data: enc.encode(JSON.stringify(manifest, null, 2))},
+    {name:'font/glyph_E2.png', data: b64toBytes(GLYPH_E2_B64)},
+    {name:'font/glyph_E8.png', data: glyphE8}
+  ];
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(zip(files));
+  a.download = 'aeroblast-bedrock-pack.zip';
+  a.click();
+};
+
+drawIcons(); update(); renderPack();
+</script>
+</body>
+</html>
