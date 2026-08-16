@@ -1,7 +1,7 @@
 import { NextResponse } from 'next/server';
 import { supabase } from '@/api/_supabase';
 import { isValidOrigin } from '@/api/_auth';
-import { rateLimit } from '@/api/_ratelimit';
+import { rateLimit, formatRetry } from '@/api/_ratelimit';
 import { getMinBaseAmount } from '@/api/_prices';
 
 const DISCORD_WEBHOOK_URL = process.env.DISCORD_WEBHOOK_URL;
@@ -57,7 +57,7 @@ export async function POST(request) {
   if (!isValidOrigin(request)) return NextResponse.json({ ok: false, error: 'Forbidden' }, { status: 403 });
 
   const rl = rateLimit(getIp(request), { max: 10, windowMs: 60 * 1000 });
-  if (!rl.ok) return NextResponse.json({ ok: false, error: `Terlalu banyak request. Coba lagi dalam ${rl.retryAfter} detik.` }, { status: 429, headers: { 'Retry-After': String(rl.retryAfter) } });
+  if (!rl.ok) return NextResponse.json({ ok: false, error: `Terlalu banyak request. Coba lagi dalam ${formatRetry(rl.retryAfter)}.` }, { status: 429, headers: { 'Retry-After': String(rl.retryAfter) } });
 
   let body;
   try { body = await request.json(); } catch { return NextResponse.json({ ok: false, error: 'Invalid JSON' }, { status: 400 }); }

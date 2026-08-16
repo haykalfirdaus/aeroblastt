@@ -4,6 +4,15 @@
 
 const store = new Map(); // ip → { count, resetAt }
 
+// "95" → "1 menit 35 detik" — untuk pesan 429 yang manusiawi
+export function formatRetry(seconds) {
+  const m = Math.floor(seconds / 60);
+  const s = seconds % 60;
+  if (m <= 0) return `${s} detik`;
+  if (s === 0) return `${m} menit`;
+  return `${m} menit ${s} detik`;
+}
+
 export function rateLimit(ip, { max = 5, windowMs = 15 * 60 * 1000 } = {}) {
   const now = Date.now();
   const entry = store.get(ip);

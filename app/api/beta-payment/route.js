@@ -2,7 +2,7 @@ import crypto from 'crypto';
 import { NextResponse } from 'next/server';
 import { supabase } from '@/api/_supabase';
 import { grantRank, giveKey, giveMoney, grantCommand } from '@/api/_rcon';
-import { rateLimit } from '@/api/_ratelimit';
+import { rateLimit, formatRetry } from '@/api/_ratelimit';
 import { getMinBaseAmount } from '@/api/_prices';
 import { isValidOrigin } from '@/api/_auth';
 import { buildDynamicQris } from '@/api/_qris';
@@ -71,7 +71,7 @@ async function handleCreate(body, request) {
   if (!supabase) return NextResponse.json({ ok: false, error: 'Database tidak terkonfigurasi' }, { status: 503 });
   if (!isValidOrigin(request)) return NextResponse.json({ ok: false, error: 'Forbidden' }, { status: 403 });
   const rl = rateLimit(getIp(request), { max: 5, windowMs: 10 * 60 * 1000 });
-  if (!rl.ok) return NextResponse.json({ ok: false, error: `Terlalu banyak request. Coba lagi dalam ${rl.retryAfter} detik.` }, { status: 429, headers: { 'Retry-After': String(rl.retryAfter) } });
+  if (!rl.ok) return NextResponse.json({ ok: false, error: `Terlalu banyak request. Coba lagi dalam ${formatRetry(rl.retryAfter)}.` }, { status: 429, headers: { 'Retry-After': String(rl.retryAfter) } });
 
   const { type, nick, platform, baseAmount, details, turnstileToken } = body || {};
   if (!VALID_TYPES.includes(type)) return NextResponse.json({ ok: false, error: 'type tidak valid' }, { status: 400 });

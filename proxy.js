@@ -1,5 +1,6 @@
 import { NextResponse } from 'next/server';
 import { verifyClearance, clearanceGateEnabled, CLEARANCE_COOKIE } from '@/lib/clearance';
+import { formatRetry } from '@/api/_ratelimit';
 
 export const config = {
   matcher: ['/assets/:path*', '/admin', '/admin/:path*'],
@@ -54,7 +55,7 @@ async function guardAdmin(request) {
   const retryAfter = rateLimited(ip);
   if (retryAfter !== null) {
     return new NextResponse(
-      JSON.stringify({ ok: false, error: `Terlalu banyak request. Coba lagi dalam ${retryAfter} detik.` }),
+      JSON.stringify({ ok: false, error: `Terlalu banyak request. Coba lagi dalam ${formatRetry(retryAfter)}.` }),
       { status: 429, headers: { 'Content-Type': 'application/json', 'Retry-After': String(retryAfter) } },
     );
   }

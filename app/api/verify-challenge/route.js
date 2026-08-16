@@ -1,6 +1,6 @@
 import { NextResponse } from 'next/server';
 import { isValidOrigin } from '@/api/_auth';
-import { rateLimit } from '@/api/_ratelimit';
+import { rateLimit, formatRetry } from '@/api/_ratelimit';
 import { signClearance, clearanceGateEnabled, CLEARANCE_COOKIE, CLEARANCE_TTL_MS } from '@/lib/clearance';
 
 /*
@@ -30,7 +30,7 @@ export async function POST(request) {
   const rl = rateLimit(`verify:${ip}`, { max: 10, windowMs: 10 * 60 * 1000 });
   if (!rl.ok) {
     return NextResponse.json(
-      { ok: false, error: `Terlalu banyak percobaan. Coba lagi dalam ${rl.retryAfter} detik.` },
+      { ok: false, error: `Terlalu banyak percobaan. Coba lagi dalam ${formatRetry(rl.retryAfter)}.` },
       { status: 429, headers: { 'Retry-After': String(rl.retryAfter) } },
     );
   }
