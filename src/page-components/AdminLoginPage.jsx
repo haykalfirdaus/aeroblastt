@@ -6,7 +6,10 @@ import { useAuth } from '@/context/AuthContext';
 import { useToast } from '@/context/ToastContext';
 import { Button } from '@/components/ui/Button';
 import { supabase } from '@/lib/supabase';
+import { TurnstileBox } from '@/components/ui/TurnstileBox';
 import { cn } from '@/lib/cn';
+
+const TURNSTILE_ENABLED = Boolean(process.env.NEXT_PUBLIC_TURNSTILE_SITE_KEY);
 
 const fieldBase =
   'w-full rounded-[var(--radius-neu)] bg-[#fff8f0] px-4 py-3 text-sm shadow-[var(--neu-in)] text-[#1d2b1f] placeholder:text-[#5a7048] outline-none transition-colors focus:border-[#BFFF5E]/70 focus:ring-2 focus:ring-[#BFFF5E]/20';
@@ -37,19 +40,25 @@ function LoginView({ onForgot }) {
   const [showPassword, setShowPassword] = useState(false);
   const [submitting, setSubmitting] = useState(false);
   const [shake, setShake] = useState(false);
+  const [turnstileToken, setTurnstileToken] = useState(null);
+  // Token Turnstile sekali pakai — remount widget setelah percobaan gagal
+  const [turnstileNonce, setTurnstileNonce] = useState(0);
 
   async function handleSubmit(e) {
     e.preventDefault();
     if (!email.trim() || !password) return;
+    if (TURNSTILE_ENABLED && !turnstileToken) return;
     setSubmitting(true);
     try {
-      await login(email.trim(), password);
+      await login(email.trim(), password, turnstileToken);
       showToast('Login berhasil. Selamat datang!', 'success');
       router.replace('/admin');
     } catch (err) {
       showToast(err.message || 'Login gagal.', 'error');
       setShake(true);
       setTimeout(() => setShake(false), 400);
+      setTurnstileToken(null);
+      setTurnstileNonce((n) => n + 1);
     } finally {
       setSubmitting(false);
     }
@@ -103,7 +112,13 @@ function LoginView({ onForgot }) {
           </div>
         </div>
 
-        <Button type="submit" variant="primary" size="md" fullWidth disabled={submitting || !email.trim() || !password}>
+        {TURNSTILE_ENABLED && (
+          <div className="mb-6">
+            <TurnstileBox key={turnstileNonce} action="admin-login" onToken={setTurnstileToken} />
+          </div>
+        )}
+
+        <Button type="submit" variant="primary" size="md" fullWidth disabled={submitting || !email.trim() || !password || (TURNSTILE_ENABLED && !turnstileToken)}>
           {submitting ? (
             <><span className="h-4 w-4 animate-spin rounded-md border-2 border-[#1d2b1f]/30 border-t-[#1d2b1f]" />Memverifikasi…</>
           ) : 'Masuk'}

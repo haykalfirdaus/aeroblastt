@@ -32,6 +32,11 @@ export function PageLoader() {
     // layout, jadi pindah route tetap tidak memicunya.
     if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
 
+    // Halaman admin & interstitial verifikasi tidak pakai loader brand —
+    // di sana kecepatan masuk lebih penting daripada animasi.
+    const path = window.location.pathname;
+    if (path === '/admin' || path.startsWith('/admin/') || path === '/verify') return;
+
     setVisible(true);
 
     const dismiss = () => {

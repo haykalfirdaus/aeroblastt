@@ -25,22 +25,19 @@ export function AuthProvider({ children }) {
     verify();
   }, [verify]);
 
-  // Login: Supabase client auth → tukar token ke HttpOnly cookie via server
-  const login = useCallback(async (email, password) => {
-    if (!supabase) throw new Error('Supabase belum dikonfigurasi. Tambahkan VITE_SUPABASE_URL dan VITE_SUPABASE_ANON_KEY ke env vars.');
-    const { data, error } = await supabase.auth.signInWithPassword({ email, password });
-    if (error) throw new Error(error.message || 'Login gagal. Periksa kembali kredensial Anda.');
-
+  // Login sepenuhnya server-side — kredensial + token Turnstile dikirim ke
+  // /api/admin/session yang me-rate-limit tiap percobaan dan memverifikasi
+  // Turnstile (siteverify) sebelum menyentuh Supabase. Browser tidak pernah
+  // memanggil Supabase Auth langsung, jadi brute force tak bisa bypass limiter.
+  const login = useCallback(async (email, password, turnstileToken) => {
     const res = await fetch('/api/admin/session', {
       method: 'POST',
       credentials: 'include',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ access_token: data.session.access_token }),
+      body: JSON.stringify({ email, password, turnstileToken }),
     });
-    if (!res.ok) {
-      const d = await res.json().catch(() => ({}));
-      throw new Error(d.error || 'Gagal menyimpan session');
-    }
+    const d = await res.json().catch(() => ({}));
+    if (!res.ok || !d.ok) throw new Error(d.error || 'Login gagal. Periksa kembali kredensial Anda.');
     setIsAdmin(true);
   }, []);
 

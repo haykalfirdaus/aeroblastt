@@ -52,15 +52,38 @@ export async function POST(request) {
   let body;
   try { body = await request.json(); } catch { return NextResponse.json({ ok: false, error: 'Invalid JSON' }, { status: 400 }); }
 
-  const { access_token } = body || {};
-  if (!access_token) return NextResponse.json({ ok: false, error: 'access_token diperlukan' }, { status: 400 });
+  // Login sepenuhnya server-side: email+password dikirim ke sini, BUKAN ke
+  // Supabase langsung dari browser. Dengan begitu rate limit di atas benar-benar
+  // menghitung setiap percobaan gagal — brute force ke Supabase langsung tidak
+  // mungkin lagi lewat UI, dan token Turnstile bisa diwajibkan per percobaan.
+  const { email, password, turnstileToken } = body || {};
+  if (!email || !password) return NextResponse.json({ ok: false, error: 'Email dan password diperlukan' }, { status: 400 });
   if (!supabaseAuth) return NextResponse.json({ ok: false, error: 'SUPABASE_ANON_KEY tidak dikonfigurasi' }, { status: 500 });
 
-  const { data, error } = await supabaseAuth.auth.getUser(access_token);
-  if (error || !data?.user) return NextResponse.json({ ok: false, error: 'Token tidak valid' }, { status: 401 });
+  // Turnstile per percobaan login — fail-closed selama secret-nya diset.
+  const turnstileSecret = process.env.TURNSTILE_SECRET_KEY;
+  if (turnstileSecret) {
+    if (!turnstileToken) return NextResponse.json({ ok: false, error: 'Selesaikan verifikasi anti-bot dulu' }, { status: 400 });
+    try {
+      const vr = await fetch('https://challenges.cloudflare.com/turnstile/v0/siteverify', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ secret: turnstileSecret, response: turnstileToken, remoteip: ip }),
+      });
+      const vd = await vr.json();
+      if (!vd.success) return NextResponse.json({ ok: false, error: 'Verifikasi anti-bot gagal — coba ulangi' }, { status: 400 });
+    } catch {
+      return NextResponse.json({ ok: false, error: 'Layanan verifikasi tidak terjangkau — coba lagi' }, { status: 502 });
+    }
+  }
+
+  const { data, error } = await supabaseAuth.auth.signInWithPassword({ email, password });
+  if (error || !data?.session?.access_token) {
+    return NextResponse.json({ ok: false, error: 'Email atau password salah' }, { status: 401 });
+  }
 
   return NextResponse.json({ ok: true }, {
-    headers: { 'Set-Cookie': setCookieHeader(access_token, COOKIE_MAX_AGE) },
+    headers: { 'Set-Cookie': setCookieHeader(data.session.access_token, COOKIE_MAX_AGE) },
   });
 }
 
