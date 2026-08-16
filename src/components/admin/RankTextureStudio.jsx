@@ -1,6 +1,7 @@
 'use client';
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
-import { Copy, Download, Package, Plus, Trash2 } from 'lucide-react';
+import { ArrowDown, ArrowUp, Copy, Download, Package, Pencil, Plus, Trash2, X } from 'lucide-react';
+import { PACK_ICON_B64, GLYPH_E2_B64 } from '@/lib/bedrockAssets';
 import { useToast } from '@/context/ToastContext';
 import {
   TAG_W,
@@ -81,6 +82,56 @@ function dataURLtoBytes(u) {
 }
 
 const toU = (ch) => '\\u' + ch.codePointAt(0).toString(16).toUpperCase().padStart(4, '0');
+
+/* ---------- Bedrock pack (format persis sanzbedrock/potatosmpbedrock) ---------- */
+
+const b64toBytes = (b64) => {
+  const bin = atob(b64);
+  const out = new Uint8Array(bin.length);
+  for (let i = 0; i < bin.length; i++) out[i] = bin.charCodeAt(i);
+  return out;
+};
+
+/*
+ * Posisi kiri-atas glyph di dalam sel 128px atlas glyph_E8 (grid 16×16,
+ * karakter U+E8XY → sel baris X kolom Y). Aturan hasil reverse dari pack
+ * contoh — WAJIB tepat sama:
+ *   74×12 (besar/sanz)      → x=27, y=58 di semua sel
+ *   65×8  (mini/potato)     → y=60, x = 30 − 3×kolom (30, 27, 24, …)
+ */
+function bedrockPlacement(w, h, col) {
+  if (w === TAG_W && h === TAG_H) return { x: 27, y: 58 };
+  if (w === MINI_W && h === MINI_H) return { x: Math.max(0, 30 - 3 * col), y: 60 };
+  return { x: Math.floor((128 - w) / 2), y: Math.floor((128 - h) / 2) };
+}
+
+function randomUUID() {
+  if (crypto.randomUUID) return crypto.randomUUID();
+  const b = crypto.getRandomValues(new Uint8Array(16));
+  b[6] = (b[6] & 0x0f) | 0x40; b[8] = (b[8] & 0x3f) | 0x80;
+  const h = [...b].map((v) => v.toString(16).padStart(2, '0')).join('');
+  return `${h.slice(0, 8)}-${h.slice(8, 12)}-${h.slice(12, 16)}-${h.slice(16, 20)}-${h.slice(20)}`;
+}
+
+async function buildGlyphE8(pack) {
+  const atlas = document.createElement('canvas');
+  atlas.width = 2048; atlas.height = 2048;
+  const ctx = atlas.getContext('2d');
+  ctx.imageSmoothingEnabled = false;
+  for (const p of pack) {
+    const code = p.char.codePointAt(0);
+    if ((code & 0xff00) !== 0xe800) {
+      throw new Error(`Karakter ${toU(p.char)} (${p.file}) di luar halaman E8 — pack Bedrock hanya memuat U+E800..U+E8FF.`);
+    }
+    const idx = code & 0xff;
+    const img = new Image();
+    await new Promise((res, rej) => { img.onload = res; img.onerror = rej; img.src = p.dataURL; });
+    const pos = bedrockPlacement(img.width, img.height, idx & 0x0f);
+    ctx.drawImage(img, (idx & 0x0f) * 128 + pos.x, (idx >> 4) * 128 + pos.y);
+  }
+  const blob = await new Promise((res) => atlas.toBlob(res, 'image/png'));
+  return new Uint8Array(await blob.arrayBuffer());
+}
 
 function buildJSON(pack) {
   const provs = pack.map(
@@ -177,9 +228,11 @@ export function RankTextureStudio() {
   const [glyph, setGlyph] = useState('');
   const [folder, setFolder] = useState('ranks');
 
-  // pack
+  // pack — karakter auto dari halaman glyph_E8 (U+E800.., konvensi
+  // libglyph-mcbe) supaya char yang sama valid di Java dan Bedrock
   const [pack, setPack] = useState([]);
-  const nextCode = useRef(0xe000);
+  const [editIdx, setEditIdx] = useState(-1); // -1 = mode tambah
+  const nextCode = useRef(0xe800);
 
   const tone = autoTone(base);
   const cfg = useMemo(
@@ -223,17 +276,55 @@ export function RankTextureStudio() {
   function handleAdd() {
     if (!text.trim()) return showToast('Nama rank masih kosong', 'error');
     if (!fits) return showToast(`Teks ${tw}px melebihi area ${maxW}px`, 'error');
-    let ch = glyph ? [...glyph][0] : allocChar();
-    if (pack.some((p) => p.char === ch)) return showToast(`Karakter ${toU(ch)} sudah dipakai`, 'error');
+    let ch = glyph ? [...glyph][0] : (editIdx !== -1 ? pack[editIdx].char : allocChar());
+    if (pack.some((p, i) => i !== editIdx && p.char === ch)) return showToast(`Karakter ${toU(ch)} sudah dipakai`, 'error');
     const name = (fname.trim() || 'tag').replace(/[^\w.-]/g, '_');
-    if (pack.some((p) => p.file === name)) return showToast(`Nama file "${name}" sudah ada`, 'error');
+    if (pack.some((p, i) => i !== editIdx && p.file === name)) return showToast(`Nama file "${name}" sudah ada`, 'error');
     const dataURL = toPng(cfg, 1);
-    setPack((prev) => [
-      ...prev,
-      { file: name, char: ch, dataURL, height: Number(fheight), ascent: Number(fascent), folder: folder.trim() || 'ranks' },
-    ]);
+    const item = {
+      file: name, char: ch, dataURL,
+      height: Number(fheight), ascent: Number(fascent), folder: folder.trim() || 'ranks',
+      // seluruh state form disimpan agar item bisa diedit ulang nanti
+      design: { size, text, fname: name, offx, tracking, base, useAutoTone, mid, dark, textColor, shadowColor, icon, icOwnColor, iconColor },
+    };
+    if (editIdx !== -1) {
+      setPack((prev) => prev.map((p, i) => (i === editIdx ? item : p)));
+      setEditIdx(-1);
+      showToast(`"${name}.png" diperbarui`, 'success');
+    } else {
+      setPack((prev) => [...prev, item]);
+      showToast(`"${name}.png" ditambahkan ke pack`, 'success');
+    }
     setGlyph('');
-    showToast(`"${name}.png" ditambahkan ke pack`, 'success');
+  }
+
+  /* Muat balik desain item pack ke form untuk diedit ulang */
+  function handleEdit(i) {
+    const p = pack[i];
+    if (!p.design) return showToast('Item lama tanpa data desain — hapus lalu buat ulang.', 'error');
+    const d = p.design;
+    setSize(d.size); setText(d.text); setFname(p.file);
+    setOffx(d.offx); setTracking(d.tracking);
+    setBase(d.base); setUseAutoTone(d.useAutoTone); setMid(d.mid); setDark(d.dark);
+    setTextColor(d.textColor); setShadowColor(d.shadowColor);
+    setIcon(d.icon); setIcOwnColor(d.icOwnColor); setIconColor(d.iconColor);
+    setFheight(p.height); setFascent(p.ascent); setFolder(p.folder); setGlyph(p.char);
+    setEditIdx(i);
+  }
+
+  function handleCancelEdit() {
+    setEditIdx(-1);
+    setGlyph('');
+  }
+
+  /* Naik-turunkan urutan pack — urutan ini dipakai default.json Java */
+  function moveItem(i, dir) {
+    setPack((prev) => {
+      const next = [...prev];
+      [next[i], next[i + dir]] = [next[i + dir], next[i]];
+      return next;
+    });
+    setEditIdx((cur) => (cur === i ? i + dir : cur === i + dir ? i : cur));
   }
 
   function handleDownloadPng() {
@@ -264,6 +355,41 @@ export function RankTextureStudio() {
     const a = document.createElement('a');
     a.href = URL.createObjectURL(zip(files));
     a.download = 'rank-tags-pack.zip';
+    a.click();
+  }
+
+  /*
+   * Convert langsung ke pack Bedrock — struktur & aturan persis pack contoh:
+   * manifest "Made By Aeroblast Developer", UUID baru tiap generate,
+   * version selalu [0,0,1]; glyph_E8 dirakit dari isi pack.
+   */
+  async function handleDownloadBedrock() {
+    if (!pack.length) return showToast('Pack masih kosong — tambahkan tag dulu', 'error');
+    let glyphE8;
+    try { glyphE8 = await buildGlyphE8(pack); }
+    catch (e) { return showToast(e.message, 'error'); }
+
+    const enc = new TextEncoder();
+    const manifest = {
+      format_version: 2,
+      header: {
+        description: 'Made By Aeroblast Developer',
+        name: 'Aeroblast Pack',
+        uuid: randomUUID(),
+        version: [0, 0, 1],
+        min_engine_version: [1, 20, 0],
+      },
+      modules: [{ type: 'resources', uuid: randomUUID(), version: [0, 0, 1] }],
+    };
+    const files = [
+      { name: 'pack_icon.png', data: b64toBytes(PACK_ICON_B64) },
+      { name: 'manifest.json', data: enc.encode(JSON.stringify(manifest, null, 2)) },
+      { name: 'font/glyph_E2.png', data: b64toBytes(GLYPH_E2_B64) },
+      { name: 'font/glyph_E8.png', data: glyphE8 },
+    ];
+    const a = document.createElement('a');
+    a.href = URL.createObjectURL(zip(files));
+    a.download = 'aeroblast-bedrock-pack.zip';
     a.click();
   }
 
@@ -409,8 +535,8 @@ export function RankTextureStudio() {
             </label>
           </div>
           <div className="mt-3">
-            <Label>Karakter (kosong = auto private-use)</Label>
-            <input type="text" value={glyph} onChange={(e) => setGlyph(e.target.value)} placeholder="auto , , ..." className={fieldCls} />
+            <Label>Karakter (kosong = auto dari glyph_E8, U+E800…)</Label>
+            <input type="text" value={glyph} onChange={(e) => setGlyph(e.target.value)} placeholder="auto — halaman E8 (libglyph-mcbe)" className={fieldCls} />
           </div>
           <div className="mt-3">
             <Label>Folder texture</Label>
@@ -425,8 +551,17 @@ export function RankTextureStudio() {
             onClick={handleAdd}
             className="flex items-center justify-center gap-1.5 rounded-lg border border-[#BFFF5E]/60 bg-[#BFFF5E]/20 py-2.5 text-sm font-bold text-[#1d2b1f] transition-colors hover:bg-[#BFFF5E]/35"
           >
-            <Plus size={15} /> Tambah ke pack
+            <Plus size={15} /> {editIdx === -1 ? 'Tambah ke pack' : 'Simpan perubahan'}
           </button>
+          {editIdx !== -1 && (
+            <button
+              type="button"
+              onClick={handleCancelEdit}
+              className="flex items-center justify-center gap-1.5 rounded-lg border border-[#1d2b1f]/10 bg-[#fffdf9] py-2 text-xs font-semibold text-[#1d2b1f] transition-colors hover:bg-[#f5ece0]"
+            >
+              <X size={13} /> Batal edit
+            </button>
+          )}
           <button
             type="button"
             onClick={handleDownloadPng}
@@ -484,7 +619,15 @@ export function RankTextureStudio() {
                 disabled={!pack.length}
                 className="flex items-center gap-1 rounded-lg border border-[#BFFF5E]/60 bg-[#BFFF5E]/20 px-2.5 py-1 text-[11px] font-bold text-[#1d2b1f] transition-colors hover:bg-[#BFFF5E]/35 disabled:cursor-not-allowed disabled:opacity-40"
               >
-                <Download size={11} /> Resourcepack (.zip)
+                <Download size={11} /> Java (.zip)
+              </button>
+              <button
+                type="button"
+                onClick={handleDownloadBedrock}
+                disabled={!pack.length}
+                className="flex items-center gap-1 rounded-lg border border-[#BFFF5E]/60 bg-[#BFFF5E]/20 px-2.5 py-1 text-[11px] font-bold text-[#1d2b1f] transition-colors hover:bg-[#BFFF5E]/35 disabled:cursor-not-allowed disabled:opacity-40"
+              >
+                <Download size={11} /> Bedrock (.zip)
               </button>
             </div>
           </div>
@@ -494,20 +637,48 @@ export function RankTextureStudio() {
           ) : (
             <div className="divide-y divide-[#1d2b1f]/15">
               {pack.map((p, i) => (
-                <div key={p.file} className="flex items-center gap-3 px-4 py-2.5">
+                <div key={p.file} className={`flex items-center gap-3 px-4 py-2.5 ${i === editIdx ? 'bg-[#BFFF5E]/10' : ''}`}>
                   {/* eslint-disable-next-line @next/next/no-img-element */}
                   <img src={p.dataURL} alt={p.file} className="h-6 rounded bg-[#2b2b2b] p-0.5 [image-rendering:pixelated]" />
                   <span className="min-w-0 truncate font-mono text-xs text-[#1d2b1f]">{p.file}.png</span>
                   <code className="rounded border border-[#1d2b1f]/30 bg-[#f5ece0] px-1.5 py-0.5 font-mono text-[10px] text-[#4a5e3a]">{toU(p.char)}</code>
                   <span className="text-[10px] text-[#4a5e3a]">{p.folder}/</span>
-                  <button
-                    type="button"
-                    onClick={() => setPack((prev) => prev.filter((_, j) => j !== i))}
-                    aria-label={`Hapus ${p.file}`}
-                    className="ml-auto flex h-7 w-7 shrink-0 items-center justify-center rounded-lg border border-danger/30 bg-danger/[0.07] text-danger transition-colors hover:bg-danger/15"
-                  >
-                    <Trash2 size={12} />
-                  </button>
+                  <div className="ml-auto flex shrink-0 items-center gap-1">
+                    <button
+                      type="button"
+                      onClick={() => moveItem(i, -1)}
+                      disabled={i === 0}
+                      aria-label={`Naikkan urutan ${p.file}`}
+                      className="flex h-7 w-7 items-center justify-center rounded-lg border border-[#1d2b1f]/10 bg-[#fffdf9] text-[#4a5e3a] transition-colors hover:bg-[#f5ece0] disabled:cursor-not-allowed disabled:opacity-30"
+                    >
+                      <ArrowUp size={12} />
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => moveItem(i, 1)}
+                      disabled={i === pack.length - 1}
+                      aria-label={`Turunkan urutan ${p.file}`}
+                      className="flex h-7 w-7 items-center justify-center rounded-lg border border-[#1d2b1f]/10 bg-[#fffdf9] text-[#4a5e3a] transition-colors hover:bg-[#f5ece0] disabled:cursor-not-allowed disabled:opacity-30"
+                    >
+                      <ArrowDown size={12} />
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => handleEdit(i)}
+                      aria-label={`Edit ${p.file}`}
+                      className="flex h-7 w-7 items-center justify-center rounded-lg border border-[#1d2b1f]/10 bg-[#fffdf9] text-[#4a5e3a] transition-colors hover:bg-[#f5ece0]"
+                    >
+                      <Pencil size={12} />
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => { if (i === editIdx) setEditIdx(-1); setPack((prev) => prev.filter((_, j) => j !== i)); }}
+                      aria-label={`Hapus ${p.file}`}
+                      className="flex h-7 w-7 items-center justify-center rounded-lg border border-danger/30 bg-danger/[0.07] text-danger transition-colors hover:bg-danger/15"
+                    >
+                      <Trash2 size={12} />
+                    </button>
+                  </div>
                 </div>
               ))}
             </div>
