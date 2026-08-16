@@ -2,6 +2,7 @@ import { NextResponse } from 'next/server';
 import { supabaseAuth } from '@/api/_supabase';
 import { parseCookies, isValidOrigin } from '@/api/_auth';
 import { rateLimit } from '@/api/_ratelimit';
+import { verifyClearance, clearanceGateEnabled, CLEARANCE_COOKIE } from '@/lib/clearance';
 
 const COOKIE_NAME = 'aeroblast_admin_session';
 const COOKIE_MAX_AGE = 60 * 60 * 24 * 7;
@@ -36,6 +37,16 @@ export async function POST(request) {
       { ok: false, error: `Terlalu banyak percobaan. Coba lagi dalam ${rl.retryAfter} detik.` },
       { status: 429, headers: { 'Retry-After': String(rl.retryAfter) } }
     );
+  }
+
+  // Clearance wajib: login hanya boleh dari browser yang sudah lulus
+  // interstitial /verify (Turnstile). Bot yang menembak API ini langsung
+  // tanpa cookie clearance ditolak sebelum menyentuh Supabase.
+  if (clearanceGateEnabled()) {
+    const clearance = parseCookies(request.headers.get('cookie') || '')[CLEARANCE_COOKIE];
+    if (!clearance || !(await verifyClearance(clearance, ip))) {
+      return NextResponse.json({ ok: false, error: 'Verifikasi keamanan diperlukan — muat ulang halaman.' }, { status: 403 });
+    }
   }
 
   let body;
