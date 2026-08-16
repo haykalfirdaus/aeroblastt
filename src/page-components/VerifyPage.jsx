@@ -85,7 +85,7 @@ function VerifyInner() {
         if (cancelled || !boxRef.current || widgetIdRef.current !== null) return;
         widgetIdRef.current = turnstile.render(boxRef.current, {
           sitekey: SITE_KEY,
-          theme: 'light',
+          theme: 'dark',
           language: 'id',
           action: 'admin-clearance',
           callback: submitToken,
@@ -112,51 +112,51 @@ function VerifyInner() {
 
   const host = typeof window !== 'undefined' ? window.location.hostname : 'store.aeroblast.my.id';
 
+  /*
+   * Layout meniru interstitial Cloudflare versi gelap (seperti builtbybit /
+   * glorivahost): hostname besar kiri-atas area tengah, widget Turnstile
+   * dark dengan checkbox "Verify you are human" yang harus DIKLIK dulu,
+   * footer Ray ID di tengah bawah dengan garis pemisah panjang.
+   */
   return (
-    <div className="flex min-h-screen flex-col bg-[#fff8f0] text-[#1d2b1f]">
-      <main className="mx-auto flex w-full max-w-xl flex-1 flex-col justify-center px-6">
-        <h1 className="mb-2 text-2xl font-semibold">{host}</h1>
-        <h2 className="mb-6 text-lg text-[#4a5e3a]">Performing security verification</h2>
+    <div className="flex min-h-screen flex-col bg-[#0d0d0d] text-[#e8e8e8]" style={{ fontFamily: '-apple-system, system-ui, "Segoe UI", Roboto, Arial, sans-serif' }}>
+      <main className="mx-auto flex w-full max-w-4xl flex-1 flex-col justify-center px-6 pb-24">
+        <h1 className="mb-3 text-4xl font-semibold tracking-tight text-white">{host}</h1>
+        <h2 className="mb-3 text-xl font-semibold text-white">Performing security verification</h2>
 
-        <p className="mb-8 text-sm leading-relaxed text-[#4a5e3a]">
-          Situs ini menggunakan layanan keamanan untuk melindungi dari bot berbahaya.
-          Halaman ini ditampilkan selagi kami memverifikasi bahwa kamu bukan bot.
+        <p className="mb-10 max-w-2xl text-[15px] leading-relaxed text-[#c5c5c5]">
+          This website uses a security service to protect against malicious bots.
+          This page is displayed while the website verifies you are not a bot.
         </p>
 
         {status === 'success' ? (
-          <div className="flex items-center gap-3 text-sm font-medium text-[#3d7208]">
+          <div className="flex items-center gap-3 text-sm font-medium text-[#6ee07a]">
             <svg width="20" height="20" viewBox="0 0 20 20" fill="none" aria-hidden="true">
               <circle cx="10" cy="10" r="9" stroke="currentColor" strokeWidth="2" />
               <path d="M6 10.5l2.5 2.5L14 7.5" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
             </svg>
-            Verifikasi berhasil — mengalihkan…
+            Verification successful — redirecting…
           </div>
         ) : status === 'error' ? (
-          <div className="text-sm text-red-700">
+          <div className="text-sm text-red-400">
             <p className="mb-3">{errorMsg}</p>
             <button
               type="button"
               onClick={() => window.location.reload()}
-              className="rounded-md bg-[#1d2b1f] px-4 py-2 text-xs font-semibold text-[#fff8f0]"
+              className="rounded border border-[#3a3a3a] bg-[#1a1a1a] px-4 py-2 text-xs font-semibold text-white hover:bg-[#242424]"
             >
               Muat Ulang
             </button>
           </div>
         ) : (
-          <div className="flex flex-col gap-4">
-            <div ref={boxRef} className="min-h-[65px]" />
-            <div className="flex items-center gap-2 text-xs text-[#5a7048]">
-              <span className="h-3 w-3 animate-spin rounded-full border-2 border-[#5a7048]/30 border-t-[#5a7048]" aria-hidden="true" />
-              Memeriksa browser kamu…
-            </div>
-          </div>
+          <div ref={boxRef} className="min-h-[65px]" />
         )}
       </main>
 
-      <footer className="mx-auto w-full max-w-xl px-6 py-8 text-xs text-[#5a7048]">
-        <div className="border-t border-[#1d2b1f]/10 pt-4">
-          <p className="font-mono">Ray ID: {rayId}</p>
-          <p className="mt-1">Performance &amp; Security by AeroBlast Shield</p>
+      <footer className="mx-auto w-full max-w-4xl px-6 pb-10 text-center text-[13px] text-[#a8a8a8]">
+        <div className="border-t border-[#3a3a3a] pt-6">
+          <p>Ray ID: <span className="font-mono text-[#d5d5d5]">{rayId}</span></p>
+          <p className="mt-1.5">Performance and Security by <span className="font-semibold text-white">AeroBlast Shield</span></p>
         </div>
       </footer>
     </div>

@@ -1,7 +1,8 @@
 'use client';
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
-import { ArrowDown, ArrowUp, Copy, Download, Package, Pencil, Plus, Trash2, X } from 'lucide-react';
+import { ArrowDown, ArrowUp, CheckCircle, Copy, Download, FolderOpen, Package, Pencil, Plus, Trash2, X } from 'lucide-react';
 import { PACK_ICON_B64, GLYPH_E2_B64 } from '@/lib/bedrockAssets';
+import baselinePack from '@/data/rankPackBaseline.json';
 import { useToast } from '@/context/ToastContext';
 import {
   TAG_W,
@@ -146,6 +147,29 @@ function buildJSON(pack) {
   return '{\n    "providers": [\n' + provs.join(',\n') + '\n    ]\n}';
 }
 
+/* ---------- pack aeroblastrank ---------- */
+
+// Baseline = isi javarank.zip lama, ditanam sebagai JSON {char: codepoint, png: base64}
+function baselineItems() {
+  return baselinePack.map((it) => ({
+    file: it.file, folder: it.folder, ascent: it.ascent, height: it.height,
+    char: String.fromCodePoint(it.char),
+    dataURL: 'data:image/png;base64,' + it.png,
+  }));
+}
+
+// Muat manifest tersimpan; null kalau belum pernah disimpan → pakai baseline
+async function fetchAeroblastPack() {
+  const res = await fetch('/api/admin/rank-pack', { credentials: 'include' });
+  if (!res.ok) throw new Error('Gagal memuat pack aeroblastrank');
+  const data = await res.json();
+  return Array.isArray(data.items) && data.items.length ? data.items : baselineItems();
+}
+
+/* Event dari section Custom Prefix Lunas → studio. */
+export const EDIT_PREFIX_EVENT = 'aeroblast:edit-prefix';
+export const STUDIO_ANCHOR_ID = 'rank-texture-studio';
+
 /* ---------- primitives kecil, gaya admin ---------- */
 const fieldCls =
   'w-full rounded-[var(--radius-neu)] bg-[#fff8f0] px-3 py-2 text-sm shadow-[var(--neu-in)] text-[#1d2b1f] placeholder:text-[#5a7048] outline-none transition-colors focus:border-[#BFFF5E]/70 focus:ring-2 focus:ring-[#BFFF5E]/20 disabled:cursor-not-allowed disabled:opacity-50';
@@ -232,7 +256,73 @@ export function RankTextureStudio() {
   // libglyph-mcbe) supaya char yang sama valid di Java dan Bedrock
   const [pack, setPack] = useState([]);
   const [editIdx, setEditIdx] = useState(-1); // -1 = mode tambah
+  const [packLoaded, setPackLoaded] = useState(false); // pack aeroblastrank sudah dimuat
+  const [saving, setSaving] = useState(false);
   const nextCode = useRef(0xe800);
+
+  /*
+   * Muat pack aeroblastrank saat mount, dan dengarkan tombol "Edit File" dari
+   * section Custom Prefix Lunas: prefill form dengan desain order, lalu admin
+   * tinggal "Tambah ke pack" → "Simpan pack terbaru".
+   */
+  const loadPack = useCallback(async () => {
+    try {
+      const items = await fetchAeroblastPack();
+      setPack(items);
+      setPackLoaded(true);
+      // lanjutkan alokasi char setelah char terbesar yang sudah dipakai —
+      // char yang sudah ada tidak pernah diganti, dan tidak akan dobel
+      const maxUsed = Math.max(0xe7ff, ...items.map((p) => p.char.codePointAt(0)));
+      nextCode.current = maxUsed + 1;
+      return items;
+    } catch (e) {
+      showToast(e.message, 'error');
+      return null;
+    }
+  }, [showToast]);
+
+  useEffect(() => { loadPack(); }, [loadPack]);
+
+  useEffect(() => {
+    function onEditPrefix(ev) {
+      const d = ev.detail || {};
+      setSize('big');
+      setText(d.prefixText || 'CUSTOM');
+      setFname((d.prefixText || 'custom').toLowerCase().replace(/[^\w-]/g, '_'));
+      setBase(d.base || d.prefixColor || '#d0d0d0');
+      setUseAutoTone(true);
+      setTextColor(d.textColor || '#ffffff');
+      setShadowColor(d.shadowColor || '#000000');
+      setIcon(d.icon || 'member');
+      setIcOwnColor(false);
+      setFheight(11); setFascent(9); setFolder('ranks'); setGlyph('');
+      setEditIdx(-1);
+      showToast('Desain order dimuat — cek lalu "Tambah ke pack"', 'success');
+    }
+    window.addEventListener(EDIT_PREFIX_EVENT, onEditPrefix);
+    return () => window.removeEventListener(EDIT_PREFIX_EVENT, onEditPrefix);
+  }, [showToast]);
+
+  /* Simpan pack terbaru ke server (aeroblastrank diperbarui) */
+  async function handleSavePack() {
+    if (!pack.length) return showToast('Pack masih kosong', 'error');
+    setSaving(true);
+    try {
+      const res = await fetch('/api/admin/rank-pack', {
+        method: 'POST',
+        credentials: 'include',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(pack),
+      });
+      const data = await res.json().catch(() => ({}));
+      if (!res.ok || !data.ok) throw new Error(data.error || 'Gagal menyimpan pack');
+      showToast(`Pack aeroblastrank diperbarui (${pack.length} prefix)`, 'success');
+    } catch (e) {
+      showToast(e.message, 'error');
+    } finally {
+      setSaving(false);
+    }
+  }
 
   const tone = autoTone(base);
   const cfg = useMemo(
@@ -404,7 +494,7 @@ export function RankTextureStudio() {
   const iconTarget = icOwnColor ? iconColor : base;
 
   return (
-    <div className="grid gap-5 lg:grid-cols-[340px_1fr]">
+    <div id={STUDIO_ANCHOR_ID} className="grid gap-5 lg:grid-cols-[340px_1fr]">
       {/* ===== Kontrol ===== */}
       <div className="flex flex-col gap-4">
         {/* Toggle versi */}
@@ -601,10 +691,22 @@ export function RankTextureStudio() {
 
         {/* Isi pack */}
         <div className="rounded-[var(--radius-neu-lg)] bg-[#fff8f0] shadow-[var(--neu-out)]">
-          <div className="flex items-center gap-2 border-b border-[#1d2b1f]/10 px-4 py-3">
+          <div className="flex flex-wrap items-center gap-2 border-b border-[#1d2b1f]/10 px-4 py-3">
             <Package size={15} className="text-[#1d2b1f]" />
-            <h3 className="text-sm font-bold text-[#1d2b1f]">Isi pack ({pack.length})</h3>
-            <div className="ml-auto flex gap-2">
+            <h3 className="text-sm font-bold text-[#1d2b1f]">Pack aeroblastrank ({pack.length})</h3>
+            {!packLoaded && <span className="text-[10px] text-[#4a5e3a]">memuat…</span>}
+            <div className="ml-auto flex flex-wrap gap-2">
+              <button
+                type="button"
+                onClick={handleSavePack}
+                disabled={!pack.length || saving}
+                className="flex items-center gap-1 rounded-lg border border-[#BFFF5E]/60 bg-[#BFFF5E]/30 px-2.5 py-1 text-[11px] font-bold text-[#1d2b1f] transition-colors hover:bg-[#BFFF5E]/45 disabled:cursor-not-allowed disabled:opacity-40"
+              >
+                {saving
+                  ? <span className="h-3 w-3 animate-spin rounded-md border border-[#1d2b1f]/30 border-t-[#1d2b1f]" />
+                  : <CheckCircle size={11} />}
+                Simpan Pack Terbaru
+              </button>
               <button
                 type="button"
                 onClick={handleCopyJson}
