@@ -316,7 +316,21 @@ export function RankTextureStudio() {
       });
       const data = await res.json().catch(() => ({}));
       if (!res.ok || !data.ok) throw new Error(data.error || 'Gagal menyimpan pack');
-      showToast(`Pack aeroblastrank diperbarui (${pack.length} prefix)`, 'success');
+
+      // Rakit & timpa juga file zip aeroblastrank di Storage — jadi
+      // javarank.zip / bedrockrank.zip selalu versi terbaru setiap simpan.
+      // (Tombol download biasa TIDAK menimpa apa pun — murni client-side.)
+      const [javaBlob, bedrockBlob] = [buildJavaZip(), await buildBedrockZip()];
+      for (const [id, blob] of [['java', javaBlob], ['bedrock', bedrockBlob]]) {
+        const up = await fetch(`/api/admin/rank-pack?zip=${id}`, {
+          method: 'PUT',
+          credentials: 'include',
+          headers: { 'Content-Type': 'application/zip' },
+          body: blob,
+        });
+        if (!up.ok) throw new Error(`Manifest tersimpan, tapi upload ${id}rank.zip gagal`);
+      }
+      showToast(`Pack aeroblastrank diperbarui (${pack.length} prefix) — zip Java & Bedrock ikut diperbarui`, 'success');
     } catch (e) {
       showToast(e.message, 'error');
     } finally {
@@ -433,8 +447,7 @@ export function RankTextureStudio() {
       .catch(() => showToast('Gagal menyalin', 'error'));
   }
 
-  function handleDownloadZip() {
-    if (!pack.length) return showToast('Pack masih kosong — tambahkan tag dulu', 'error');
+  function buildJavaZip() {
     const enc = new TextEncoder();
     const files = [
       { name: 'pack.mcmeta', data: enc.encode(JSON.stringify({ pack: { pack_format: 15, description: 'Custom Rank Tags' } }, null, 4)) },
@@ -442,9 +455,14 @@ export function RankTextureStudio() {
       { name: 'chars.txt', data: enc.encode(pack.map((p) => `${p.file}\t${toU(p.char)}\t${p.char}`).join('\n')) },
       ...pack.map((p) => ({ name: `assets/minecraft/textures/${p.folder}/${p.file}.png`, data: dataURLtoBytes(p.dataURL) })),
     ];
+    return zip(files);
+  }
+
+  function handleDownloadZip() {
+    if (!pack.length) return showToast('Pack masih kosong — tambahkan tag dulu', 'error');
     const a = document.createElement('a');
-    a.href = URL.createObjectURL(zip(files));
-    a.download = 'rank-tags-pack.zip';
+    a.href = URL.createObjectURL(buildJavaZip());
+    a.download = 'javarank.zip';
     a.click();
   }
 
@@ -453,12 +471,8 @@ export function RankTextureStudio() {
    * manifest "Made By Aeroblast Developer", UUID baru tiap generate,
    * version selalu [0,0,1]; glyph_E8 dirakit dari isi pack.
    */
-  async function handleDownloadBedrock() {
-    if (!pack.length) return showToast('Pack masih kosong — tambahkan tag dulu', 'error');
-    let glyphE8;
-    try { glyphE8 = await buildGlyphE8(pack); }
-    catch (e) { return showToast(e.message, 'error'); }
-
+  async function buildBedrockZip() {
+    const glyphE8 = await buildGlyphE8(pack);
     const enc = new TextEncoder();
     const manifest = {
       format_version: 2,
@@ -477,9 +491,17 @@ export function RankTextureStudio() {
       { name: 'font/glyph_E2.png', data: b64toBytes(GLYPH_E2_B64) },
       { name: 'font/glyph_E8.png', data: glyphE8 },
     ];
+    return zip(files);
+  }
+
+  async function handleDownloadBedrock() {
+    if (!pack.length) return showToast('Pack masih kosong — tambahkan tag dulu', 'error');
+    let blob;
+    try { blob = await buildBedrockZip(); }
+    catch (e) { return showToast(e.message, 'error'); }
     const a = document.createElement('a');
-    a.href = URL.createObjectURL(zip(files));
-    a.download = 'aeroblast-bedrock-pack.zip';
+    a.href = URL.createObjectURL(blob);
+    a.download = 'bedrockrank.zip';
     a.click();
   }
 

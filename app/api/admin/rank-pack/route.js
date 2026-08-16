@@ -18,6 +18,7 @@ import { supabase } from '@/api/_supabase';
 
 const BUCKET = 'rank-packs';
 const FILE = 'rank-pack.json';
+const ZIPS = { java: 'javarank.zip', bedrock: 'bedrockrank.zip' };
 const MAX_BYTES = 12 * 1024 * 1024;
 
 function makeReq(request) {
@@ -26,6 +27,23 @@ function makeReq(request) {
 
 export async function GET(request) {
   if (!(await isAuthenticated(makeReq(request)))) return NextResponse.json({ ok: false, error: 'Unauthorized' }, { status: 401 });
+
+  // ?zip=java|bedrock → unduh file zip aeroblastrank terbaru dari Storage
+  const zipId = new URL(request.url).searchParams.get('zip');
+  if (zipId) {
+    const name = ZIPS[zipId];
+    if (!name) return NextResponse.json({ ok: false, error: 'zip harus java atau bedrock' }, { status: 400 });
+    const { data, error } = await supabase.storage.from(BUCKET).download(name);
+    if (error || !data) return NextResponse.json({ ok: false, error: 'Belum ada zip tersimpan' }, { status: 404 });
+    return new NextResponse(data, {
+      headers: {
+        'Content-Type': 'application/zip',
+        'Content-Disposition': `attachment; filename="${name}"`,
+        'Cache-Control': 'no-store',
+      },
+    });
+  }
+
   const { data, error } = await supabase.storage.from(BUCKET).download(FILE);
   if (error || !data) return NextResponse.json({ ok: true, items: null }); // belum pernah disimpan → client pakai baseline
   const text = await data.text();
@@ -70,6 +88,34 @@ export async function POST(request) {
   });
   if (error) return NextResponse.json({ ok: false, error: error.message }, { status: 500 });
   return NextResponse.json({ ok: true, count: items.length });
+}
+
+/*
+ * PUT ?zip=java|bedrock — timpa file zip aeroblastrank di Storage.
+ * Dipanggil client HANYA saat "Simpan Pack Terbaru" (bukan saat tombol
+ * download, yang murni client-side).
+ */
+export async function PUT(request) {
+  if (!isValidOrigin(request)) return NextResponse.json({ ok: false, error: 'Forbidden' }, { status: 403 });
+  if (!(await isAuthenticated(makeReq(request)))) return NextResponse.json({ ok: false, error: 'Unauthorized' }, { status: 401 });
+
+  const zipId = new URL(request.url).searchParams.get('zip');
+  const name = ZIPS[zipId];
+  if (!name) return NextResponse.json({ ok: false, error: 'zip harus java atau bedrock' }, { status: 400 });
+
+  const buf = new Uint8Array(await request.arrayBuffer());
+  if (!buf.length || buf.length > MAX_BYTES) return NextResponse.json({ ok: false, error: 'Ukuran zip tidak valid' }, { status: 400 });
+  if (buf[0] !== 0x50 || buf[1] !== 0x4b) return NextResponse.json({ ok: false, error: 'Bukan file zip' }, { status: 400 });
+
+  const { data: bucket } = await supabase.storage.getBucket(BUCKET);
+  if (!bucket) await supabase.storage.createBucket(BUCKET, { public: false });
+
+  const { error } = await supabase.storage.from(BUCKET).upload(name, buf, {
+    contentType: 'application/zip',
+    upsert: true,
+  });
+  if (error) return NextResponse.json({ ok: false, error: error.message }, { status: 500 });
+  return NextResponse.json({ ok: true });
 }
 
 export async function OPTIONS() {
