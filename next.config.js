@@ -10,12 +10,6 @@ const nextConfig = {
     ],
   },
 
-  // Baseline zip aeroblastrank harus ikut ter-bundle di serverless function
-  // (dibaca via fs oleh app/aeroblastrank/[file]/route.js sebagai fallback)
-  outputFileTracingIncludes: {
-    '/aeroblastrank/[file]': ['./aeroblastrank/*.zip'],
-  },
-
   // Expose public env vars
   env: {
     NEXT_PUBLIC_SITE_URL: process.env.NEXT_PUBLIC_SITE_URL || 'https://store.aeroblast.my.id',

@@ -6,7 +6,6 @@ import {
   Brush,
   CheckCircle,
   Clock,
-  Download,
   FileText,
   Heart,
   LogOut,
@@ -25,7 +24,7 @@ import { useAuth } from '@/context/AuthContext';
 import { useToast } from '@/context/ToastContext';
 import { Button } from '@/components/ui/Button';
 import { cn } from '@/lib/cn';
-import { drawPrefixTag, prefixTagDataURL, ICON_LABELS } from '@/lib/prefixTag';
+import { drawPrefixTag, ICON_LABELS } from '@/lib/prefixTag';
 import { RankTextureStudio, EDIT_PREFIX_EVENT, STUDIO_ANCHOR_ID } from '@/components/admin/RankTextureStudio';
 import { readCache, writeCache } from '@/lib/swrCache';
 
@@ -720,17 +719,6 @@ function CosmeticOrderItem({ item, onDone, deleting }) {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [d.prefixText, d.base, d.prefixColor, d.icon, d.textColor, d.shadowColor]);
 
-  function handleDownload() {
-    // Scale 1 = ukuran pixel asli 74×12 — yang dipakai texture resourcepack.
-    // Versi diperbesar hanya untuk preview di layar, bukan untuk file.
-    const url = prefixTagDataURL(cfg, 1);
-    if (!url) return;
-    const a = document.createElement('a');
-    a.download = `prefix-${(item.nick || 'player').replace(/[^\w.-]/g, '_')}-${String(d.prefixText || 'custom').toLowerCase().replace(/[^\w-]/g, '_')}.png`;
-    a.href = url;
-    a.click();
-  }
-
   return (
     <div className="rounded-md border border-[#BFFF5E]/30 bg-[#BFFF5E]/[0.04] px-4 py-3">
       <div className="flex flex-wrap items-center gap-2">
@@ -758,20 +746,14 @@ function CosmeticOrderItem({ item, onDone, deleting }) {
       <div className="mt-2.5 flex items-center gap-2">
         <button
           onClick={() => {
-            // Kirim desain order ke studio Texture Rank di bawah, lalu scroll ke sana.
-            // Di studio: "Tambah ke pack" → "Simpan Pack Terbaru" memperbarui aeroblastrank.
+            // Kirim data prefix order ke generator di bawah, lalu scroll ke sana —
+            // download PNG dilakukan dari generator.
             window.dispatchEvent(new CustomEvent(EDIT_PREFIX_EVENT, { detail: d }));
             document.getElementById(STUDIO_ANCHOR_ID)?.scrollIntoView({ behavior: 'smooth', block: 'start' });
           }}
           className="flex flex-1 items-center justify-center gap-1.5 rounded-lg border border-[#BFFF5E]/50 bg-[#BFFF5E]/15 py-1.5 text-xs font-semibold text-[#1d2b1f] transition-colors hover:bg-[#BFFF5E]/25 hover:border-[#BFFF5E]/70"
         >
-          <Brush size={13} /> Edit File
-        </button>
-        <button
-          onClick={handleDownload}
-          className="flex flex-1 items-center justify-center gap-1.5 rounded-lg border border-[#BFFF5E]/50 bg-[#BFFF5E]/15 py-1.5 text-xs font-semibold text-[#1d2b1f] transition-colors hover:bg-[#BFFF5E]/25 hover:border-[#BFFF5E]/70"
-        >
-          <Download size={13} /> Download PNG
+          <Brush size={13} /> Buka di Generator
         </button>
         <button
           onClick={() => onDone(item.id)}
