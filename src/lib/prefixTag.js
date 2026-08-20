@@ -120,20 +120,21 @@ const ICONS = {
   pickaxe: { b: 'f30000', p: 'aa0000938a79adadad838383000000ad7100707070c98300e09914e7a62e', m: 'AAAAAAAA/AABBBCAA/ADEFEECA/GEAHAAEC/EAAIAAAE/AAAJAAAA/AAAJAAAA' },
   plus: { b: 'f30000', p: 'aa0000ffffff000000', m: 'AAABBAAA/AAABBAAA/ABBBBBBA/ABBBBBBA/ACCBBCCA/AAABBAAA/AAACCAAA' },
   yt: { b: 'f30000', p: 'aa0000ffffff000000', m: 'AAAAAAAA/ABBBAAAA/ABBBBBAA/ABBBBBBA/ABBBBCCA/ABBBCAAA/ACCCAAAA' },
-  tiktok: { b: '00f2ea', p: '1f1f1fffffff00c8c2', m: 'AAAAAAAA/AAAABBBA/AAAABACA/AAAABAAA/ABBBBAAA/ABBBBAAA/AACCAAAA' },
-  api: { b: 'ff6a00', p: '8a3800ff6a00ffd23c', m: 'AAABAAAA/AABBAAAA/ABBBBAAA/ABBCBBAA/ABCCCBAA/ABBCBBAA/AABBBAAA' },
+  tiktok: { b: '27c4c6', p: '18181827c4c6ffffffd52a2a', m: 'AAABCCCD/AABCCDDA/AABCCDAA/BCBCCDAA/BCCCCDAA/ADCCDAAA/AADDAAAA' },
+  api: { b: 'e8e8e8', p: '181818e8e8e8ffffffc9c9c9b1b1b1000000', m: 'AABAABAA/AACBACBA/ABCCCCBA/ADBBCBDA/AEDDBDEA/AFEEEEFA/AAFFFFAA' },
+  love: { b: 'ebebeb', p: '181818ebebebf7f5f7ffffffdfdfdfb0b0b0', m: 'ABBAABBA/BCCCCCCB/EBCDDCBE/FEBCCBEF/AFEBBEFA/AAFEEFAA/AAAFFAAA' },
   kosong: { b: 'd0d0d0', p: 'a8a8a8', m: 'AAAAAAAA/AAAAAAAA/AAAAAAAA/AAAAAAAA/AAAAAAAA/AAAAAAAA/AAAAAAAA' },
 };
 
 export const ICON_LABELS = { basic: 'Logo Biasa', custom: 'Logo Custom' };
 
 /** Ikon yang tampil di studio Texture Rank admin (basic/custom khusus store). */
-export const ICON_NAMES = ['normal', 'bintang1', 'bintang2', 'mahkota', 'pickaxe', 'plus', 'yt', 'tiktok', 'api', 'kosong'];
+export const ICON_NAMES = ['normal', 'bintang1', 'bintang2', 'mahkota', 'pickaxe', 'plus', 'yt', 'tiktok', 'api', 'love', 'kosong'];
 
 /** Label ikon studio. */
 export const ICON_STUDIO_LABELS = {
   normal: 'Orang', bintang1: 'Bintang 1', bintang2: 'Bintang 2', mahkota: 'Mahkota',
-  pickaxe: 'Pickaxe', plus: 'Plus', yt: 'YouTube', tiktok: 'TikTok', api: 'Api', kosong: 'Kosong',
+  pickaxe: 'Pickaxe', plus: 'Plus', yt: 'YouTube', tiktok: 'TikTok', api: 'Api', love: 'Love', kosong: 'Kosong',
 };
 
 /** Preset warna (nama warna saja, bukan nama rank). */
