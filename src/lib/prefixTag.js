@@ -211,11 +211,19 @@ function recolor(colorHex, oldBaseHex, newBaseHex) {
   return rgb2hex(hsl2rgb([n[0] + dh + hueDrift, s, Math.max(0, Math.min(0.96, l))]));
 }
 
-function iconPalette(ico, target) {
+function iconPalette(ico, target, tones) {
   const oldBase = '#' + ico.b;
   const cols = ico.p.match(/.{6}/g).map((s) => '#' + s);
-  if (target.toLowerCase() === oldBase) return cols;
-  return cols.map((col) => recolor(col, oldBase, target.toLowerCase()));
+  return cols.map((col) => {
+    // background/outline gelap ikon ikut mid/dark warna utama, bukan hitam
+    if (tones) {
+      const l = rgb2hsl(hex2rgb(col))[2];
+      if (l < 0.06) return tones.dark;
+      if (l < 0.16) return tones.mid;
+    }
+    if (target.toLowerCase() === oldBase) return col;
+    return recolor(col, oldBase, target.toLowerCase());
+  });
 }
 
 /* ===================== layout teks ===================== */
@@ -259,7 +267,8 @@ export function drawIconThumb(targetCanvas, name, targetColor) {
   targetCanvas.width = 8;
   targetCanvas.height = 7;
   const cx = targetCanvas.getContext('2d');
-  const pal = iconPalette(ico, targetColor || '#' + ico.b);
+  const t = targetColor || '#' + ico.b;
+  const pal = iconPalette(ico, t, autoTone(t));
   ico.m.split('/').forEach((row, ry) => {
     for (let rx = 0; rx < row.length; rx++) {
       cx.fillStyle = pal[row.charCodeAt(rx) - 65];
@@ -294,6 +303,7 @@ export function renderPrefixTag(cfg, doc = typeof document !== 'undefined' ? doc
   const midAt = colorAt(mid, cfg.mid2, TXT_X0, TXT_X1);
   const darkAt = colorAt(dark, cfg.dark2, TXT_X0, TXT_X1);
   const pBase = cfg.profileBase || base;
+  const pMid = cfg.profileMid || (cfg.profileBase ? autoTone(pBase).mid : mid);
   const pDark = cfg.profileDark || (cfg.profileBase ? autoTone(pBase).dark : dark);
 
   const cv = doc.createElement('canvas');
@@ -309,7 +319,7 @@ export function renderPrefixTag(cfg, doc = typeof document !== 'undefined' ? doc
   for (let x = 1; x <= 10; x++) { px(x, 1, pBase); px(x, 9, pBase); px(x, 10, pDark); }
   for (let y = 2; y <= 8; y++) { px(1, y, pBase); px(10, y, pBase); }
   const ico = ICONS[cfg.icon] || ICONS.basic;
-  const pal = iconPalette(ico, cfg.iconColor || pBase);
+  const pal = iconPalette(ico, cfg.iconColor || pBase, { mid: pMid, dark: pDark });
   ico.m.split('/').forEach((row, ry) => {
     for (let rx = 0; rx < row.length; rx++) px(2 + rx, 2 + ry, pal[row.charCodeAt(rx) - 65]);
   });
