@@ -133,6 +133,17 @@ export async function giveMoney(nick, amount) {
   return rconSend(`eco give ${nick} ${amount}`);
 }
 
+// Cek jumlah coins player via PlaceholderAPI (%excellenteconomy_balance_raw_coins%)
+export async function getPlayerCoins(nick) {
+  try { guard(nick, SAFE_NICK, 'nick'); } catch (e) { return { ok: false, coins: null, error: e.message }; }
+  const result = await rconSend(`papi parse ${nick} %excellenteconomy_balance_raw_coins%`);
+  if (!result.ok) return { ok: false, coins: null, error: result.error };
+  // Respons bisa mengandung kode warna / teks lain — ambil angka pertama.
+  const m = String(result.response || '').replace(/§./g, '').match(/-?\d+(?:[.,]\d+)?/);
+  if (!m) return { ok: false, coins: null, error: `Placeholder tidak terbaca: ${result.response}` };
+  return { ok: true, coins: Math.floor(parseFloat(m[0].replace(',', '.'))) };
+}
+
 // coins give <nick> <amount>
 export async function giveCoins(nick, amount) {
   try { guard(nick, SAFE_NICK, 'nick'); guard(String(amount), SAFE_DIGITS, 'amount'); } catch (e) { return { ok: false, error: e.message }; }

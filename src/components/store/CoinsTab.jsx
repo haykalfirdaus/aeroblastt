@@ -1,5 +1,5 @@
 'use client';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { CircleDollarSign, Lock } from 'lucide-react';
 import { GlassCard } from '@/components/ui/GlassCard';
 import { Button } from '@/components/ui/Button';
@@ -121,6 +121,17 @@ export function CoinsTab() {
   const { nick } = usePlayerAuth();
   const [modalOpen, setModalOpen] = useState(false);
   const [selectedRupiah, setSelectedRupiah] = useState(0);
+  const [myCoins, setMyCoins] = useState(null);
+
+  useEffect(() => {
+    if (!nick) { setMyCoins(null); return; }
+    let alive = true;
+    fetch('/api/player/coins')
+      .then((r) => r.json())
+      .then((d) => { if (alive && d.ok) setMyCoins(d.coins); })
+      .catch(() => {});
+    return () => { alive = false; };
+  }, [nick]);
 
   function openWith(rupiah) {
     if (!nick) return;
@@ -140,7 +151,10 @@ export function CoinsTab() {
             </span>
             <div>
               <h3 className="font-display text-base font-bold text-[#1d2b1f]">Top-Up Coins</h3>
-              <p className="text-xs text-[#4a5e3a]">Kurs: Rp 1 = {COINS_RATE} Coin</p>
+              <p className="text-xs text-[#4a5e3a]">
+                Kurs: Rp 1 = {COINS_RATE} Coin
+                {myCoins != null && <> · Coins kamu: <span className="font-mono font-bold text-[#1d2b1f]">{formatNumber(myCoins)}</span></>}
+              </p>
             </div>
           </div>
 
