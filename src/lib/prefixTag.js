@@ -201,9 +201,14 @@ function recolor(colorHex, oldBaseHex, newBaseHex) {
   const n = rgb2hsl(hex2rgb(newBaseHex));
   if (c[2] < 0.04) return colorHex; // hampir hitam: biarkan
   const dh = c[0] - o[0];
-  const s = o[1] < 0.02 ? (c[1] * n[1]) / Math.max(o[1], 0.02) : Math.min(1, c[1] * (n[1] / o[1]));
-  const l = c[2] + (n[2] - o[2]) * 0.35;
-  return rgb2hex(hsl2rgb([n[0] + dh, Math.min(1, s), Math.max(0, Math.min(1, l))]));
+  // shading relatif terhadap base lama, dipetakan penuh ke lightness base baru
+  const rel = c[2] / Math.max(o[2], 0.02);
+  const l = n[2] * rel;
+  // sentuhan "hand-shaded": highlight sedikit pudar, shadow sedikit geser hue & lebih pekat
+  const hueDrift = rel > 1 ? -0.015 : rel < 1 ? 0.025 * (1 - rel) : 0;
+  const satDrift = rel > 1 ? 0.88 : 1 + 0.15 * (1 - rel);
+  const s = Math.min(1, n[1] * satDrift * (o[1] < 0.02 ? 1 : Math.min(1.2, c[1] / o[1])));
+  return rgb2hex(hsl2rgb([n[0] + dh + hueDrift, s, Math.max(0, Math.min(0.96, l))]));
 }
 
 function iconPalette(ico, target) {
