@@ -133,6 +133,12 @@ export async function giveMoney(nick, amount) {
   return rconSend(`eco give ${nick} ${amount}`);
 }
 
+// coins give <nick> <amount>
+export async function giveCoins(nick, amount) {
+  try { guard(nick, SAFE_NICK, 'nick'); guard(String(amount), SAFE_DIGITS, 'amount'); } catch (e) { return { ok: false, error: e.message }; }
+  return rconSend(`coins give ${nick} ${amount}`);
+}
+
 // case key give <nick> <keyName> <qty>
 export async function giveKey(nick, keyName, qty) {
   try { guard(nick, SAFE_NICK, 'nick'); guard(String(qty), SAFE_DIGITS, 'qty'); } catch (e) { return { ok: false, error: e.message }; }

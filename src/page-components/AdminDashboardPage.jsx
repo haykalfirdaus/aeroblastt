@@ -954,7 +954,7 @@ function AnnouncementItem({ item, confirming, onRequestDelete, onCancelDelete, o
 
 // Harus mencakup SEMUA kategori store yang punya DiscountCodeInput —
 // string ini dicocokkan (case-insensitive) dengan prop `category` di tab.
-const DISCOUNT_CATEGORIES = ['Rank', 'Gacha Key', 'Balance', 'Skill Boost', 'Command', 'Custom Prefix'];
+const DISCOUNT_CATEGORIES = ['Rank', 'Gacha Key', 'Balance', 'Coins', 'Skill Boost', 'Command', 'Custom Prefix'];
 
 function DiscountsSection() {
   const showToast = useToast();

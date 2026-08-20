@@ -1,7 +1,7 @@
 import crypto from 'crypto';
 import { NextResponse } from 'next/server';
 import { supabase } from '@/api/_supabase';
-import { grantRank, giveKey, giveMoney, grantCommand } from '@/api/_rcon';
+import { grantRank, giveKey, giveMoney, giveCoins, grantCommand } from '@/api/_rcon';
 import { rateLimit, formatRetry } from '@/api/_ratelimit';
 import { getMinBaseAmount } from '@/api/_prices';
 import { isValidOrigin } from '@/api/_auth';
@@ -10,7 +10,7 @@ import { buildDynamicQris } from '@/api/_qris';
 const SUFFIX_MIN = 1;
 const SUFFIX_MAX = 999;
 const ORDER_TTL_MS = 30 * 60 * 1000;
-const VALID_TYPES = ['rank', 'key', 'skill', 'balance', 'command', 'cosmetic', 'donate'];
+const VALID_TYPES = ['rank', 'key', 'skill', 'balance', 'coins', 'command', 'cosmetic', 'donate'];
 const DONATE_MIN = 1000;
 const DONATE_MAX = 100_000_000;
 const NOTIFY_SECRET = process.env.NOTIFY_SECRET;
@@ -18,7 +18,7 @@ const DISCORD_WEBHOOK_URL = process.env.DISCORD_WEBHOOK_URL;
 const DISCORD_DONATE_WEBHOOK_URL = process.env.DISCORD_DONATE_WEBHOOK_URL;
 
 function formatRp(n) { return `Rp ${Number(n).toLocaleString('id-ID')}`; }
-const TYPE_LABEL = { rank: '🎖️ Rank', key: '🗝️ Gacha Key', skill: '⚡ Skill Boost', balance: '💰 Balance', command: '⌨️ Command', cosmetic: '✨ Custom Prefix' };
+const TYPE_LABEL = { rank: '🎖️ Rank', key: '🗝️ Gacha Key', skill: '⚡ Skill Boost', balance: '💰 Balance', coins: '🪙 Coins', command: '⌨️ Command', cosmetic: '✨ Custom Prefix' };
 
 function getIp(request) {
   return request.headers.get('x-forwarded-for')?.split(',')[0]?.trim() || 'unknown';
@@ -62,6 +62,7 @@ async function executeRcon(order) {
   if (type === 'rank') return grantRank(nick, details.target, details.duration);
   if (type === 'key') return giveKey(nick, details.keyName, details.qty ?? 1);
   if (type === 'balance') return giveMoney(nick, details.balance);
+  if (type === 'coins') return giveCoins(nick, details.coins);
   if (type === 'command') return grantCommand(nick, details.cmdName, details.duration);
   if (type === 'donate') return { ok: true, response: 'Donasi diterima — tidak ada item RCON' };
   return { ok: false, error: `Tipe '${type}' belum di-handle RCON otomatis` };
@@ -157,6 +158,7 @@ async function handleCreate(body, request) {
   if (details?.keyName) productFields.push({ name: 'Key', value: details.keyName, inline: true });
   if (details?.qty) productFields.push({ name: 'Jumlah', value: `${details.qty}x`, inline: true });
   if (details?.balance) productFields.push({ name: 'Balance', value: Number(details.balance).toLocaleString('id-ID'), inline: true });
+  if (details?.coins) productFields.push({ name: 'Coins', value: Number(details.coins).toLocaleString('id-ID'), inline: true });
 
   await sendInvoiceDiscord({ title: `📋 Order Masuk — ${TYPE_LABEL[type] || type}`, color: 0x3b82f6, fields: [{ name: 'Nickname', value: `\`${nick.trim()}\``, inline: true }, { name: 'Platform', value: platform, inline: true }, ...productFields, { name: '💰 Nominal Pembayaran', value: `**${formatRp(order.total_amount)}**`, inline: false }], footer: { text: 'AeroBlast Network • Berlaku 30 menit' }, timestamp: new Date().toISOString() });
 
@@ -260,6 +262,7 @@ async function handleNotify(request) {
   if (order.details?.keyName) productFields.push({ name: 'Key', value: order.details.keyName, inline: true });
   if (order.details?.qty) productFields.push({ name: 'Jumlah', value: `${order.details.qty}x`, inline: true });
   if (order.details?.balance) productFields.push({ name: 'Balance', value: Number(order.details.balance).toLocaleString('id-ID'), inline: true });
+  if (order.details?.coins) productFields.push({ name: 'Coins', value: Number(order.details.coins).toLocaleString('id-ID'), inline: true });
 
   await sendInvoiceDiscord({ title: rconOk ? '✅ Pembayaran Berhasil' : '✅ Pembayaran Berhasil — ⚠️ Perlu Cek RCON', color: rconOk ? 0x22c55e : 0xf59e0b, fields: [{ name: 'Nickname', value: `\`${order.nick}\``, inline: true }, { name: 'Platform', value: order.platform, inline: true }, { name: 'Tipe', value: TYPE_LABEL[order.type] || order.type, inline: true }, { name: 'Total Dibayar', value: formatRp(amount), inline: true }, ...productFields, rconOk ? { name: 'Item', value: rconResult.response || 'Diberikan', inline: false } : { name: '⚠️ Item Belum Diberikan', value: rconResult.error || 'Silakan cek dan berikan manual', inline: false }], footer: { text: 'AeroBlast Network' }, timestamp: new Date().toISOString() });
 

@@ -15,6 +15,10 @@ export const SKILL_CATEGORY_PRICES = { combat: 3000, semi: 2500, gather: 2000 };
 export const BALANCE_RATE = 20;
 export const BALANCE_MIN_RUPIAH = 5000;
 
+// Coins: Rp 1 = 1 coin, minimum order Rp 5000
+export const COINS_RATE = 1;
+export const COINS_MIN_RUPIAH = 5000;
+
 // Command: basePrice 30 hari; 3 bulan = 2x, permanent = 3x
 // Key harus sama dengan `key` di src/data/commands.js (client mengirim cmd.key).
 export const COMMAND_PRICES = { FLY: 30000, GOD: 30000, FEED: 10000, HEAL: 10000, TP: 20000, REPAIR: 10000, INVSEE: 25000, VANISH: 25000, UTILITY: 15000 };
@@ -74,6 +78,14 @@ export function getMinBaseAmount(type, details) {
     if (balance <= 0) return null;
     const rupiah = Math.ceil(balance / BALANCE_RATE);
     if (rupiah < BALANCE_MIN_RUPIAH) return null;
+    return applyDisc(rupiah);
+  }
+
+  if (type === 'coins') {
+    const coins = Number(details?.coins ?? 0);
+    if (coins <= 0) return null;
+    const rupiah = Math.ceil(coins / COINS_RATE);
+    if (rupiah < COINS_MIN_RUPIAH) return null;
     return applyDisc(rupiah);
   }
 
