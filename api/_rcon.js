@@ -80,6 +80,8 @@ const COMMAND_PERMS = {
   REPAIR: ['essentials.repair'],
   INVSEE: ['essentials.invsee'],
   VANISH: ['essentials.vanish'],
+  WEATHER: ['essentials.weather'],
+  TIME: ['essentials.time', 'essentials.time.set'],
   UTILITY: ['essentials.anvil', 'essentials.enderchest', 'essentials.workbench'],
 };
 
@@ -131,6 +133,27 @@ export async function verifyPlayer(nick) {
 export async function giveMoney(nick, amount) {
   try { guard(nick, SAFE_NICK, 'nick'); guard(String(amount), SAFE_DIGITS, 'amount'); } catch (e) { return { ok: false, error: e.message }; }
   return rconSend(`eco give ${nick} ${amount}`);
+}
+
+// acb <nick> <amount> — tambah claim limit (GriefPrevention adjust bonus claims)
+export async function giveClaimLimit(nick, amount) {
+  try { guard(nick, SAFE_NICK, 'nick'); guard(String(amount), SAFE_DIGITS, 'amount'); } catch (e) { return { ok: false, error: e.message }; }
+  return rconSend(`acb ${nick} ${amount}`);
+}
+
+// Cek claim limit player via PlaceholderAPI: accrued + bonus claims
+export async function getPlayerClaims(nick) {
+  try { guard(nick, SAFE_NICK, 'nick'); } catch (e) { return { ok: false, claims: null, error: e.message }; }
+  const parseNum = async (ph) => {
+    const result = await rconSend(`papi parse ${nick} ${ph}`);
+    if (!result.ok) return null;
+    const m = String(result.response || '').replace(/§./g, '').match(/-?\d+(?:[.,]\d+)?/);
+    return m ? Math.floor(parseFloat(m[0].replace(',', '.'))) : null;
+  };
+  const accrued = await parseNum('%griefprevention_accruedclaims%');
+  const bonus = await parseNum('%griefprevention_bonusclaims%');
+  if (accrued == null && bonus == null) return { ok: false, claims: null, error: 'Placeholder tidak terbaca' };
+  return { ok: true, claims: (accrued ?? 0) + (bonus ?? 0), accrued: accrued ?? 0, bonus: bonus ?? 0 };
 }
 
 // Cek jumlah coins player via PlaceholderAPI (%excellenteconomy_balance_raw_coins%)

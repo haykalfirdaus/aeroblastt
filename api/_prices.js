@@ -11,9 +11,9 @@ export const KEY_PRICES = { BASIC: 1000, VOTE: 2000, VIP: 5000, LEGEND: 10000, A
 // Skill: harga per level per kategori
 export const SKILL_CATEGORY_PRICES = { combat: 3000, semi: 2500, gather: 2000 };
 
-// Balance: Rp 1 = 20 in-game balance, minimum order Rp 5000
-export const BALANCE_RATE = 20;
-export const BALANCE_MIN_RUPIAH = 5000;
+// Claim limit: Rp 1 = 1 claim limit, minimum order Rp 5000
+export const CLAIM_RATE = 1;
+export const CLAIM_MIN_RUPIAH = 5000;
 
 // Coins: Rp 1 = 1 coin, minimum order Rp 5000
 export const COINS_RATE = 1;
@@ -21,7 +21,7 @@ export const COINS_MIN_RUPIAH = 5000;
 
 // Command: basePrice 30 hari; 3 bulan = 2x, permanent = 3x
 // Key harus sama dengan `key` di src/data/commands.js (client mengirim cmd.key).
-export const COMMAND_PRICES = { FLY: 30000, GOD: 30000, FEED: 10000, HEAL: 10000, TP: 20000, REPAIR: 10000, INVSEE: 25000, VANISH: 25000, UTILITY: 15000 };
+export const COMMAND_PRICES = { FLY: 30000, GOD: 30000, FEED: 10000, HEAL: 10000, TP: 20000, REPAIR: 10000, INVSEE: 25000, VANISH: 25000, WEATHER: 25000, TIME: 25000, UTILITY: 15000 };
 
 // Pengali durasi — harus sinkron dengan percentOfBase di src/data/{ranks,commands}.js
 export const RANK_DURATION_MULT    = { monthly: 0.5, quarterly: 0.8, permanent: 1 };
@@ -73,11 +73,11 @@ export function getMinBaseAmount(type, details) {
     return applyDisc(pricePerLevel * levels);
   }
 
-  if (type === 'balance') {
-    const balance = Number(details?.balance ?? 0);
-    if (balance <= 0) return null;
-    const rupiah = Math.ceil(balance / BALANCE_RATE);
-    if (rupiah < BALANCE_MIN_RUPIAH) return null;
+  if (type === 'claim') {
+    const claims = Number(details?.claims ?? 0);
+    if (claims <= 0) return null;
+    const rupiah = Math.ceil(claims / CLAIM_RATE);
+    if (rupiah < CLAIM_MIN_RUPIAH) return null;
     return applyDisc(rupiah);
   }
 

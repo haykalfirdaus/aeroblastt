@@ -5,7 +5,7 @@ import { rateLimit, formatRetry } from '@/api/_ratelimit';
 import { getMinBaseAmount } from '@/api/_prices';
 
 const DISCORD_WEBHOOK_URL = process.env.DISCORD_WEBHOOK_URL;
-const VALID_TYPES = ['rank', 'key', 'skill', 'balance', 'command', 'cosmetic'];
+const VALID_TYPES = ['rank', 'key', 'skill', 'claim', 'coins', 'command', 'cosmetic'];
 
 function getIp(request) {
   return request.headers.get('x-forwarded-for')?.split(',')[0]?.trim() || 'unknown';
@@ -15,8 +15,8 @@ function formatRupiah(n) {
   return new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR', maximumFractionDigits: 0 }).format(n);
 }
 
-const ORDER_COLORS = { rank: 0x3b82f6, key: 0xf59e0b, skill: 0x10b981, balance: 0x8b5cf6, command: 0xef4444, cosmetic: 0xec4899 };
-const ORDER_TITLES = { rank: '🎖️ Order Rank', key: '🗝️ Order Gacha Key', skill: '⚡ Order Skill Boost', balance: '💰 Order Balance', command: '⌨️ Order Command', cosmetic: '✨ Order Custom Prefix' };
+const ORDER_COLORS = { rank: 0x3b82f6, key: 0xf59e0b, skill: 0x10b981, claim: 0x8b5cf6, coins: 0xf59e0b, command: 0xef4444, cosmetic: 0xec4899 };
+const ORDER_TITLES = { rank: '🎖️ Order Rank', key: '🗝️ Order Gacha Key', skill: '⚡ Order Skill Boost', claim: '🏘️ Order Claim Limit', coins: '🪙 Order Coins', command: '⌨️ Order Command', cosmetic: '✨ Order Custom Prefix' };
 
 function s(val, limit = 100) { return String(val ?? '').slice(0, limit); }
 
@@ -25,7 +25,8 @@ function buildDetails(type, body) {
   if (type === 'rank') { d.target = body.target; if (body.owned && body.owned !== 'none') d.owned = body.owned; d.duration = body.duration; if (body.basePrice) d.basePrice = body.basePrice; }
   else if (type === 'key') { d.keyName = body.keyName; d.qty = body.qty; }
   else if (type === 'skill') { d.skillName = body.skillName; d.levels = body.levels; }
-  else if (type === 'balance') { d.balance = body.balance; }
+  else if (type === 'claim') { d.claims = body.claims; }
+  else if (type === 'coins') { d.coins = body.coins; }
   else if (type === 'command') { d.cmdName = body.cmdName; d.duration = body.duration; }
   else if (type === 'cosmetic') { d.prefixText = body.prefixText; d.prefixColor = body.prefixColor; if (body.nickColor) d.nickColor = body.nickColor; }
   if (body.discountPct > 0) d.discountPct = body.discountPct;
@@ -43,7 +44,8 @@ function buildEmbed(body, invoiceId) {
   if (type === 'rank') { fields.push({ name: 'Rank Tujuan', value: s(body.target), inline: true }); if (body.owned && body.owned !== 'none') fields.push({ name: 'Upgrade Dari', value: s(body.owned).toUpperCase(), inline: true }); fields.push({ name: 'Durasi', value: s(body.duration), inline: true }); }
   else if (type === 'key') { fields.push({ name: 'Tipe Key', value: s(body.keyName), inline: true }); fields.push({ name: 'Jumlah', value: `${body.qty}x`, inline: true }); }
   else if (type === 'skill') { fields.push({ name: 'Skill', value: s(body.skillName), inline: true }); fields.push({ name: 'Level', value: `${body.levels}x`, inline: true }); }
-  else if (type === 'balance') { fields.push({ name: 'Balance', value: Number(body.balance).toLocaleString('id-ID'), inline: true }); }
+  else if (type === 'claim') { fields.push({ name: 'Claim Limit', value: Number(body.claims).toLocaleString('id-ID'), inline: true }); }
+  else if (type === 'coins') { fields.push({ name: 'Coins', value: Number(body.coins).toLocaleString('id-ID'), inline: true }); }
   else if (type === 'command') { fields.push({ name: 'Command', value: s(body.cmdName), inline: true }); fields.push({ name: 'Durasi', value: s(body.duration), inline: true }); }
   else if (type === 'cosmetic') { fields.push({ name: 'Prefix', value: `[${s(body.prefixText, 50)}]`, inline: true }); fields.push({ name: 'Warna Prefix', value: s(body.prefixColor, 50), inline: true }); if (body.nickColor) fields.push({ name: 'Warna Nick', value: s(body.nickColor, 50), inline: true }); }
   if (discountPct > 0) fields.push({ name: 'Diskon', value: `${discountPct}%`, inline: true });

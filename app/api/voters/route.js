@@ -2,7 +2,7 @@ import { NextResponse } from 'next/server';
 import { rateLimit } from '@/api/_ratelimit';
 
 const VOTERS_API_KEY = process.env.VOTERS_API_KEY;
-const SERVER_ID = 'aeroblast.my.id:25543';
+const SERVER_ID = 'aeroblast.my.id:19477';
 
 export async function GET(request) {
   const ip = request.headers.get('x-forwarded-for')?.split(',')[0]?.trim() || 'unknown';

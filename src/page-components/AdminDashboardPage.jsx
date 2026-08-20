@@ -329,8 +329,11 @@ function InvoiceItem({ item, onMark, marking, confirming, onRequestConfirm, onCa
           {item.type === 'skill' && details.skillName && (
             <p className="mt-0.5 text-xs text-[#4a5e3a]">{details.skillName} × {details.levels} level</p>
           )}
-          {item.type === 'balance' && details.balance && (
-            <p className="mt-0.5 text-xs text-[#4a5e3a]">{Number(details.balance).toLocaleString('id-ID')} balance</p>
+          {item.type === 'claim' && details.claims && (
+            <p className="mt-0.5 text-xs text-[#4a5e3a]">{Number(details.claims).toLocaleString('id-ID')} claim limit</p>
+          )}
+          {item.type === 'coins' && details.coins && (
+            <p className="mt-0.5 text-xs text-[#4a5e3a]">{Number(details.coins).toLocaleString('id-ID')} coins</p>
           )}
           {item.type === 'command' && details.cmdName && (
             <p className="mt-0.5 text-xs text-[#4a5e3a]">{details.cmdName} · {details.duration}</p>
@@ -954,7 +957,7 @@ function AnnouncementItem({ item, confirming, onRequestDelete, onCancelDelete, o
 
 // Harus mencakup SEMUA kategori store yang punya DiscountCodeInput —
 // string ini dicocokkan (case-insensitive) dengan prop `category` di tab.
-const DISCOUNT_CATEGORIES = ['Rank', 'Gacha Key', 'Balance', 'Coins', 'Skill Boost', 'Command', 'Custom Prefix'];
+const DISCOUNT_CATEGORIES = ['Rank', 'Gacha Key', 'Claim Limit', 'Coins', 'Skill Boost', 'Command', 'Custom Prefix'];
 
 function DiscountsSection() {
   const showToast = useToast();

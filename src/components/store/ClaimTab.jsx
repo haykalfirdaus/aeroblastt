@@ -1,26 +1,25 @@
 'use client';
-import { useState } from 'react';
-import { Coins, Lock } from 'lucide-react';
+import { useEffect, useState } from 'react';
+import { LandPlot, Lock } from 'lucide-react';
 import { GlassCard } from '@/components/ui/GlassCard';
 import { Button } from '@/components/ui/Button';
 import { Modal } from '@/components/ui/Modal';
-import { CheckboxField, FieldLabel, SelectField, TextField } from '@/components/ui/FormFields';
+import { FieldLabel, TextField } from '@/components/ui/FormFields';
 import { CountdownBanner } from './CountdownBanner';
 import { DiscountCodeInput } from './DiscountCodeInput';
 import { AgreeVerify } from './AgreeVerify';
 import { PriceSummary } from './PriceSummary';
 import { BetaPaymentModal } from './BetaPaymentModal';
-import { BALANCE_QUICK_PICKS, BALANCE_RATE } from '@/data/balance';
-import { SITE } from '@/data/config';
+import { CLAIM_QUICK_PICKS, CLAIM_RATE } from '@/data/claims';
 import { formatRupiah, formatNumber } from '@/utils/currency';
 import { useToast } from '@/context/ToastContext';
 import { usePlayerAuth } from '@/context/PlayerAuthContext';
 import { cn } from '@/lib/cn';
 
 // Sort highest rupiah first (anchoring)
-const PICKS_DESC = [...BALANCE_QUICK_PICKS].sort((a, b) => b.rupiah - a.rupiah);
+const PICKS_DESC = [...CLAIM_QUICK_PICKS].sort((a, b) => b.rupiah - a.rupiah);
 
-function BalanceOrderModal({ open, onClose, initialRupiah = 0 }) {
+function ClaimOrderModal({ open, onClose, initialRupiah = 0 }) {
   const showToast = useToast();
   const { nick: playerNick } = usePlayerAuth();
   const isBedrock = playerNick?.includes('.');
@@ -32,7 +31,7 @@ function BalanceOrderModal({ open, onClose, initialRupiah = 0 }) {
   const [betaOpen, setBetaOpen] = useState(false);
 
   const rupiah = parseInt(rupiahInput) || 0;
-  const balance = rupiah * BALANCE_RATE;
+  const claims = rupiah * CLAIM_RATE;
   const finalPrice = Math.round(rupiah * (1 - discount / 100));
 
   function handleQris() {
@@ -43,25 +42,18 @@ function BalanceOrderModal({ open, onClose, initialRupiah = 0 }) {
     setBetaOpen(true);
   }
 
-
   return (
     <>
-    <Modal open={open} onClose={onClose} title="Top-Up Balance" badge="IN-GAME BALANCE">
+    <Modal open={open} onClose={onClose} title="Beli Claim Limit" badge="CLAIM LIMIT">
       <div className="mt-6 flex flex-col gap-4">
         <CountdownBanner open={open} />
         <div className="rounded-[var(--radius-neu-lg)] bg-[#fff8f0] p-4 text-center shadow-[var(--neu-in)]">
-          <p className="text-xs text-[#4a5e3a] mb-1">Kurs: Rp 1 = {BALANCE_RATE} Balance</p>
-          <p className="font-mono text-2xl font-bold text-[#1d2b1f]">{formatNumber(balance)} <span className="text-sm font-normal text-[#4a5e3a]">Balance</span></p>
+          <p className="text-xs text-[#4a5e3a] mb-1">Kurs: Rp 1 = {CLAIM_RATE} Claim Limit</p>
+          <p className="font-mono text-2xl font-bold text-[#1d2b1f]">{formatNumber(claims)} <span className="text-sm font-normal text-[#4a5e3a]">Claim Limit</span></p>
         </div>
         <div><FieldLabel required>Nickname</FieldLabel><TextField value={playerNick || nick} onChange={(e) => !playerNick && setNick(e.target.value)} placeholder={playerNick ? '' : 'Username in-game'} readOnly={!!playerNick} /></div>
         <div>
           <FieldLabel required>Platform</FieldLabel>
-          {/*
-            Read-only. Platform comes from the logged-in nickname — a dot means
-            Bedrock — so letting the player choose a different one only ever
-            produced a mismatched order. The value still flows into the payload
-            exactly as before.
-          */}
           <div className="flex min-h-[52px] items-center rounded-[var(--radius-neu)] bg-[#fff8f0] px-4 shadow-[var(--neu-in)]">
             <span className="text-sm font-semibold text-[#1d2b1f]">{platform}</span>
           </div>
@@ -70,11 +62,6 @@ function BalanceOrderModal({ open, onClose, initialRupiah = 0 }) {
         <div>
           <FieldLabel required>Jumlah Rupiah</FieldLabel>
           <div className="relative">
-            {/*
-              `pl-10` lost to .neu-field's longhand padding-left, so the "Rp"
-              prefix sat on top of the typed number. .neu-field-icon owns the
-              left inset instead — same fix as the FAQ search field.
-            */}
             <span
               aria-hidden="true"
               className="pointer-events-none absolute left-[1.15rem] top-1/2 z-10 -translate-y-1/2 text-sm font-semibold text-[#4a5e3a]"
@@ -93,7 +80,7 @@ function BalanceOrderModal({ open, onClose, initialRupiah = 0 }) {
             />
           </div>
         </div>
-        <DiscountCodeInput onApply={setDiscount} category="Balance" />
+        <DiscountCodeInput onApply={setDiscount} category="Claim Limit" />
         <PriceSummary basePrice={rupiah} discountPercent={discount} />
         <AgreeVerify checked={agreed} onChange={(ok) => setAgreed(ok)} />
         <div className="flex flex-col gap-2">
@@ -112,14 +99,13 @@ function BalanceOrderModal({ open, onClose, initialRupiah = 0 }) {
     <BetaPaymentModal
       open={betaOpen}
       onClose={() => setBetaOpen(false)}
-      productLabel={`Top-Up ${formatNumber(balance)} Balance`}
-      orderPayload={{ type: 'balance', nick: (playerNick || nick).trim(), platform, baseAmount: finalPrice, details: { balance, discountPct: discount } }}
+      productLabel={`${formatNumber(claims)} Claim Limit`}
+      orderPayload={{ type: 'claim', nick: (playerNick || nick).trim(), platform, baseAmount: finalPrice, details: { claims, discountPct: discount } }}
     />
     </>
   );
 }
 
-// Tier config by sorted index (0 = most expensive)
 function getPickTier(idx, total) {
   const isTop = idx === 0;
   const featured = idx < Math.ceil(total * 0.5);
@@ -127,15 +113,27 @@ function getPickTier(idx, total) {
     featured,
     isTop,
     priceSize: isTop ? 'text-base' : featured ? 'text-sm' : 'text-xs',
-    // Elevation, not opacity, carries the tier ranking.
     elevation: featured ? 'shadow-[var(--neu-out-lg)]' : 'shadow-[var(--neu-out)]',
   };
 }
 
-export function BalanceTab() {
+export function ClaimTab() {
   const { nick } = usePlayerAuth();
   const [modalOpen, setModalOpen] = useState(false);
   const [selectedRupiah, setSelectedRupiah] = useState(0);
+  const [myClaims, setMyClaims] = useState(null);
+
+  useEffect(() => {
+    if (!nick) { setMyClaims(null); return; }
+    let alive = true;
+    fetch('/api/player/claims')
+      .then((r) => r.json())
+      .then((d) => { if (alive && d.ok) setMyClaims(d.claims); })
+      .catch(() => {});
+    return () => { alive = false; };
+  }, [nick]);
+
+  const total = PICKS_DESC.length;
 
   function openWith(rupiah) {
     if (!nick) return;
@@ -143,19 +141,20 @@ export function BalanceTab() {
     setModalOpen(true);
   }
 
-  const total = PICKS_DESC.length;
-
   return (
     <>
       <div className="mx-auto max-w-2xl" data-aos="fade-up" data-aos-duration="500">
         <GlassCard className="p-5 sm:p-6">
           <div className="mb-5 flex items-center gap-3">
             <span className="neu-icon h-11 w-11 rounded-[14px] text-[#1d2b1f]">
-              <Coins size={20} aria-hidden="true" />
+              <LandPlot size={20} aria-hidden="true" />
             </span>
             <div>
-              <h3 className="font-display text-base font-bold text-[#1d2b1f]">Top-Up Balance</h3>
-              <p className="text-xs text-[#4a5e3a]">Kurs: Rp 1 = {BALANCE_RATE} Balance</p>
+              <h3 className="font-display text-base font-bold text-[#1d2b1f]">Beli Claim Limit</h3>
+              <p className="text-xs text-[#4a5e3a]">
+                Kurs: Rp 1 = {CLAIM_RATE} Claim Limit
+                {myClaims != null && <> · Claim kamu: <span className="font-mono font-bold text-[#1d2b1f]">{formatNumber(myClaims)}</span></>}
+              </p>
             </div>
           </div>
 
@@ -188,12 +187,6 @@ export function BalanceTab() {
                       : 'cursor-not-allowed bg-[#fff8f0] shadow-[var(--neu-in)]',
                   )}
                 >
-                  {/*
-                    Badges sit in normal flow instead of being absolutely
-                    positioned over the card — overlaying them meant they covered
-                    the price on narrow cards. A reserved row keeps every card
-                    the same height whether it has a badge or not.
-                  */}
                   <span className="flex min-h-[18px] items-center justify-center">
                     {tier.isTop ? (
                       <span className="neu-chip px-2 py-0.5 text-[0.55rem] tracking-[0.08em]">
@@ -209,7 +202,7 @@ export function BalanceTab() {
                     {formatRupiah(rupiah)}
                   </p>
                   <p className="text-[0.65rem] text-[#4a5e3a]">
-                    {formatNumber(rupiah * BALANCE_RATE)} Balance
+                    {formatNumber(rupiah * CLAIM_RATE)} Claim Limit
                   </p>
                 </button>
               );
@@ -217,12 +210,12 @@ export function BalanceTab() {
           </div>
 
           <Button fullWidth size="sm" onClick={() => openWith(0)} disabled={!nick} title={!nick ? 'Login dulu untuk order' : undefined}>
-            {nick ? 'Top-Up Custom Amount' : <><Lock size={13} aria-hidden="true" /> Login dulu untuk order</>}
+            {nick ? 'Beli Custom Amount' : <><Lock size={13} aria-hidden="true" /> Login dulu untuk order</>}
           </Button>
         </GlassCard>
       </div>
 
-      <BalanceOrderModal open={modalOpen} onClose={() => setModalOpen(false)} initialRupiah={selectedRupiah} />
+      <ClaimOrderModal open={modalOpen} onClose={() => setModalOpen(false)} initialRupiah={selectedRupiah} />
     </>
   );
 }

@@ -1,7 +1,7 @@
 import { NextResponse } from 'next/server';
 import { isAuthenticated, isValidOrigin } from '@/api/_auth';
 import { supabase } from '@/api/_supabase';
-import { grantRank, giveMoney, giveCoins, giveKey } from '@/api/_rcon';
+import { grantRank, giveCoins, giveClaimLimit, giveKey } from '@/api/_rcon';
 
 const DISCORD_WEBHOOK_URL = process.env.DISCORD_WEBHOOK_URL;
 
@@ -65,7 +65,7 @@ export async function PATCH(request) {
 
   let rconResult = null;
   if (data.type === 'rank' && data.details?.target) rconResult = await grantRank(data.nick, data.details.target, data.details.duration ?? 'permanent');
-  else if (data.type === 'balance' && data.details?.balance) rconResult = await giveMoney(data.nick, data.details.balance);
+  else if (data.type === 'claim' && data.details?.claims) rconResult = await giveClaimLimit(data.nick, data.details.claims);
   else if (data.type === 'coins' && data.details?.coins) rconResult = await giveCoins(data.nick, data.details.coins);
   else if (data.type === 'key' && data.details?.keyName && data.details?.qty) rconResult = await giveKey(data.nick, data.details.keyName, data.details.qty);
 

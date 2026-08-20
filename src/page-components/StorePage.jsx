@@ -1,12 +1,12 @@
 'use client';
 import { useState } from 'react';
-import { Medal, KeyRound, Zap, Coins, CircleDollarSign, Terminal, Palette } from 'lucide-react';
+import { Medal, KeyRound, Zap, LandPlot, CircleDollarSign, Terminal, Palette } from 'lucide-react';
 import { PageLayout } from '@/components/layout/PageLayout';
 import { PlayerLoginPrompt } from '@/components/store/PlayerLoginPrompt';
 import { RankTab } from '@/components/store/RankTab';
 import { GachaKeysTab } from '@/components/store/GachaKeysTab';
 import { SkillBoostTab } from '@/components/store/SkillBoostTab';
-import { BalanceTab } from '@/components/store/BalanceTab';
+import { ClaimTab } from '@/components/store/ClaimTab';
 import { CoinsTab } from '@/components/store/CoinsTab';
 import { CommandsTab } from '@/components/store/CommandsTab';
 import { CosmeticsTab } from '@/components/store/CosmeticsTab';
@@ -17,7 +17,7 @@ const TABS = [
   { id: 'ranks', label: 'Rank', icon: Medal, desc: 'Upgrade rank permanenmu', Panel: RankTab },
   { id: 'keys', label: 'Gacha Keys', icon: KeyRound, desc: 'Key untuk buka peti gacha', Panel: GachaKeysTab },
   { id: 'skills', label: 'Skill Boost', icon: Zap, desc: 'Boost skill in-game', Panel: SkillBoostTab },
-  { id: 'balance', label: 'Balance', icon: Coins, desc: 'Top-up balance in-game', Panel: BalanceTab },
+  { id: 'claim', label: 'Claim Limit', icon: LandPlot, desc: 'Tambah claim limit land', Panel: ClaimTab },
   { id: 'coins', label: 'Coins', icon: CircleDollarSign, desc: 'Top-up coins in-game', Panel: CoinsTab },
   { id: 'commands', label: 'Commands', icon: Terminal, desc: 'Akses command premium', Panel: CommandsTab },
   { id: 'cosmetics', label: 'Cosmetics', icon: Palette, desc: 'Custom prefix & tampilan', Panel: CosmeticsTab },

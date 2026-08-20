@@ -1,5 +1,5 @@
 import {
-  ArrowRightLeft, Briefcase, CheckSquare, Coins, Crown, Dices, DoorOpen, Drumstick,
+  ArrowRightLeft, Briefcase, CheckSquare, Clock, CloudSun, Coins, Crown, Dices, DoorOpen, Drumstick,
   Eye, Feather, Gamepad2, Gem, Ghost, Globe, Hammer, HardHat, Heart, Home, Key,
   Landmark, MapPin, Medal, Rocket, Sailboat, Satellite, ScrollText, ShieldHalf,
   Sparkles, Star, Store, Swords, TreePine, Trophy, Video, Wifi, Wrench, Zap,
@@ -20,7 +20,7 @@ import {
  * renders nothing — the same failure mode as before.
  */
 const ICONS = {
-  ArrowRightLeft, Briefcase, CheckSquare, Coins, Crown, Dices, DoorOpen, Drumstick,
+  ArrowRightLeft, Briefcase, CheckSquare, Clock, CloudSun, Coins, Crown, Dices, DoorOpen, Drumstick,
   Eye, Feather, Gamepad2, Gem, Ghost, Globe, Hammer, HardHat, Heart, Home, Key,
   Landmark, MapPin, Medal, Rocket, Sailboat, Satellite, ScrollText, ShieldHalf,
   Sparkles, Star, Store, Swords, TreePine, Trophy, Video, Wifi, Wrench, Zap,
